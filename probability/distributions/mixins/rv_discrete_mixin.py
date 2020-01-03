@@ -54,7 +54,6 @@ class RVDiscreteMixin(object):
         interval = self._distribution.interval(percent)
         return interval[0], interval[1]
 
-    @property
     def pmf(self) -> DiscreteFunction:
         """
         Probability mass function at k of the given RV.
@@ -64,7 +63,6 @@ class RVDiscreteMixin(object):
             method_name='pmf', name='PMF'
         )
 
-    @property
     def log_pmf(self) -> DiscreteFunction:
         """
         Log of the probability mass function of the given RV.
@@ -74,7 +72,6 @@ class RVDiscreteMixin(object):
             method_name='logpmf', name='log(PMF)'
         )
 
-    @property
     def cdf(self) -> DiscreteFunction:
         """
         Cumulative distribution function of the given RV.
@@ -84,7 +81,6 @@ class RVDiscreteMixin(object):
             method_name='cdf', name='CDF'
         )
 
-    @property
     def log_cdf(self) -> DiscreteFunction:
         """
         Log of the cumulative distribution function of the given RV.
@@ -94,7 +90,6 @@ class RVDiscreteMixin(object):
             method_name='logcdf', name='log(CDF)'
         )
 
-    @property
     def sf(self) -> DiscreteFunction:
         """
         Survival function (1 - cdf) of the given RV.
@@ -104,7 +99,6 @@ class RVDiscreteMixin(object):
             method_name='sf', name='SF'
         )
 
-    @property
     def log_sf(self) -> DiscreteFunction:
         """
         Log of the survival function of the given RV.
@@ -114,7 +108,6 @@ class RVDiscreteMixin(object):
             method_name='logsf', name='log(SF)'
         )
 
-    @property
     def ppf(self) -> DiscreteFunction:
         """
         Percent point function (inverse of cdf) of the given RV.
@@ -124,7 +117,6 @@ class RVDiscreteMixin(object):
             method_name='ppf', name='PPF'
         )
 
-    @property
     def isf(self) -> DiscreteFunction:
         """
         Inverse survival function (inverse of sf) of the given RV.

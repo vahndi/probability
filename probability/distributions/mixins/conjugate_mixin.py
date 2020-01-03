@@ -1,40 +1,58 @@
 from numpy import ndarray
 
+from probability.custom_types import RVMixin
+
 
 class ConjugateMixin(object):
 
+    _prior: RVMixin
+    _likelihood: RVMixin
+    _posterior: RVMixin
+
+    def _calculate_prior(self):
+        raise NotImplementedError
+
+    def _calculate_likelihood(self):
+        raise NotImplementedError
+
+    def _calculate_posterior(self):
+        raise NotImplementedError
+
     # region component distributions
 
-    def prior(self, support: ndarray = None):
-        return
+    @property
+    def prior(self) -> RVMixin:
+        raise NotImplementedError
 
-    def likelihood(self, support=None):
-        return
+    @property
+    def likelihood(self) -> RVMixin:
+        raise NotImplementedError
 
-    def posterior(self, support=None):
-        return
+    @property
+    def posterior(self) -> RVMixin:
+        raise NotImplementedError
 
     # endregion
 
     # region plots
 
     def plot_prior(self, support=None):
-        return
+        raise NotImplementedError
 
     def plot_likelihood(self, support=None):
-        return
+        raise NotImplementedError
 
     def plot_posterior(self, support=None):
-        return
+        raise NotImplementedError
 
     # end region
 
     # region calcs
 
     def posterior_mean(self):
-        return
+        raise NotImplementedError
 
     def posterior_hpd(self):
-        return
+        raise NotImplementedError
 
     # end region

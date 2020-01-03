@@ -65,84 +65,84 @@ class RVContinuousMixin(object):
         """
         return self._distribution.support()
 
-    @property
     def pdf(self) -> ContinuousFunction:
         """
         Probability density function of the given RV.
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='pdf', name='PDF'
+            method_name='pdf', name='PDF',
+            parent=self
         )
 
-    @property
     def log_pdf(self) -> ContinuousFunction:
         """
         Log of the probability density function of the given RV
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='logpdf', name='log(PDF)'
+            method_name='logpdf', name='log(PDF)',
+            parent=self
         )
 
-    @property
     def cdf(self) -> ContinuousFunction:
         """
         Cumulative distribution function of the given RV.
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='cdf', name='CDF'
+            method_name='cdf', name='CDF',
+            parent=self
         )
 
-    @property
     def log_cdf(self) -> ContinuousFunction:
         """
         Log of the cumulative distribution function of the given RV.
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='logcdf', name='log(CDF)'
+            method_name='logcdf', name='log(CDF)',
+            parent=self
         )
 
-    @property
     def sf(self) -> ContinuousFunction:
         """
         Survival function (1 - cdf) of the given RV.
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='sf', name='SF'
+            method_name='sf', name='SF',
+            parent=self
         )
 
-    @property
     def log_sf(self) -> ContinuousFunction:
         """
         Log of the survival function of the given RV.
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='logsf', name='log(SF)'
+            method_name='logsf', name='log(SF)',
+            parent=self
         )
 
-    @property
     def ppf(self) -> ContinuousFunction:
         """
         Percent point function (inverse of cdf) of the given RV.
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='ppf', name='PPF'
+            method_name='ppf', name='PPF',
+            parent=self
         )
 
-    @property
     def isf(self) -> ContinuousFunction:
         """
         Inverse survival function (inverse of sf) of the given RV.
         """
         return ContinuousFunction(
             distribution=self._distribution,
-            method_name='isf', name='ISF'
+            method_name='isf', name='ISF',
+            parent=self
         )
 
     def prob_greater_than(self, other: 'RVContinuousMixin', num_samples: int = 100000) -> float:
