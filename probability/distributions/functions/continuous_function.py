@@ -39,7 +39,10 @@ class ContinuousFunction(object):
 
         data: Series = self.at(x)
         ax = ax or new_axes()
-        data.plot(kind='line', label=str(self._parent), color=color)
+        if self._name in ('PDF', 'CDF'):
+            data.plot(kind='line', label=str(self._parent), color=color)
+        else:
+            raise ValueError('plot not implemented for {}'.format(self._name))
         ax.set_xlabel('x')
         ax.set_ylabel(self._name)
         return ax

@@ -34,25 +34,3 @@ class ConjugateMixin(object):
 
     # endregion
 
-    # region plots
-
-    def plot_prior(self, support=None):
-        raise NotImplementedError
-
-    def plot_likelihood(self, support=None):
-        raise NotImplementedError
-
-    def plot_posterior(self, support=None):
-        raise NotImplementedError
-
-    # end region
-
-    # region calcs
-
-    def posterior_mean(self):
-        raise NotImplementedError
-
-    def posterior_hpd(self):
-        raise NotImplementedError
-
-    # end region

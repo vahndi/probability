@@ -1,5 +1,6 @@
-from typing import Tuple
+from typing import Tuple, Iterable
 
+from matplotlib.axes import Axes
 from numpy import ndarray
 from scipy.stats import rv_discrete
 
@@ -133,6 +134,12 @@ class RVDiscreteMixin(object):
             method_name='isf', name='ISF',
             parent=self
         )
+
+    def plot(self, k: Iterable, color: str = 'C0', ax: Axes = None) -> Axes:
+        """
+        Plot the PMF of the distribution.
+        """
+        return self.pmf().plot(k=k, color=color, ax=ax)
 
     def prob_greater_than(self, other: 'RVDiscreteMixin', num_samples: int = 100000) -> float:
 

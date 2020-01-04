@@ -1,6 +1,7 @@
+from matplotlib.axes import Axes
 from numpy import ndarray
 from scipy.stats import rv_continuous
-from typing import Tuple
+from typing import Tuple, Iterable
 
 from probability.distributions.functions.continuous_function import ContinuousFunction
 
@@ -144,6 +145,12 @@ class RVContinuousMixin(object):
             method_name='isf', name='ISF',
             parent=self
         )
+
+    def plot(self, x: Iterable, color: str = 'C0', ax: Axes = None) -> Axes:
+        """
+        Plot the PDF of the distribution.
+        """
+        return self.pdf().plot(x=x, color=color, ax=ax)
 
     def prob_greater_than(self, other: 'RVContinuousMixin', num_samples: int = 100000) -> float:
 
