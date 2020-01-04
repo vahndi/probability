@@ -1,15 +1,22 @@
+from matplotlib.axes import Axes
 from pandas import Series
-from typing import Iterable, overload
+from typing import Iterable, overload, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from probability.distributions.mixins.rv_discrete_mixin import RVDiscreteMixin
+from probability.plots import new_axes
 
 
 class DiscreteFunction(object):
 
-    def __init__(self, distribution, method_name: str, name: str):
+    def __init__(self, distribution, method_name: str, name: str,
+                 parent: 'RVDiscreteMixin'):
 
         self._distribution = distribution
         self._method_name: str = method_name
         self._name: str = name
         self._method = getattr(distribution, method_name)
+        self._parent: 'RVDiscreteMixin' = parent
 
     @overload
     def at(self, k: int) -> int:
@@ -28,6 +35,18 @@ class DiscreteFunction(object):
         elif isinstance(k, Iterable):
             return Series(index=k, data=self._method(k), name=self._name)
 
-    def plot(self, at: Iterable):
+    def plot(self, k: Iterable, color: str = 'C0', ax: Axes = None) -> Axes:
 
-        pass
+        data: Series = self.at(k)
+        ax = ax or new_axes()
+        if self._name == 'PMF':
+            data.plot(kind='line', label=str(self._parent), color=color,
+                      marker='o', linestyle='')
+        elif self._name == 'CDF':
+            data.plot(kind='line', label=str(self._parent), color=color,
+                      marker='o', linestyle='-', drawstyle='steps-post')
+        else:
+            raise ValueError('plot not implemented for {}')
+        ax.set_xlabel('k')
+        ax.set_ylabel(self._name)
+        return ax

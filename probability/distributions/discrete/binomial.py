@@ -1,3 +1,5 @@
+from scipy.stats import binom
+
 from probability.distributions.mixins.rv_discrete_mixin import RVDiscreteMixin
 
 
@@ -7,6 +9,7 @@ class Binomial(RVDiscreteMixin):
 
         self._n = n
         self._p = p
+        self._distribution = binom(n, p)
 
     def __str__(self):
 

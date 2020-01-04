@@ -4,6 +4,7 @@ from numpy import linspace
 from probability.distributions import Beta
 from probability.plots import new_axes
 
+# https://en.wikipedia.org/wiki/Beta_distribution
 
 x = linspace(0, 1, 101)
 
