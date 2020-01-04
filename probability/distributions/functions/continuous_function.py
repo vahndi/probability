@@ -40,7 +40,7 @@ class ContinuousFunction(object):
         data: Series = self.at(x)
         ax = ax or new_axes()
         if self._name in ('PDF', 'CDF'):
-            data.plot(kind='line', label=str(self._parent), color=color)
+            data.plot(kind='line', label=str(self._parent), color=color, ax=ax)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
         ax.set_xlabel('x')

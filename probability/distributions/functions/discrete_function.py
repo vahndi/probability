@@ -41,10 +41,10 @@ class DiscreteFunction(object):
         ax = ax or new_axes()
         if self._name == 'PMF':
             data.plot(kind='line', label=str(self._parent), color=color,
-                      marker='o', linestyle='-')
+                      marker='o', linestyle='-', ax=ax)
         elif self._name == 'CDF':
             data.plot(kind='line', label=str(self._parent), color=color,
-                      marker='o', linestyle='-', drawstyle='steps-post')
+                      marker='o', linestyle='-', drawstyle='steps-post', ax=ax)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
         ax.set_xlabel('k')

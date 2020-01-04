@@ -4,6 +4,7 @@ from scipy.stats import rv_continuous
 from typing import Tuple, Iterable
 
 from probability.distributions.functions.continuous_function import ContinuousFunction
+from probability.plots import new_axes
 
 
 class RVContinuousMixin(object):
