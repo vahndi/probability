@@ -9,9 +9,9 @@ class Binomial(RVDiscreteMixin):
 
         self._n: int = n
         self._p: float = p
-        self._set_distribution()
+        self._reset_distribution()
 
-    def _set_distribution(self):
+    def _reset_distribution(self):
 
         self._distribution: rv_discrete = binom(self._n, self._p)
 
@@ -22,7 +22,7 @@ class Binomial(RVDiscreteMixin):
     @n.setter
     def n(self, value: float):
         self._n = value
-        self._set_distribution()
+        self._reset_distribution()
 
     @property
     def p(self) -> float:
@@ -31,7 +31,7 @@ class Binomial(RVDiscreteMixin):
     @p.setter
     def p(self, value: float):
         self._p = value
-        self._set_distribution()
+        self._reset_distribution()
 
     def __str__(self):
 

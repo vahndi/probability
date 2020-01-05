@@ -13,10 +13,9 @@ class Gamma(RVContinuousMixin):
         self._alpha = alpha
         self._beta = beta
         self._parametrization = parametrization
-        self._set_distribution()
+        self._reset_distribution()
 
-    def _set_distribution(self):
-
+    def _reset_distribution(self):
         self._distribution: rv_continuous = gamma(a=self._alpha, scale=1 / self._beta)
 
     @staticmethod
@@ -36,7 +35,7 @@ class Gamma(RVContinuousMixin):
     @alpha.setter
     def alpha(self, value: float):
         self._alpha = value
-        self._set_distribution()
+        self._reset_distribution()
 
     @property
     def beta(self) -> float:
@@ -45,7 +44,7 @@ class Gamma(RVContinuousMixin):
     @beta.setter
     def beta(self, value: float):
         self._beta = value
-        self._set_distribution()
+        self._reset_distribution()
 
     @property
     def k(self) -> float:
@@ -54,7 +53,7 @@ class Gamma(RVContinuousMixin):
     @k.setter
     def k(self, value: float):
         self._alpha = value
-        self._set_distribution()
+        self._reset_distribution()
 
     @property
     def theta(self):
@@ -63,7 +62,7 @@ class Gamma(RVContinuousMixin):
     @theta.setter
     def theta(self, value: float):
         self._beta = 1 / value
-        self._set_distribution()
+        self._reset_distribution()
 
     def __str__(self):
 

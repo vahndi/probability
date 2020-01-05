@@ -1,1 +1,2 @@
-from probability.distributions.continuous import Beta
+from probability.distributions.continuous import *
+from probability.distributions.discrete import *

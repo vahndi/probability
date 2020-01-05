@@ -9,9 +9,9 @@ class Beta(RVContinuousMixin):
 
         self._alpha: float = alpha
         self._beta: float = beta
-        self._set_distribution()
+        self._reset_distribution()
 
-    def _set_distribution(self):
+    def _reset_distribution(self):
         self._distribution: rv_continuous = beta_dist(self._alpha, self._beta)
 
     @property
@@ -21,7 +21,7 @@ class Beta(RVContinuousMixin):
     @alpha.setter
     def alpha(self, value: float):
         self._alpha = value
-        self._set_distribution()
+        self._reset_distribution()
 
     @property
     def beta(self) -> float:
@@ -30,7 +30,7 @@ class Beta(RVContinuousMixin):
     @beta.setter
     def beta(self, value: float):
         self._beta = value
-        self._set_distribution()
+        self._reset_distribution()
 
     def __str__(self):
 
