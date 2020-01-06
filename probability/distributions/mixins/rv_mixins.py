@@ -11,13 +11,29 @@ from probability.distributions.functions.discrete_function import DiscreteFuncti
 class RVSMixin(object):
 
     _distribution: rv_generic
-    _num_samples: int = 1000000
+    _num_samples: int = 100000
 
     def rvs(self, num_samples: int) -> ndarray:
         """
         Sample `num_samples` random values from the distribution.
         """
         return self._distribution.rvs(size=num_samples)
+
+    def prob_greater_than(self, other: 'RVSMixin', num_samples: int = 100000) -> float:
+
+        return (self.rvs(num_samples) > other.rvs(num_samples)).mean()
+
+    def prob_less_than(self, other: 'RVSMixin', num_samples: int = 100000) -> float:
+
+        return (self.rvs(num_samples) < other.rvs(num_samples)).mean()
+
+    def __gt__(self, other: 'RVSMixin'):
+
+        return (self.rvs(self._num_samples) > other.rvs(self._num_samples)).mean()
+
+    def __lt__(self, other: 'RVSMixin'):
+
+        return (self.rvs(self._num_samples) < other.rvs(self._num_samples)).mean()
 
 
 class MomentMixin(object):
@@ -130,6 +146,31 @@ class PDFMixin(object):
         return ContinuousFunction(
             distribution=self._distribution,
             method_name='logpdf', name='log(PDF)',
+            parent=self
+        )
+
+
+class PMFMixin(object):
+
+    _distribution: rv_discrete
+
+    def pmf(self) -> DiscreteFunction:
+        """
+        Probability mass function of the given RV.
+        """
+        return DiscreteFunction(
+            distribution=self._distribution,
+            method_name='pmf', name='PMF',
+            parent=self
+        )
+
+    def log_pmf(self) -> DiscreteFunction:
+        """
+        Log of the probability mass function of the given RV.
+        """
+        return DiscreteFunction(
+            distribution=self._distribution,
+            method_name='logpmf', name='log(PMF)',
             parent=self
         )
 
