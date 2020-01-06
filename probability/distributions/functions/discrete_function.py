@@ -1,10 +1,7 @@
 from matplotlib.axes import Axes
 from pandas import Series
 from scipy.stats import rv_discrete
-from typing import Iterable, overload, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from probability.distributions.mixins.rv_discrete_mixin import RVDiscreteMixin
+from typing import Iterable, overload
 
 from probability.plots import new_axes
 
@@ -12,13 +9,13 @@ from probability.plots import new_axes
 class DiscreteFunction(object):
 
     def __init__(self, distribution: rv_discrete, method_name: str, name: str,
-                 parent: 'RVDiscreteMixin'):
+                 parent: object):
 
         self._distribution = distribution
         self._method_name: str = method_name
         self._name: str = name
         self._method = getattr(distribution, method_name)
-        self._parent: 'RVDiscreteMixin' = parent
+        self._parent: object = parent
 
     @overload
     def at(self, k: int) -> int:
