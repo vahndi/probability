@@ -10,9 +10,9 @@ class Gamma(RVContinuousMixin):
     def __init__(self, alpha: float, beta: float, parametrization: str = 'αβ'):
 
         assert parametrization in ('αβ', 'kθ')
-        self._alpha = alpha
-        self._beta = beta
-        self._parametrization = parametrization
+        self._alpha: float = alpha
+        self._beta: float = beta
+        self._parametrization: str = parametrization
         self._reset_distribution()
 
     def _reset_distribution(self):
