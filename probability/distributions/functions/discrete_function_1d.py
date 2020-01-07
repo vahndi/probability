@@ -35,7 +35,13 @@ class DiscreteFunction1d(object):
             return Series(index=k, data=self._method(k), name=self._name)
 
     def plot(self, k: Iterable[int], color: str = 'C0', ax: Axes = None) -> Axes:
+        """
+        Plot the function.
 
+        :param k: Range of values of k to plot p(k) over.
+        :param color: Optional color for the series.
+        :param ax: Optional matplotlib axes to plot on.
+        """
         data: Series = self.at(k)
         ax = ax or new_axes()
         if self._name == 'PMF':
