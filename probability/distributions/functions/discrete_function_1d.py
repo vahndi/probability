@@ -22,19 +22,19 @@ class DiscreteFunction1d(object):
         pass
 
     @overload
-    def at(self, k: Iterable) -> Series:
+    def at(self, k: Iterable[int]) -> Series:
         pass
 
     def at(self, k):
         """
-        Log of the probability density function of the given RV.
+        Evaluation of the function for each value of k.
         """
         if isinstance(k, int):
             return self._method(k)
         elif isinstance(k, Iterable):
             return Series(index=k, data=self._method(k), name=self._name)
 
-    def plot(self, k: Iterable, color: str = 'C0', ax: Axes = None) -> Axes:
+    def plot(self, k: Iterable[int], color: str = 'C0', ax: Axes = None) -> Axes:
 
         data: Series = self.at(k)
         ax = ax or new_axes()

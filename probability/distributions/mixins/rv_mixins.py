@@ -5,12 +5,14 @@ from typing import Tuple
 
 from probability.distributions.functions.continuous_function_1d import ContinuousFunction1d
 from probability.distributions.functions.discrete_function_1d import DiscreteFunction1d
+from probability.distributions.functions.discrete_function_nd import DiscreteFunctionNd
+
+NUM_SAMPLES_COMPARISON = 100000
 
 
 class RVS1dMixin(object):
 
     _distribution: rv_generic
-    _num_samples: int = 100000
 
     def rvs(self, num_samples: int) -> ndarray:
         """
@@ -18,21 +20,52 @@ class RVS1dMixin(object):
         """
         return self._distribution.rvs(size=num_samples)
 
-    def prob_greater_than(self, other: 'RVS1dMixin', num_samples: int = 100000) -> float:
+    def prob_greater_than(self, other: 'RVS1dMixin', num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         return (self.rvs(num_samples) > other.rvs(num_samples)).mean()
 
-    def prob_less_than(self, other: 'RVS1dMixin', num_samples: int = 100000) -> float:
+    def prob_less_than(self, other: 'RVS1dMixin', num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         return (self.rvs(num_samples) < other.rvs(num_samples)).mean()
 
-    def __gt__(self, other: 'RVS1dMixin'):
+    def __gt__(self, other: 'RVS1dMixin') -> float:
 
-        return (self.rvs(self._num_samples) > other.rvs(self._num_samples)).mean()
+        return (self.rvs(NUM_SAMPLES_COMPARISON) > other.rvs(NUM_SAMPLES_COMPARISON)).mean()
 
-    def __lt__(self, other: 'RVS1dMixin'):
+    def __lt__(self, other: 'RVS1dMixin') -> float:
 
-        return (self.rvs(self._num_samples) < other.rvs(self._num_samples)).mean()
+        return (self.rvs(NUM_SAMPLES_COMPARISON) < other.rvs(NUM_SAMPLES_COMPARISON)).mean()
+
+
+class RVSNdMixin(object):
+
+    _distribution: rv_generic
+
+    def rvs(self, num_samples: int) -> ndarray:
+        """
+        Sample `num_samples` random values from the distribution.
+        """
+        return self._distribution.rvs(size=num_samples)
+
+    def prob_greater_than(self, other: 'RVSNdMixin',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> ndarray:
+
+        return (self.rvs(num_samples) > other.rvs(num_samples)).mean(axis=0)
+
+    def prob_less_than(self, other: 'RVSNdMixin',
+                       num_samples: int = NUM_SAMPLES_COMPARISON) -> ndarray:
+
+        return (self.rvs(num_samples) < other.rvs(num_samples)).mean(axis=0)
+
+    def __gt__(self, other: 'RVSNdMixin') -> ndarray:
+
+        return (self.rvs(NUM_SAMPLES_COMPARISON) >
+                other.rvs(NUM_SAMPLES_COMPARISON)).mean(axis=0)
+
+    def __lt__(self, other: 'RVSNdMixin') -> ndarray:
+
+        return (self.rvs(NUM_SAMPLES_COMPARISON) <
+                other.rvs(NUM_SAMPLES_COMPARISON)).mean(axis=0)
 
 
 class Moment1dMixin(object):
@@ -170,6 +203,33 @@ class PMF1dMixin(object):
         return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='logpmf', name='log(PMF)',
+            parent=self
+        )
+
+
+class PMFNdMixin(object):
+
+    _distribution: rv_generic
+
+    def pmf(self) -> DiscreteFunctionNd:
+        """
+        Probability mass function of the given RV.
+        """
+        return DiscreteFunctionNd(
+            distribution=self._distribution,
+            method_name='pmf', name='PMF',
+            num_dims=self._distribution.rvs().shape[1],
+            parent=self
+        )
+
+    def log_pmf(self) -> DiscreteFunctionNd:
+        """
+        Log of the probability mass function of the given RV.
+        """
+        return DiscreteFunctionNd(
+            distribution=self._distribution,
+            method_name='logpmf', name='log(PMF)',
+            num_dims=self._distribution.rvs().shape[1],
             parent=self
         )
 
