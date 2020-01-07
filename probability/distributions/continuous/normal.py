@@ -1,10 +1,10 @@
 from math import sqrt
 from scipy.stats import norm, rv_continuous
 
-from probability.distributions.mixins.rv_continuous_mixin import RVContinuousMixin
+from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Normal(RVContinuousMixin):
+class Normal(RVContinuous1dMixin):
 
     _parametrization: str
 

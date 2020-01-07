@@ -1,7 +1,7 @@
 from typing import Union
 
-from probability.distributions.mixins.rv_continuous_mixin import RVContinuousMixin
-from probability.distributions.mixins.rv_discrete_mixin import RVDiscreteMixin
+from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
+from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
 
 
-RVMixin = Union[RVContinuousMixin, RVDiscreteMixin]
+RVMixin = Union[RVContinuous1dMixin, RVDiscrete1dMixin]

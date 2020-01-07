@@ -6,7 +6,7 @@ from typing import Iterable, overload
 from probability.plots import new_axes
 
 
-class ContinuousFunction(object):
+class ContinuousFunction1d(object):
 
     def __init__(self, distribution: rv_continuous, method_name: str, name: str,
                  parent: object):

@@ -1,14 +1,13 @@
-from typing import Tuple, overload
-
 from numpy import ndarray
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.stats._distn_infrastructure import rv_generic
+from typing import Tuple
 
-from probability.distributions.functions.continuous_function import ContinuousFunction
-from probability.distributions.functions.discrete_function import DiscreteFunction
+from probability.distributions.functions.continuous_function_1d import ContinuousFunction1d
+from probability.distributions.functions.discrete_function_1d import DiscreteFunction1d
 
 
-class RVSMixin(object):
+class RVS1dMixin(object):
 
     _distribution: rv_generic
     _num_samples: int = 100000
@@ -19,24 +18,24 @@ class RVSMixin(object):
         """
         return self._distribution.rvs(size=num_samples)
 
-    def prob_greater_than(self, other: 'RVSMixin', num_samples: int = 100000) -> float:
+    def prob_greater_than(self, other: 'RVS1dMixin', num_samples: int = 100000) -> float:
 
         return (self.rvs(num_samples) > other.rvs(num_samples)).mean()
 
-    def prob_less_than(self, other: 'RVSMixin', num_samples: int = 100000) -> float:
+    def prob_less_than(self, other: 'RVS1dMixin', num_samples: int = 100000) -> float:
 
         return (self.rvs(num_samples) < other.rvs(num_samples)).mean()
 
-    def __gt__(self, other: 'RVSMixin'):
+    def __gt__(self, other: 'RVS1dMixin'):
 
         return (self.rvs(self._num_samples) > other.rvs(self._num_samples)).mean()
 
-    def __lt__(self, other: 'RVSMixin'):
+    def __lt__(self, other: 'RVS1dMixin'):
 
         return (self.rvs(self._num_samples) < other.rvs(self._num_samples)).mean()
 
 
-class MomentMixin(object):
+class Moment1dMixin(object):
 
     _distribution: rv_generic
 
@@ -47,7 +46,7 @@ class MomentMixin(object):
         return self._distribution.moment(n=n)
 
 
-class EntropyMixin(object):
+class Entropy1dMixin(object):
 
     _distribution: rv_generic
 
@@ -55,10 +54,10 @@ class EntropyMixin(object):
         """
         Differential entropy of the RV.
         """
-        return self._distribution.entropy()
+        return self._distribution.entropy()[0]
 
 
-class MedianMixin(object):
+class Median1dMixin(object):
 
     _distribution: rv_generic
 
@@ -69,7 +68,7 @@ class MedianMixin(object):
         return self._distribution.median()
 
 
-class MeanMixin(object):
+class Mean1dMixin(object):
 
     _distribution: rv_generic
 
@@ -80,7 +79,7 @@ class MeanMixin(object):
         return self._distribution.mean()
 
 
-class StDMixin(object):
+class StD1dMixin(object):
 
     _distribution: rv_generic
 
@@ -91,7 +90,7 @@ class StDMixin(object):
         return self._distribution.std()
 
 
-class VarMixin(object):
+class Var1dMixin(object):
 
     _distribution: rv_generic
 
@@ -102,7 +101,7 @@ class VarMixin(object):
         return self._distribution.var()
 
 
-class IntervalMixin(object):
+class Interval1dMixin(object):
 
     _distribution: rv_generic
 
@@ -114,7 +113,7 @@ class IntervalMixin(object):
         return interval[0], interval[1]
 
 
-class SupportMixin(object):
+class Support1dMixin(object):
 
     _distribution: rv_generic
 
@@ -125,210 +124,210 @@ class SupportMixin(object):
         return self._distribution.support()
 
 
-class PDFMixin(object):
+class PDF1dMixin(object):
 
     _distribution: rv_continuous
 
-    def pdf(self) -> ContinuousFunction:
+    def pdf(self) -> ContinuousFunction1d:
         """
         Probability density function of the given RV.
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='pdf', name='PDF',
             parent=self
         )
 
-    def log_pdf(self) -> ContinuousFunction:
+    def log_pdf(self) -> ContinuousFunction1d:
         """
         Log of the probability density function of the given RV
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='logpdf', name='log(PDF)',
             parent=self
         )
 
 
-class PMFMixin(object):
+class PMF1dMixin(object):
 
     _distribution: rv_discrete
 
-    def pmf(self) -> DiscreteFunction:
+    def pmf(self) -> DiscreteFunction1d:
         """
         Probability mass function of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='pmf', name='PMF',
             parent=self
         )
 
-    def log_pmf(self) -> DiscreteFunction:
+    def log_pmf(self) -> DiscreteFunction1d:
         """
         Log of the probability mass function of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='logpmf', name='log(PMF)',
             parent=self
         )
 
 
-class CDFMixinC(object):
+class CDF1dMixinC(object):
 
     _distribution: rv_continuous
 
-    def cdf(self) -> ContinuousFunction:
+    def cdf(self) -> ContinuousFunction1d:
         """
         Cumulative distribution function of the given RV.
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='cdf', name='CDF',
             parent=self
         )
 
-    def log_cdf(self) -> ContinuousFunction:
+    def log_cdf(self) -> ContinuousFunction1d:
         """
         Log of the cumulative distribution function of the given RV.
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='logcdf', name='log(CDF)',
             parent=self
         )
 
 
-class CDFMixinD(object):
+class CDF1dMixinD(object):
 
     _distribution: rv_discrete
 
-    def cdf(self) -> DiscreteFunction:
+    def cdf(self) -> DiscreteFunction1d:
         """
         Cumulative distribution function of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='cdf', name='CDF',
             parent=self
         )
 
-    def log_cdf(self) -> DiscreteFunction:
+    def log_cdf(self) -> DiscreteFunction1d:
         """
         Log of the cumulative distribution function of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='logcdf', name='log(CDF)',
             parent=self
         )
 
 
-class SFMixinC(object):
+class SF1dMixinC(object):
 
     _distribution: rv_continuous
 
-    def sf(self) -> ContinuousFunction:
+    def sf(self) -> ContinuousFunction1d:
         """
         Survival function (1 - cdf) of the given RV.
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='sf', name='SF',
             parent=self
         )
 
-    def log_sf(self) -> ContinuousFunction:
+    def log_sf(self) -> ContinuousFunction1d:
         """
         Log of the survival function of the given RV.
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='logcdf', name='log(CDF)',
             parent=self
         )
 
 
-class SFMixinD(object):
+class SF1dMixinD(object):
 
     _distribution: rv_discrete
 
-    def sf(self) -> DiscreteFunction:
+    def sf(self) -> DiscreteFunction1d:
         """
         Survival function (1 - cdf) of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='sf', name='SF',
             parent=self
         )
 
-    def log_sf(self) -> DiscreteFunction:
+    def log_sf(self) -> DiscreteFunction1d:
         """
         Log of the survival function of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='logcdf', name='log(CDF)',
             parent=self
         )
 
 
-class PPFMixinC(object):
+class PPF1dMixinC(object):
 
     _distribution: rv_continuous
 
-    def ppf(self) -> ContinuousFunction:
+    def ppf(self) -> ContinuousFunction1d:
         """
         Percent point function (inverse of cdf) of the given RV.
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='ppf', name='PPF',
             parent=self
         )
 
 
-class PPFMixinD(object):
+class PPF1dMixinD(object):
 
     _distribution: rv_discrete
 
-    def ppf(self) -> DiscreteFunction:
+    def ppf(self) -> DiscreteFunction1d:
         """
         Percent point function (inverse of cdf) of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='ppf', name='PPF',
             parent=self
         )
 
 
-class ISFMixinC(object):
+class ISF1dMixinC(object):
 
     _distribution: rv_continuous
 
-    def isf(self) -> ContinuousFunction:
+    def isf(self) -> ContinuousFunction1d:
         """
         Inverse survival function (inverse of sf) of the given RV.
         """
-        return ContinuousFunction(
+        return ContinuousFunction1d(
             distribution=self._distribution,
             method_name='isf', name='ISF',
             parent=self
         )
 
 
-class ISFMixinD(object):
+class ISF1dMixinD(object):
 
     _distribution: rv_discrete
 
-    def isf(self) -> DiscreteFunction:
+    def isf(self) -> DiscreteFunction1d:
         """
         Inverse survival function (inverse of sf) of the given RV.
         """
-        return DiscreteFunction(
+        return DiscreteFunction1d(
             distribution=self._distribution,
             method_name='isf', name='ISF',
             parent=self

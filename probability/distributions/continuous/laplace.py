@@ -1,9 +1,9 @@
 from scipy.stats import laplace, rv_continuous
 
-from probability.distributions.mixins.rv_continuous_mixin import RVContinuousMixin
+from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Laplace(RVContinuousMixin):
+class Laplace(RVContinuous1dMixin):
 
     def __init__(self, mu: float, b: float):
 

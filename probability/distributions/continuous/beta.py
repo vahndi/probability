@@ -1,9 +1,9 @@
 from scipy.stats import beta as beta_dist, rv_continuous
 
-from probability.distributions.mixins.rv_continuous_mixin import RVContinuousMixin
+from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Beta(RVContinuousMixin):
+class Beta(RVContinuous1dMixin):
 
     def __init__(self, alpha: float, beta: float):
 

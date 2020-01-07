@@ -4,10 +4,10 @@ from probability.custom_types import RVMixin
 from probability.distributions import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
-from probability.distributions.mixins.rv_discrete_mixin import RVDiscreteMixin
+from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
 
 
-class BetaBinomial(RVDiscreteMixin, ConjugateMixin):
+class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
 
     def __init__(self, n: int, alpha: float = 1, beta: float = 1):
 

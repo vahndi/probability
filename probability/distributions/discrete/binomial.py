@@ -1,9 +1,9 @@
 from scipy.stats import binom, rv_discrete
 
-from probability.distributions.mixins.rv_discrete_mixin import RVDiscreteMixin
+from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
 
 
-class Binomial(RVDiscreteMixin):
+class Binomial(RVDiscrete1dMixin):
 
     def __init__(self, n: int, p: float):
 

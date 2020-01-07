@@ -1,9 +1,9 @@
 from scipy.stats import rv_continuous, gamma
 
-from probability.distributions.mixins.rv_continuous_mixin import RVContinuousMixin
+from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Gamma(RVContinuousMixin):
+class Gamma(RVContinuous1dMixin):
 
     _parametrization: str
 
