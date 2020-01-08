@@ -186,6 +186,7 @@ class PDF1dMixin(object):
 class PDFNdMixin(object):
 
     _distribution: rv_generic
+    _num_dims: int
 
     def pdf(self) -> ContinuousFunctionNd:
         """
@@ -194,7 +195,7 @@ class PDFNdMixin(object):
         return ContinuousFunctionNd(
             distribution=self._distribution,
             method_name='pdf', name='PDF',
-            num_dims=self._distribution.rvs().shape[1],
+            num_dims=self._num_dims,
             parent=self
         )
 
@@ -205,7 +206,7 @@ class PDFNdMixin(object):
         return ContinuousFunctionNd(
             distribution=self._distribution,
             method_name='logpdf', name='log(PDF)',
-            num_dims=self._distribution.rvs().shape[1],
+            num_dims=self._num_dims,
             parent=self
         )
 
@@ -238,6 +239,7 @@ class PMF1dMixin(object):
 class PMFNdMixin(object):
 
     _distribution: rv_generic
+    _num_dims: int
 
     def pmf(self) -> DiscreteFunctionNd:
         """
@@ -246,7 +248,7 @@ class PMFNdMixin(object):
         return DiscreteFunctionNd(
             distribution=self._distribution,
             method_name='pmf', name='PMF',
-            num_dims=self._distribution.rvs().shape[1],
+            num_dims=self._num_dims,
             parent=self
         )
 
@@ -257,7 +259,7 @@ class PMFNdMixin(object):
         return DiscreteFunctionNd(
             distribution=self._distribution,
             method_name='logpmf', name='log(PMF)',
-            num_dims=self._distribution.rvs().shape[1],
+            num_dims=self._num_dims,
             parent=self
         )
 
@@ -289,7 +291,8 @@ class CDFContinuous1dMixin(object):
 
 class CDFContinuousNdMixin(object):
 
-    _distribution: rv_generic
+    _distribution: rv_continuous
+    _num_dims: int
 
     def cdf(self) -> ContinuousFunctionNd:
         """
@@ -298,7 +301,7 @@ class CDFContinuousNdMixin(object):
         return ContinuousFunctionNd(
             distribution=self._distribution,
             method_name='cdf', name='CDF',
-            num_dims=self._distribution.rvs().shape[1],
+            num_dims=self._num_dims,
             parent=self
         )
 
@@ -309,7 +312,7 @@ class CDFContinuousNdMixin(object):
         return ContinuousFunctionNd(
             distribution=self._distribution,
             method_name='logcdf', name='log(CDF)',
-            num_dims=self._distribution.rvs().shape[1],
+            num_dims=self._num_dims,
             parent=self
         )
 

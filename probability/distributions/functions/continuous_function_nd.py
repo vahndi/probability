@@ -1,16 +1,12 @@
-from typing import overload, Iterable, Union
-
-from matplotlib.axes import Axes
 from numpy import array, ndarray
 from pandas import Series, MultiIndex
-from scipy.stats import rv_discrete
+from scipy.stats import rv_continuous
+from typing import overload, Iterable
 
-from probability.plots import new_axes
 
+class ContinuousFunctionNd(object):
 
-class DiscreteFunctionNd(object):
-
-    def __init__(self, distribution: rv_discrete, method_name: str, name: str,
+    def __init__(self, distribution: rv_continuous, method_name: str, name: str,
                  num_dims: int, parent: object):
         """
         :param distribution: The scipy distribution to calculate with.
@@ -27,7 +23,7 @@ class DiscreteFunctionNd(object):
         self._parent: object = parent
 
     @overload
-    def at(self, x: Iterable[int]) -> float:
+    def at(self, x: Iterable[float]) -> float:
         pass
 
     @overload
@@ -52,27 +48,5 @@ class DiscreteFunctionNd(object):
                 index=MultiIndex.from_arrays(
                     arrays=x.T,
                     names=[f'x{num}' for num in range(1, self._num_dims + 1)]
-                ), data=self._method(x)
+                ), data=self._method(x), name=f'{self._name}({self._parent})'
             )
-
-    def plot(self, x: Union[Iterable[Iterable], ndarray],
-             color: str = 'C0', ax: Axes = None) -> Axes:
-        """
-        Plot the function.
-
-        :param x: Range of values of x to plot p(x) over.
-        :param color: Optional color for the series.
-        :param ax: Optional matplotlib axes to plot on.
-        """
-        x = array(x)
-        data = self.at(x)
-        if x.ndim != 2:
-            raise ValueError('x must have 3 dimensions: (K, num_points)')
-        ax = ax or new_axes()
-        if self._num_dims > 2:
-            data = data.sort_values(ascending=False)
-        data.plot.bar(color=color, label=str(self._parent), ax=ax)
-        ax.set_xlabel('x')
-        ax.set_ylabel(self._name)
-        ax.legend(loc='upper right')
-        return ax
