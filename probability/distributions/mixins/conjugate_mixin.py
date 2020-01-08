@@ -1,5 +1,3 @@
-from numpy import ndarray
-
 from probability.custom_types import RVMixin
 
 

@@ -6,7 +6,6 @@ from pandas import Series, MultiIndex
 from scipy.stats import rv_discrete
 
 from probability.plots import new_axes
-from probability.utils import k_tuples_summing_to_n
 
 
 class DiscreteFunctionNd(object):

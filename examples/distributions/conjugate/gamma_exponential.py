@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from probability.distributions.conjugate.continuous import GammaExponential
+from probability.distributions.conjugate.continuous.gamma_exponential_old import GammaExponential
 from probability.plots import new_axes
 
 

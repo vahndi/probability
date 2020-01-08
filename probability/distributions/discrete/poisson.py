@@ -16,7 +16,7 @@ class Poisson(RVDiscrete1dMixin):
 
     @property
     def lambda_(self) -> int:
-        return self._p
+        return self._lambda
 
     @lambda_.setter
     def lambda_(self, value: int):

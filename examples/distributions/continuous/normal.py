@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from math import sqrt
 from numpy.ma import arange
 
 from probability.distributions.continuous.normal import Normal

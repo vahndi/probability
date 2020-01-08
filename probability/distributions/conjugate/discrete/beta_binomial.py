@@ -1,6 +1,5 @@
 from scipy.stats import betabinom
 
-from probability.custom_types import RVMixin
 from probability.distributions import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin

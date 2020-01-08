@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
 
-from probability.distributions.discrete import Binomial
 from probability.distributions.discrete.poisson import Poisson
 from probability.plots import new_axes
-
 
 # https://en.wikipedia.org/wiki/Poisson_distribution
 

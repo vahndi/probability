@@ -4,6 +4,7 @@ from scipy.stats._distn_infrastructure import rv_generic
 from typing import Tuple
 
 from probability.distributions.functions.continuous_function_1d import ContinuousFunction1d
+from probability.distributions.functions.continuous_function_nd import ContinuousFunctionNd
 from probability.distributions.functions.discrete_function_1d import DiscreteFunction1d
 from probability.distributions.functions.discrete_function_nd import DiscreteFunctionNd
 
@@ -182,6 +183,33 @@ class PDF1dMixin(object):
         )
 
 
+class PDFNdMixin(object):
+
+    _distribution: rv_generic
+
+    def pdf(self) -> ContinuousFunctionNd:
+        """
+        Probability mass function of the given RV.
+        """
+        return ContinuousFunctionNd(
+            distribution=self._distribution,
+            method_name='pdf', name='PDF',
+            num_dims=self._distribution.rvs().shape[1],
+            parent=self
+        )
+
+    def log_pdf(self) -> ContinuousFunctionNd:
+        """
+        Log of the probability mass function of the given RV.
+        """
+        return ContinuousFunctionNd(
+            distribution=self._distribution,
+            method_name='logpdf', name='log(PDF)',
+            num_dims=self._distribution.rvs().shape[1],
+            parent=self
+        )
+
+
 class PMF1dMixin(object):
 
     _distribution: rv_discrete
@@ -234,7 +262,7 @@ class PMFNdMixin(object):
         )
 
 
-class CDF1dMixinC(object):
+class CDFContinuous1dMixin(object):
 
     _distribution: rv_continuous
 
@@ -259,7 +287,34 @@ class CDF1dMixinC(object):
         )
 
 
-class CDF1dMixinD(object):
+class CDFContinuousNdMixin(object):
+
+    _distribution: rv_generic
+
+    def cdf(self) -> ContinuousFunctionNd:
+        """
+        Cumulative distribution function of the given RV.
+        """
+        return ContinuousFunctionNd(
+            distribution=self._distribution,
+            method_name='cdf', name='CDF',
+            num_dims=self._distribution.rvs().shape[1],
+            parent=self
+        )
+
+    def log_cdf(self) -> ContinuousFunctionNd:
+        """
+        Log of the cumulative distribution function of the given RV.
+        """
+        return ContinuousFunctionNd(
+            distribution=self._distribution,
+            method_name='logcdf', name='log(CDF)',
+            num_dims=self._distribution.rvs().shape[1],
+            parent=self
+        )
+
+
+class CDFDiscrete1dMixin(object):
 
     _distribution: rv_discrete
 
@@ -284,7 +339,7 @@ class CDF1dMixinD(object):
         )
 
 
-class SF1dMixinC(object):
+class SFContinuous1dMixin(object):
 
     _distribution: rv_continuous
 
@@ -309,7 +364,7 @@ class SF1dMixinC(object):
         )
 
 
-class SF1dMixinD(object):
+class SFDiscrete1dMixin(object):
 
     _distribution: rv_discrete
 
@@ -334,7 +389,7 @@ class SF1dMixinD(object):
         )
 
 
-class PPF1dMixinC(object):
+class PPFContinuous1dMixin(object):
 
     _distribution: rv_continuous
 
@@ -349,7 +404,7 @@ class PPF1dMixinC(object):
         )
 
 
-class PPF1dMixinD(object):
+class PPFDiscrete1dMixin(object):
 
     _distribution: rv_discrete
 
@@ -364,7 +419,7 @@ class PPF1dMixinD(object):
         )
 
 
-class ISF1dMixinC(object):
+class ISFContinuous1dMixin(object):
 
     _distribution: rv_continuous
 
@@ -379,7 +434,7 @@ class ISF1dMixinC(object):
         )
 
 
-class ISF1dMixinD(object):
+class ISFDiscrete1dMixin(object):
 
     _distribution: rv_discrete
 

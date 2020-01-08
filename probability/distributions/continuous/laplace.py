@@ -6,7 +6,6 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous
 class Laplace(RVContinuous1dMixin):
 
     def __init__(self, mu: float, b: float):
-
         self._mu: float = mu
         self._b: float = b
         self._reset_distribution()
@@ -16,7 +15,6 @@ class Laplace(RVContinuous1dMixin):
 
     @property
     def mu(self) -> float:
-
         return self._mu
 
     @mu.setter
@@ -34,9 +32,7 @@ class Laplace(RVContinuous1dMixin):
         self._reset_distribution()
 
     def __str__(self):
-
         return f'Laplace(μ={self._mu}, b={self._b})'
 
     def __repr__(self):
-
         return f'Laplace(mu={self._mu}, b={self._b})'
