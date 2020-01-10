@@ -41,7 +41,7 @@ class ContinuousFunction1d(object):
         if self._name in ('PDF', 'CDF'):
             data.plot(kind='line', label=str(self._parent), color=color, ax=ax)
         else:
-            raise ValueError('plot not implemented for {}'.format(self._name))
+            raise ValueError('plot_2d not implemented for {}'.format(self._name))
         ax.set_xlabel('x')
         ax.set_ylabel(self._name)
         return ax

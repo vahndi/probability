@@ -43,12 +43,12 @@ def plot_bayesian():
     _, ax = plt.subplots(nrows=1, ncols=2, figsize=(16, 9))
     bb_1 = BetaBinomial(n=20, alpha=2, beta=2)
     bb_1.prior().plot(x=x, color='red', ax=ax[0])
-    Beta(alpha=3, beta=17).plot(x=x, color='black', ax=ax[0])  # using a Beta to plot likelihood on the same scale
+    Beta(alpha=3, beta=17).plot(x=x, color='black', ax=ax[0])  # using a Beta to plot_2d likelihood on the same scale
     bb_1.posterior(m=3).plot(x=x, color='blue', ax=ax[0])
     ax[0].legend()
     bb_2 = BetaBinomial(n=20, alpha=5, beta=2)
     bb_2.prior().plot(x=x, color='red', ax=ax[1])
-    Beta(alpha=11, beta=13).plot(x=x, color='black', ax=ax[1])  # using a Beta to plot likelihood on the same scale
+    Beta(alpha=11, beta=13).plot(x=x, color='black', ax=ax[1])  # using a Beta to plot_2d likelihood on the same scale
     bb_2.posterior(m=11).plot(x=x, color='blue', ax=ax[1])
     ax[1].legend()
     plt.show()

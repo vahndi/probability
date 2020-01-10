@@ -2,13 +2,13 @@ from matplotlib.axes import Axes
 from scipy.stats import rv_discrete
 from typing import Iterable
 
-from probability.distributions.mixins.rv_mixins import RVS1dMixin, Entropy1dMixin, Median1dMixin, Mean1dMixin, \
+from probability.distributions.mixins.rv_mixins import RVS1dMixin, EntropyMixin, Median1dMixin, Mean1dMixin, \
     StD1dMixin, Var1dMixin, Interval1dMixin, PMF1dMixin, CDFDiscrete1dMixin, SFDiscrete1dMixin, PPFDiscrete1dMixin, \
     ISFDiscrete1dMixin
 
 
 class RVDiscrete1dMixin(
-    RVS1dMixin, Entropy1dMixin, Median1dMixin, Mean1dMixin, StD1dMixin, Var1dMixin, Interval1dMixin,
+    RVS1dMixin, EntropyMixin, Median1dMixin, Mean1dMixin, StD1dMixin, Var1dMixin, Interval1dMixin,
     PMF1dMixin, CDFDiscrete1dMixin, SFDiscrete1dMixin, PPFDiscrete1dMixin, ISFDiscrete1dMixin,
     object
 ):

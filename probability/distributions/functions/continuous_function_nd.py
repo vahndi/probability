@@ -1,7 +1,8 @@
-from itertools import product
-
 from matplotlib.axes import Axes
-from numpy import array, ndarray, mgrid, arange, dstack, meshgrid
+from matplotlib.tri import UniformTriRefiner, Triangulation
+from numpy import array, clip, dstack, meshgrid, ndarray
+from numpy.linalg import norm
+from numpy.ma import clip
 from pandas import Series, MultiIndex
 from scipy.stats import rv_continuous
 from typing import overload, Iterable, Union
@@ -56,14 +57,14 @@ class ContinuousFunctionNd(object):
                 ), data=self._method(x), name=f'{self._name}({self._parent})'
             )
 
-    def plot(self, x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
-             color_map: str = 'viridis', ax: Axes = None) -> Axes:
+    def plot_2d(self, x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
+                color_map: str = 'viridis', ax: Axes = None) -> Axes:
         """
-        Plot the function.
+        Plot a 2-dimensional function as a grid heat-map.
 
-        :param x1: Range of values of x1 to plot p(x1, x2) over.
-        :param x2: Range of values of x2 to plot p(x1, x2) over.
-        :param color_map: Optional colormap for the plot.
+        :param x1: Range of values of x1 to plot_2d p(x1, x2) over.
+        :param x2: Range of values of x2 to plot_2d p(x1, x2) over.
+        :param color_map: Optional colormap for the heat-map.
         :param ax: Optional matplotlib axes to plot on.
         """
         x1_grid, x2_grid = meshgrid(x1, x2)
@@ -73,4 +74,49 @@ class ContinuousFunctionNd(object):
         ax.contourf(x1_grid, x2_grid, f, cmap=color_map)
         ax.set_xlabel('x1')
         ax.set_ylabel('x2')
+        return ax
+
+    def plot_simplex(self, num_contours: int = 100, num_sub_div: int = 8,
+                     color_map: str = 'viridis', border: bool = True, ax: Axes = None) -> Axes:
+        """
+        Plot a 3-dimensional functions as a simplex heat-map.
+
+        :param num_contours: The number of levels of contours to plot.
+        :param num_sub_div: Number of recursive subdivisions to create.
+        :param color_map: Optional colormap for the plot_2d.
+        :param border: Whether to plot a border around the simplex heatmap.
+        :param ax: Optional matplotlib axes to plot on.
+        """
+
+        corners = array([[0, 0], [1, 0], [0.5, 0.75 ** 0.5]])
+        triangle = Triangulation(corners[:, 0], corners[:, 1])
+        mid_points = [
+            (corners[(i + 1) % 3] + corners[(i + 2) % 3]) / 2
+            for i in range(3)
+        ]
+
+        def to_barycentric(cartesian):
+            """
+            Converts 2D Cartesian to barycentric coordinates.
+
+            :param cartesian: A length-2 sequence containing the x and y value.
+            """
+            s = [(corners[i] - mid_points[i]).dot(cartesian - mid_points[i]) / 0.75
+                 for i in range(3)]
+            s_clipped = clip(a=s, a_min=0, a_max=1)
+            return s_clipped / norm(s_clipped, ord=1)
+
+        refiner = UniformTriRefiner(triangle)
+        tri_mesh = refiner.refine_triangulation(subdiv=num_sub_div)
+        f = [self._method(to_barycentric(xy))
+             for xy in zip(tri_mesh.x, tri_mesh.y)]
+        ax = ax or new_axes()
+        ax.tricontourf(tri_mesh, f, num_contours, cmap=color_map)
+        ax.set_aspect('equal')
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 0.75 ** 0.5)
+        ax.set_axis_off()
+        if border:
+            ax.triplot(triangle, linewidth=1)
+
         return ax

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from probability.distributions.discrete.multinomial import Multinomial
+from probability.distributions.multivariate.multinomial import Multinomial
 from scipy.stats import multinomial
 
 # scipy

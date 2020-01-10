@@ -38,9 +38,9 @@ class DiscreteFunction1d(object):
         """
         Plot the function.
 
-        :param k: Range of values of k to plot p(k) over.
+        :param k: Range of values of k to plot_2d p(k) over.
         :param color: Optional color for the series.
-        :param ax: Optional matplotlib axes to plot on.
+        :param ax: Optional matplotlib axes to plot_2d on.
         """
         data: Series = self.at(k)
         ax = ax or new_axes()
@@ -51,7 +51,7 @@ class DiscreteFunction1d(object):
             data.plot(kind='line', label=str(self._parent), color=color,
                       marker='o', linestyle='-', drawstyle='steps-post', ax=ax)
         else:
-            raise ValueError('plot not implemented for {}'.format(self._name))
+            raise ValueError('plot_2d not implemented for {}'.format(self._name))
         ax.set_xlabel('k')
         ax.set_ylabel(self._name)
         return ax

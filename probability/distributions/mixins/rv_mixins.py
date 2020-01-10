@@ -80,7 +80,7 @@ class Moment1dMixin(object):
         return self._distribution.moment(n=n)
 
 
-class Entropy1dMixin(object):
+class EntropyMixin(object):
 
     _distribution: rv_generic
 
@@ -108,7 +108,16 @@ class Mean1dMixin(object):
 
     def mean(self) -> float:
         """
-        Median of the distribution.
+        Mean of the distribution.
+        """
+        return self._distribution.mean()
+
+
+class MeanNdMixin(object):
+
+    def mean(self) -> ndarray:
+        """
+        Mean of the distribution.
         """
         return self._distribution.mean()
 
@@ -129,6 +138,15 @@ class Var1dMixin(object):
     _distribution: rv_generic
 
     def var(self) -> float:
+        """
+        Variance of the distribution.
+        """
+        return self._distribution.var()
+
+
+class VarNdMixin(object):
+
+    def var(self) -> ndarray:
         """
         Variance of the distribution.
         """

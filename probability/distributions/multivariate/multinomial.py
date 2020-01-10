@@ -1,19 +1,21 @@
+from numpy import array, ndarray
 from scipy.stats import rv_discrete, multinomial
 from typing import Iterable, List, Tuple
 
-from probability.distributions.mixins.rv_mixins import Entropy1dMixin, RVSNdMixin, PMFNdMixin
+from probability.distributions.mixins.rv_mixins import EntropyMixin, RVSNdMixin, PMFNdMixin
 from probability.utils import k_tuples_summing_to_n
 
 
 class Multinomial(
-    RVSNdMixin, PMFNdMixin, Entropy1dMixin,
+    RVSNdMixin, PMFNdMixin, EntropyMixin,
     object
 ):
 
     def __init__(self, n: int, p: Iterable[float]):
 
         self._n: int = n
-        self._p: Iterable[float] = p
+        self._p: ndarray = array(p)
+        self.__num_dims = len(self._p)
         self._reset_distribution()
 
     def _reset_distribution(self):
