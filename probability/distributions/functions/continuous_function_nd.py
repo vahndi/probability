@@ -1,7 +1,12 @@
-from numpy import array, ndarray
+from itertools import product
+
+from matplotlib.axes import Axes
+from numpy import array, ndarray, mgrid, arange, dstack, meshgrid
 from pandas import Series, MultiIndex
 from scipy.stats import rv_continuous
-from typing import overload, Iterable
+from typing import overload, Iterable, Union
+
+from probability.plots import new_axes
 
 
 class ContinuousFunctionNd(object):
@@ -50,3 +55,22 @@ class ContinuousFunctionNd(object):
                     names=[f'x{num}' for num in range(1, self._num_dims + 1)]
                 ), data=self._method(x), name=f'{self._name}({self._parent})'
             )
+
+    def plot(self, x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
+             color_map: str = 'viridis', ax: Axes = None) -> Axes:
+        """
+        Plot the function.
+
+        :param x1: Range of values of x1 to plot p(x1, x2) over.
+        :param x2: Range of values of x2 to plot p(x1, x2) over.
+        :param color_map: Optional colormap for the plot.
+        :param ax: Optional matplotlib axes to plot on.
+        """
+        x1_grid, x2_grid = meshgrid(x1, x2)
+        x1_x2 = dstack((x1_grid, x2_grid))
+        f = self._method(x1_x2)
+        ax = ax or new_axes()
+        ax.contourf(x1_grid, x2_grid, f, cmap=color_map)
+        ax.set_xlabel('x1')
+        ax.set_ylabel('x2')
+        return ax

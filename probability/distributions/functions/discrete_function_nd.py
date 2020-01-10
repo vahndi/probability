@@ -67,7 +67,7 @@ class DiscreteFunctionNd(object):
         x = array(x)
         data = self.at(x)
         if x.ndim != 2:
-            raise ValueError('x must have 3 dimensions: (K, num_points)')
+            raise ValueError('x must have 2 dimensions: [num_points, K]')
         ax = ax or new_axes()
         if self._num_dims > 2:
             data = data.sort_values(ascending=False)

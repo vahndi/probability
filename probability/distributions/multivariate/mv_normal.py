@@ -1,3 +1,6 @@
+from typing import Union, Iterable
+
+from mpl_toolkits.axes_grid1.mpl_axes import Axes
 from numpy import array, ndarray
 from scipy.stats import multivariate_normal, rv_continuous
 
@@ -38,6 +41,18 @@ class MVNormal(
     @sigma.setter
     def sigma(self, value: FloatOrFloatArray2d):
         self._sigma = value
+
+    def plot(self, x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
+             color_map: str = 'viridis', ax: Axes = None) -> Axes:
+        """
+        Plot the function.
+
+        :param x1: Range of values of x1 to plot p(x1, x2) over.
+        :param x2: Range of values of x2 to plot p(x1, x2) over.
+        :param color_map: Optional colormap for the plot.
+        :param ax: Optional matplotlib axes to plot on.
+        """
+        return self.pdf().plot(x1=x1, x2=x2, color_map=color_map, ax=ax)
 
     def __str__(self):
 
