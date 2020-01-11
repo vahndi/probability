@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name='probability',
   packages=['probability'],
-  version='0.0.1',
+  version='0.0.2',
   license='MIT',
   description='Probability in Python 3',
   author='Vahndi Minah',
