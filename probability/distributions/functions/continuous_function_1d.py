@@ -47,7 +47,7 @@ class ContinuousFunction1d(object):
         """
         data: Series = self.at(x)
         ax = ax or new_axes()
-        if self._name in ('PDF', 'CDF'):
+        if self._name in ('PDF', 'CDF', 'log(PDF)'):
             data.plot(kind=kind, label=str(self._parent), color=color, ax=ax, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
