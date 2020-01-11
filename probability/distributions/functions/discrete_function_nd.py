@@ -60,9 +60,9 @@ class DiscreteFunctionNd(object):
         """
         Plot the function.
 
-        :param x: Range of values of x to plot_2d p(x) over.
+        :param x: Range of values of x to plot p(x) over.
         :param color: Optional color for the series.
-        :param ax: Optional matplotlib axes to plot_2d on.
+        :param ax: Optional matplotlib axes to plot on.
         """
         x = array(x)
         data = self.at(x)

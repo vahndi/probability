@@ -16,8 +16,13 @@ class RVContinuous1dMixin(
     _distribution: rv_continuous
     _num_samples: int = 1000000
 
-    def plot(self, x: Iterable, color: str = 'C0', ax: Axes = None) -> Axes:
+    def plot(self, x: Iterable, kind: str = 'line', color: str = 'C0', ax: Axes = None) -> Axes:
         """
         Plot the PDF of the distribution.
+
+        :param x: Range of values of x to plot p(x) over.
+        :param kind: Kind of plot e.g. 'bar', 'line'.
+        :param color: Optional color for the series.
+        :param ax: Optional matplotlib axes to plot on.
         """
-        return self.pdf().plot(x=x, color=color, ax=ax)
+        return self.pdf().plot(x=x, kind=kind, color=color, ax=ax)

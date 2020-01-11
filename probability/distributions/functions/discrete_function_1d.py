@@ -34,24 +34,36 @@ class DiscreteFunction1d(object):
         elif isinstance(k, Iterable):
             return Series(index=k, data=self._method(k), name=self._name)
 
-    def plot(self, k: Iterable[int], color: str = 'C0', ax: Axes = None) -> Axes:
+    def plot(self, k: Iterable[int], color: str = 'C0', kind: str = 'bar', ax: Axes = None,
+             **kwargs) -> Axes:
         """
         Plot the function.
 
-        :param k: Range of values of k to plot_2d p(k) over.
+        :param k: Range of values of k to plot p(k) over.
         :param color: Optional color for the series.
-        :param ax: Optional matplotlib axes to plot_2d on.
+        :param kind: Kind of plot e.g. 'bar', 'line'.
+        :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for the matplotlib plot function.
         """
         data: Series = self.at(k)
         ax = ax or new_axes()
+
+        # special kwargs
+        vlines = None
+        if 'vlines' in kwargs.keys():
+            vlines = kwargs.pop('vlines')
+
         if self._name == 'PMF':
-            data.plot(kind='line', label=str(self._parent), color=color,
-                      marker='o', linestyle='-', ax=ax)
+            data.plot(kind=kind, label=str(self._parent), color=color,
+                      ax=ax, **kwargs)
         elif self._name == 'CDF':
             data.plot(kind='line', label=str(self._parent), color=color,
-                      marker='o', linestyle='-', drawstyle='steps-post', ax=ax)
+                      drawstyle='steps-post', ax=ax,
+                      **kwargs)
         else:
-            raise ValueError('plot_2d not implemented for {}'.format(self._name))
+            raise ValueError('plot not implemented for {}'.format(self._name))
+        if vlines:
+            ax.vlines(x=k, ymin=0, ymax=data.values, color=color)
         ax.set_xlabel('k')
         ax.set_ylabel(self._name)
         return ax

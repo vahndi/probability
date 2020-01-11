@@ -48,10 +48,10 @@ class MVNormal(
         """
         Plot the function.
 
-        :param x1: Range of values of x1 to plot_2d p(x1, x2) over.
-        :param x2: Range of values of x2 to plot_2d p(x1, x2) over.
-        :param color_map: Optional colormap for the plot_2d.
-        :param ax: Optional matplotlib axes to plot_2d on.
+        :param x1: Range of values of x1 to plot p(x1, x2) over.
+        :param x2: Range of values of x2 to plot p(x1, x2) over.
+        :param color_map: Optional colormap for the plot.
+        :param ax: Optional matplotlib axes to plot on.
         """
         return self.pdf().plot_2d(x1=x1, x2=x2, color_map=color_map, ax=ax)
 

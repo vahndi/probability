@@ -34,14 +34,23 @@ class ContinuousFunction1d(object):
         elif isinstance(x, Iterable):
             return Series(index=x, data=self._method(x), name=self._name)
 
-    def plot(self, x: Iterable, color: str = 'C0', ax: Axes = None) -> Axes:
+    def plot(self, x: Iterable, kind: str = 'line', color: str = 'C0', ax: Axes = None,
+             **kwargs) -> Axes:
+        """
+        Plot the function.
 
+        :param x: Range of values of x to plot p(x) over.
+        :param kind: Kind of plot e.g. 'bar', 'line'.
+        :param color: Optional color for the series.
+        :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for the matplotlib plot function.
+        """
         data: Series = self.at(x)
         ax = ax or new_axes()
         if self._name in ('PDF', 'CDF'):
-            data.plot(kind='line', label=str(self._parent), color=color, ax=ax)
+            data.plot(kind=kind, label=str(self._parent), color=color, ax=ax, **kwargs)
         else:
-            raise ValueError('plot_2d not implemented for {}'.format(self._name))
+            raise ValueError('plot not implemented for {}'.format(self._name))
         ax.set_xlabel('x')
         ax.set_ylabel(self._name)
         return ax

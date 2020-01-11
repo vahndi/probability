@@ -16,8 +16,15 @@ class RVDiscrete1dMixin(
     _distribution: rv_discrete
     _num_samples: int = 1000000
 
-    def plot(self, k: Iterable, color: str = 'C0', ax: Axes = None) -> Axes:
+    def plot(self, k: Iterable, kind: str = 'bar', color: str = 'C0', ax: Axes = None,
+             **kwargs) -> Axes:
         """
         Plot the PMF of the distribution.
+
+        :param k: Range of values of k to plot p(k) over.
+        :param color: Optional color for the series.
+        :param kind: Kind of plot e.g. 'bar', 'line'.
+        :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for the matplotlib plot function.
         """
-        return self.pmf().plot(k=k, color=color, ax=ax)
+        return self.pmf().plot(k=k, kind=kind, color=color, ax=ax, **kwargs)

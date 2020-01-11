@@ -15,7 +15,7 @@ class Multinomial(
 
         self._n: int = n
         self._p: ndarray = array(p)
-        self.__num_dims = len(self._p)
+        self._num_dims = len(self._p)
         self._reset_distribution()
 
     def _reset_distribution(self):

@@ -62,8 +62,8 @@ class ContinuousFunctionNd(object):
         """
         Plot a 2-dimensional function as a grid heat-map.
 
-        :param x1: Range of values of x1 to plot_2d p(x1, x2) over.
-        :param x2: Range of values of x2 to plot_2d p(x1, x2) over.
+        :param x1: Range of values of x1 to plot p(x1, x2) over.
+        :param x2: Range of values of x2 to plot p(x1, x2) over.
         :param color_map: Optional colormap for the heat-map.
         :param ax: Optional matplotlib axes to plot on.
         """
@@ -83,7 +83,7 @@ class ContinuousFunctionNd(object):
 
         :param num_contours: The number of levels of contours to plot.
         :param num_sub_div: Number of recursive subdivisions to create.
-        :param color_map: Optional colormap for the plot_2d.
+        :param color_map: Optional colormap for the plot.
         :param border: Whether to plot a border around the simplex heatmap.
         :param ax: Optional matplotlib axes to plot on.
         """
