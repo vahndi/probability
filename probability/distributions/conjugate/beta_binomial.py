@@ -9,12 +9,38 @@ from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMi
 
 
 class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
+    """
+    Class for calculating Bayesian probabilities using the Beta-Binomial distribution.
 
-    def __init__(self, n: int, alpha: float = 1, beta: float = 1):
+    Prior Hyper-parameters
+    ----------------------
+    * `α` and `β` are the hyper-parameters of the Beta prior.
+    * `α > 0`
+    * `β > 0`
+    * Interpretation is α-1 successes and β-1 failures.
+
+    Posterior Hyper-parameters
+    --------------------------
+    * `n` is the number of trials.
+    * `m` is the number of successes over `n` trials.
+
+    Model parameters
+    ----------------
+    * `P(x=1)`, or `θ`, is the probability of a successful trial.
+    * `0 ≤ θ ≤ 1`
+
+    Links
+    -----
+    * https://en.wikipedia.org/wiki/Beta_distribution
+    * https://en.wikipedia.org/wiki/Binomial_distribution
+    * https://en.wikipedia.org/wiki/Beta-binomial_distribution
+    https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_continuous_distribution
+    """
+    def __init__(self, alpha: float, beta: float, n: int):
         """
-        :param n: Number of trials.
         :param alpha: Value for the α hyper-parameter of the prior Beta distribution.
-        :param beta: Value for the α hyper-parameter of the prior Beta distribution.
+        :param beta: Value for the β hyper-parameter of the prior Beta distribution.
+        :param n: Number of trials.
         """
         self._n: int = n
         self._alpha: float = alpha
@@ -72,4 +98,3 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     def __repr__(self):
 
         return f'BetaBinomial(n={self._n}, alpha={self._alpha}, beta={self._beta})'
-

@@ -1,29 +1,27 @@
 import matplotlib.pyplot as plt
-
-from probability.distributions.conjugate.old.gamma_exponential_old import GammaExponential
+from numpy import arange, logspace, linspace
+from probability.distributions.conjugate.gamma_exponential import GammaExponential
 from probability.plots import new_axes
 
 
-def plot_wikipedia():
+rates = arange(0, 5, 0.05)
+durations = linspace(0.1, 10, 1000)
+print(durations)
 
+
+def plot_gamma_exp():
+
+    ge = GammaExponential(alpha=10, beta=5, n=100, x_mean=0.3)
     ax = new_axes()
-    for k, t, c in [
-        (1, 2, 'red'),
-        (2, 2, 'orange'),
-        (3, 2, 'yellow'),
-        (5, 1, 'green'),
-        (9, 0.5, 'black'),
-        (7.5, 1, 'blue'),
-        (0.5, 1, 'purple'),
-        (0.1, 0.1, 'pink'),
-    ]:
-        ge = GammaExponential(k=k, theta=t)
-        ge.plot_prior(ax=ax, color=c)
-    ax.set_ylim(0, 0.5)
-    ax.set_title('https://en.wikipedia.org/wiki/Gamma_distribution#/media/File:Gamma_distribution_pdf.svg')
+    ge.prior().plot(x=rates, color='r', ax=ax)
+    ge.posterior().plot(x=rates, color='g', ax=ax)
     plt.show()
+    ax = new_axes()
+    p_x = ge.predict_proba(durations)
+    p_x.plot(ax=ax)
+    plt.show()
+    return ge
 
 
-if __name__ == '__main__':
+ge = plot_gamma_exp()
 
-    plot_wikipedia()

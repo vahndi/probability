@@ -3,7 +3,7 @@ from scipy.stats import rv_continuous, gamma
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Gamma(RVContinuous1dMixin):
+class Gamma(RVContinuous1dMixin, object):
 
     _parametrization: str
 

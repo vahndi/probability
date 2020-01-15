@@ -1,21 +1,54 @@
-from scipy.stats import lomax
+from typing import Union, Iterable
+
+from numpy import mean
+from numpy.core.records import ndarray
+from pandas import Series
 
 from probability.distributions import Gamma
 from probability.distributions.continuous.exponential import Exponential
+from probability.distributions.continuous.lomax import Lomax
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
 class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
+    """
+    Class for calculating Bayesian probabilities using the Gamma-Exponential distribution.
 
-    def __init__(self, alpha: float, beta: float, n: int):
+    Prior Hyper-parameters
+    ----------------------
+    * `α` and `β` are the hyper-parameters of the Gamma prior.
+    * `α > 0`
+    * `β > 0`
+    * Interpretation is α observations that sum to β.
+
+    Posterior Hyper-parameters
+    --------------------------
+    * `n` is the number of observations.
+    * `x_mean` is the average value (e.g. duration) of x over `n` observations.
+
+    Model parameters
+    ----------------
+    * `P(x)` is the probability of observing an event at a rate of `x`.
+    * `0 ≤ x`
+
+    Links
+    -----
+    * https://en.wikipedia.org/wiki/Gamma_distribution
+    * https://en.wikipedia.org/wiki/Exponential_distribution
+    * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
+    """
+    def __init__(self, alpha: float, beta: float, n: int, x_mean: float):
         """
-        :param alpha:
-        :param beta:
+        :param alpha: Value for the α hyper-parameter of the prior Gamma distribution.
+        :param beta: Value for the β hyper-parameter of the prior Gamma distribution.
+        :param n: Number of observations
+        :param x_mean: Average duration of, or time between, observations.
         """
         self._alpha: float = alpha
         self._beta: float = beta
         self._n: int = n
+        self._x_mean = x_mean
 
     @property
     def alpha(self) -> float:
@@ -41,21 +74,50 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
     def n(self, value: float):
         self._n = value
 
-    def prior(self) -> Gamma:
+    @property
+    def x_mean(self) -> float:
+        return self._x_mean
 
+    @x_mean.setter
+    def x_mean(self, value: float):
+        self._x_mean = value
+
+    def prior(self) -> Gamma:
         return Gamma(alpha=self._alpha, beta=self._beta)
 
-    def posterior(self, x_bar: float) -> Gamma:
+    def likelihood(self, x: float) -> Exponential:
+        raise NotImplementedError
 
+    def posterior(self) -> Gamma:
         return Gamma(
             alpha=self._alpha + self._n,
-            beta=self._beta + self._n * x_bar
+            beta=self._beta + self._n * self._x_mean
         )
-        
+
+    def predict_proba(self, x: Union[ndarray, Iterable, float]) -> Series:
+
+        alpha_prime = self._alpha + self._n
+        beta_prime = (self._beta + self._n * self._x_mean)
+        print(f'alpha prime: {alpha_prime}\nbeta prime: {beta_prime}')
+        return Lomax(
+            lambda_=beta_prime,
+            alpha=alpha_prime
+        ).pdf().at(x)
+
+    def posterior_predictive(self):
+
+        alpha_prime = self._alpha + self._n
+        beta_prime = (self._beta + self._n * self._x_mean)
+        print(f'alpha prime: {alpha_prime}\nbeta prime: {beta_prime}')
+        return Lomax(
+            lambda_=beta_prime,
+            alpha=alpha_prime
+        )
+
     def __str__(self):
 
-        return f'GammaExponential(n={self._n}, α={self._alpha}, β={self._beta})'
+        return f'GammaExponential(α={self._alpha}, β={self._beta}, n={self._n}, x_mean={self._x_mean})'
 
     def __repr__(self):
 
-        return f'GammaExponential(n={self._n}, alpha={self._alpha}, beta={self._beta})'
+        return f'GammaExponential(alpha={self._alpha}, beta={self._beta}, n={self._n}, x̄={self._x_mean})'
