@@ -9,7 +9,7 @@ from probability.plots import new_axes
 x = linspace(0, 1, 101)
 
 
-def plot_pdfs():
+def plot_wikipedia_pdfs():
     """
     https://en.wikipedia.org/wiki/Beta_distribution#/media/File:Beta_distribution_pdf.svg
     """
@@ -25,7 +25,7 @@ def plot_pdfs():
     plt.show()
 
 
-def plot_cdfs():
+def plot_wikipedia_cdfs():
     """
     https://en.wikipedia.org/wiki/Beta_distribution#/media/File:Beta_distribution_cdf.svg
     """
@@ -42,7 +42,7 @@ def plot_cdfs():
 
 if __name__ == '__main__':
 
-    plot_pdfs()
-    plot_cdfs()
+    plot_wikipedia_pdfs()
+    plot_wikipedia_cdfs()
 
 

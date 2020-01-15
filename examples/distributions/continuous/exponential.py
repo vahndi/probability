@@ -4,10 +4,11 @@ from numpy import arange
 from probability.distributions.continuous.exponential import Exponential
 from probability.plots import new_axes
 
+
 x = arange(0, 5.01, 0.05)
 
 
-def plot_pdfs():
+def plot_wikipedia_pdfs():
     """
     https://en.wikipedia.org/wiki/Exponential_distribution#/media/File:Exponential_probability_density.svg
     """
@@ -19,7 +20,7 @@ def plot_pdfs():
     plt.show()
 
 
-def plot_cdfs():
+def plot_wikipedia_cdfs():
     """
     https://en.wikipedia.org/wiki/Exponential_distribution#/media/File:Exponential_cdf.svg
     """
@@ -33,5 +34,5 @@ def plot_cdfs():
 
 if __name__ == '__main__':
 
-    plot_pdfs()
-    plot_cdfs()
+    plot_wikipedia_pdfs()
+    plot_wikipedia_cdfs()

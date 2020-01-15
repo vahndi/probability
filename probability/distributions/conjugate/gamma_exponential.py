@@ -1,5 +1,7 @@
 from scipy.stats import lomax
 
+from probability.distributions import Gamma
+from probability.distributions.continuous.exponential import Exponential
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
@@ -39,8 +41,17 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
     def n(self, value: float):
         self._n = value
 
-    # def prior(self) -> Exponential:
+    def prior(self) -> Gamma:
 
+        return Gamma(alpha=self._alpha, beta=self._beta)
+
+    def posterior(self, x_bar: float) -> Gamma:
+
+        return Gamma(
+            alpha=self._alpha + self._n,
+            beta=self._beta + self._n * x_bar
+        )
+        
     def __str__(self):
 
         return f'GammaExponential(n={self._n}, α={self._alpha}, β={self._beta})'

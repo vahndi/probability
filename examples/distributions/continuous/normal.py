@@ -7,7 +7,7 @@ from probability.plots import new_axes
 x = arange(-5, 5.05, 0.05)
 
 
-def plot_pdfs():
+def plot_wikipedia_pdfs():
     """
     https://en.wikipedia.org/wiki/Normal_distribution#/media/File:Normal_Distribution_PDF.svg
     """
@@ -20,7 +20,7 @@ def plot_pdfs():
     plt.show()
 
 
-def plot_cdfs():
+def plot_wikipedia_cdfs():
     """
     https://en.wikipedia.org/wiki/Normal_distribution#/media/File:Normal_Distribution_CDF.svg
     """
@@ -35,5 +35,5 @@ def plot_cdfs():
 
 if __name__ == '__main__':
 
-    plot_pdfs()
-    plot_cdfs()
+    plot_wikipedia_pdfs()
+    plot_wikipedia_cdfs()
