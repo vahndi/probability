@@ -1,6 +1,4 @@
-from numpy import ndarray
 from scipy.stats import betabinom
-from typing import Union, Iterable
 
 from probability.distributions import Beta
 from probability.distributions.discrete import Binomial
@@ -86,10 +84,6 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
 
     def posterior(self, m: int) -> Beta:
         return Beta(alpha=self._alpha + m, beta=self._beta + self._n - m)
-
-    def predict_proba(self, m: Union[ndarray, Iterable, float]):
-
-        return self._distribution.pmf(k=m)
 
     def __str__(self):
 

@@ -30,20 +30,3 @@ class ConjugateMixin(object):
         raise NotImplementedError
 
     # endregion
-
-    @overload
-    def predict_proba(self, m: float) -> float:
-        pass
-
-    @overload
-    def predict_proba(self, n: Union[ndarray, Iterable]) -> ndarray:
-        pass
-
-    def predict_proba(self, **kwargs):
-        """
-        Predict the probability of observing one or more data points given the posterior distribution.
-        
-        e.g. for the beta-binomial model this is the pmf of the beta-binomial distribution
-        (n choose k) B(k + a, n-k + b) / B(a, b) where B is the beta function
-        """
-        raise NotImplementedError
