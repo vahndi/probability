@@ -25,7 +25,7 @@ def plot_predictions():
 
     ax = new_axes()
     predicted = dist.rvs(100000)
-    ax.hist(predicted, bins=100, normed=True, label='PPD samples')
+    ax.hist(predicted, bins=100, density=True, label='PPD samples')
     x_actual = arange(predicted.min(), predicted.max(), 0.01)
     actual = norm(loc=mu, scale=sigma).pdf(x_actual)
     ax.plot(x_actual, actual, label='True Distribution')
