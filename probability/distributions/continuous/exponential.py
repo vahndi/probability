@@ -1,4 +1,4 @@
-from scipy.stats import expon
+from scipy.stats import expon, rv_continuous
 
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
@@ -12,7 +12,7 @@ class Exponential(RVContinuous1dMixin):
 
     def _reset_distribution(self):
 
-        self._distribution = expon(loc=0, scale=1 / self._lambda)
+        self._distribution: rv_continuous = expon(loc=0, scale=1 / self._lambda)
 
     @property
     def lambda_(self) -> float:

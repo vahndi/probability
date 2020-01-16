@@ -1,4 +1,4 @@
-from scipy.stats import t
+from scipy.stats import t, rv_continuous
 
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
@@ -14,7 +14,7 @@ class StudentsT(RVContinuous1dMixin):
 
     def _reset_distribution(self):
 
-        self._distribution = t(self._nu)
+        self._distribution: rv_continuous = t(self._nu)
 
     @property
     def nu(self):

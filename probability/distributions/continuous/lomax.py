@@ -1,4 +1,4 @@
-from scipy.stats import lomax
+from scipy.stats import lomax, rv_continuous
 
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
@@ -13,7 +13,7 @@ class Lomax(RVContinuous1dMixin):
 
     def _reset_distribution(self):
 
-        self._distribution = lomax(c=self._alpha, scale=self._lambda)
+        self._distribution: rv_continuous = lomax(c=self._alpha, scale=self._lambda)
 
     @property
     def lambda_(self) -> float:
