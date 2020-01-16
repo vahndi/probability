@@ -77,13 +77,17 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
         self._reset_distribution()
 
     def prior(self) -> Beta:
-        return Beta(alpha=self._alpha, beta=self._beta).with_x_label('θ')
+        return Beta(
+            alpha=self._alpha, beta=self._beta
+        ).with_x_label('θ').prepend_to_label('Prior: ')
 
     def likelihood(self, m: float) -> Binomial:
         return Binomial(n=self._n, p=m / self._n).with_x_label('k')  # * comb(n, k)
 
     def posterior(self, m: int) -> Beta:
-        return Beta(alpha=self._alpha + m, beta=self._beta + self._n - m).with_x_label('θ')
+        return Beta(
+            alpha=self._alpha + m, beta=self._beta + self._n - m
+        ).with_x_label('θ').prepend_to_label('Posterior: ')
 
     def __str__(self):
 

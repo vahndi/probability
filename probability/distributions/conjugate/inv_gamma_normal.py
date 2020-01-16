@@ -1,5 +1,7 @@
+from math import sqrt
+
 from numpy import array, ndarray, power
-from scipy.stats import invgamma, rv_continuous
+from scipy.stats import t, rv_continuous
 
 from probability.custom_types import RVMixin, Array1d
 from probability.distributions.continuous.inv_gamma import InvGamma
@@ -20,7 +22,11 @@ class InvGammaNormal(RVContinuous1dMixin, ConjugateMixin):
 
     def _reset_distribution(self):
 
-        self._distribution: rv_continuous = invgamma(a=self.alpha_prime, scale=self.beta_prime)
+        self._distribution: rv_continuous = t(
+            2 * self.alpha_prime,
+            loc=self._mu,
+            scale=sqrt(self.beta_prime / self.alpha_prime)
+        )
 
     @property
     def alpha_prime(self) -> float:
@@ -72,11 +78,23 @@ class InvGammaNormal(RVContinuous1dMixin, ConjugateMixin):
 
     def prior(self, **kwargs) -> InvGamma:
 
-        return InvGamma(alpha=self._alpha, beta=self._beta).with_x_label('σ²')
+        return InvGamma(
+            alpha=self._alpha, beta=self._beta
+        ).with_x_label('σ²').prepend_to_label('Prior: ')
 
     def likelihood(self, **kwargs) -> RVMixin:
         pass
 
     def posterior(self, **kwargs) -> InvGamma:
 
-        return InvGamma(alpha=self.alpha_prime, beta=self.beta_prime).with_x_label('σ²')
+        return InvGamma(
+            alpha=self.alpha_prime, beta=self.beta_prime
+        ).with_x_label('σ²').prepend_to_label('Posterior: ')
+
+    def __str__(self):
+
+        return f'InvGammaNormal(α={self._alpha}, β={self._beta}, μ={self._mu}, n={self.n})'
+
+    def __repr__(self):
+
+        return f'InvGammaNormal(alpha={self._alpha}, beta={self._beta}, mu={self._mu}, n={self.n})'

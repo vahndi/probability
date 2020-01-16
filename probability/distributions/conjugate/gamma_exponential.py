@@ -95,14 +95,18 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
         return self._beta + self._n * self._x_mean
 
     def prior(self) -> Gamma:
-        return Gamma(alpha=self._alpha, beta=self._beta).with_x_label('λ')
+        return Gamma(
+            alpha=self._alpha, beta=self._beta
+        ).with_x_label('λ').prepend_to_label('Prior: ')
 
     def likelihood(self, x: float) -> Exponential:
         raise NotImplementedError
 
     def posterior(self) -> Gamma:
 
-        return Gamma(alpha=self.alpha_prime, beta=self.beta_prime).with_x_label('λ')
+        return Gamma(
+            alpha=self.alpha_prime, beta=self.beta_prime
+        ).with_x_label('λ').prepend_to_label('Posterior: ')
 
     def __str__(self):
 

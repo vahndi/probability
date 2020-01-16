@@ -55,10 +55,10 @@ class DiscreteFunction1d(object):
             vlines = kwargs.pop('vlines')
 
         if self._name == 'PMF':
-            data.plot(kind=kind, label=str(self._parent), color=color,
+            data.plot(kind=kind, label=self._parent.label, color=color,
                       ax=ax, **kwargs)
         elif self._name == 'CDF':
-            data.plot(kind='line', label=str(self._parent), color=color,
+            data.plot(kind='line', label=self._parent.label, color=color,
                       drawstyle='steps-post', ax=ax,
                       **kwargs)
         else:
