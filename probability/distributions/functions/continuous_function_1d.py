@@ -3,19 +3,20 @@ from pandas import Series
 from scipy.stats import rv_continuous
 from typing import Iterable, overload
 
+from probability.distributions.mixins.plottable_mixin import PlottableMixin
 from probability.plots import new_axes
 
 
 class ContinuousFunction1d(object):
 
     def __init__(self, distribution: rv_continuous, method_name: str, name: str,
-                 parent: object):
+                 parent: PlottableMixin):
 
         self._distribution = distribution
         self._method_name: str = method_name
         self._name: str = name
         self._method = getattr(distribution, method_name)
-        self._parent: object = parent
+        self._parent: PlottableMixin = parent
 
     @overload
     def at(self, x: float) -> float:
@@ -51,6 +52,6 @@ class ContinuousFunction1d(object):
             data.plot(kind=kind, label=str(self._parent), color=color, ax=ax, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
-        ax.set_xlabel('x')
+        ax.set_xlabel(self._parent.x_label)
         ax.set_ylabel(self._name)
         return ax

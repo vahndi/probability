@@ -3,19 +3,20 @@ from pandas import Series
 from scipy.stats import rv_discrete
 from typing import Iterable, overload
 
+from probability.distributions.mixins.plottable_mixin import PlottableMixin
 from probability.plots import new_axes
 
 
 class DiscreteFunction1d(object):
 
     def __init__(self, distribution: rv_discrete, method_name: str, name: str,
-                 parent: object):
+                 parent: PlottableMixin):
 
         self._distribution = distribution
         self._method_name: str = method_name
         self._name: str = name
         self._method = getattr(distribution, method_name)
-        self._parent: object = parent
+        self._parent: PlottableMixin = parent
 
     @overload
     def at(self, k: int) -> int:
@@ -64,6 +65,6 @@ class DiscreteFunction1d(object):
             raise ValueError('plot not implemented for {}'.format(self._name))
         if vlines:
             ax.vlines(x=k, ymin=0, ymax=data.values, color=color)
-        ax.set_xlabel('k')
+        ax.set_xlabel(self._parent.x_label)
         ax.set_ylabel(self._name)
         return ax
