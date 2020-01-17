@@ -1,5 +1,5 @@
 from itertools import permutations
-from typing import List, Tuple
+from typing import List, Tuple, Iterable
 
 
 def k_tuples_summing_to_n(k, n) -> List[Tuple[int]]:
@@ -15,3 +15,19 @@ def k_tuples_summing_to_n(k, n) -> List[Tuple[int]]:
         return sum(val) == n
 
     return list(filter(valid, list(permutations(range(n + 1), k))))
+
+
+def all_are_none(*args) -> bool:
+    return all([arg is None for arg in args])
+
+
+def none_are_none(*args) -> bool:
+    return not any([arg is None for arg in args])
+
+
+def any_are_not_none(*args) -> bool:
+    return any([arg is not None for arg in args])
+
+
+def any_are_none(*args) -> bool:
+    return any([arg is None for arg in args])

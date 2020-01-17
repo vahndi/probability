@@ -22,3 +22,7 @@ class PlottableMixin(object):
         self._label = label
         return self
 
+    def with_label(self, label: str) -> 'PlottableMixin':
+
+        self._label = label
+        return self

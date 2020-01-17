@@ -1,16 +1,27 @@
 from math import sqrt
+from typing import overload, Optional
+
 from scipy.stats import norm, rv_continuous
 
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
+from probability.utils import any_are_not_none, any_are_none
 
 
 class Normal(RVContinuous1dMixin):
 
     _parametrization: str
 
-    def __init__(self, mu: float, sigma: float = None, sigma_sq: float = None):
+    @overload
+    def __init__(self, mu: float, sigma: float):
+        pass
 
-        assert any([sigma, sigma_sq]) and not all([sigma, sigma_sq])
+    @overload
+    def __init__(self, mu: float, sigma_sq: float):
+        pass
+
+    def __init__(self, mu: float, sigma: Optional[float] = None, sigma_sq: Optional[float] = None):
+
+        assert any_are_not_none(sigma, sigma_sq) and any_are_none(sigma, sigma_sq)
 
         self._mu: float = mu
         if sigma is not None:

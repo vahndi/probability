@@ -203,3 +203,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 *_old.py
+/probability/distributions/conjugate/dirichlet_multinomial.py
+/examples/distributions/discrete/negative_binomial.py
+/probability/distributions/discrete/negative_binomial.py
+
