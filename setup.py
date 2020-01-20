@@ -2,12 +2,12 @@ from distutils.core import setup
 setup(
   name='probability',
   packages=['probability'],
-  version='0.0.2',
+  version='0.0.3',
   license='MIT',
   description='Probability in Python 3',
   author='Vahndi Minah',
   url='https://github.com/vahndi/probability',
-  download_url='https://github.com/vahndi/probability/archive/v_0.0.1.tar.gz',
+  download_url='https://github.com/vahndi/probability/archive/v_0.0.3.tar.gz',
   keywords=['python', 'probability'],
   install_requires=[
         'matplotlib',
