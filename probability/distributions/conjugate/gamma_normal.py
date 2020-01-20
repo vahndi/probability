@@ -4,7 +4,7 @@ from numpy import array, ndarray, power
 from scipy.stats import t, rv_continuous
 
 from probability.custom_types import RVMixin, Array1d
-from probability.distributions import Gamma
+from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.inv_gamma import InvGamma
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin

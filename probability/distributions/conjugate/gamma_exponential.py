@@ -1,6 +1,6 @@
 from scipy.stats import lomax
 
-from probability.distributions import Gamma
+from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.exponential import Exponential
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin

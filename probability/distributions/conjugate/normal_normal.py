@@ -4,7 +4,7 @@ from scipy.stats import norm
 from typing import overload, Optional
 
 from probability.custom_types import Array1d
-from probability.distributions import Normal
+from probability.distributions.continuous.normal import Normal
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 from probability.utils import none_are_none, all_are_none

@@ -2,7 +2,7 @@ from typing import Optional
 
 from scipy.stats import betabinom
 
-from probability.distributions import Beta
+from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
