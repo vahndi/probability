@@ -76,7 +76,7 @@ class InvGammaNormal(RVContinuous1dMixin, ConjugateMixin):
         self._mu = value
         self._reset_distribution()
 
-    def prior(self, **kwargs) -> InvGamma:
+    def prior(self) -> InvGamma:
 
         return InvGamma(
             alpha=self._alpha, beta=self._beta
@@ -85,7 +85,7 @@ class InvGammaNormal(RVContinuous1dMixin, ConjugateMixin):
     def likelihood(self, **kwargs) -> RVMixin:
         pass
 
-    def posterior(self, **kwargs) -> InvGamma:
+    def posterior(self) -> InvGamma:
 
         return InvGamma(
             alpha=self.alpha_prime, beta=self.beta_prime

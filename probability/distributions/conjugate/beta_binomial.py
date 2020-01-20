@@ -1,3 +1,5 @@
+from typing import Optional
+
 from scipy.stats import betabinom
 
 from probability.distributions import Beta
@@ -34,15 +36,17 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     * https://en.wikipedia.org/wiki/Beta-binomial_distribution
     https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_continuous_distribution
     """
-    def __init__(self, alpha: float, beta: float, n: int):
+    def __init__(self, alpha: float, beta: float, n: int, m: int):
         """
         :param alpha: Value for the α hyper-parameter of the prior Beta distribution.
         :param beta: Value for the β hyper-parameter of the prior Beta distribution.
         :param n: Number of trials.
+        :param m: Number of successes.
         """
-        self._n: int = n
         self._alpha: float = alpha
         self._beta: float = beta
+        self._n: int = n
+        self._m: int = m
         self._reset_distribution()
 
     def _reset_distribution(self):
@@ -76,15 +80,25 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
         self._n = value
         self._reset_distribution()
 
+    @property
+    def m(self) -> float:
+        return self._m
+
+    @m.setter
+    def m(self, value: float):
+        self._m = value
+
     def prior(self) -> Beta:
         return Beta(
             alpha=self._alpha, beta=self._beta
         ).with_x_label('θ').prepend_to_label('Prior: ')
 
-    def likelihood(self, m: float) -> Binomial:
+    def likelihood(self, m: Optional[int] = None) -> Binomial:
+        m = m if m is not None else self._m
         return Binomial(n=self._n, p=m / self._n).with_x_label('k')  # * comb(n, k)
 
-    def posterior(self, m: int) -> Beta:
+    def posterior(self, m: Optional[int] = None) -> Beta:
+        m = m if m is not None else self._m
         return Beta(
             alpha=self._alpha + m, beta=self._beta + self._n - m
         ).with_x_label('θ').prepend_to_label('Posterior: ')
