@@ -1,8 +1,10 @@
 from distutils.core import setup
+from setuptools import find_packages
+
 setup(
   name='probability',
-  packages=['probability'],
-  version='0.0.3',
+  packages=find_packages(),
+  version='0.0.4',
   license='MIT',
   description='Probability in Python 3',
   author='Vahndi Minah',
