@@ -94,12 +94,20 @@ class JointDistribution(object):
 
     def __init__(self, data: DataFrame):
 
-        # TODO: check column names are unique
-        # TODO: check each column name can be a python variable
-        # TODO: check each column name is not equal to '_' plus another column name
+        var_names = list(data.columns)
+        # data validation
+        if len(var_names) != len(set(var_names)):
+            raise ValueError('Data column names must be unique.')
+        non_identifiers = [var_name for var_name in var_names if not var_name.isidentifier()]
+        if non_identifiers:
+            raise ValueError('The following names cannot be used as variables: {}.'.format(non_identifiers))
+        potential_errors = [var_name for var_name in var_names if var_name.startswith('_')]
+        if potential_errors:
+            raise ValueError('The following names could cause errors on conditioning: {}.'.format(potential_errors))
+        # set member variables
         self._data: DataFrame = data
-        self._variables = list(self._data.columns)
-        for variable in self._variables:
+        self._var_names: List[str] = var_names
+        for variable in self._var_names:
             setattr(self, variable, self._data[variable])
 
     def p(self, *args, **kwargs) -> Series:
@@ -107,10 +115,10 @@ class JointDistribution(object):
         data = self._data
         # get filters
         filters: List[VariableFilter] = [
-            VariableFilter(arg_name=arg, var_names=self._variables)
+            VariableFilter(arg_name=arg, var_names=self._var_names)
             for arg in args
         ] + [
-            VariableFilter(arg_name=kw_arg, var_names=self._variables, arg_value=kw_value)
+            VariableFilter(arg_name=kw_arg, var_names=self._var_names, arg_value=kw_value)
             for kw_arg, kw_value in kwargs.items()
         ]
         # conditionals e.g. c1 in p(j1, j2=a|c1=b)

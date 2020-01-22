@@ -1,6 +1,6 @@
 from pandas import DataFrame
 
-from probability.joint_distribution import JointDistribution
+from probability.pandas.joint_distribution import JointDistribution
 
 
 def underline(msg):
@@ -33,6 +33,9 @@ print(jd.p('fruit', 'box', _box='blue'))
 
 underline('P(fruit=orange|box=blue)')
 print(jd.p(fruit='orange', _box='blue'))
+
+underline('P(box,fruit=orange|box=blue)')
+print(jd.p('box', fruit='orange', _box='blue'))
 
 underline('P(fruit)')
 print(jd.p('fruit'))
