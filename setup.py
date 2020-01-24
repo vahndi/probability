@@ -4,12 +4,11 @@ from setuptools import find_packages
 setup(
   name='probability',
   packages=find_packages(),
-  version='0.0.6',
+  version='0.0.7',
   license='MIT',
   description='Probability in Python 3',
   author='Vahndi Minah',
   url='https://github.com/vahndi/probability',
-  download_url='https://github.com/vahndi/probability/archive/v_0.0.6.tar.gz',
   keywords=['python', 'probability'],
   install_requires=[
         'matplotlib',

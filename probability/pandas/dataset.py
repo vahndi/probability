@@ -2,6 +2,8 @@ from pandas import concat, DataFrame, Series
 import re
 from typing import Any, List, Optional
 
+from probability.pandas.discrete_distribution import DiscreteDistribution
+
 
 class VariableFilter(object):
 
@@ -90,7 +92,7 @@ class VariableFilter(object):
             return Series(data=~compare.isin(self.value), name=name)
 
 
-class JointDistribution(object):
+class DataSet(object):
 
     def __init__(self, data: DataFrame):
 
@@ -110,6 +112,14 @@ class JointDistribution(object):
         for variable in self._var_names:
             setattr(self, variable, self._data[variable])
 
+    def joint(self) -> DiscreteDistribution:
+
+        data = (
+            self._data.groupby(self._var_names).size() /
+            len(self._data)
+        ).rename('p')
+        return DiscreteDistribution(data=data, conditionals=None)
+
     def p(self, *args, **kwargs) -> Series:
 
         data = self._data
@@ -121,7 +131,7 @@ class JointDistribution(object):
             VariableFilter(arg_name=kw_arg, var_names=self._var_names, arg_value=kw_value)
             for kw_arg, kw_value in kwargs.items()
         ]
-        # conditionals e.g. c1 in p(j1, j2=a|c1=b)
+        # conditionals e.g. c1 in p(j1,j2=a|c1=b)
         conditionals: List[VariableFilter] = [f for f in filters if f.conditional]
         if conditionals:
             condition_filters: DataFrame = concat(
@@ -131,7 +141,7 @@ class JointDistribution(object):
             conditioned_data = data.loc[conditions_filter].copy()
         else:
             conditioned_data = data.copy()
-        # marginals e.g. j2 in p(j1, j2=a|c1=b)
+        # marginals e.g. j2 in p(j1,j2=a|c1=b)
         marginals: List[VariableFilter] = [f for f in filters if not f.conditional and f.value is not None]
         marginal_names = [m.var_name for m in marginals]
         if marginals:
@@ -145,7 +155,7 @@ class JointDistribution(object):
             marginal_data = conditioned_data.loc[marginals_filter]
         else:
             marginal_data = conditioned_data
-        # fulls e.g. j1 in p(j1, j2=a|c1=b)
+        # fulls e.g. j1 in p(j1,j2=a|c1=b)
         fulls: List[VariableFilter] = [f for f in filters if not f.conditional and f.value is None]
         full_names = [f.var_name for f in fulls]
         final_data = marginal_data.groupby(full_names + marginal_names).size() / len(conditioned_data)

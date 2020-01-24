@@ -1,6 +1,7 @@
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
-from probability.pandas.joint_distribution import JointDistribution
+from examples.pandas.create_data import get_fruit_box_data
+from probability.pandas.dataset import DataSet
 
 
 def underline(msg):
@@ -9,15 +10,17 @@ def underline(msg):
     print('=' * len(msg))
 
 
-data = DataFrame({
-    'box': ['red'] * 8 + ['blue'] * 4,
-    'fruit': ['apple'] * 2 + ['orange'] * 7 + ['apple'] * 3
-})
+data = get_fruit_box_data()
+
+
 underline('data')
 print(data)
 
 
-jd = JointDistribution(data)
+jd = DataSet(data)
+
+underline("P(fruit,box)")
+print(jd.p('fruit', 'box'))
 
 underline("P(fruit|box=red)")
 print(jd.p('fruit', _box='red'))
@@ -37,8 +40,17 @@ print(jd.p(fruit='orange', _box='blue'))
 underline('P(box,fruit=orange|box=blue)')
 print(jd.p('box', fruit='orange', _box='blue'))
 
+underline('P(box,fruit=orange)')
+print(jd.p('box', fruit='orange'))
+
 underline('P(fruit)')
 print(jd.p('fruit'))
 
 underline('P(box)')
 print(jd.p('box'))
+
+
+# pBr = Series(data={'red': 0.4}, name='box')
+# pFo_Br = jd.p(fruit='orange', _box='red')
+# pFo = jd.p(fruit='orange')
+# pBr_Fo = pFo_Br * pBr / pFo
