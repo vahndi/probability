@@ -32,7 +32,11 @@ def condition(distribution: Series, *not_givens, **givens) -> Series:
              Contains a stacked Series of probabilities summing to 1 for each combination of not-given variable values.
              e.g. P(A,B|C,D=d1), P(A,B|C,D=d2) etc.
     """
-    var_names = list(distribution.index.names)
+    # var_names = list(distribution.index.names)
+    var_names = (
+        [n for n in distribution.index.names if n not in not_givens and n not in givens.keys()] +
+        [n for n in not_givens] + [n for n in givens.keys()]
+    )
     data = distribution.copy().reset_index()
     if givens:
         for given_var, given_val in givens.items():

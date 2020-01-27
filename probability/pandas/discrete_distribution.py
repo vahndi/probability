@@ -1,4 +1,4 @@
-from pandas import Index, MultiIndex, Series
+from pandas import Index, MultiIndex, Series, DataFrame
 from typing import Any, Dict, List, Optional, Union
 
 from probability.pandas.prob_utils import margin, condition, multiply
@@ -47,6 +47,17 @@ class DiscreteDistribution(object):
             raise TypeError('probs must be Dict[str, float] or Dict[Tuple[str], float]')
         data = Series(data=list(data.values()), index=index, name='p')
         return DiscreteDistribution(data, not_givens=list(not_givens), givens=givens)
+
+    @staticmethod
+    def from_dataset(data: DataFrame) -> 'DiscreteDistribution':
+        """
+        Create a new discrete distribution based on the counts of items in the given data.
+
+        :param data: DataFrame where each column represents a discrete random variable,
+                     and each row represents an observation.
+        """
+        prob_data: Series = (data.groupby(list(data.columns)).size() / len(data)).rename('p')
+        return DiscreteDistribution(prob_data)
 
     @property
     def var_names(self) -> List[str]:
