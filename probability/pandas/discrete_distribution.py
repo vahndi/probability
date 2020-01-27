@@ -1,107 +1,68 @@
-from typing import Optional, List, Union, overload
+from pandas import Index, MultiIndex, Series
+from typing import Any, Dict, List, Optional, Union
 
-from pandas import Series, DataFrame, merge
+from probability.pandas.prob_utils import margin, condition, multiply
 
 
 class DiscreteDistribution(object):
 
-    _joint_vars: List[str]
-    _conditional_vars: List[str]
+    _var_names: List[str]
+    _joints: List[str]
+    _givens: Dict[str, Any]
+    _not_givens: List[str]
 
     def __init__(self, data: Series,
-                 conditionals: Optional[List[str]] = None):
-
+                 givens: Optional[Dict[str, Any]] = None,
+                 not_givens: Optional[List[str]] = None):
+        """
+        Create a new DiscreteDistribution.
+        :param data: Series with an index column for each variable, and values of probability of each index row.
+        :param givens: Dictionary of conditional variables mapped to their value.
+        :param not_givens: List of conditional variables without a given value.
+        """
         self._data = data.copy()
-        var_names = data.index.names
-        conditionals = conditionals or []
+        var_names = list(data.index.names)
         self._var_names = var_names
-        self._joint_vars = [n for n in var_names if n not in conditionals]
-        self._conditional_vars = conditionals
+        self._givens = givens or {}
+        self._not_givens = not_givens or []
+        self._joints = [n for n in var_names
+                        if n not in self._givens.keys()
+                        and n not in self._not_givens]
         # do assertions here based on the conditionals and marginals
-        # e.g. all p values for a given value of the conditional should sum to 1
+        # e.g. all p values for a given combination of values of givens and not-givens should sum to 1
+
+    @staticmethod
+    def from_dict(data: dict, names: Union[str, List[str]],
+                  *not_givens, **givens) -> 'DiscreteDistribution':
+        """
+        Create a new joint distribution from a dictionary of probabilities.
+        """
+        if isinstance(list(data.keys())[0], str):
+            index = Index(list(data.keys()),
+                          name=names[0] if isinstance(names, list) else names)
+        elif isinstance(list(data.keys())[0], tuple):
+            index = MultiIndex.from_tuples(list(data.keys()),
+                                           names=[names] if isinstance(names, str) else names)
+        else:
+            raise TypeError('probs must be Dict[str, float] or Dict[Tuple[str], float]')
+        data = Series(data=list(data.values()), index=index, name='p')
+        return DiscreteDistribution(data, not_givens=list(not_givens), givens=givens)
 
     @property
-    def joint_vars(self) -> List[str]:
-        return self._joint_vars
+    def var_names(self) -> List[str]:
+        return self._var_names
 
     @property
-    def conditional_vars(self) -> List[str]:
-        return self._conditional_vars
+    def joints(self) -> List[str]:
+        return self._joints
 
-    def marginalize(self, *margins) -> 'DiscreteDistribution':
-        """
-        Marginalize over variables not in margins.
+    @property
+    def givens(self) -> List[str]:
+        return list(self._givens.keys())
 
-        :param margins: List of variables to keep.
-        """
-        margins = [m for m in margins]
-        data = self._data.copy()
-        p_name = data.name
-        if not p_name:
-            data.name = self.name
-            p_name = self.name
-        data = data.to_frame().reset_index()
-        data = data.groupby(margins)[p_name].sum()
-        return DiscreteDistribution(
-            data=data,
-            conditionals=self._conditional_vars
-        )
-
-    def condition(self, *conditionals) -> 'ConditionalDistributions':  # need another type??
-        """
-        Condition on `conditionals`.
-
-        :param conditionals: Names of variables to calculate conditional distributions on.
-        """
-        # P(A,B|C,D) = P(A,B,C,D) / P(C,D)
-        # conditional = joint(all) / joint(conditions)
-        data = self._data.copy()
-        conditionals = [c for c in conditionals]
-        p_name = data.name
-        sum_name = p_name + '_sum'
-        joint = data.reset_index()
-        sums = joint.groupby(conditionals).sum().reset_index().rename(columns={p_name: sum_name})
-        merged = merge(left=joint, right=sums, on=conditionals)
-        merged['p'] = merged[p_name] / merged[sum_name]
-        return DiscreteDistribution(
-            data=merged[self._var_names + ['p']].set_index(self._var_names)['p'],
-            conditionals=conditionals
-        )
-
-    @overload
-    def __mul__(self, other: 'DiscreteDistribution') -> float:
-        pass
-
-    @overload
-    def __mul__(self, other: 'ConditionalDistributions') -> 'DiscreteDistribution':
-        pass
-
-    def __mul__(self, other: Union['ConditionalDistributions']):
-
-        if self.conditional_vars == other.joint_vars and not other.conditional_vars:
-            # P(a) = P(a|b) * P(b)
-            cond_data = self.data.rename(self.name).to_frame().reset_index()
-            prior_data = other.data.rename(other.name).to_frame().reset_index()
-            merged = merge(left=cond_data, right=prior_data, on=self.conditional_vars)
-            merged['p'] = merged[self.name] * merged[other.name]
-            results = merged.groupby(self.joint_vars)['p'].sum()
-            results.name = f'{self.name} * {other.name}'
-            return DiscreteDistribution(results)
-        elif self.joint_vars == other.conditional_vars and not self.conditional_vars:
-            # P(b) = P(b|a) * P(a)
-            cond_data = other.data.rename(other.name).to_frame().reset_index()
-            prior_data = self.data.rename(self.name).to_frame().reset_index()
-            merged = merge(left=cond_data, right=prior_data, on=other.conditional_vars)
-            merged['p'] = merged[other.name] * merged[self.name]
-            results = merged.groupby(other.joint_vars)['p'].sum()
-            results.name = f'{other.name} * {self.name}'
-            return DiscreteDistribution(results)
-
-    def __truediv__(self, other):
-
-        # TODO: implement division of distributions with identical joint_vars
-        #  (and no conditionals or marginalizeds initially) to finish Bayes rule
-        raise NotImplementedError
+    @property
+    def not_givens(self) -> List[str]:
+        return self._not_givens
 
     @property
     def data(self) -> Series:
@@ -109,11 +70,71 @@ class DiscreteDistribution(object):
 
     @property
     def name(self):
-        return 'P({}{}{})'.format(
-            ','.join(self.joint_vars),
-            '|' if self.conditional_vars else '',
-            ','.join(self.conditional_vars)
+
+        str_joints = ','.join(self._joints)
+        strs_conditions = []
+        for var_name in self._var_names:
+            if var_name in self._givens.keys():
+                strs_conditions.append(f'{var_name}={self._givens[var_name]}')
+            elif var_name in self._not_givens:
+                strs_conditions.append(var_name)
+        str_conditions = '|' + ','.join(strs_conditions) if strs_conditions else ''
+        return f'P({str_joints}{str_conditions})'
+
+    def margin(self, *margins) -> 'DiscreteDistribution':
+        """
+        Marginalize over variables not in margins.
+
+        :param margins: List of variables to keep.
+        """
+        data = margin(self._data, *margins)
+        return DiscreteDistribution(
+            data=data, givens=self._givens, not_givens=self._not_givens
         )
+
+    def condition(self, *not_givens, **givens) -> 'DiscreteDistribution':
+        """
+        Condition on not-given and given variables.
+        """
+        given_overlap = set(givens.keys()).intersection(self._givens.keys())
+        assert len(given_overlap) == 0, f'Cannot recondition values of {given_overlap}'
+        not_givens = [g for g in self._givens
+                      if g not in not_givens] + list(not_givens)  # need to recondition on existing not-givens
+        data = condition(self._data, *not_givens, **givens)
+        new_givens = {**self._givens, **givens}
+        return DiscreteDistribution(
+            data=data, givens=new_givens, not_givens=not_givens
+        )
+
+    def __mul__(self, other: 'DiscreteDistribution'):
+
+        if (
+                self.not_givens == other.joints and
+                not self.givens and
+                not other.not_givens and
+                not other.givens
+        ):
+            # P(a) = P(a|b) * P(b)
+            data = multiply(conditional=self.data, marginal=other.data)
+            return DiscreteDistribution(
+                data=data
+            )
+        elif (
+                other.not_givens == self.joints and
+                not other.givens and
+                not self.not_givens and
+                not self.givens
+        ):
+            # P(b) = P(b|a) * P(a)
+            return other * self
+        else:
+            raise ValueError('Cannot multiply these distributions.')
+
+    def __truediv__(self, other):
+
+        # TODO: implement division of distributions with identical joints
+        #  (and no conditionals or marginalizeds initially) to finish Bayes rule
+        raise NotImplementedError
 
     def __repr__(self):
         return self.name
@@ -122,13 +143,12 @@ class DiscreteDistribution(object):
         return str(self.data)
 
 
-prior_data = DataFrame({'box': ['blue', 'red'], 'p': [0.6, 0.4]}).set_index('box')['p']
-prior = DiscreteDistribution(data=prior_data)
+prior = DiscreteDistribution.from_dict({'blue': 0.6, 'red': 0.4}, 'box')
 
-cond_data = DataFrame({
-    'fruit': ['apple', 'orange', 'apple', 'orange'],
-    'box': ['blue', 'blue', 'red', 'red'],
-    'p': [0.75, 0.25, 0.25, 0.75]
-}).set_index(['fruit', 'box'])['p']
-cond = DiscreteDistribution(data=cond_data, conditionals=['box'])
-
+cond_data = {
+    ('apple', 'blue'):  0.75,
+    ('orange', 'blue'): 0.25,
+    ('apple', 'red'):  0.25,
+    ('orange', 'red'): 0.75
+}
+cond = DiscreteDistribution.from_dict(cond_data, ['fruit', 'box'], 'box')

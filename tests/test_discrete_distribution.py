@@ -1,29 +1,26 @@
-from numpy import random
-from pandas import DataFrame, Series
+from unittest import TestCase
 
-from probability.pandas.prob_utils import margin, condition
-
-
-def make_joint_data():
-
-    random.seed(123)
-    return DataFrame(random.randint(1, 4, (100, 4)),
-                     columns=['A', 'B', 'C', 'D'])
+from probability.pandas.discrete_distribution import DiscreteDistribution
+from tests.shared import read_distribution_data, series_are_equivalent
 
 
-def get_joint_distribution(data_set: DataFrame) -> Series:
-    return (
-        data_set.groupby(data_set.columns.tolist()).size() / len(data_set)
-    ).rename('p')
+class TestDiscreteDistribution(TestCase):
 
+    def test_product_rule(self):
 
-if __name__ == '__main__':
-
-    joint_data = make_joint_data()
-    print(joint_data)
-    joint_dist = get_joint_distribution(joint_data)
-    print(joint_dist)
-    mA = margin(joint_dist, 'C', 'D')
-    print(mA)
-    condA = condition(joint_dist, 'C', 'D')
-    print(condA)
+        p_AB = DiscreteDistribution(read_distribution_data('P(A,B)'))
+        # margins
+        p_A = p_AB.margin('A')
+        p_B = p_AB.margin('B')
+        # conditions
+        p_A__B = p_AB.condition('B')
+        p_B__A = p_AB.condition('A')
+        # products
+        p_A__p_B__A_v1 = p_B__A * p_A
+        p_A__p_B__A_v2 = p_A * p_B__A
+        p_B__p_A__B_v1 = p_B * p_A__B
+        p_B__p_A__B_v2 = p_A__B * p_B
+        self.assertTrue(series_are_equivalent(p_AB.data, p_A__p_B__A_v1.data))
+        self.assertTrue(series_are_equivalent(p_AB.data, p_A__p_B__A_v2.data))
+        self.assertTrue(series_are_equivalent(p_AB.data, p_B__p_A__B_v1.data))
+        self.assertTrue(series_are_equivalent(p_AB.data, p_B__p_A__B_v2.data))
