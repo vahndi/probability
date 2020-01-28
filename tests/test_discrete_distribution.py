@@ -1,3 +1,4 @@
+from itertools import permutations
 from unittest import TestCase
 
 from probability.pandas.discrete_distribution import DiscreteDistribution
@@ -5,6 +6,16 @@ from tests.shared import read_distribution_data, series_are_equivalent
 
 
 class TestDiscreteDistribution(TestCase):
+
+    def test_margins(self):
+
+        p_ABCD = DiscreteDistribution(read_distribution_data('P(A,B,C,D)'))
+        for n_margins in (1, 2, 3, 4):
+            for margin_vars in permutations('ABCD', n_margins):
+                p_v = p_ABCD.margin(*margin_vars)
+                self.assertEqual(p_v.name, f'P({",".join(margin_vars)})')
+                self.assertEqual(p_v.givens, {})
+                self.assertEqual(p_v.not_givens, [])
 
     def test_product_rule(self):
 

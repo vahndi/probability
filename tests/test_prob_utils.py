@@ -1,5 +1,5 @@
 from itertools import product, permutations
-from pandas import ExcelFile, Series
+from pandas import ExcelFile
 import unittest
 from unittest import TestCase
 
