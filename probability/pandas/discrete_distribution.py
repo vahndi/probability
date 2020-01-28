@@ -36,7 +36,12 @@ class DiscreteDistribution(object):
                   names: Union[str, List[str]],
                   *not_givens, **givens) -> 'DiscreteDistribution':
         """
-        Create a new joint distribution from a dictionary of probabilities.
+        Create a new joint distribution from a dictionary of probabilities or counts.
+
+        :param data: Dictionary mapping values of random variables to their probabilities.
+        :param names: Name of each random variable.
+        :param not_givens: Variables to condition on without giving a value.
+        :param givens: Variables to condition on with given values.
         """
         first_key = list(data.keys())[0]
         if isinstance(first_key, tuple):
@@ -49,6 +54,20 @@ class DiscreteDistribution(object):
             raise TypeError('probs must be Dict[[Union[str, int, tuple], float]')
         data = Series(data=list(data.values()), index=index, name='p')
         return DiscreteDistribution(data, not_givens=list(not_givens), givens=givens)
+
+    @staticmethod
+    def from_counts(counts: Dict[Union[str, int], int],
+                    names: Union[str, List[str]]) -> 'DiscreteDistribution':
+        """
+        Return a new joint distribution from counts of random variable values.
+
+        :param counts: Dictionary mapping values of random variables to the number of observations.
+        :param names: Name of each random variable.
+        :return:
+        """
+        sum_values = sum(counts.values())
+        normalized = {k: v / sum_values for k, v in counts.items()}
+        return DiscreteDistribution.from_dict(normalized, names=names)
 
     @staticmethod
     def from_dataset(data: DataFrame) -> 'DiscreteDistribution':

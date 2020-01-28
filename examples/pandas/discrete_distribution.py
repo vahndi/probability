@@ -38,7 +38,9 @@ def fruit_boxes():
 
 
 def darts():
-
+    """
+    Example from section 1.1.1 of "Bayesian Reasoning and Machine Learning"
+    """
     p_region = DiscreteDistribution.from_dict({r: 1 / 20 for r in range(1, 21)}, names='region')
     print_distribution(p_region.name, p_region.data)
     p_not_20 = p_region.condition(region__ne=20)
@@ -47,8 +49,35 @@ def darts():
     print(p_5__not_20)
 
 
+def languages_countries():
+    """
+    Example from section 1.1.2 of "Bayesian Reasoning and Machine Learning"
+    """
+    p_c = DiscreteDistribution.from_counts({
+        'england': 60776238,
+        'scotland': 5116900,
+        'wales': 2980700
+    }, 'country')
+    print_distribution(p_c.name, p_c.data)
+    p_l__c = DiscreteDistribution.from_dict({
+        ('english', 'england'): 0.95,
+        ('english', 'scotland'): 0.7,
+        ('english', 'wales'): 0.6,
+        ('scottish', 'england'): 0.04,
+        ('scottish', 'scotland'): 0.3,
+        ('scottish', 'wales'): 0.0,
+        ('welsh', 'england'): 0.01,
+        ('welsh', 'scotland'): 0.0,
+        ('welsh', 'wales'): 0.4,
+    }, ['language', 'country'], 'country')
+    print_distribution(p_l__c.name, p_l__c.data)
+    p_lc = p_c * p_l__c
+    print_distribution(p_lc.name, p_lc.data)
+
+
 if __name__ == '__main__':
 
     fruit_boxes()
     darts()
+    languages_countries()
 
