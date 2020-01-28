@@ -1,7 +1,7 @@
 from pandas import Index, MultiIndex, Series, DataFrame
 from typing import Any, Dict, List, Optional, Union
 
-from probability.pandas.prob_utils import margin, condition, multiply
+from probability.pandas.prob_utils import margin, condition, multiply, name_and_symbol
 
 
 class DiscreteDistribution(object):
@@ -32,19 +32,21 @@ class DiscreteDistribution(object):
         # e.g. all p values for a given combination of values of givens and not-givens should sum to 1
 
     @staticmethod
-    def from_dict(data: dict, names: Union[str, List[str]],
+    def from_dict(data: Dict[Union[str, int, tuple], float],
+                  names: Union[str, List[str]],
                   *not_givens, **givens) -> 'DiscreteDistribution':
         """
         Create a new joint distribution from a dictionary of probabilities.
         """
-        if isinstance(list(data.keys())[0], str):
-            index = Index(list(data.keys()),
-                          name=names[0] if isinstance(names, list) else names)
-        elif isinstance(list(data.keys())[0], tuple):
+        first_key = list(data.keys())[0]
+        if isinstance(first_key, tuple):
             index = MultiIndex.from_tuples(list(data.keys()),
                                            names=[names] if isinstance(names, str) else names)
+        elif type(first_key) in (str, int):
+            index = Index(list(data.keys()),
+                          name=names[0] if isinstance(names, list) else names)
         else:
-            raise TypeError('probs must be Dict[str, float] or Dict[Tuple[str], float]')
+            raise TypeError('probs must be Dict[[Union[str, int, tuple], float]')
         data = Series(data=list(data.values()), index=index, name='p')
         return DiscreteDistribution(data, not_givens=list(not_givens), givens=givens)
 
@@ -68,8 +70,8 @@ class DiscreteDistribution(object):
         return self._joints
 
     @property
-    def givens(self) -> List[str]:
-        return list(self._givens.keys())
+    def givens(self) -> Dict[str, Any]:
+        return self._givens
 
     @property
     def not_givens(self) -> List[str]:
@@ -84,11 +86,10 @@ class DiscreteDistribution(object):
 
         str_joints = ','.join(self._joints)
         strs_conditions = []
-        for var_name in self._var_names:
-            if var_name in self._givens.keys():
-                strs_conditions.append(f'{var_name}={self._givens[var_name]}')
-            elif var_name in self._not_givens:
-                strs_conditions.append(var_name)
+        for not_given in self.not_givens:
+            strs_conditions.append(not_given)
+        for given_var, given_val in self.givens.items():
+            strs_conditions.append(name_and_symbol(given_var, given_val, self.var_names))
         str_conditions = '|' + ','.join(strs_conditions) if strs_conditions else ''
         return f'P({str_joints}{str_conditions})'
 
@@ -117,6 +118,9 @@ class DiscreteDistribution(object):
             data=data, givens=new_givens, not_givens=not_givens
         )
 
+    def __getitem__(self, item):
+        return self.data.loc[item]
+
     def __mul__(self, other: 'DiscreteDistribution'):
 
         if (
@@ -127,9 +131,7 @@ class DiscreteDistribution(object):
         ):
             # P(a) = P(a|b) * P(b)
             data = multiply(conditional=self.data, marginal=other.data)
-            return DiscreteDistribution(
-                data=data
-            )
+            return DiscreteDistribution(data=data)
         elif (
                 other.not_givens == self.joints and
                 not other.givens and

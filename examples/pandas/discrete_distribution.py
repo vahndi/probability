@@ -33,10 +33,22 @@ def fruit_boxes():
     p_b__f = p_fb.condition('fruit')
     print_distribution(p_b__f.name, p_b__f.data)
     # P(box|fruit=orange)
-    p_b__f_apple = p_fb.condition(fruit='orange')
-    print_distribution(p_b__f_apple.name, p_b__f_apple.data)
+    p_b__f_orange = p_fb.condition(fruit='orange')
+    print_distribution(p_b__f_orange.name, p_b__f_orange.data)
+
+
+def darts():
+
+    p_region = DiscreteDistribution.from_dict({r: 1 / 20 for r in range(1, 21)}, names='region')
+    print_distribution(p_region.name, p_region.data)
+    p_not_20 = p_region.condition(region__ne=20)
+    print_distribution(p_not_20.name, p_not_20.data)
+    p_5__not_20 = p_not_20[5]
+    print(p_5__not_20)
 
 
 if __name__ == '__main__':
 
     fruit_boxes()
+    darts()
+
