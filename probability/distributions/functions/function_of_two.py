@@ -1,6 +1,6 @@
 class FunctionOfTwo(object):
     """
-    A function of 2 distributions that can be evaluated later at specific values.
+    A function of 2 distributions that can be evaluated later p specific values.
     """
     def __init__(self, distribution_1, distribution_2, method):
 

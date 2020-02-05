@@ -1,6 +1,5 @@
 from pandas import DataFrame
 
-from examples.pandas.shared import print_distribution
 from probability.pandas.discrete_distribution import DiscreteDistribution
 
 
@@ -14,27 +13,28 @@ def fruit_boxes():
     })
     # P(box,fruit)
     p_bf = DiscreteDistribution.from_dataset(fruit_box_data)
-    print_distribution(p_bf.name, p_bf.data)
+    print(p_bf, '\n')
     # P(box)
-    p_b = DiscreteDistribution.from_dict(
-        data={'blue': 0.6, 'red': 0.4}, names='box'
-    )
-    print_distribution(p_b.name, p_b.data)
+    p_b = DiscreteDistribution.from_dict(data={'blue': 0.6, 'red': 0.4}, names='box')
+    print(p_b, '\n')
     # P(fruit|box)
     p_f__b = p_bf.condition('box')
-    print_distribution(p_f__b.name, p_f__b.data)
+    print(p_f__b, '\n')
     # P(fruit,box) = P(fruit|box) * P(box)
     p_fb = p_f__b * p_b
-    print_distribution(p_fb.name, p_fb.data)
+    print(p_fb, '\n')
     # P(fruit)
     p_f = p_fb.margin('fruit')
-    print_distribution(p_f.name, p_f.data)
+    print(p_f, '\n')
     # P(box|fruit)
     p_b__f = p_fb.condition('fruit')
-    print_distribution(p_b__f.name, p_b__f.data)
+    print(p_b__f, '\n')
     # P(box|fruit=orange)
-    p_b__f_orange = p_fb.condition(fruit='orange')
-    print_distribution(p_b__f_orange.name, p_b__f_orange.data)
+    p_b__f_orange = p_fb.given(fruit='orange')
+    print(p_b__f_orange, '\n')
+    # P(box=blue|fruit=orange)
+    p_b_blue__f_orange = p_b__f.p(box='blue', fruit='orange')
+    print(p_b_blue__f_orange, '\n')
 
 
 def darts():
@@ -42,9 +42,9 @@ def darts():
     Example from section 1.1.1 of "Bayesian Reasoning and Machine Learning"
     """
     p_region = DiscreteDistribution.from_dict({r: 1 / 20 for r in range(1, 21)}, names='region')
-    print_distribution(p_region.name, p_region.data)
-    p_not_20 = p_region.condition(region__ne=20)
-    print_distribution(p_not_20.name, p_not_20.data)
+    print(p_region)
+    p_not_20 = p_region.given(region__ne=20)
+    print(p_not_20)
     p_5__not_20 = p_not_20[5]
     print(p_5__not_20)
 
@@ -54,11 +54,11 @@ def languages_countries():
     Example from section 1.1.2 of "Bayesian Reasoning and Machine Learning"
     """
     p_c = DiscreteDistribution.from_counts({
-        'england': 60776238,
-        'scotland': 5116900,
-        'wales': 2980700
+        'england': 60_776_238,
+        'scotland': 5_116_900,
+        'wales': 2_980_700
     }, 'country')
-    print_distribution(p_c.name, p_c.data)
+    print(p_c)
     p_l__c = DiscreteDistribution.from_dict({
         ('english', 'england'): 0.95,
         ('english', 'scotland'): 0.7,
@@ -70,14 +70,14 @@ def languages_countries():
         ('welsh', 'scotland'): 0.0,
         ('welsh', 'wales'): 0.4,
     }, ['language', 'country'], 'country')
-    print_distribution(p_l__c.name, p_l__c.data)
+    print(p_l__c)
     p_lc = p_c * p_l__c
-    print_distribution(p_lc.name, p_lc.data)
+    print(p_lc)
 
 
 if __name__ == '__main__':
 
     fruit_boxes()
-    darts()
-    languages_countries()
+    # darts()
+    # languages_countries()
 

@@ -2,7 +2,6 @@ from pathlib import Path
 
 _tests_dir = Path(__file__)
 while _tests_dir.name != 'tests':
-    print(_tests_dir.name)
     _tests_dir = _tests_dir.parent
 
 DIR_TEST_DATA = _tests_dir / 'test_data'

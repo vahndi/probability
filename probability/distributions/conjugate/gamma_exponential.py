@@ -24,7 +24,7 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
 
     Model parameters
     ----------------
-    * `P(x)` is the probability of observing an event at a rate of `x`.
+    * `P(x)` is the probability of observing an event p a rate of `x`.
     * `0 ≤ x`
 
     Links
