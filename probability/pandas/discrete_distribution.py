@@ -1,27 +1,28 @@
 from pandas import Index, MultiIndex, Series, DataFrame
 from typing import Any, Dict, List, Optional, Union
 
-from probability.pandas.prob_utils import margin, condition, multiply, name_and_symbol, given
+from probability.pandas.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, is_valid_given, \
+    cond_name
 
 
 class DiscreteDistribution(object):
 
     def __init__(self, data: Series,
-                 cond_variables: Optional[List[str]] = None,
+                 cond_vars: List[str] = None,
                  cond_values: Optional[Dict[str, Any]] = None):
         """
         Create a new DiscreteDistribution.
 
         :param data: Series with an index column for each variable, and values of probability of each index row.
-        :param cond_values: Dictionary of conditional variables mapped to their value.
-        :param cond_variables: List of conditional variables without a given value.
+        :param cond_vars: List of conditional variable {name}s.
+        :param cond_values: Dictionary of conditional variable {name}__{comparator}s mapped to their conditioned value.
         """
         self._data: Series = data.copy()
-        self._var_names: List[str] = list(data.index.names)
-        self._cond_vars: List[str] = cond_variables or []
+        self._cond_vars = cond_vars or []
         self._cond_vals: Dict[str, Any] = cond_values or {}
-        self._joints: List[str] = [n for n in self._var_names
-                                   if n not in self._cond_vals.keys() and n not in self._cond_vars]
+        self._joints: List[str] = list(data.index.names)
+        self._var_names: List[str] = self._joints + self._cond_vars
+
         # do assertions here based on the conditionals and marginals
         # e.g. all p values for a given combination of values of co and not-cond_values should sum to 1
 
@@ -30,13 +31,12 @@ class DiscreteDistribution(object):
     @staticmethod
     def from_dict(data: Dict[Union[str, int, tuple], float],
                   names: Union[str, List[str]],
-                  *cond_vars, **cond_values) -> 'DiscreteDistribution':
+                  **cond_values) -> 'DiscreteDistribution':
         """
         Create a new joint distribution from a dictionary of probabilities or counts.
 
         :param data: Dictionary mapping values of random variables to their probabilities.
         :param names: Name of each random variable.
-        :param cond_vars: Variables to condition on without giving a value.
         :param cond_values: Variables to condition on with given values.
         """
         first_key = list(data.keys())[0]
@@ -49,7 +49,8 @@ class DiscreteDistribution(object):
         else:
             raise TypeError('probs must be Dict[[Union[str, int, tuple], float]')
         data = Series(data=list(data.values()), index=index, name='p')
-        return DiscreteDistribution(data, cond_variables=list(cond_vars), cond_values=cond_values)
+        return DiscreteDistribution(data, cond_vars=list(cond_values.keys()),
+                                    cond_values=cond_values)
 
     @staticmethod
     def from_counts(counts: Dict[Union[str, int], int],
@@ -95,13 +96,6 @@ class DiscreteDistribution(object):
         return self._cond_vals
 
     @property
-    def cond_vars(self) -> List[str]:
-        """
-        Return the names of conditional variables without specified values.
-        """
-        return self._cond_vars
-
-    @property
     def data(self) -> Series:
         return self._data
 
@@ -110,10 +104,8 @@ class DiscreteDistribution(object):
 
         str_joints = ','.join(self._joints)
         strs_conditions = []
-        for cond_var in self.cond_vars:
-            strs_conditions.append(cond_var)
         for cond_var, cond_val in self.cond_values.items():
-            strs_conditions.append(name_and_symbol(cond_var, cond_val, self.var_names))
+            strs_conditions.append(cond_name_and_symbol(cond_var, cond_val, self.var_names))
         str_conditions = '|' + ','.join(strs_conditions) if strs_conditions else ''
         return f'P({str_joints}{str_conditions})'
 
@@ -160,12 +152,16 @@ class DiscreteDistribution(object):
         """
         # check input variables
         given_val_keys = set(given_vals.keys())
-        if not given_val_keys.issubset(self._joints):
+        if not all([is_valid_given(k, self._joints) for k in given_val_keys]):
             raise ValueError('Given variables must be members of joint distribution.')
         # calculate conditional distribution
         data = given(self._data, **given_vals)
         cond_values = {**self._cond_vals, **given_vals}
-        return DiscreteDistribution(data=data, cond_values=cond_values)
+        return DiscreteDistribution(
+            data=data,
+            cond_vars=self._cond_vars + [cond_name(k, self.var_names) for k in given_val_keys],
+            cond_values=cond_values
+        )
 
     def p(self, **joint_vals) -> float:
         """
@@ -190,7 +186,7 @@ class DiscreteDistribution(object):
 
         if (
                 self.joints == other.cond_vars and
-                not self.cond_vars and not self.cond_values
+                not self.cond_values
         ):
             # P(b) = P(b|a) * P(a)
             data = multiply(conditional=other.data, marginal=self.data)

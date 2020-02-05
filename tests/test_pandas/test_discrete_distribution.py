@@ -18,7 +18,6 @@ class TestDiscreteDistribution(TestCase):
                 p_v = self.p_abcd.margin(*margin_vars)
                 self.assertEqual(p_v.name, f'P({",".join(margin_vars)})')
                 self.assertEqual(p_v.cond_values, {})
-                self.assertEqual(p_v.cond_vars, [])
 
     def test_given(self):
 

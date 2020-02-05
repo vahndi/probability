@@ -2,7 +2,7 @@ from pandas import Series
 from typing import List, Optional
 
 from probability.pandas import DiscreteDistribution
-from probability.pandas.prob_utils import margin
+from probability.pandas.prob_utils import margin, given
 
 
 class ConditionalTable(object):
@@ -88,8 +88,7 @@ class ConditionalTable(object):
         if not has_all_conds:
             raise ValueError('Must supply values for all conditioned variables to get to joint distribution.')
         # calculate probability
-        data = self._data.reset_index()
-        data = data.loc[data[given_val_keys] == Series(given_vals).all(axis=1)]
+        data = given(self._data, **given_vals)
         return DiscreteDistribution(data, cond_values=given_vals)
 
     # endregion

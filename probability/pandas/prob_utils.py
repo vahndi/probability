@@ -39,6 +39,20 @@ _comparator_symbols = {
 }
 
 
+def is_valid_given(given_name: str, var_names: List[str]) -> bool:
+    """
+    Return whether the given name is a valid conditioning filter name for any of the variables in var_names.
+    """
+    for var_name in var_names:
+        if given_name == var_name:
+            return True
+    for var_name in var_names:
+        for code in _match_codes:
+            if given_name == var_name + '__' + code:
+                return True
+    return False
+
+
 def _filter_distribution(distribution: DataFrame, variable: str, value: Any) -> Tuple[DataFrame, str]:
     """
 
@@ -72,14 +86,24 @@ def _filter_distribution(distribution: DataFrame, variable: str, value: Any) -> 
         return distribution.loc[~distribution[variable[: -10]].isin(value)], variable[: -10]
 
 
-def name_and_symbol(name: str, value, var_names: List[str]) -> str:
+def cond_name(name: str, var_names: List[str]) -> str:
 
     if name in var_names:
-        return f'{name}={value}'
+        return name
+    for var_name in var_names:
+        for code in _match_codes:
+            if var_name + '__' + code == name:
+                return var_name
+
+
+def cond_name_and_symbol(name: str, value, var_names: List[str]) -> str:
+
     for var_name in var_names:
         for code in _match_codes:
             if var_name + '__' + code == name:
                 return _comparator_symbols[code](var_name, value)
+    if name in var_names:
+        return f'{name}={value}'
 
 
 def condition(distribution: Series, *not_givens) -> Series:
@@ -135,7 +159,7 @@ def given(distribution: Series, **givens) -> Series:
     # normalize each individual remaining probability P(Ai,Bj,Ck,d1)
     # to the sum of remaining probabilities P(A,B,C,d1)
     data['p'] = data['p'] / data['p'].sum()
-    return data.set_index(var_names)['p']
+    return data.set_index([var_name for var_name in var_names if var_name not in givens.keys()])['p']
 
 
 def multiply(conditional: Series, marginal: Series) -> Series:

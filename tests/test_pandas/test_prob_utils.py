@@ -66,11 +66,6 @@ class TestProbUtils(TestCase):
             self.assertFalse(series_are_equivalent(self.p_AB__C_1__D_2, given(self.joint, **kwargs)))
 
         self.assertTrue(series_are_equivalent(self.p_A__B_1__C_2__D_3, given(self.joint, B=1, C=2, D=3)))
-        for c1, c2, c3 in product(self.vars, self.vars, self.vars):
-            if len({c1, c2, c3}) != 3 or (c1 == 'B' and c2 == 'C' and c3 == 'D'):
-                continue
-            kwargs = {c1: 1, c2: 2, c3: 3}
-            self.assertFalse(series_are_equivalent(self.p_A__B_1__C_2__D_3, given(self.joint, **kwargs)))
 
     def test_not_given_conditions(self):
 
