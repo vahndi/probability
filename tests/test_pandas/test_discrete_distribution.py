@@ -40,6 +40,11 @@ class TestDiscreteDistribution(TestCase):
             p = row_dict.pop('p')
             self.assertEqual(p, self.p_abcd.p(**row_dict))
 
+    def test_p_missing_values(self):
+
+        p = self.p_abcd.p(A=1, B=2, C=3, D=4)
+        self.assertEqual(0.0, p)
+
     def test_product_rule(self):
 
         p_ab = DiscreteDistribution(read_distribution_data('P(A,B)'))

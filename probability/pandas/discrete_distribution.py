@@ -188,7 +188,11 @@ class DiscreteDistribution(object):
         var_vals = [joint_vals[name] for name in self._data.index.names]
         if len(var_vals) == 1:
             var_vals = var_vals[0]
-        return self._data.xs(var_vals)
+        try:
+            return self._data.xs(var_vals)
+        except KeyError:
+            # not all values are in distribution variable values
+            return 0.0
 
     # endregion
 
