@@ -89,7 +89,7 @@ class ConditionalTable(object):
             raise ValueError('Must supply values for all conditioned variables to get to joint distribution.')
         # calculate probability
         data = given(self._data, **given_vals)
-        return DiscreteDistribution(data, cond_values=given_vals)
+        return DiscreteDistribution(data, given_conditions=given_vals)
 
     # endregion
 

@@ -13,11 +13,11 @@ class TestDiscreteDistribution(TestCase):
 
     def test_margin(self):
 
-        for n_margins in (1, 2, 3, 4):
+        for n_margins in (1, 2, 3):
             for margin_vars in permutations('ABCD', n_margins):
                 p_v = self.p_abcd.margin(*margin_vars)
                 self.assertEqual(p_v.name, f'P({",".join(margin_vars)})')
-                self.assertEqual(p_v.cond_values, {})
+                self.assertEqual(p_v.given_conditions, {})
 
     def test_given(self):
 

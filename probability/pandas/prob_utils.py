@@ -22,8 +22,8 @@ def margin(distribution: Series, *margins) -> Series:
     return distribution.to_frame().groupby(list(margins))['p'].sum()
 
 
-_match_codes = ['eq', 'ne', 'lt', 'gt', 'le', 'ge', 'in', 'not_in']
-_comparator_symbols = {
+_match_codes: List[str] = ['eq', 'ne', 'lt', 'gt', 'le', 'ge', 'in', 'not_in']
+comparator_symbols = {
     'eq': lambda arg, val: f'{arg}={val}',
     'ne': lambda arg, val: f'{arg}≠{val}',
     'lt': lambda arg, val: f'{arg}<{val}',
@@ -39,92 +39,106 @@ _comparator_symbols = {
 }
 
 
-def is_valid_given(given_name: str, var_names: List[str]) -> bool:
+def valid_name_comparator(name_comparator: str, var_names: List[str]) -> bool:
     """
     Return whether the given name is a valid conditioning filter name for any of the variables in var_names.
+
+    :param name_comparator: Amalgamation of variable name and filtering comparator in the form '{name}__{comparator}'.
+    :param var_names: List of valid variables names to look for in `name_comparator`.
     """
     for var_name in var_names:
-        if given_name == var_name:
+        if name_comparator == var_name:
             return True
     for var_name in var_names:
         for code in _match_codes:
-            if given_name == var_name + '__' + code:
+            if name_comparator == var_name + '__' + code:
                 return True
     return False
 
 
-def _filter_distribution(distribution: DataFrame, variable: str, value: Any) -> Tuple[DataFrame, str]:
+def _filter_distribution(distribution: DataFrame, name_comparator: str, value: Any) -> Tuple[DataFrame, str]:
     """
+    Filter probability distribution data using the variable name, comparator code and value.
 
-    :param distribution:
-    :param variable:
-    :param value:
+    :param distribution: The probability distribution data to filter.
+    :param name_comparator: Amalgamation of variable name and filtering comparator in the form '{name}__{comparator}'.
+    :param value: Value to filter to.
     :return: Filtered Data, Variable Name
     """
     var_names = [col for col in distribution if col != 'p']
 
     def match_var(code: str) -> bool:
-        return variable in [f'{var_name}__{code}' for var_name in var_names]
+        return name_comparator in [f'{var_name}__{code}' for var_name in var_names]
 
-    if variable in var_names:
-        return distribution.loc[distribution[variable] == value], variable
+    if name_comparator in var_names:
+        return distribution.loc[distribution[name_comparator] == value], name_comparator
     elif match_var('eq'):
-        return distribution.loc[distribution[variable[: -4]] == value], variable[: -4]
+        return distribution.loc[distribution[name_comparator[: -4]] == value], name_comparator[: -4]
     elif match_var('ne'):
-        return distribution.loc[distribution[variable[: -4]] != value], variable[: -4]
+        return distribution.loc[distribution[name_comparator[: -4]] != value], name_comparator[: -4]
     elif match_var('lt'):
-        return distribution.loc[distribution[variable[: -4]] < value], variable[: -4]
+        return distribution.loc[distribution[name_comparator[: -4]] < value], name_comparator[: -4]
     elif match_var('gt'):
-        return distribution.loc[distribution[variable[: -4]] > value], variable[: -4]
+        return distribution.loc[distribution[name_comparator[: -4]] > value], name_comparator[: -4]
     elif match_var('le'):
-        return distribution.loc[distribution[variable[: -4]] <= value], variable[: -4]
+        return distribution.loc[distribution[name_comparator[: -4]] <= value], name_comparator[: -4]
     elif match_var('ge'):
-        return distribution.loc[distribution[variable[: -4]] >= value], variable[: -4]
+        return distribution.loc[distribution[name_comparator[: -4]] >= value], name_comparator[: -4]
     elif match_var('in'):
-        return distribution.loc[distribution[variable[: -4]].isin(value)], variable[: -4]
+        return distribution.loc[distribution[name_comparator[: -4]].isin(value)], name_comparator[: -4]
     elif match_var('not_in'):
-        return distribution.loc[~distribution[variable[: -10]].isin(value)], variable[: -10]
+        return distribution.loc[~distribution[name_comparator[: -8]].isin(value)], name_comparator[: -8]
 
 
-def cond_name(name: str, var_names: List[str]) -> str:
+def cond_name(name_comparator: str, var_names: List[str]) -> str:
+    """
+    Return the conditioning variable name from the name and comparator code.
 
-    if name in var_names:
-        return name
+    :param name_comparator: Amalgamation of variable name and filtering comparator in the form '{name}__{comparator}'.
+    :param var_names: List of valid variables names to look for in `name_comparator`.
+    """
+    if name_comparator in var_names:
+        return name_comparator
     for var_name in var_names:
         for code in _match_codes:
-            if var_name + '__' + code == name:
+            if var_name + '__' + code == name_comparator:
                 return var_name
 
 
-def cond_name_and_symbol(name: str, value, var_names: List[str]) -> str:
+def cond_name_and_symbol(name_comparator: str, value, var_names: List[str]) -> str:
+    """
+    Return the conditioning variable name and mathematical symbol from the name and comparator code.
 
+    :param name_comparator: Amalgamation of variable name and filtering comparator in the form '{name}__{comparator}'.
+    :param var_names: List of valid variables names to look for in `name_comparator`.
+    :param value: Value to filter to.
+    """
     for var_name in var_names:
         for code in _match_codes:
-            if var_name + '__' + code == name:
-                return _comparator_symbols[code](var_name, value)
-    if name in var_names:
-        return f'{name}={value}'
+            if var_name + '__' + code == name_comparator:
+                return comparator_symbols[code](var_name, value)
+    if name_comparator in var_names:
+        return f'{name_comparator}={value}'
 
 
-def condition(distribution: Series, *not_givens) -> Series:
+def condition(distribution: Series, *cond_vars) -> Series:
     """
     Condition the distribution on given and/or not-given values of the variables.
 
     :param distribution: The probability distribution to condition e.g. P(A,B,C,D).
-    :param not_givens: Names of variables to condition on every value e.g. 'C'.
-    :param givens: Names and values of variables to condition on a given value e.g. D=1.
+    :param cond_vars: Names of variables to condition over every value of e.g. 'C'.
     :return: Conditioned distribution. Filtered to only given values of the cond_values.
-             Contains a stacked Series of probabilities summing to 1 for each combination of not-given variable values.
+             Contains a stacked Series of probabily distributions for each combination of conditioning variable values.
              e.g. P(A,B|C,D=d1), P(A,B|C,D=d2) etc.
     """
     col_names = distribution.index.names
     var_names = ([
         n for n in col_names
-        if n not in not_givens
+        if n not in cond_vars
     ])
-    var_names.extend([n for n in col_names if n in not_givens])
+    var_names.extend([n for n in col_names if n in cond_vars])
     data = distribution.copy().reset_index()
-    not_given_vars = list(not_givens)
+    not_given_vars = list(cond_vars)
     if not_given_vars:
         # find total probabilities for each combination of unique values in the conditional variables e.g. P(C)
         sums = data.groupby(not_given_vars).sum().reset_index()
@@ -143,7 +157,7 @@ def given(distribution: Series, **givens) -> Series:
     :param distribution: The probability distribution to condition e.g. P(A,B,C,D).
     :param givens: Names and values of variables to condition on a given value e.g. D=1.
     :return: Conditioned distribution. Filtered to only given values of the cond_values.
-             Contains a single probability series summing to 1.
+             Contains a single probability distribution summing to 1.
     """
     col_names = distribution.index.names
     var_names = ([

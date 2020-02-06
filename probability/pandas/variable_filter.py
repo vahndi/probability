@@ -2,6 +2,8 @@ from pandas import DataFrame, Series
 import re
 from typing import Any, List, Optional
 
+from probability.pandas.prob_utils import comparator_symbols
+
 
 class VariableFilter(object):
 
@@ -12,20 +14,6 @@ class VariableFilter(object):
     comparator: Optional[str]
     value: Any
     conditional: bool
-    comparator_symbols = {
-        'eq': lambda arg, val: f'{arg}={val}',
-        'ne': lambda arg, val: f'{arg}≠{val}',
-        'lt': lambda arg, val: f'{arg}<{val}',
-        'gt': lambda arg, val: f'{arg}>{val}',
-        'le': lambda arg, val: f'{arg}≤{val}',
-        'ge': lambda arg, val: f'{arg}≥{val}',
-        'in': lambda arg, vals: '{}∈{}'.format(
-            arg, '{' + ",".join([str(val) for val in vals]) + '}'
-        ),
-        'not_in': lambda arg, vals: '{}∉{}'.format(
-            arg, '{' + ",".join([str(val) for val in vals]) + '}'
-        )
-    }
 
     def __init__(self, arg_name: str, var_names: List[str], arg_value: Any = None):
 
@@ -63,7 +51,7 @@ class VariableFilter(object):
 
     def get_name(self) -> str:
 
-        return self.comparator_symbols[self.comparator](self.var_name, self.value)
+        return comparator_symbols[self.comparator](self.var_name, self.value)
 
     def get_filter(self, data: DataFrame) -> Series:
 
