@@ -144,7 +144,7 @@ class DiscreteDistribution(object):
         """
         Condition on variables.
 
-        :param cond_var_names: List of names of variables to condition on.
+        :param cond_var_names: Names of variables to condition on.
         """
         # check input variables
         if not set(cond_var_names).issubset(self._joints):
@@ -215,11 +215,15 @@ class DiscreteDistribution(object):
     def __rmul__(self, other: 'ConditionalTable') -> 'DiscreteDistribution':
         return self * other
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: 'DiscreteDistribution') -> 'ConditionalTable':
 
-        # TODO: implement division of distributions with identical joints
-        #  (and, initially, no conditioned variables) to finish Bayes rule implementation
-        raise NotImplementedError
+        if not set(other.joints).issubset(self.joints):
+            raise ValueError(
+                'All joint variables in denominator distribution must be present in numerator distribution to divide.'
+            )
+        if not len(other.joints) < len(self.joints):
+            raise ValueError('Denominator distribution must contain fewer joint variables than numerator distribution.')
+        return self.condition(*other.joints)
 
     # endregion
 
