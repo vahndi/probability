@@ -1,5 +1,5 @@
 from pandas import Series
-from typing import List, Optional
+from typing import Dict, List, Union
 
 from probability.pandas.discrete_distribution import DiscreteDistribution
 from probability.pandas.prob_utils import margin, given
@@ -7,22 +7,41 @@ from probability.pandas.prob_utils import margin, given
 
 class ConditionalTable(object):
 
-    def __init__(self, data: Series,
-                 cond_variables: Optional[List[str]] = None):
+    def __init__(self, data: Series, cond_var_names: Union[str, List[str]]):
+        """
+        Create a new Conditional Table from a Series of probabilities.
 
+        :param data: Series mapping values of random variables to their probabilities.
+        :param cond_var_names: Names of conditional variables.
+        """
         self._data: Series = data.copy()
         self._var_names: List[str] = list(data.index.names)
-        self._cond_vars: List[str] = cond_variables or []
-        self._joints: List[str] = [n for n in self._var_names if n not in self._cond_vars]
+        self._cond_var_names: List[str] = [cond_var_names] if isinstance(cond_var_names, str) else cond_var_names
+        self._joints: List[str] = [n for n in self._var_names if n not in self._cond_var_names]
 
     # region attributes
+
+    @staticmethod
+    def from_dict(data: Dict[Union[str, int, tuple], float],
+                  var_names: Union[str, List[str]],
+                  cond_var_names: Union[str, List[str]] = None):
+        """
+        Create a new Conditional Table from a dictionary of probabilities.
+
+        :param data: Dictionary mapping values of random variables to their probabilities.
+        :param var_names: List of variable names for the elements of the
+        :param cond_var_names: Names of conditional variables.
+        """
+        s_data = Series(data=data, name='p')
+        s_data.index.names = [var_names] if isinstance(var_names, str) else var_names
+        return ConditionalTable(data=s_data, cond_var_names=cond_var_names)
 
     @property
     def name(self) -> str:
 
         str_joints = ','.join(self._joints)
         strs_conditions = []
-        for cond_var in self._cond_vars:
+        for cond_var in self._cond_var_names:
             strs_conditions.append(cond_var)
         str_conditions = '|' + ','.join(strs_conditions) if strs_conditions else ''
         return f'P({str_joints}{str_conditions})'
@@ -33,7 +52,7 @@ class ConditionalTable(object):
 
     @property
     def cond_vars(self) -> List[str]:
-        return self._cond_vars
+        return self._cond_var_names
 
     # endregion
 
@@ -51,8 +70,8 @@ class ConditionalTable(object):
         if not set(margins).issubset(self._joints):
             raise ValueError('All margins must be joint variables.')
         # calculate marginal distributions
-        data = margin(self._data, *margins, *self._cond_vars)
-        return ConditionalTable(data=data, cond_variables=self._cond_vars)
+        data = margin(self._data, *margins, *self._cond_var_names)
+        return ConditionalTable(data=data, cond_var_names=self._cond_var_names)
 
     def p(self, **var_vals) -> float:
         """
@@ -64,11 +83,11 @@ class ConditionalTable(object):
         """
         # check input arguments
         var_val_keys = set(var_vals.keys())
-        has_all_conds = set(self._cond_vars).intersection(var_val_keys) == set(self._cond_vars)
+        has_all_conds = set(self._cond_var_names).intersection(var_val_keys) == set(self._cond_var_names)
         has_all_joints = set(self._joints).intersection(var_val_keys) == set(self._joints)
         if not has_all_conds and has_all_joints:
             raise ValueError('Must specify a value for each conditional and joint variable.')
-        if not len(self._cond_vars) + len(self._joints) == len(var_vals):
+        if not len(self._cond_var_names) + len(self._joints) == len(var_vals):
             raise ValueError('Too many variable values passed.')
         # calculate probability
         joint_cond_vals = [var_vals[name] for name in self._data.index.names]
@@ -84,7 +103,7 @@ class ConditionalTable(object):
         """
         # check input arguments
         given_val_keys = set(given_vals.keys())
-        has_all_conds = set(self._cond_vars).intersection(given_val_keys) == set(self._cond_vars)
+        has_all_conds = set(self._cond_var_names).intersection(given_val_keys) == set(self._cond_var_names)
         if not has_all_conds:
             raise ValueError('Must supply values for all conditioned variables to get to joint distribution.')
         # calculate probability

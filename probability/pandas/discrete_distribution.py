@@ -154,7 +154,7 @@ class DiscreteDistribution(object):
         # calculate conditional table
         data = condition(self._data, *cond_var_names)
         from probability.pandas.conditional_table import ConditionalTable
-        return ConditionalTable(data, cond_variables=[cv for cv in cond_var_names])
+        return ConditionalTable(data, cond_var_names=[cv for cv in cond_var_names])
 
     def given(self, **given_conditions) -> 'DiscreteDistribution':
         """
@@ -188,14 +188,6 @@ class DiscreteDistribution(object):
             raise ValueError('Must specify a value (+condition) for each joint variable.')
         # find probability of joint variable values
         return p(self._data, **joint_vals)
-        # var_vals = [joint_vals[name] for name in self._data.index.names]
-        # if len(var_vals) == 1:
-        #     var_vals = var_vals[0]
-        # try:
-        #     return self._data.xs(var_vals)
-        # except KeyError:
-        #     # not all values are in distribution variable values
-        #     return 0.0
 
     # endregion
 
