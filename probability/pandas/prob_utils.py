@@ -17,7 +17,7 @@ def margin(distribution: Series, *margins) -> Series:
 
     :param distribution: The probability distribution to marginalize e.g. P(A,B,C,D).
     :param margins: Names of variables to put in the margin e.g. 'C', 'D'.
-    :return: P(C,D)
+    :return: Marginalized distribution e.g. P(C,D).
     """
     return distribution.to_frame().groupby(list(margins))['p'].sum()
 
@@ -176,10 +176,29 @@ def given(distribution: Series, **givens) -> Series:
     return data.set_index([var_name for var_name in var_names if var_name not in givens.keys()])['p']
 
 
-def multiply(conditional: Series, marginal: Series) -> Series:
+def p(distribution: Series, **joint_vars_vals) -> float:
+    """
+    Calculate the probability of the values of the joint values given.
 
-    # P(a,b) = P(a|b) * P(b)
-    # joint = conditional * marginal
+    :param distribution: Probability distribution data to calculate probability from.
+    :param joint_vars_vals: Names and values of variables to find probability of e.g. `C=1`, `D__le=1`.
+    """
+    data = distribution.copy().reset_index()
+    for joint_var, joint_val in joint_vars_vals.items():
+        # filter individual probabilities to specified values e.g. P(A,B,C,D=d1)
+        data, var_name = _filter_distribution(data, joint_var, joint_val)
+    # calculate probability
+    return data['p'].sum()
+
+
+def multiply(conditional: Series, marginal: Series) -> Series:
+    """
+    Multiply a conditional distribution by a marginal distribution to give a joint distribution.
+
+    :param conditional: The conditional distribution e.g. P(a|b)
+    :param marginal: The marginal distribution e.g. P(b)
+    :return: The joint distribution e.g. P(a,b)
+    """
     marginal_vars = marginal.index.names
     non_marginal_vars = [v for v in conditional.index.names if v not in marginal_vars]
     cond_data = conditional.copy().rename('p_cond').to_frame().reset_index()

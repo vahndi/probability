@@ -3,7 +3,7 @@ from pandas import ExcelFile
 import unittest
 from unittest import TestCase
 
-from probability.pandas.prob_utils import margin, condition, multiply, given
+from probability.pandas.prob_utils import margin, condition, multiply, given, p
 
 from tests.paths import FN_PANDAS_TESTS
 from tests.shared import read_distribution_data, series_are_equivalent
@@ -124,6 +124,19 @@ class TestProbUtils(TestCase):
         p_B__A_p_A = multiply(p_B__A, p_A)
         self.assertTrue(series_are_equivalent(p_A__B_p_B, p_AB))
         self.assertTrue(series_are_equivalent(p_B__A_p_A, p_AB))
+
+    def test_p(self):
+
+        self.assertAlmostEqual(0.33, p(self.p_A, A=1))
+        self.assertAlmostEqual(0.36, p(self.p_A, A=2))
+        self.assertAlmostEqual(0.31, p(self.p_A, A=3))
+        self.assertAlmostEqual(0.33, p(self.p_A, A__lt=2))
+        self.assertAlmostEqual(0.31, p(self.p_A, A__gt=2))
+        self.assertAlmostEqual(0.33 + 0.31, p(self.p_A, A__ne=2))
+        self.assertAlmostEqual(0.33 + 0.36, p(self.p_A, A__le=2))
+        self.assertAlmostEqual(0.36 + 0.31, p(self.p_A, A__ge=2))
+        self.assertAlmostEqual(0.33 + 0.31, p(self.p_A, A__in=[1, 3]))
+        self.assertAlmostEqual(0.36, p(self.p_A, A__not_in=[1, 3]))
 
 
 if __name__ == '__main__':

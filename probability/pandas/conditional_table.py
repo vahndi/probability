@@ -1,7 +1,7 @@
 from pandas import Series
 from typing import List, Optional
 
-from probability.pandas import DiscreteDistribution
+from probability.pandas.discrete_distribution import DiscreteDistribution
 from probability.pandas.prob_utils import margin, given
 
 

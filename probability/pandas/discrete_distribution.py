@@ -2,7 +2,7 @@ from pandas import Index, MultiIndex, Series, DataFrame
 from typing import Any, Dict, List, Optional, Union
 
 from probability.pandas.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, valid_name_comparator, \
-    cond_name
+    cond_name, p
 
 
 class DiscreteDistribution(object):
@@ -182,17 +182,20 @@ class DiscreteDistribution(object):
         :param joint_vals: Dict[name, value] for each joint variable to find probability at.
         """
         # check input variables
-        if not set(joint_vals.keys()) == set(self._joints):
-            raise ValueError('Must specify a value for each conditioned variable.')
+        joint_arg_names = set([cond_name(joint_var, self._joints)
+                               for joint_var in joint_vals.keys()])
+        if not joint_arg_names == set(self._joints):
+            raise ValueError('Must specify a value (+condition) for each joint variable.')
         # find probability of joint variable values
-        var_vals = [joint_vals[name] for name in self._data.index.names]
-        if len(var_vals) == 1:
-            var_vals = var_vals[0]
-        try:
-            return self._data.xs(var_vals)
-        except KeyError:
-            # not all values are in distribution variable values
-            return 0.0
+        return p(self._data, **joint_vals)
+        # var_vals = [joint_vals[name] for name in self._data.index.names]
+        # if len(var_vals) == 1:
+        #     var_vals = var_vals[0]
+        # try:
+        #     return self._data.xs(var_vals)
+        # except KeyError:
+        #     # not all values are in distribution variable values
+        #     return 0.0
 
     # endregion
 

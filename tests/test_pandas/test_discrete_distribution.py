@@ -49,6 +49,19 @@ class TestDiscreteDistribution(TestCase):
             p = row_dict.pop('p')
             self.assertEqual(p, self.p_abcd.p(**row_dict))
 
+    def test_p_2(self):
+
+        self.assertAlmostEqual(0.33, self.p_a.p(A=1))
+        self.assertAlmostEqual(0.36, self.p_a.p(A=2))
+        self.assertAlmostEqual(0.31, self.p_a.p(A=3))
+        self.assertAlmostEqual(0.33, self.p_a.p(A__lt=2))
+        self.assertAlmostEqual(0.31, self.p_a.p(A__gt=2))
+        self.assertAlmostEqual(0.33 + 0.31, self.p_a.p(A__ne=2))
+        self.assertAlmostEqual(0.33 + 0.36, self.p_a.p(A__le=2))
+        self.assertAlmostEqual(0.36 + 0.31, self.p_a.p(A__ge=2))
+        self.assertAlmostEqual(0.33 + 0.31, self.p_a.p(A__in=[1, 3]))
+        self.assertAlmostEqual(0.36, self.p_a.p(A__not_in=[1, 3]))
+
     def test_p_missing_values(self):
 
         p = self.p_abcd.p(A=1, B=2, C=3, D=4)
