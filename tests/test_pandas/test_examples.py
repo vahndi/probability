@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from pandas import DataFrame, Series
 
-from probability.pandas import DiscreteDistribution
+from probability.discrete import DiscreteDistribution
 
 
 class TestExamples(TestCase):

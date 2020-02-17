@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from probability.pandas import DiscreteDistribution
+from probability.discrete import DiscreteDistribution
 from tests.shared import read_distribution_data, series_are_equivalent
 
 

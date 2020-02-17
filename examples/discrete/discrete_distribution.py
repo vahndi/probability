@@ -1,6 +1,6 @@
 from pandas import DataFrame
 
-from probability.pandas.discrete_distribution import DiscreteDistribution
+from probability.discrete.discrete_distribution import DiscreteDistribution
 
 
 def fruit_boxes():

@@ -1,8 +1,8 @@
 from pandas import Series
 from typing import Dict, List, Union
 
-from probability.pandas.discrete_distribution import DiscreteDistribution
-from probability.pandas.prob_utils import margin, given
+from probability.discrete.discrete_distribution import DiscreteDistribution
+from probability.discrete.prob_utils import margin, given
 
 
 class ConditionalTable(object):
@@ -14,10 +14,12 @@ class ConditionalTable(object):
         :param data: Series mapping values of random variables to their probabilities.
         :param cond_var_names: Names of conditional variables.
         """
-        self._data: Series = data.copy()
+        # self._data: Series = data.copy()
         self._var_names: List[str] = list(data.index.names)
         self._cond_var_names: List[str] = [cond_var_names] if isinstance(cond_var_names, str) else cond_var_names
         self._joints: List[str] = [n for n in self._var_names if n not in self._cond_var_names]
+        var_order = self._joints + self._cond_var_names
+        self._data = data.copy().reset_index()[var_order + ['p']].set_index(var_order)['p']
 
     # region attributes
 
@@ -98,6 +100,7 @@ class ConditionalTable(object):
     def given(self, **given_vals) -> DiscreteDistribution:
         """
         Return the Discrete Distribution at the given values of the conditional variables.
+        N.B. will give incorrect results if the conditional table was created from incomplete distributions.
 
         :param given_vals: Values of conditional variables to create probability distribution from.
         """

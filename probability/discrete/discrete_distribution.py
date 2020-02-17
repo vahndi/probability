@@ -1,27 +1,31 @@
 from pandas import Index, MultiIndex, Series, DataFrame
 from typing import Any, Dict, List, Optional, Union
 
-from probability.pandas.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, valid_name_comparator, \
+from probability.discrete.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, valid_name_comparator, \
     cond_name, p
 
 
 class DiscreteDistribution(object):
 
     def __init__(self, data: Series,
-                 given_var_names: List[str] = None,
+                 cond_var_names: List[str] = None,
                  given_conditions: Optional[Dict[str, Any]] = None):
         """
         Create a new DiscreteDistribution e.g. `P(A,B,C,D)`.
 
         :param data: Series with an index column for each variable, and values of probability of each index row.
-        :param given_var_names: List of names of conditioned variables with given values.
+        :param cond_var_names: List of names of conditioned variables without given values.
         :param given_conditions: Dict[{name}__{comparator}, value] for each conditioned variable.
         """
         self._data: Series = data.copy()
-        self._joints: List[str] = list(data.index.names)
-        self._given_vars = given_var_names or []
+        self._cond_var_names = cond_var_names or []
+        self._joints: List[str] = [name for name in list(data.index.names) if name not in self._cond_var_names]
         self._given_conditions: Dict[str, Any] = given_conditions or {}
-        self._var_names: List[str] = self._joints + self._given_vars
+        self._var_names: List[str] = (
+            self._joints +
+            self._cond_var_names +
+            [cond_name(k) for k in self._given_conditions.keys()]
+        )
 
     # region constructors
 
@@ -47,7 +51,7 @@ class DiscreteDistribution(object):
             raise TypeError('probs must be Dict[[Union[str, int, tuple], float]')
         data = Series(data=list(data.values()), index=index, name='p')
         return DiscreteDistribution(data,
-                                    given_var_names=list(given_conditions.keys()),
+                                    cond_var_names=list(given_conditions.keys()),
                                     given_conditions=given_conditions)
 
     @staticmethod
@@ -114,6 +118,8 @@ class DiscreteDistribution(object):
         """
         str_joints = ','.join(self._joints)
         strs_conditions = []
+        for cond_var in self._cond_var_names:
+            strs_conditions.append(cond_var)
         for cond_var, cond_val in self.given_conditions.items():
             strs_conditions.append(cond_name_and_symbol(cond_var, cond_val, self.var_names))
         str_conditions = '|' + ','.join(strs_conditions) if strs_conditions else ''
@@ -153,7 +159,7 @@ class DiscreteDistribution(object):
             raise ValueError('Cannot condition on all joint variables simultaneously.')
         # calculate conditional table
         data = condition(self._data, *cond_var_names)
-        from probability.pandas.conditional_table import ConditionalTable
+        from probability.discrete.conditional_table import ConditionalTable
         return ConditionalTable(data, cond_var_names=[cv for cv in cond_var_names])
 
     def given(self, **given_conditions) -> 'DiscreteDistribution':
@@ -171,7 +177,7 @@ class DiscreteDistribution(object):
         cond_values = {**self._given_conditions, **given_conditions}
         return DiscreteDistribution(
             data=data,
-            given_var_names=self._given_vars + [cond_name(k, self.var_names) for k in names_comps],
+            cond_var_names=self._cond_var_names,
             given_conditions=cond_values
         )
 
@@ -218,7 +224,8 @@ class DiscreteDistribution(object):
             )
         if not len(other.joints) < len(self.joints):
             raise ValueError('Denominator distribution must contain fewer joint variables than numerator distribution.')
-        return self.condition(*other.joints)
+        from probability.discrete.conditional_table import ConditionalTable
+        return ConditionalTable(data=self._data / other._data, cond_var_names=other.joints)
 
     # endregion
 

@@ -3,7 +3,7 @@ from pandas import ExcelFile
 import unittest
 from unittest import TestCase
 
-from probability.pandas.prob_utils import margin, condition, multiply, given, p
+from probability.discrete.prob_utils import margin, condition, multiply, given, p
 
 from tests.paths import FN_PANDAS_TESTS
 from tests.shared import read_distribution_data, series_are_equivalent

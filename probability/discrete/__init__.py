@@ -1,0 +1,2 @@
+from probability.discrete.conditional_table import ConditionalTable
+from probability.discrete.discrete_distribution import DiscreteDistribution

@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from pandas import merge, Series, DataFrame
 from typing import Any, Tuple, List
 
@@ -90,19 +92,20 @@ def _filter_distribution(distribution: DataFrame, name_comparator: str, value: A
         return distribution.loc[~distribution[name_comparator[: -8]].isin(value)], name_comparator[: -8]
 
 
-def cond_name(name_comparator: str, var_names: List[str]) -> str:
+def cond_name(name_comparator: str, var_names: List[str] = None) -> str:
     """
     Return the conditioning variable name from the name and comparator code.
 
     :param name_comparator: Amalgamation of variable name and filtering comparator in the form '{name}__{comparator}'.
     :param var_names: List of valid variables names to look for in `name_comparator`.
     """
-    if name_comparator in var_names:
-        return name_comparator
-    for var_name in var_names:
-        for code in _match_codes:
-            if var_name + '__' + code == name_comparator:
-                return var_name
+    if var_names is not None:
+        if name_comparator in var_names:
+            return name_comparator
+    for code in _match_codes:
+        if name_comparator.endswith('__' + code):
+            return name_comparator[:-len('__' + code)]
+    return name_comparator
 
 
 def cond_name_and_symbol(name_comparator: str, value, var_names: List[str]) -> str:
@@ -128,7 +131,7 @@ def condition(distribution: Series, *cond_vars) -> Series:
     :param distribution: The probability distribution to condition e.g. P(A,B,C,D).
     :param cond_vars: Names of variables to condition over every value of e.g. 'C'.
     :return: Conditioned distribution. Filtered to only given values of the cond_values.
-             Contains a stacked Series of probabily distributions for each combination of conditioning variable values.
+             Contains a stacked Series of probability distributions for each combination of conditioning variable values.
              e.g. P(A,B|C,D=d1), P(A,B|C,D=d2) etc.
     """
     col_names = distribution.index.names
@@ -138,13 +141,13 @@ def condition(distribution: Series, *cond_vars) -> Series:
     ])
     var_names.extend([n for n in col_names if n in cond_vars])
     data = distribution.copy().reset_index()
-    not_given_vars = list(cond_vars)
-    if not_given_vars:
+    cond_vars = list(cond_vars)
+    if cond_vars:
         # find total probabilities for each combination of unique values in the conditional variables e.g. P(C)
-        sums = data.groupby(not_given_vars).sum().reset_index()
+        sums = data.groupby(cond_vars).sum().reset_index()
         # normalize each individual probability e.g. p(Ai,Bj,Ck,Dl) to probability of its conditional values p(Ck)
-        sums = sums[not_given_vars + ['p']].rename(columns={'p': 'p_sum'})
-        merged = merge(left=data, right=sums, on=not_given_vars)
+        sums = sums[cond_vars + ['p']].rename(columns={'p': 'p_sum'})
+        merged = merge(left=data, right=sums, on=cond_vars)
         merged['p'] = merged['p'] / merged['p_sum']
         data = merged[var_names + ['p']]
     return data.set_index(var_names)['p']
@@ -160,11 +163,14 @@ def given(distribution: Series, **givens) -> Series:
              Contains a single probability distribution summing to 1.
     """
     col_names = distribution.index.names
-    var_names = ([
+    joint_names = ([
         n for n in col_names
-        if n not in givens.keys()
-        and not set([f'{n}__{code}' for code in _match_codes]).intersection(givens.keys())
+        if n not in givens.keys()  # not a given variable name without comparator
+        and not set(
+            [f'{n}__{code}' for code in _match_codes]
+        ).intersection(givens.keys())  # not a given variable name with comparator
     ])
+    var_names = joint_names.copy()
     data = distribution.copy().reset_index()
     for given_var, given_val in givens.items():
         # filter individual probabilities to given values e.g. P(A,B,C,D=d1)
@@ -173,7 +179,9 @@ def given(distribution: Series, **givens) -> Series:
     # normalize each individual remaining probability P(Ai,Bj,Ck,d1)
     # to the sum of remaining probabilities P(A,B,C,d1)
     data['p'] = data['p'] / data['p'].sum()
-    return data.set_index([var_name for var_name in var_names if var_name not in givens.keys()])['p']
+    return data.set_index([
+        var_name for var_name in var_names if var_name not in givens.keys()
+    ])['p']
 
 
 def p(distribution: Series, **joint_vars_vals) -> float:

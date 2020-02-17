@@ -1,7 +1,7 @@
 from itertools import permutations
 from unittest import TestCase
 
-from probability.pandas.discrete_distribution import DiscreteDistribution
+from probability.discrete.discrete_distribution import DiscreteDistribution
 from tests.shared import read_distribution_data, series_are_equivalent
 
 

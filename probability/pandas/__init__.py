@@ -1,2 +1,0 @@
-from probability.pandas.conditional_table import ConditionalTable
-from probability.pandas.discrete_distribution import DiscreteDistribution

@@ -2,7 +2,7 @@ from pandas import DataFrame, Series
 import re
 from typing import Any, List, Optional
 
-from probability.pandas.prob_utils import comparator_symbols
+from probability.discrete.prob_utils import comparator_symbols
 
 
 class VariableFilter(object):
