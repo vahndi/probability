@@ -1,8 +1,13 @@
+from collections import OrderedDict
+
 from pandas import Index, MultiIndex, Series, DataFrame
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, overload, TYPE_CHECKING
 
 from probability.discrete.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, valid_name_comparator, \
     cond_name, p
+
+if TYPE_CHECKING:
+    from probability.discrete import ConditionalTable
 
 
 class DiscreteDistribution(object):
@@ -95,6 +100,13 @@ class DiscreteDistribution(object):
         Return a list of the names of all joint variables.
         """
         return self._joints
+
+    @property
+    def cond_var_names(self) -> List[str]:
+        """
+        Return a list of the names of all conditional variables.
+        """
+        return self._cond_var_names
 
     @property
     def given_conditions(self) -> Dict[str, Any]:
@@ -199,19 +211,59 @@ class DiscreteDistribution(object):
 
     # region operators
 
+    @overload
+    def __mul__(self, other: 'DiscreteDistribution') -> 'DiscreteDistribution':
+        """
+        Multiply the joint distribution e.g. `P(A)` by another DiscreteDistribution e.g. P(B) and return a new
+        joint distribution i.e. `P(A,B)`. Assumes that P(A) and P(B) are independent such that P(A) = P(A)  P(B)
+
+        :param other: DiscreteDistribution to multiply by.
+        """
+        pass
+
+    @overload
     def __mul__(self, other: 'ConditionalTable') -> 'DiscreteDistribution':
         """
-        Multiply the joint distribution e.g. `P(B)` by another ConditionalTable conditioned over this distribution's
+        Multiply the joint distribution e.g. `P(B)` by a ConditionalTable conditioned over this distribution's
         joint variables e.g. `P(A|B)` and return a new joint distribution i.e. `P(A)` over the ConditionalTable's
         joint variables i.e. `A`.
 
-        :param other: Conditional Table with conditional variables matching this distributions joint variables.
+        :param other: ConditionalTable with conditional variables matching this distributions joint variables.
         """
-        if self.joints == other.cond_vars and not self.given_conditions:
+        pass
+
+    def __mul__(self, other):
+
+        from probability.discrete import ConditionalTable
+        if isinstance(other, ConditionalTable):
+            if self.given_conditions:
+                raise ValueError('DiscreteDistribution cannot have any conditional variables.')
+            if set(self.joints) != set(other.cond_vars):
+                raise ValueError('Joint variables of DiscreteDistribution must be same as'
+                                 ' conditional variables of ConditionalTable.')
             data = multiply(conditional=other.data, marginal=self.data)
             return DiscreteDistribution(data=data)
-        else:
-            raise ValueError('Cannot multiply these distributions.')
+        elif isinstance(other, DiscreteDistribution):
+            if self.given_conditions or other.given_conditions or self.cond_var_names or other.cond_var_names:
+                raise ValueError('Neither DiscreteDistribution should have conditional variables or values.')
+            if set(self.var_names).intersection(other.var_names):
+                raise ValueError('DiscreteDistributions have shared variables.')
+            keys = []
+            values = []
+            for ix_1, p_1 in self._data.iteritems():
+                for ix_2, p_2 in other._data.iteritems():
+                    if not isinstance(ix_1, tuple):
+                        ix_1 = (ix_1,)
+                    if not isinstance(ix_2, tuple):
+                        ix_2 = (ix_2,)
+                    keys.append((*ix_1, *ix_2))
+                    values.append(p_1 * p_2)
+            data = Series(data=values,
+                          index=MultiIndex.from_tuples(
+                              tuples=keys,
+                              names=self._data.index.names + other._data.index.names
+                          ))
+            return DiscreteDistribution(data=data)
 
     def __rmul__(self, other: 'ConditionalTable') -> 'DiscreteDistribution':
         return self * other

@@ -94,3 +94,28 @@ class TestDiscreteDistribution(TestCase):
         self.assertTrue(series_are_equivalent(self.p_abc__d.data, p_abcd_over_d.data))
         self.assertTrue(series_are_equivalent(self.p_ab__c__d.data, p_abcd_over_cd.data))
         self.assertTrue(series_are_equivalent(self.p_a__b__c__d.data, p_abcd_over_bcd.data))
+
+    def test_multiplication(self):
+
+        p_a = DiscreteDistribution.from_dict({'a1': 0.3, 'a2': 0.7}, var_names='a')
+        p_b = DiscreteDistribution.from_dict({'b1': 0.4, 'b2': 0.6}, var_names='b')
+        p_c = DiscreteDistribution.from_dict({'c1': 0.2, 'c2': 0.8}, var_names='c')
+        p_ab = DiscreteDistribution.from_dict({
+            ('a1', 'b1'): 0.3 * 0.4,
+            ('a1', 'b2'): 0.3 * 0.6,
+            ('a2', 'b1'): 0.7 * 0.4,
+            ('a2', 'b2'): 0.7 * 0.6,
+        }, var_names=['a', 'b'])
+        p_abc = DiscreteDistribution.from_dict({
+            ('a1', 'b1', 'c1'): 0.3 * 0.4 * 0.2,
+            ('a1', 'b1', 'c2'): 0.3 * 0.4 * 0.8,
+            ('a1', 'b2', 'c1'): 0.3 * 0.6 * 0.2,
+            ('a1', 'b2', 'c2'): 0.3 * 0.6 * 0.8,
+            ('a2', 'b1', 'c1'): 0.7 * 0.4 * 0.2,
+            ('a2', 'b1', 'c2'): 0.7 * 0.4 * 0.8,
+            ('a2', 'b2', 'c1'): 0.7 * 0.6 * 0.2,
+            ('a2', 'b2', 'c2'): 0.7 * 0.6 * 0.8
+        }, var_names=['a', 'b', 'c'])
+        self.assertEqual(p_ab.data.to_dict(), (p_a * p_b).data.to_dict())
+        self.assertEqual(p_ab.name, (p_a * p_b).name)
+        self.assertEqual((p_ab * p_c).data.to_dict(), p_abc.data.to_dict())
