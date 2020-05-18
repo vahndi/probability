@@ -4,7 +4,7 @@ from scipy.stats import rv_discrete
 from typing import Iterable, overload
 
 from probability.distributions.mixins.plottable_mixin import PlottableMixin
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 
 class DiscreteFunction1d(object):

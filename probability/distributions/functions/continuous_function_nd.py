@@ -7,7 +7,7 @@ from pandas import Series, MultiIndex
 from scipy.stats import rv_continuous
 from typing import overload, Iterable, Union
 
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 
 class ContinuousFunctionNd(object):

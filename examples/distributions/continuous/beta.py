@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy import linspace
 
 from probability.distributions import Beta
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 # https://en.wikipedia.org/wiki/Beta_distribution
 

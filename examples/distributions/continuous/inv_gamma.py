@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy import arange
 
 from probability.distributions.continuous.inv_gamma import InvGamma
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 x = arange(0, 3.01, 0.01)
 

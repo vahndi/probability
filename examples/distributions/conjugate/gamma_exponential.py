@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
+from mpl_format.axes.axis_utils import new_axes
 from numpy import arange, linspace
 from probability.distributions.conjugate.gamma_exponential import GammaExponential
-from probability.plots import new_axes
 
 
 rates = arange(0, 5, 0.01)

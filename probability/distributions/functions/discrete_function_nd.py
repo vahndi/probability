@@ -5,7 +5,7 @@ from numpy import array, ndarray
 from pandas import Series, MultiIndex
 from scipy.stats import rv_discrete
 
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 
 class DiscreteFunctionNd(object):

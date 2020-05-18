@@ -3,7 +3,7 @@ from numpy import ndarray
 from typing import Optional
 
 from probability.custom_types import RVMixin
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 
 class PriorMixin(object):

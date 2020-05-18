@@ -1,4 +1,5 @@
 matplotlib
+mpl-format
 numpy
 pandas
 scipy

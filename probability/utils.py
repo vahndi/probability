@@ -1,5 +1,5 @@
 from itertools import permutations
-from typing import List, Tuple, Iterable
+from typing import List, Tuple
 
 
 def k_tuples_summing_to_n(k, n) -> List[Tuple[int]]:

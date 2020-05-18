@@ -12,6 +12,7 @@ setup(
   keywords=['python', 'probability'],
   install_requires=[
         'matplotlib',
+        'mpl-format',
         'numpy',
         'pandas',
         'scipy'

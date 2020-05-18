@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from examples.colors import ML_APP_DARK_BLUE
 from probability.distributions.discrete import Binomial
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 
 k_wiki = list(range(41))

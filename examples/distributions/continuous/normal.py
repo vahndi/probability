@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy.ma import arange
 
 from probability.distributions.continuous.normal import Normal
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 x = arange(-5, 5.05, 0.05)
 

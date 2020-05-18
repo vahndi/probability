@@ -1,10 +1,9 @@
-from collections import OrderedDict
-
 from pandas import Index, MultiIndex, Series, DataFrame
 from typing import Any, Dict, List, Optional, Union, overload, TYPE_CHECKING
 
-from probability.discrete.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, valid_name_comparator, \
-    cond_name, p
+
+from probability.discrete.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, \
+    valid_name_comparator, cond_name, p
 
 if TYPE_CHECKING:
     from probability.discrete import ConditionalTable

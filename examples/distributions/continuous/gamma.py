@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy.ma import arange
 
 from probability.distributions.continuous.gamma import Gamma
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 
 # https://en.wikipedia.org/wiki/Gamma_distribution

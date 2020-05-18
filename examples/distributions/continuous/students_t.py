@@ -3,7 +3,7 @@ from numpy import arange, inf
 
 from probability.distributions import Normal
 from probability.distributions.continuous.students_t import StudentsT
-from probability.plots import new_axes
+from mpl_format.axes.axis_utils import new_axes
 
 x_wikipedia_1 = arange(-5, 5.01, 0.05)
 x_wikipedia_2 = arange(-4, 4.01, 0.05)

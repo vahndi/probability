@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
+from mpl_format.axes.axis_utils import new_axes
 from numpy import arange
 from scipy import randn
 from scipy.stats import norm
 
 from probability.distributions.conjugate.gamma_normal import GammaNormal
-from probability.plots import new_axes
 
 x = arange(0, 1.01, 0.001)
 mu, sigma = 2, 3
