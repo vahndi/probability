@@ -49,7 +49,9 @@ class ContinuousFunction1d(object):
         data: Series = self.at(x)
         ax = ax or new_axes()
         if self._name in ('PDF', 'CDF', 'log(PDF)'):
-            data.plot(kind=kind, label=self._parent.label, color=color, ax=ax, **kwargs)
+            if 'label' not in kwargs.keys():
+                kwargs['label'] = self._parent.label
+            data.plot(kind=kind, color=color, ax=ax, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
         ax.set_xlabel(self._parent.x_label)

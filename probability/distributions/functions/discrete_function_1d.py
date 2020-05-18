@@ -53,13 +53,13 @@ class DiscreteFunction1d(object):
         vlines = None
         if 'vlines' in kwargs.keys():
             vlines = kwargs.pop('vlines')
+        if 'label' not in kwargs.keys():
+            kwargs['label'] = self._parent.label
 
         if self._name == 'PMF':
-            data.plot(kind=kind, label=self._parent.label, color=color,
-                      ax=ax, **kwargs)
+            data.plot(kind=kind, color=color, ax=ax, **kwargs)
         elif self._name == 'CDF':
-            data.plot(kind='line', label=self._parent.label, color=color,
-                      drawstyle='steps-post', ax=ax,
+            data.plot(kind='line', color=color, drawstyle='steps-post', ax=ax,
                       **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
