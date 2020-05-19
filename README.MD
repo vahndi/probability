@@ -7,6 +7,7 @@ Required
 * pandas
 * scipy
 * matplotlib
+* mpl-format
 
 Optional
 --------
