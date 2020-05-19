@@ -131,8 +131,8 @@ def condition(distribution: Series, *cond_vars) -> Series:
     :param distribution: The probability distribution to condition e.g. P(A,B,C,D).
     :param cond_vars: Names of variables to condition over every value of e.g. 'C'.
     :return: Conditioned distribution. Filtered to only given values of the cond_values.
-             Contains a stacked Series of probability distributions for each combination of conditioning variable values.
-             e.g. P(A,B|C,D=d1), P(A,B|C,D=d2) etc.
+             Contains a stacked Series of probability distributions for each combination
+             of conditioning variable values e.g. P(A,B|C,D=d1), P(A,B|C,D=d2) etc.
     """
     col_names = distribution.index.names
     var_names = ([

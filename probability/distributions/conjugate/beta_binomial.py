@@ -1,6 +1,5 @@
-from typing import Optional
-
 from scipy.stats import betabinom
+from typing import Optional
 
 from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
@@ -34,7 +33,7 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     * https://en.wikipedia.org/wiki/Beta_distribution
     * https://en.wikipedia.org/wiki/Binomial_distribution
     * https://en.wikipedia.org/wiki/Beta-binomial_distribution
-    https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_continuous_distribution
+    * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
     """
     def __init__(self, alpha: float, beta: float, n: int, m: int):
         """
