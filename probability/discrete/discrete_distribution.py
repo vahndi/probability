@@ -223,11 +223,13 @@ class DiscreteDistribution(object):
     @overload
     def __mul__(self, other: 'ConditionalTable') -> 'DiscreteDistribution':
         """
-        Multiply the joint distribution e.g. `P(B)` by a ConditionalTable conditioned over this distribution's
-        joint variables e.g. `P(A|B)` and return a new joint distribution i.e. `P(A)` over the ConditionalTable's
+        Multiply the joint distribution e.g. `P(B)` by a ConditionalTable
+        conditioned over this distribution's joint variables e.g. `P(A|B)` and
+        return a new joint distribution i.e. `P(A)` over the ConditionalTable's
         joint variables i.e. `A`.
 
-        :param other: ConditionalTable with conditional variables matching this distributions joint variables.
+        :param other: ConditionalTable with conditional variables matching this
+                      distribution's joint variables.
         """
         pass
 
@@ -236,15 +238,22 @@ class DiscreteDistribution(object):
         from probability.discrete import ConditionalTable
         if isinstance(other, ConditionalTable):
             if self.given_conditions:
-                raise ValueError('DiscreteDistribution cannot have any conditional variables.')
+                raise ValueError('DiscreteDistribution cannot have '
+                                 'any conditional variables.')
             if set(self.joints) != set(other.cond_vars):
-                raise ValueError('Joint variables of DiscreteDistribution must be same as'
-                                 ' conditional variables of ConditionalTable.')
+                raise ValueError(
+                    'Joint variables of DiscreteDistribution must be same as'
+                    ' conditional variables of ConditionalTable.'
+                )
             data = multiply(conditional=other.data, marginal=self.data)
             return DiscreteDistribution(data=data)
         elif isinstance(other, DiscreteDistribution):
-            if self.given_conditions or other.given_conditions or self.cond_var_names or other.cond_var_names:
-                raise ValueError('Neither DiscreteDistribution should have conditional variables or values.')
+            if (
+                    self.given_conditions or other.given_conditions or
+                    self.cond_var_names or other.cond_var_names
+            ):
+                raise ValueError('Neither DiscreteDistribution should have '
+                                 'conditional variables or values.')
             if set(self.var_names).intersection(other.var_names):
                 raise ValueError('DiscreteDistributions have shared variables.')
             keys = []

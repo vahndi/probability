@@ -16,10 +16,17 @@ class ConditionalTable(object):
         """
         # self._data: Series = data.copy()
         self._var_names: List[str] = list(data.index.names)
-        self._cond_var_names: List[str] = [cond_var_names] if isinstance(cond_var_names, str) else cond_var_names
-        self._joints: List[str] = [n for n in self._var_names if n not in self._cond_var_names]
+        self._cond_var_names: List[str] = (
+            [cond_var_names] if isinstance(cond_var_names, str)
+            else cond_var_names
+        )
+        self._joints: List[str] = [
+            n for n in self._var_names if n not in self._cond_var_names
+        ]
         var_order = self._joints + self._cond_var_names
-        self._data = data.copy().reset_index()[var_order + ['p']].set_index(var_order)['p']
+        self._data = data.copy().reset_index()[
+            var_order + ['p']
+        ].set_index(var_order)['p']
 
     # region attributes
 
@@ -30,7 +37,8 @@ class ConditionalTable(object):
         """
         Create a new Conditional Table from a dictionary of probabilities.
 
-        :param data: Dictionary mapping values of random variables to their probabilities.
+        :param data: Dictionary mapping values of random variables to their
+                     probabilities.
         :param var_names: List of variable names for the elements of the
         :param cond_var_names: Names of conditional variables.
         """

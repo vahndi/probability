@@ -2,4 +2,5 @@ matplotlib
 mpl-format
 numpy
 pandas
+pgmpy
 scipy

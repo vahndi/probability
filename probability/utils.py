@@ -1,4 +1,6 @@
-from itertools import permutations
+from collections import OrderedDict
+from itertools import permutations, product
+from pandas import Series, DataFrame
 from typing import List, Tuple
 
 
@@ -9,7 +11,8 @@ def k_tuples_summing_to_n(k, n) -> List[Tuple[int]]:
     :param k: The number of items in each tuple.
     :param n: The
 
-    Calculation time increases exponentially with k - not recommended to use for k > 3 if n >> k.
+    Calculation time increases exponentially with k
+    - not recommended to use for k > 3 if n >> k.
     """
     def valid(val):
         return sum(val) == n

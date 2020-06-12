@@ -1,14 +1,14 @@
 from unittest import TestCase
 
 from probability.discrete import DiscreteDistribution
-from tests.shared import read_distribution_data, series_are_equivalent
+from tests.shared import read_distribution, series_are_equivalent
 
 
 class TestConditionalTable(TestCase):
 
     def setUp(self) -> None:
 
-        self.p_abcd = DiscreteDistribution(read_distribution_data('P(A,B,C,D)'))
+        self.p_abcd = DiscreteDistribution(read_distribution('P(A,B,C,D)'))
 
     def test_margin(self):
 
