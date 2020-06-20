@@ -8,20 +8,20 @@ class TestJoint(TestCase):
     
     def setUp(self):
         
-        self.p_abcd = Joint(read_distribution('P(A,B,C,D)'))
-        self.p_abc = Joint(read_distribution('P(A,B,C)'))
-        self.p_ab = Joint(read_distribution('P(A,B)'))
-        self.p_a = Joint(read_distribution('P(A)'))
-        self.p_d = Joint(read_distribution('P(D)'))
-        self.p_cd = Joint(read_distribution('P(C,D)'))
-        self.p_bcd = Joint(read_distribution('P(B,C,D)'))
+        self.p_abcd = Joint.from_series(read_distribution('P(A,B,C,D)'))
+        self.p_abc = Joint.from_series(read_distribution('P(A,B,C)'))
+        self.p_ab = Joint.from_series(read_distribution('P(A,B)'))
+        self.p_a = Joint.from_series(read_distribution('P(A)'))
+        self.p_d = Joint.from_series(read_distribution('P(D)'))
+        self.p_cd = Joint.from_series(read_distribution('P(C,D)'))
+        self.p_bcd = Joint.from_series(read_distribution('P(B,C,D)'))
 
     def test_init(self):
         
-        self.assertEqual(3 ** 4, self.p_abcd.data.shape[0])
-        self.assertEqual(3 ** 3, self.p_abc.data.shape[0])
-        self.assertEqual(3 ** 2, self.p_ab.data.shape[0])
-        self.assertEqual(3, self.p_a.data.shape[0])
-        self.assertEqual(3, self.p_d.data.shape[0])
-        self.assertEqual(3 ** 2, self.p_cd.data.shape[0])
-        self.assertEqual(3 ** 3, self.p_bcd.data.shape[0])
+        self.assertEqual(3 ** 4, len(self.p_abcd))
+        self.assertEqual(3 ** 3, len(self.p_abc))
+        self.assertEqual(3 ** 2, len(self.p_ab))
+        self.assertEqual(3, len(self.p_a))
+        self.assertEqual(3, len(self.p_d))
+        self.assertEqual(3 ** 2, len(self.p_cd))
+        self.assertEqual(3 ** 3, len(self.p_bcd))
