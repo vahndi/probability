@@ -82,42 +82,47 @@ class Joint(object):
         return Joint(jpd)
 
     @staticmethod
-    def from_dict(data: Dict[Union[str, int, tuple], float],
-                  var_names: Union[str, List[str]]) -> 'Joint':
+    def from_observations(data: DataFrame) -> 'Joint':
         """
-        Create a new joint distribution from a dictionary of probabilities or counts.
+        Create a new joint distribution based on the counts of items in the
+        given data.
 
-        :param data: Dictionary mapping values of random variables to their probabilities.
-        :param var_names: Name of each random variable.
+        :param data: DataFrame where each column represents a discrete random
+                     variable, and each row represents an observation.
         """
-        raise NotImplementedError
+        prob_data: Series = (
+            data.groupby(list(data.columns)).size() / len(data)
+        ).rename('p')
+        return Joint.from_series(prob_data)
 
     @staticmethod
-    def from_counts(counts: Dict[Union[str, int], int],
-                    names: Union[str, List[str]]) -> 'Joint':
+    def from_dict(data: Dict[Union[str, int, tuple], float],
+                  variables: Union[str, List[str]]) -> 'Joint':
+        """
+        Create a new joint distribution from a dictionary of probabilities or
+        counts.
+
+        :param data: Dictionary states of random variables to probabilities.
+        :param variables: Name of each random variable.
+        """
+        if len(variables) == 1:
+            prob_data = Series(data=data, name='p')
+            prob_data.index.name = variables[0]
+            return Joint.from_series(data=prob_data)
+        else:
+            prob_data: Series = Series(data=data, name='p')
+            prob_data.index.names = variables
+            return Joint.from_series(data=prob_data)
+
+    @staticmethod
+    def from_counts(counts: Dict[Union[str, int, tuple], int],
+                    variables: Union[str, List[str]]) -> 'Joint':
         """
         Return a new joint distribution from counts of random variable values.
 
-        :param counts: Dictionary mapping values of random variables to the number of observations.
-        :param names: Name of each random variable.
-        """
-        raise NotImplementedError
-
-    @staticmethod
-    def from_observations(data: DataFrame) -> 'Joint':
-        """
-        Create a new discrete distribution based on the counts of items in the given data.
-
-        :param data: DataFrame where each column represents a discrete random variable,
-                     and each row represents an observation.
-        """
-        raise NotImplementedError
-
-    def from_jpd(self, jpd: JPD) -> 'Joint':
-        """
-        Create a new Joint from a PGMJPD.
-
-        :param jpd:
+        :param counts: Dictionary mapping values of random variables to the
+                       number of observations.
+        :param variables: Name of each random variable.
         """
         raise NotImplementedError
 
@@ -128,16 +133,14 @@ class Joint(object):
         """
         Return the Joint data Series.
         """
-        return Series(
-            data=self._jpd.values
-        )
+        return Series(data=self._jpd.values)
 
     @property
-    def var_names(self) -> List[str]:
+    def variables(self) -> List[str]:
         """
         Return a list of variable names in the joint distribution.
         """
-        return self._var_names
+        return self._jpd.variables
 
     @property
     def jpd(self) -> JPD:
