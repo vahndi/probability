@@ -1,6 +1,7 @@
 from scipy.stats import beta as beta_dist, rv_continuous
 
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
+from probability.distributions.special import prob_bb_greater_exact
 
 
 class Beta(RVContinuous1dMixin):
@@ -39,3 +40,14 @@ class Beta(RVContinuous1dMixin):
     def __repr__(self):
 
         return f'Beta(alpha={self._alpha}, beta={self._beta})'
+
+    def __gt__(self, other: 'Beta') -> float:
+
+        return prob_bb_greater_exact(
+            alpha_1=self._alpha, beta_1=self._beta, m_1=0, n_1=0,
+            alpha_2=other._alpha, beta_2=other._beta, m_2=0, n_2=0
+        )
+
+    def __lt__(self, other: 'RVS1dMixin') -> float:
+
+        return other < self

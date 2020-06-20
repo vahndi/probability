@@ -21,21 +21,29 @@ class RVS1dMixin(object):
         """
         return self._distribution.rvs(size=num_samples)
 
-    def prob_greater_than(self, other: 'RVS1dMixin', num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+    def prob_greater_than(self, other: 'RVS1dMixin',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         return (self.rvs(num_samples) > other.rvs(num_samples)).mean()
 
-    def prob_less_than(self, other: 'RVS1dMixin', num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+    def prob_less_than(self, other: 'RVS1dMixin',
+                       num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         return (self.rvs(num_samples) < other.rvs(num_samples)).mean()
 
     def __gt__(self, other: 'RVS1dMixin') -> float:
 
-        return (self.rvs(NUM_SAMPLES_COMPARISON) > other.rvs(NUM_SAMPLES_COMPARISON)).mean()
+        return (
+            self.rvs(NUM_SAMPLES_COMPARISON) >
+            other.rvs(NUM_SAMPLES_COMPARISON)
+        ).mean()
 
     def __lt__(self, other: 'RVS1dMixin') -> float:
 
-        return (self.rvs(NUM_SAMPLES_COMPARISON) < other.rvs(NUM_SAMPLES_COMPARISON)).mean()
+        return (
+            self.rvs(NUM_SAMPLES_COMPARISON) <
+            other.rvs(NUM_SAMPLES_COMPARISON)
+        ).mean()
 
 
 class RVSNdMixin(object):

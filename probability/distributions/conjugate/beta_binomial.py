@@ -9,7 +9,8 @@ from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMi
 
 class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     """
-    Class for calculating Bayesian probabilities using the Beta-Binomial distribution.
+    Class for calculating Bayesian probabilities using the
+    Beta-Binomial distribution.
 
     Prior Hyper-parameters
     ----------------------
@@ -37,8 +38,10 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     """
     def __init__(self, alpha: float, beta: float, n: int, m: int):
         """
-        :param alpha: Value for the α hyper-parameter of the prior Beta distribution.
-        :param beta: Value for the β hyper-parameter of the prior Beta distribution.
+        :param alpha: Value for the α hyper-parameter of the prior Beta
+                      distribution.
+        :param beta: Value for the β hyper-parameter of the prior Beta
+                      distribution.
         :param n: Number of trials.
         :param m: Number of successes.
         """
@@ -94,7 +97,10 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
 
     def likelihood(self, m: Optional[int] = None) -> Binomial:
         m = m if m is not None else self._m
-        return Binomial(n=self._n, p=m / self._n).with_x_label('k')  # * comb(n, k)
+        return Binomial(
+            n=self._n,
+            p=m / self._n
+        ).with_x_label('k')  # * comb(n, k)
 
     def posterior(self, m: Optional[int] = None) -> Beta:
         m = m if m is not None else self._m
@@ -104,8 +110,12 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
 
     def __str__(self):
 
-        return f'BetaBinomial(n={self._n}, α={self._alpha}, β={self._beta})'
+        return (
+            f'BetaBinomial(n={self._n}, α={self._alpha}, β={self._beta})'
+        )
 
     def __repr__(self):
 
-        return f'BetaBinomial(n={self._n}, alpha={self._alpha}, beta={self._beta})'
+        return (
+            f'BetaBinomial(n={self._n}, alpha={self._alpha}, beta={self._beta})'
+        )
