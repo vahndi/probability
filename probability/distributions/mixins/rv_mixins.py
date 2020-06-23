@@ -1,7 +1,7 @@
 from numpy import ndarray
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.stats._distn_infrastructure import rv_generic
-from typing import Tuple
+from typing import Tuple, Optional
 
 from probability.distributions.functions.continuous_function_1d import ContinuousFunction1d
 from probability.distributions.functions.continuous_function_nd import ContinuousFunctionNd
@@ -15,11 +15,13 @@ class RVS1dMixin(object):
 
     _distribution: rv_generic
 
-    def rvs(self, num_samples: int) -> ndarray:
+    def rvs(self, num_samples: int,
+            random_state: Optional[int] = None) -> ndarray:
         """
         Sample `num_samples` random values from the distribution.
         """
-        return self._distribution.rvs(size=num_samples)
+        return self._distribution.rvs(size=num_samples,
+                                      random_state=random_state)
 
     def prob_greater_than(self, other: 'RVS1dMixin',
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
@@ -50,11 +52,13 @@ class RVSNdMixin(object):
 
     _distribution: rv_generic
 
-    def rvs(self, num_samples: int) -> ndarray:
+    def rvs(self, num_samples: int,
+            random_state: Optional[int] = None) -> ndarray:
         """
         Sample `num_samples` random values from the distribution.
         """
-        return self._distribution.rvs(size=num_samples)
+        return self._distribution.rvs(size=num_samples,
+                                      random_state=random_state)
 
     def prob_greater_than(self, other: 'RVSNdMixin',
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> ndarray:
