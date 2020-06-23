@@ -17,13 +17,17 @@ class DiscreteDistribution(object):
         """
         Create a new DiscreteDistribution e.g. `P(A,B,C,D)`.
 
-        :param data: Series with an index column for each variable, and values of probability of each index row.
-        :param cond_var_names: List of names of conditioned variables without given values.
-        :param given_conditions: Dict[{name}__{comparator}, value] for each conditioned variable.
+        :param data: Series with an index column for each variable,
+                     and values of probability of each index row.
+        :param cond_var_names: List of names of conditioned variables
+                               without given values.
+        :param given_conditions: Dict[{name}__{comparator}, value]
+                                 for each conditioned variable.
         """
         self._data: Series = data.copy()
         self._cond_var_names = cond_var_names or []
-        self._joints: List[str] = [name for name in list(data.index.names) if name not in self._cond_var_names]
+        self._joints: List[str] = [name for name in list(data.index.names)
+                                   if name not in self._cond_var_names]
         self._given_conditions: Dict[str, Any] = given_conditions or {}
         self._var_names: List[str] = (
             self._joints +
@@ -38,25 +42,36 @@ class DiscreteDistribution(object):
                   var_names: Union[str, List[str]],
                   **given_conditions) -> 'DiscreteDistribution':
         """
-        Create a new joint distribution from a dictionary of probabilities or counts.
+        Create a new joint distribution from a dictionary of probabilities or
+        counts.
 
-        :param data: Dictionary mapping values of random variables to their probabilities.
+        :param data: Dictionary mapping values of random variables to their
+                     probabilities.
         :param var_names: Name of each random variable.
-        :param given_conditions: Dict[{name}__{comparator}, value] for each conditioned variable.
+        :param given_conditions: Dict[{name}__{comparator}, value] for each
+                                 conditioned variable.
         """
         first_key = list(data.keys())[0]
         if isinstance(first_key, tuple):
-            index = MultiIndex.from_tuples(list(data.keys()),
-                                           names=[var_names] if isinstance(var_names, str) else var_names)
+            index = MultiIndex.from_tuples(
+                tuples=list(data.keys()),
+                names=[var_names] if isinstance(var_names, str) else var_names
+            )
         elif type(first_key) in (str, int):
-            index = Index(list(data.keys()),
-                          name=var_names[0] if isinstance(var_names, list) else var_names)
+            index = Index(
+                data=list(data.keys()),
+                name=var_names[0] if isinstance(var_names, list) else var_names
+            )
         else:
-            raise TypeError('probs must be Dict[[Union[str, int, tuple], float]')
+            raise TypeError(
+                'probs must be Dict[[Union[str, int, tuple], float]'
+            )
         data = Series(data=list(data.values()), index=index, name='p')
-        return DiscreteDistribution(data,
-                                    cond_var_names=list(given_conditions.keys()),
-                                    given_conditions=given_conditions)
+        return DiscreteDistribution(
+            data=data,
+            cond_var_names=list(given_conditions.keys()),
+            given_conditions=given_conditions
+        )
 
     @staticmethod
     def from_counts(counts: Dict[Union[str, int], int],
@@ -64,7 +79,8 @@ class DiscreteDistribution(object):
         """
         Return a new joint distribution from counts of random variable values.
 
-        :param counts: Dictionary mapping values of random variables to the number of observations.
+        :param counts: Dictionary mapping values of random variables to the
+                       number of observations.
         :param names: Name of each random variable.
         """
         sum_values = sum(counts.values())
@@ -124,16 +140,21 @@ class DiscreteDistribution(object):
     @property
     def name(self) -> str:
         """
-        Return a name for the distribution based on the names of the joint variables and the names,
-        conditional comparators and values of the given variables.
+        Return a name for the distribution based on the names of the joint
+        variables and the names, conditional comparators and values of the given
+        variables.
         """
         str_joints = ','.join(self._joints)
         strs_conditions = []
         for cond_var in self._cond_var_names:
             strs_conditions.append(cond_var)
         for cond_var, cond_val in self.given_conditions.items():
-            strs_conditions.append(cond_name_and_symbol(cond_var, cond_val, self.var_names))
-        str_conditions = '|' + ','.join(strs_conditions) if strs_conditions else ''
+            strs_conditions.append(
+                cond_name_and_symbol(cond_var, cond_val, self.var_names)
+            )
+        str_conditions = (
+            '|' + ','.join(strs_conditions) if strs_conditions else ''
+        )
         return f'P({str_joints}{str_conditions})'
 
     # endregion
@@ -152,7 +173,10 @@ class DiscreteDistribution(object):
         if not set(margins).issubset(self._joints):
             raise ValueError('All margins must be joint variables.')
         if not len(margins) < len(self._joints):
-            raise ValueError('Must pass fewer than the total number of joint variables as margins.')
+            raise ValueError(
+                'Must pass fewer than total number '
+                'of joint variables as margins.'
+            )
         # calculate marginal distribution
         data = margin(self._data, *margins)
         return DiscreteDistribution(data=data)
@@ -165,24 +189,34 @@ class DiscreteDistribution(object):
         """
         # check input variables
         if not set(cond_var_names).issubset(self._joints):
-            raise ValueError('All conditioning variables must be joint variables.')
+            raise ValueError(
+                'All conditioning variables must be joint variables.'
+            )
         if not len(cond_var_names) < len(self._joints):
-            raise ValueError('Cannot condition on all joint variables simultaneously.')
+            raise ValueError(
+                'Cannot condition on all joint variables simultaneously.'
+            )
         # calculate conditional table
         data = condition(self._data, *cond_var_names)
         from probability.discrete.conditional_table import ConditionalTable
-        return ConditionalTable(data, cond_var_names=[cv for cv in cond_var_names])
+        return ConditionalTable(
+            data=data, cond_var_names=[cv for cv in cond_var_names]
+        )
 
     def given(self, **given_conditions) -> 'DiscreteDistribution':
         """
         Condition on values of variables.
 
-        :param given_conditions: Dict[{name}__{comparator}, value] for each conditioned variable.
+        :param given_conditions: Dict[{name}__{comparator}, value] for each
+                                 conditioned variable.
         """
         # check input variables
         names_comps = set(given_conditions.keys())
-        if not all([valid_name_comparator(name_comp, self._joints) for name_comp in names_comps]):
-            raise ValueError('Given variables must be members of joint distribution.')
+        if not all([valid_name_comparator(name_comp, self._joints)
+                    for name_comp in names_comps]):
+            raise ValueError(
+                'Given variables must be members of joint distribution.'
+            )
         # calculate conditional distribution
         data = given(self._data, **given_conditions)
         cond_values = {**self._given_conditions, **given_conditions}
@@ -194,15 +228,19 @@ class DiscreteDistribution(object):
 
     def p(self, **joint_vals) -> float:
         """
-        Return the value of the probability distribution at the values of the joint variables.
+        Return the value of the probability distribution at the values of the
+        joint variables.
 
-        :param joint_vals: Dict[name, value] for each joint variable to find probability at.
+        :param joint_vals: Dict[name, value] for each joint variable to find
+                           probability at.
         """
         # check input variables
         joint_arg_names = set([cond_name(joint_var, self._joints)
                                for joint_var in joint_vals.keys()])
         if not joint_arg_names == set(self._joints):
-            raise ValueError('Must specify a value (+condition) for each joint variable.')
+            raise ValueError(
+                'Must specify a value (+condition) for each joint variable.'
+            )
         # find probability of joint variable values
         return p(self._data, **joint_vals)
 
@@ -213,8 +251,10 @@ class DiscreteDistribution(object):
     @overload
     def __mul__(self, other: 'DiscreteDistribution') -> 'DiscreteDistribution':
         """
-        Multiply the joint distribution e.g. `P(A)` by another DiscreteDistribution e.g. P(B) and return a new
-        joint distribution i.e. `P(A,B)`. Assumes that P(A) and P(B) are independent such that P(A) = P(A)  P(B)
+        Multiply the joint distribution e.g. `P(A)` by another
+        DiscreteDistribution e.g. P(B) and return a new joint distribution
+        i.e. `P(A,B)`. Assumes that P(A) and P(B) are independent such that
+        P(A|B) = P(A)
 
         :param other: DiscreteDistribution to multiply by.
         """
@@ -266,11 +306,12 @@ class DiscreteDistribution(object):
                         ix_2 = (ix_2,)
                     keys.append((*ix_1, *ix_2))
                     values.append(p_1 * p_2)
-            data = Series(data=values,
-                          index=MultiIndex.from_tuples(
-                              tuples=keys,
-                              names=self._data.index.names + other._data.index.names
-                          ))
+            data = Series(
+                data=values,
+                index=MultiIndex.from_tuples(
+                    tuples=keys,
+                    names=self._data.index.names + other._data.index.names
+                ))
             return DiscreteDistribution(data=data)
 
     def __rmul__(self, other: 'ConditionalTable') -> 'DiscreteDistribution':
@@ -280,12 +321,15 @@ class DiscreteDistribution(object):
 
         if not set(other.joints).issubset(self.joints):
             raise ValueError(
-                'All joint variables in denominator distribution must be present in numerator distribution to divide.'
+                'All joint variables in denominator distribution must be '
+                'present in numerator distribution to divide.'
             )
         if not len(other.joints) < len(self.joints):
-            raise ValueError('Denominator distribution must contain fewer joint variables than numerator distribution.')
+            raise ValueError('Denominator distribution must contain fewer '
+                             'joint variables than numerator distribution.')
         from probability.discrete.conditional_table import ConditionalTable
-        return ConditionalTable(data=self._data / other._data, cond_var_names=other.joints)
+        return ConditionalTable(data=self._data / other._data,
+                                cond_var_names=other.joints)
 
     # endregion
 

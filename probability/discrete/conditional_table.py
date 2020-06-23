@@ -11,10 +11,10 @@ class ConditionalTable(object):
         """
         Create a new Conditional Table from a Series of probabilities.
 
-        :param data: Series mapping values of random variables to their probabilities.
+        :param data: Series mapping values of random variables to their
+                     probabilities.
         :param cond_var_names: Names of conditional variables.
         """
-        # self._data: Series = data.copy()
         self._var_names: List[str] = list(data.index.names)
         self._cond_var_names: List[str] = (
             [cond_var_names] if isinstance(cond_var_names, str)
@@ -43,7 +43,10 @@ class ConditionalTable(object):
         :param cond_var_names: Names of conditional variables.
         """
         s_data = Series(data=data, name='p')
-        s_data.index.names = [var_names] if isinstance(var_names, str) else var_names
+        s_data.index.names = (
+            [var_names] if isinstance(var_names, str)
+            else var_names
+        )
         return ConditionalTable(data=s_data, cond_var_names=cond_var_names)
 
     @property
@@ -53,7 +56,9 @@ class ConditionalTable(object):
         strs_conditions = []
         for cond_var in self._cond_var_names:
             strs_conditions.append(cond_var)
-        str_conditions = '|' + ','.join(strs_conditions) if strs_conditions else ''
+        str_conditions = (
+            '|' + ','.join(strs_conditions) if strs_conditions else ''
+        )
         return f'P({str_joints}{str_conditions})'
 
     @property
@@ -85,7 +90,8 @@ class ConditionalTable(object):
 
     def p(self, **var_vals) -> float:
         """
-        Return the probability of the the specified values of the joint and conditional variables.
+        Return the probability of the the specified values of the joint and
+        conditional variables.
 
         N.B. need to supply all values for conditional and joint variables.
 
@@ -93,10 +99,18 @@ class ConditionalTable(object):
         """
         # check input arguments
         var_val_keys = set(var_vals.keys())
-        has_all_conds = set(self._cond_var_names).intersection(var_val_keys) == set(self._cond_var_names)
-        has_all_joints = set(self._joints).intersection(var_val_keys) == set(self._joints)
+        has_all_conds = (
+            set(self._cond_var_names).intersection(var_val_keys) ==
+            set(self._cond_var_names)
+        )
+        has_all_joints = (
+            set(self._joints).intersection(var_val_keys) ==
+            set(self._joints)
+        )
         if not has_all_conds and has_all_joints:
-            raise ValueError('Must specify a value for each conditional and joint variable.')
+            raise ValueError(
+                'Must specify a value for each conditional and joint variable.'
+            )
         if not len(self._cond_var_names) + len(self._joints) == len(var_vals):
             raise ValueError('Too many variable values passed.')
         # calculate probability
@@ -107,16 +121,25 @@ class ConditionalTable(object):
 
     def given(self, **given_vals) -> DiscreteDistribution:
         """
-        Return the Discrete Distribution at the given values of the conditional variables.
-        N.B. will give incorrect results if the conditional table was created from incomplete distributions.
+        Return the Discrete Distribution at the given values of the conditional
+        variables.
+        N.B. will give incorrect results if the conditional table was created
+        from incomplete distributions.
 
-        :param given_vals: Values of conditional variables to create probability distribution from.
+        :param given_vals: Values of conditional variables to create probability
+                           distribution from.
         """
         # check input arguments
         given_val_keys = set(given_vals.keys())
-        has_all_conds = set(self._cond_var_names).intersection(given_val_keys) == set(self._cond_var_names)
+        has_all_conds = (
+            set(self._cond_var_names).intersection(given_val_keys) ==
+            set(self._cond_var_names)
+        )
         if not has_all_conds:
-            raise ValueError('Must supply values for all conditioned variables to get to joint distribution.')
+            raise ValueError(
+                'Must supply values for all conditioned variables '
+                'to get to joint distribution.'
+            )
         # calculate probability
         data = given(self._data, **given_vals)
         return DiscreteDistribution(data, given_conditions=given_vals)

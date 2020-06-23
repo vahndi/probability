@@ -14,9 +14,15 @@ def plot_wikipedia_pmfs():
     https://en.wikipedia.org/wiki/Binomial_distribution#/media/File:Binomial_distribution_pmf.svg
     """
     ax = new_axes()
-    Binomial(n=20, p=0.5).plot(k=k_wiki, kind='line', color='blue', ax=ax, ls='', marker='d')
-    Binomial(n=20, p=0.7).plot(k=k_wiki, kind='line', color='lightgreen', ax=ax, ls='', marker='s')
-    Binomial(n=40, p=0.5).plot(k=k_wiki, kind='line', color='red', ax=ax, ls='', marker='o')
+    Binomial(n=20, p=0.5).plot(
+        k=k_wiki, kind='line', color='blue', ax=ax, ls='', marker='d'
+    )
+    Binomial(n=20, p=0.7).plot(
+        k=k_wiki, kind='line', color='lightgreen', ax=ax, ls='', marker='s'
+    )
+    Binomial(n=40, p=0.5).plot(
+        k=k_wiki, kind='line', color='red', ax=ax, ls='', marker='o'
+    )
     ax.set_ylim(0, 0.25)
     ax.set_title('Probability mass function')
     ax.legend(loc='upper right')
@@ -28,9 +34,15 @@ def plot_wikipedia_cdfs():
     https://en.wikipedia.org/wiki/Binomial_distribution#/media/File:Binomial_distribution_cdf.svg
     """
     ax = new_axes()
-    Binomial(n=20, p=0.5).cdf().plot(k=k_wiki, kind='line', color='blue', ax=ax)
-    Binomial(n=20, p=0.7).cdf().plot(k=k_wiki, kind='line', color='lightgreen', ax=ax)
-    Binomial(n=40, p=0.5).cdf().plot(k=k_wiki, kind='line', color='red', ax=ax)
+    Binomial(n=20, p=0.5).cdf().plot(
+        k=k_wiki, kind='line', color='blue', ax=ax
+    )
+    Binomial(n=20, p=0.7).cdf().plot(
+        k=k_wiki, kind='line', color='lightgreen', ax=ax
+    )
+    Binomial(n=40, p=0.5).cdf().plot(
+        k=k_wiki, kind='line', color='red', ax=ax
+    )
     ax.set_ylim(0, 1.0)
     ax.set_title('Cumulative distribution function')
     ax.legend(loc='upper right')
@@ -53,8 +65,9 @@ def plot_scipy_pmf():
     """
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binom.html
     """
-    ax = Binomial(n=5, p=0.4).plot(k=range(0, 5), kind='line', ls='', marker='o', color='blue',
-                                   vlines=True)
+    ax = Binomial(n=5, p=0.4).plot(
+        k=range(0, 5), kind='line', ls='', marker='o', color='blue', vlines=True
+    )
     ax.set_xlim(-0.5, 4.5)
     plt.show()
 

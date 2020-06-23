@@ -1,12 +1,16 @@
 from collections import OrderedDict
 from itertools import product
 from pandas import Series, DataFrame
+from pgmpy.factors.discrete import JointProbabilityDistribution as JPD
 from typing import List, Dict, Union
 
-from pgmpy.factors.discrete import JointProbabilityDistribution as JPD
+from probability.discrete.cpt import CPT
 
 
 class Joint(object):
+    """
+    Joint Probability Distribution
+    """
 
     # region constructors
 
@@ -73,11 +77,7 @@ class Joint(object):
             for col in index_data.columns
         }
         # create JPD
-        jpd = JPD(
-            variables=variables,
-            cardinality=cardinality,
-            values=values
-        )
+        jpd = JPD(variables=variables, cardinality=cardinality, values=values)
         jpd.state_names = state_names
         return Joint(jpd)
 
@@ -148,6 +148,24 @@ class Joint(object):
         Return the wrapped pgmpy JointProbabilityDistribution.
         """
         return self._jpd
+
+    def condition(self, variables: Union[str, List[str]]) -> CPT:
+        """
+        Return a CPT from the Joint.
+
+        :param variables: Variables to condition on.
+        """
+        variables: List[str] = (
+            [variables] if isinstance(variables, str) else variables
+        )
+        if not set(variables).issubset(self.variables):
+            raise ValueError(
+                'Conditioning variables must be a subset of joint variables.'
+            )
+        if len(variables) != len(self.variables) - 1:
+            raise ValueError('Can only condition on all but one variables.')
+        # for state_values in product():
+        pass
 
     def __getitem__(self, item):
         """
