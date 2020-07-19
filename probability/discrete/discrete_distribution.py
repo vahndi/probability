@@ -1,9 +1,8 @@
 from pandas import Index, MultiIndex, Series, DataFrame
 from typing import Any, Dict, List, Optional, Union, overload, TYPE_CHECKING
 
-
-from probability.discrete.prob_utils import margin, condition, multiply, cond_name_and_symbol, given, \
-    valid_name_comparator, cond_name, p
+from probability.discrete.prob_utils import margin, condition, multiply, \
+    cond_name_and_symbol, given, valid_name_comparator, cond_name, p
 
 if TYPE_CHECKING:
     from probability.discrete import ConditionalTable
@@ -17,13 +16,19 @@ class DiscreteDistribution(object):
         """
         Create a new DiscreteDistribution e.g. `P(A,B,C,D)`.
 
-        :param data: Series with an index column for each variable, and values of probability of each index row.
-        :param cond_var_names: List of names of conditioned variables without given values.
-        :param given_conditions: Dict[{name}__{comparator}, value] for each conditioned variable.
+        :param data: Series with an index column for each variable, and values
+                     of probability of each index row.
+        :param cond_var_names: List of names of conditioned variables without
+                               given values.
+        :param given_conditions: Dict[{name}__{comparator}, value] for each
+                                 conditioned variable.
         """
         self._data: Series = data.copy()
         self._cond_var_names = cond_var_names or []
-        self._joints: List[str] = [name for name in list(data.index.names) if name not in self._cond_var_names]
+        self._joints: List[str] = [
+            name for name in list(data.index.names)
+            if name not in self._cond_var_names
+        ]
         self._given_conditions: Dict[str, Any] = given_conditions or {}
         self._var_names: List[str] = (
             self._joints +
@@ -38,25 +43,34 @@ class DiscreteDistribution(object):
                   var_names: Union[str, List[str]],
                   **given_conditions) -> 'DiscreteDistribution':
         """
-        Create a new joint distribution from a dictionary of probabilities or counts.
+        Create a new joint distribution from a dictionary of probabilities or
+        counts.
 
-        :param data: Dictionary mapping values of random variables to their probabilities.
+        :param data: Dictionary mapping values of random variables to their
+                     probabilities.
         :param var_names: Name of each random variable.
-        :param given_conditions: Dict[{name}__{comparator}, value] for each conditioned variable.
+        :param given_conditions: Dict[{name}__{comparator}, value] for each
+                                 conditioned variable.
         """
         first_key = list(data.keys())[0]
         if isinstance(first_key, tuple):
-            index = MultiIndex.from_tuples(list(data.keys()),
-                                           names=[var_names] if isinstance(var_names, str) else var_names)
+            index = MultiIndex.from_tuples(
+                tuples=list(data.keys()),
+                names=[var_names] if isinstance(var_names, str) else var_names
+            )
         elif type(first_key) in (str, int):
-            index = Index(list(data.keys()),
-                          name=var_names[0] if isinstance(var_names, list) else var_names)
+            index = Index(
+                data=list(data.keys()),
+                name=var_names[0] if isinstance(var_names, list) else var_names
+            )
         else:
             raise TypeError('probs must be Dict[[Union[str, int, tuple], float]')
         data = Series(data=list(data.values()), index=index, name='p')
-        return DiscreteDistribution(data,
-                                    cond_var_names=list(given_conditions.keys()),
-                                    given_conditions=given_conditions)
+        return DiscreteDistribution(
+            data=data,
+            cond_var_names=list(given_conditions.keys()),
+            given_conditions=given_conditions
+        )
 
     @staticmethod
     def from_counts(counts: Dict[Union[str, int], int],
@@ -64,7 +78,8 @@ class DiscreteDistribution(object):
         """
         Return a new joint distribution from counts of random variable values.
 
-        :param counts: Dictionary mapping values of random variables to the number of observations.
+        :param counts: Dictionary mapping values of random variables to the
+                       number of observations.
         :param names: Name of each random variable.
         """
         sum_values = sum(counts.values())
@@ -74,12 +89,15 @@ class DiscreteDistribution(object):
     @staticmethod
     def from_observations(data: DataFrame) -> 'DiscreteDistribution':
         """
-        Create a new discrete distribution based on the counts of items in the given data.
+        Create a new discrete distribution based on the counts of items in the
+        given data.
 
-        :param data: DataFrame where each column represents a discrete random variable,
-                     and each row represents an observation.
+        :param data: DataFrame where each column represents a discrete random
+                     variable, and each row represents an observation.
         """
-        prob_data: Series = (data.groupby(list(data.columns)).size() / len(data)).rename('p')
+        prob_data: Series = (
+            data.groupby(list(data.columns)).size() / len(data)
+        ).rename('p')
         return DiscreteDistribution(prob_data)
 
     # endregion
@@ -124,8 +142,9 @@ class DiscreteDistribution(object):
     @property
     def name(self) -> str:
         """
-        Return a name for the distribution based on the names of the joint variables and the names,
-        conditional comparators and values of the given variables.
+        Return a name for the distribution based on the names of the joint
+        variables and the names, conditional comparators and values of the
+        given variables.
         """
         str_joints = ','.join(self._joints)
         strs_conditions = []
