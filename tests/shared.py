@@ -6,7 +6,7 @@ from tests.paths import FN_PANDAS_TESTS
 xlsx = ExcelFile(str(FN_PANDAS_TESTS))
 
 
-def read_distribution_data(sheet_name: str) -> Series:
+def read_distribution(sheet_name: str) -> Series:
     data = read_excel(xlsx, sheet_name)
     variables = [c for c in data.columns if c != 'p' and not c.startswith('_')]
     return data.set_index(variables)['p']

@@ -1,24 +1,25 @@
 from itertools import permutations
 from unittest import TestCase
 
-from probability.discrete.discrete_distribution import DiscreteDistribution
-from tests.shared import read_distribution_data, series_are_equivalent
+from probability.discrete.discrete_distribution \
+    import DiscreteDistribution as Discrete
+from tests.shared import read_distribution, series_are_equivalent
 
 
 class TestDiscreteDistribution(TestCase):
 
     def setUp(self) -> None:
 
-        self.p_abcd = DiscreteDistribution(read_distribution_data('P(A,B,C,D)'))
-        self.p_abc = DiscreteDistribution(read_distribution_data('P(A,B,C)'))
-        self.p_ab = DiscreteDistribution(read_distribution_data('P(A,B)'))
-        self.p_a = DiscreteDistribution(read_distribution_data('P(A)'))
-        self.p_d = DiscreteDistribution(read_distribution_data('P(D)'))
-        self.p_cd = DiscreteDistribution(read_distribution_data('P(C,D)'))
-        self.p_bcd = DiscreteDistribution(read_distribution_data('P(B,C,D)'))
-        self.p_abc__d = DiscreteDistribution(read_distribution_data('p(A,B,C|D)'))
-        self.p_ab__c__d = DiscreteDistribution(read_distribution_data('p(A,B|C,D)'))
-        self.p_a__b__c__d = DiscreteDistribution(read_distribution_data('P(A|B,C,D)'))
+        self.p_abcd = Discrete(read_distribution('P(A,B,C,D)'))
+        self.p_abc = Discrete(read_distribution('P(A,B,C)'))
+        self.p_ab = Discrete(read_distribution('P(A,B)'))
+        self.p_a = Discrete(read_distribution('P(A)'))
+        self.p_d = Discrete(read_distribution('P(D)'))
+        self.p_cd = Discrete(read_distribution('P(C,D)'))
+        self.p_bcd = Discrete(read_distribution('P(B,C,D)'))
+        self.p_abc__d = Discrete(read_distribution('p(A,B,C|D)'))
+        self.p_ab__c__d = Discrete(read_distribution('p(A,B|C,D)'))
+        self.p_a__b__c__d = Discrete(read_distribution('P(A|B,C,D)'))
 
     def test_margin(self):
 
@@ -69,7 +70,7 @@ class TestDiscreteDistribution(TestCase):
 
     def test_product_rule(self):
 
-        p_ab = DiscreteDistribution(read_distribution_data('P(A,B)'))
+        p_ab = Discrete(read_distribution('P(A,B)'))
         # margins
         p_a = p_ab.margin('A')
         p_b = p_ab.margin('B')
@@ -91,22 +92,25 @@ class TestDiscreteDistribution(TestCase):
         p_abcd_over_d = self.p_abcd / self.p_d
         p_abcd_over_cd = self.p_abcd / self.p_cd
         p_abcd_over_bcd = self.p_abcd / self.p_bcd
-        self.assertTrue(series_are_equivalent(self.p_abc__d.data, p_abcd_over_d.data))
-        self.assertTrue(series_are_equivalent(self.p_ab__c__d.data, p_abcd_over_cd.data))
-        self.assertTrue(series_are_equivalent(self.p_a__b__c__d.data, p_abcd_over_bcd.data))
+        self.assertTrue(series_are_equivalent(self.p_abc__d.data,
+                                              p_abcd_over_d.data))
+        self.assertTrue(series_are_equivalent(self.p_ab__c__d.data,
+                                              p_abcd_over_cd.data))
+        self.assertTrue(series_are_equivalent(self.p_a__b__c__d.data,
+                                              p_abcd_over_bcd.data))
 
     def test_multiplication(self):
 
-        p_a = DiscreteDistribution.from_dict({'a1': 0.3, 'a2': 0.7}, var_names='a')
-        p_b = DiscreteDistribution.from_dict({'b1': 0.4, 'b2': 0.6}, var_names='b')
-        p_c = DiscreteDistribution.from_dict({'c1': 0.2, 'c2': 0.8}, var_names='c')
-        p_ab = DiscreteDistribution.from_dict({
+        p_a = Discrete.from_dict({'a1': 0.3, 'a2': 0.7}, var_names='a')
+        p_b = Discrete.from_dict({'b1': 0.4, 'b2': 0.6}, var_names='b')
+        p_c = Discrete.from_dict({'c1': 0.2, 'c2': 0.8}, var_names='c')
+        p_ab = Discrete.from_dict({
             ('a1', 'b1'): 0.3 * 0.4,
             ('a1', 'b2'): 0.3 * 0.6,
             ('a2', 'b1'): 0.7 * 0.4,
             ('a2', 'b2'): 0.7 * 0.6,
         }, var_names=['a', 'b'])
-        p_abc = DiscreteDistribution.from_dict({
+        p_abc = Discrete.from_dict({
             ('a1', 'b1', 'c1'): 0.3 * 0.4 * 0.2,
             ('a1', 'b1', 'c2'): 0.3 * 0.4 * 0.8,
             ('a1', 'b2', 'c1'): 0.3 * 0.6 * 0.2,

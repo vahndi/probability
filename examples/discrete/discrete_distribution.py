@@ -15,7 +15,9 @@ def fruit_boxes():
     p_bf = DiscreteDistribution.from_observations(fruit_box_data)
     print(p_bf, '\n')
     # P(box)
-    p_b = DiscreteDistribution.from_dict(data={'blue': 0.6, 'red': 0.4}, var_names='box')
+    p_b = DiscreteDistribution.from_dict(
+        data={'blue': 0.6, 'red': 0.4}, var_names='box'
+    )
     print(p_b, '\n')
     # P(fruit|box)
     p_f__b = p_bf.condition('box')
@@ -41,7 +43,9 @@ def darts():
     """
     Example from section 1.1.1 of "Bayesian Reasoning and Machine Learning"
     """
-    p_region = DiscreteDistribution.from_dict({r: 1 / 20 for r in range(1, 21)}, var_names='region')
+    p_region = DiscreteDistribution.from_dict(
+        data={r: 1 / 20 for r in range(1, 21)}, var_names='region'
+    )
     print(p_region)
     p_not_20 = p_region.given(region__ne=20)
     print(p_not_20)

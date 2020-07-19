@@ -6,7 +6,7 @@ from unittest import TestCase
 from probability.discrete.prob_utils import margin, condition, multiply, given, p
 
 from tests.paths import FN_PANDAS_TESTS
-from tests.shared import read_distribution_data, series_are_equivalent
+from tests.shared import read_distribution, series_are_equivalent
 
 
 class TestProbUtils(TestCase):
@@ -16,20 +16,20 @@ class TestProbUtils(TestCase):
         self.xlsx = ExcelFile(str(FN_PANDAS_TESTS))
         self.vars = ['A', 'B', 'C', 'D']
         # joints
-        self.joint = read_distribution_data('P(A,B,C,D)')
+        self.joint = read_distribution('P(A,B,C,D)')
         # marginals
-        self.p_A = read_distribution_data('P(A)')
-        self.p_AB = read_distribution_data('P(A,B)')
-        self.p_ABC = read_distribution_data('P(A,B,C)')
+        self.p_A = read_distribution('P(A)')
+        self.p_AB = read_distribution('P(A,B)')
+        self.p_ABC = read_distribution('P(A,B,C)')
         # conditionals
-        self.p_ABC__D_1 = read_distribution_data('p(A,B,C|D=1)')
-        self.p_AB__C_1__D_2 = read_distribution_data('p(A,B|C=1,D=2)')
-        self.p_A__B_1__C_2__D_3 = read_distribution_data('p(A|B=1,C=2,D=3)')
-        self.p_ABC__D = read_distribution_data('p(A,B,C|D)')
-        self.p_AB__C__D = read_distribution_data('p(A,B|C,D)')
-        self.p_A__B__C__D = read_distribution_data('P(A|B,C,D)')
-        self.p_AB__C__D_1 = read_distribution_data('p(A,B|C,D=1)')
-        self.p_AB__C_2__D = read_distribution_data('p(A,B|C=2,D)')
+        self.p_ABC__D_1 = read_distribution('p(A,B,C|D=1)')
+        self.p_AB__C_1__D_2 = read_distribution('p(A,B|C=1,D=2)')
+        self.p_A__B_1__C_2__D_3 = read_distribution('p(A|B=1,C=2,D=3)')
+        self.p_ABC__D = read_distribution('p(A,B,C|D)')
+        self.p_AB__C__D = read_distribution('p(A,B|C,D)')
+        self.p_A__B__C__D = read_distribution('P(A|B,C,D)')
+        self.p_AB__C__D_1 = read_distribution('p(A,B|C,D=1)')
+        self.p_AB__C_2__D = read_distribution('p(A,B|C=2,D)')
 
     def test_margins(self):
 
@@ -115,7 +115,7 @@ class TestProbUtils(TestCase):
 
     def test_multiply(self):
 
-        p_AB = read_distribution_data('P(A,B)')
+        p_AB = read_distribution('P(A,B)')
         p_A = margin(p_AB, 'A')
         p_B = margin(p_AB, 'B')
         p_A__B = condition(p_AB, 'B')
