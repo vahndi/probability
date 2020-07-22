@@ -52,7 +52,7 @@ class Beta(RVContinuous1dMixin):
     def from_data_frame(
             data: DataFrame,
             prob_vars: Union[str, List[str]],
-            cond_vars: Union[str, List[str]]
+            cond_vars: Union[str, List[str]],
     ) -> DataFrame:
         """
         Return a dict mapping probability and conditional variables to Beta
@@ -61,6 +61,8 @@ class Beta(RVContinuous1dMixin):
         :param data: DataFrame containing discrete data.
         :param prob_vars: Names of binary variables to find probability of.
         :param cond_vars: Names of discrete variables to condition on.
+                          Calculations will be done for the cartesian product
+                          of values in each variable.
         :return: DataFrame with columns for each conditioning variable, a 'p'
                  column indicating the probability variable and a 'Beta'
                  column containing the distribution.
@@ -69,12 +71,12 @@ class Beta(RVContinuous1dMixin):
             prob_vars = [prob_vars]
         if isinstance(cond_vars, str):
             cond_vars = [cond_vars]
-        cond_combos = product(
+        cond_products = product(
             *[data[cond_var].unique() for cond_var in cond_vars]
         )
         betas = []
         # iterate over conditions
-        for cond_values in cond_combos:
+        for cond_values in cond_products:
             cond_data = data
             cond_dict = {}
             for cond_var, cond_value in zip(cond_vars, cond_values):
@@ -106,6 +108,6 @@ class Beta(RVContinuous1dMixin):
             alpha_2=other._alpha, beta_2=other._beta, m_2=0, n_2=0
         )
 
-    def __lt__(self, other: 'RVS1dMixin') -> float:
+    def __lt__(self, other: 'Beta') -> float:
 
         return other < self
