@@ -2,7 +2,7 @@ from itertools import product
 
 from pandas import DataFrame, Series
 from scipy.stats import beta as beta_dist, rv_continuous
-from typing import List, Union
+from typing import List, Union, Optional
 
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 from probability.distributions.special import prob_bb_greater_exact
@@ -53,6 +53,7 @@ class Beta(RVContinuous1dMixin):
             data: DataFrame,
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
+            stats: Optional[Union[str, List[str]]] = None
     ) -> DataFrame:
         """
         Return a dict mapping probability and conditional variables to Beta
@@ -63,6 +64,8 @@ class Beta(RVContinuous1dMixin):
         :param cond_vars: Names of discrete variables to condition on.
                           Calculations will be done for the cartesian product
                           of values in each variable.
+        :param stats: Optional stats to append to the output e.g. 'alpha',
+                      'median'.
         :return: DataFrame with columns for each conditioning variable, a 'p'
                  column indicating the probability variable and a 'Beta'
                  column containing the distribution.
@@ -91,7 +94,21 @@ class Beta(RVContinuous1dMixin):
                     alpha=m_prob, beta=n_cond - m_prob
                 )
                 betas.append(prob_dict)
-        return DataFrame(betas)
+        betas_data = DataFrame(betas)
+        if stats is not None:
+            if isinstance(stats, str):
+                stats = [stats]
+                for stat in stats:
+                    if hasattr(Beta, stat):
+                        if callable(getattr(Beta, stat)):
+                            betas_data[stat] = betas_data['Beta'].map(
+                                lambda b: getattr(b, stat)()
+                            )
+                        else:
+                            betas_data[stat] = betas_data['Beta'].map(
+                                lambda b: getattr(b, stat)
+                            )
+        return betas_data
 
     def __str__(self):
 
