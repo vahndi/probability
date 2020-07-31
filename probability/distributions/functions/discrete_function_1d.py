@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 from pandas import Series
 from scipy.stats import rv_discrete
-from typing import Iterable, overload
+from typing import Iterable, overload, Optional
 
 from probability.distributions.mixins.plottable_mixin import PlottableMixin
 from mpl_format.axes.axis_utils import new_axes
@@ -35,7 +35,8 @@ class DiscreteFunction1d(object):
         elif isinstance(k, Iterable):
             return Series(index=k, data=self._method(k), name=self._name)
 
-    def plot(self, k: Iterable[int], color: str = 'C0', kind: str = 'bar', ax: Axes = None,
+    def plot(self, k: Iterable[int], color: str = 'C0', kind: str = 'bar',
+             ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
         Plot the function.

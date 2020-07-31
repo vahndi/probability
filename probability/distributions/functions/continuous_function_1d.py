@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 from pandas import Series
 from scipy.stats import rv_continuous
-from typing import Iterable, overload
+from typing import Iterable, overload, Optional
 
 from probability.distributions.mixins.plottable_mixin import PlottableMixin
 from mpl_format.axes.axis_utils import new_axes
@@ -35,7 +35,9 @@ class ContinuousFunction1d(object):
         elif isinstance(x, Iterable):
             return Series(index=x, data=self._method(x), name=self._name)
 
-    def plot(self, x: Iterable, kind: str = 'line', color: str = 'C0', ax: Axes = None,
+    def plot(self,
+             x: Iterable,
+             kind: str = 'line', color: str = 'C0', ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
         Plot the function.

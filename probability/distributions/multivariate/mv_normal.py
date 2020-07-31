@@ -43,8 +43,10 @@ class MVNormal(
     def sigma(self, value: FloatOrFloatArray2d):
         self._sigma = value
 
-    def plot_2d(self, x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
-                color_map: str = 'viridis', ax: Axes = None) -> Axes:
+    def plot_2d(self,
+                x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
+                color_map: str = 'viridis', ax: Axes = None,
+                **kwargs) -> Axes:
         """
         Plot the function.
 
@@ -52,8 +54,11 @@ class MVNormal(
         :param x2: Range of values of x2 to plot p(x1, x2) over.
         :param color_map: Optional colormap for the plot.
         :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments to pass to plot method.
         """
-        return self.pdf().plot_2d(x1=x1, x2=x2, color_map=color_map, ax=ax)
+        return self.pdf().plot_2d(
+            x1=x1, x2=x2, color_map=color_map, ax=ax, **kwargs
+        )
 
     def __str__(self):
 

@@ -1,6 +1,6 @@
 from matplotlib.axes import Axes
 from scipy.stats import rv_discrete
-from typing import Iterable
+from typing import Iterable, Optional
 
 from probability.distributions.mixins.plottable_mixin import PlottableMixin
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, EntropyMixin, Median1dMixin, Mean1dMixin, \
@@ -17,7 +17,8 @@ class RVDiscrete1dMixin(
     _distribution: rv_discrete
     _num_samples: int = 1000000
 
-    def plot(self, k: Iterable, kind: str = 'bar', color: str = 'C0', ax: Axes = None,
+    def plot(self, k: Iterable, kind: str = 'bar', color: str = 'C0',
+             ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
         Plot the PMF of the distribution.

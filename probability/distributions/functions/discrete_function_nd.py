@@ -1,4 +1,4 @@
-from typing import overload, Iterable, Union
+from typing import overload, Iterable, Union, Optional
 
 from matplotlib.axes import Axes
 from numpy import array, ndarray
@@ -56,13 +56,15 @@ class DiscreteFunctionNd(object):
             )
 
     def plot(self, x: Union[Iterable[Iterable], ndarray],
-             color: str = 'C0', ax: Axes = None) -> Axes:
+             color: str = 'C0', ax: Optional[Axes] = None,
+             **kwargs) -> Axes:
         """
         Plot the function.
 
         :param x: Range of values of x to plot p(x) over.
         :param color: Optional color for the series.
         :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for bar plot.
         """
         x = array(x)
         data = self.at(x)

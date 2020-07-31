@@ -5,7 +5,7 @@ from numpy.linalg import norm
 from numpy.ma import clip
 from pandas import Series, MultiIndex
 from scipy.stats import rv_continuous
-from typing import overload, Iterable, Union
+from typing import overload, Iterable, Union, Optional
 
 from mpl_format.axes.axis_utils import new_axes
 
@@ -57,8 +57,10 @@ class ContinuousFunctionNd(object):
                 ), data=self._method(x), name=f'{self._name}({self._parent})'
             )
 
-    def plot_2d(self, x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
-                color_map: str = 'viridis', ax: Axes = None) -> Axes:
+    def plot_2d(self,
+                x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
+                color_map: str = 'viridis', ax: Optional[Axes] = None,
+                **kwargs) -> Axes:
         """
         Plot a 2-dimensional function as a grid heat-map.
 
@@ -66,26 +68,30 @@ class ContinuousFunctionNd(object):
         :param x2: Range of values of x2 to plot p(x1, x2) over.
         :param color_map: Optional colormap for the heat-map.
         :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for contourf method.
         """
         x1_grid, x2_grid = meshgrid(x1, x2)
         x1_x2 = dstack((x1_grid, x2_grid))
         f = self._method(x1_x2)
         ax = ax or new_axes()
-        ax.contourf(x1_grid, x2_grid, f, cmap=color_map)
+        ax.contourf(x1_grid, x2_grid, f, cmap=color_map, **kwargs)
         ax.set_xlabel('x1')
         ax.set_ylabel('x2')
         return ax
 
     def plot_simplex(self, num_contours: int = 100, num_sub_div: int = 8,
-                     color_map: str = 'viridis', border: bool = True, ax: Axes = None) -> Axes:
+                     color_map: str = 'viridis', border: bool = True,
+                     ax: Optional[Axes] = None,
+                     **kwargs) -> Axes:
         """
         Plot a 3-dimensional functions as a simplex heat-map.
 
         :param num_contours: The number of levels of contours to plot.
         :param num_sub_div: Number of recursive subdivisions to create.
         :param color_map: Optional colormap for the plot.
-        :param border: Whether to plot a border around the simplex heatmap.
+        :param border: Whether to plot a border around the simplex heat-map.
         :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for tricontourf method.
         """
 
         corners = array([[0, 0], [1, 0], [0.5, 0.75 ** 0.5]])
@@ -101,7 +107,9 @@ class ContinuousFunctionNd(object):
 
             :param cartesian: A length-2 sequence containing the x and y value.
             """
-            s = [(corners[i] - mid_points[i]).dot(cartesian - mid_points[i]) / 0.75
+            s = [(corners[i] - mid_points[i]).dot(
+                     cartesian - mid_points[i]
+                 ) / 0.75
                  for i in range(3)]
             s_clipped = clip(a=s, a_min=0, a_max=1)
             return s_clipped / norm(s_clipped, ord=1)
@@ -111,7 +119,7 @@ class ContinuousFunctionNd(object):
         f = [self._method(to_barycentric(xy))
              for xy in zip(tri_mesh.x, tri_mesh.y)]
         ax = ax or new_axes()
-        ax.tricontourf(tri_mesh, f, num_contours, cmap=color_map)
+        ax.tricontourf(tri_mesh, f, num_contours, cmap=color_map, **kwargs)
         ax.set_aspect('equal')
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 0.75 ** 0.5)
