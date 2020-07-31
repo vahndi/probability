@@ -38,7 +38,7 @@ class Beta(RVContinuous1dMixin):
         self._reset_distribution()
 
     @staticmethod
-    def fit(data: Series) -> 'Beta':
+    def infer(data: Series) -> 'Beta':
         """
         Return a new Beta distribution using a Series for counts.
 
@@ -49,7 +49,7 @@ class Beta(RVContinuous1dMixin):
         return Beta(alpha=alpha, beta=beta)
 
     @staticmethod
-    def fits(
+    def infers(
             data: DataFrame,
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
