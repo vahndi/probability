@@ -38,7 +38,7 @@ class Beta(RVContinuous1dMixin):
         self._reset_distribution()
 
     @staticmethod
-    def from_series(data: Series) -> 'Beta':
+    def fit(data: Series) -> 'Beta':
         """
         Return a new Beta distribution using a Series for counts.
 
@@ -49,14 +49,14 @@ class Beta(RVContinuous1dMixin):
         return Beta(alpha=alpha, beta=beta)
 
     @staticmethod
-    def from_data_frame(
+    def fits(
             data: DataFrame,
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
             stats: Optional[Union[str, List[str]]] = None
     ) -> DataFrame:
         """
-        Return a dict mapping probability and conditional variables to Beta
+        Return a DataFrame mapping probability and conditional variables to Beta
         distributions.
 
         :param data: DataFrame containing discrete data.

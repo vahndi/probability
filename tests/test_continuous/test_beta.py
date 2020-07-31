@@ -20,7 +20,7 @@ class TestBeta(TestCase):
     def test_from_series(self):
 
         expected = Beta(alpha=4, beta=6)
-        actual = Beta.from_series(self.series)
+        actual = Beta.fit(self.series)
         self.assertEqual(expected.alpha, actual.alpha)
         self.assertEqual(expected.beta, actual.beta)
 
@@ -36,7 +36,7 @@ class TestBeta(TestCase):
             {'a': 1, 'b': 2, 'p': 'd', 'Beta': Beta(1, 2)},
             {'a': 2, 'b': 2, 'p': 'd', 'Beta': Beta(0, 3)}
         ])
-        actual = Beta.from_data_frame(
+        actual = Beta.fits(
             data=self.data_frame,
             prob_vars=['c', 'd'],
             cond_vars=['a', 'b']
