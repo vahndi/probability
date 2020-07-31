@@ -4,7 +4,7 @@ from setuptools import find_packages
 setup(
   name='probability',
   packages=find_packages(),
-  version='0.0.131',
+  version='0.0.136',
   license='MIT',
   description='Probability in Python 3',
   author='Vahndi Minah',
@@ -22,6 +22,6 @@ setup(
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: MIT License',
-    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3',
   ],
 )
