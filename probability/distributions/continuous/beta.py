@@ -7,10 +7,24 @@ from probability.distributions.special import prob_bb_greater_exact
 
 class Beta(RVContinuous1dMixin):
     """
+    The beta distribution is a family of continuous probability distributions
+    defined on the interval [0, 1] parameterized by two positive shape
+    parameters, denoted by α and β, that appear as exponents of the random
+    variable and control the shape of the distribution.
+    The generalization to multiple variables is called a Dirichlet distribution.
+
+    The beta distribution is a suitable model for the random behavior of
+    percentages and proportions.
+
     https://en.wikipedia.org/wiki/Beta_distribution
     """
     def __init__(self, alpha: float, beta: float):
+        """
+        Create a new beta distribution.
 
+        :param alpha: First shape parameter: Interpretation can be # successes.
+        :param beta: Second shape parameter: : Interpretation can be # failures.
+        """
         self._alpha: float = alpha
         self._beta: float = beta
         self._reset_distribution()

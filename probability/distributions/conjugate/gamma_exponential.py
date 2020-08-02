@@ -8,14 +8,15 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous
 
 class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
     """
-    Class for calculating Bayesian probabilities using the Gamma-Exponential distribution.
+    Class for calculating Bayesian probabilities using the Gamma-Exponential
+    distribution.
 
     Prior Hyper-parameters
     ----------------------
     * `α` and `β` are the hyper-parameters of the Gamma prior.
     * `α > 0`
     * `β > 0`
-    * Interpretation is α observations that sum to β.
+    * Interpretation is α prior observations that sum to β.
 
     Posterior Hyper-parameters
     --------------------------
@@ -50,7 +51,8 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
 
     def _reset_distribution(self):
 
-        self._distribution = lomax(c=self.alpha_prime, scale=self.beta_prime)
+        self._distribution = lomax(c=self.alpha_prime,
+                                   scale=self.beta_prime)
 
     @property
     def alpha(self) -> float:

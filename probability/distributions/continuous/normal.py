@@ -8,7 +8,12 @@ from probability.utils import any_are_not_none, any_are_none
 
 
 class Normal(RVContinuous1dMixin):
+    """
+    The normal distribution is a type of continuous probability distribution for
+    a real-valued random variable.
 
+    https://en.wikipedia.org/wiki/Normal_distribution
+    """
     _parametrization: str
 
     @overload
@@ -19,9 +24,14 @@ class Normal(RVContinuous1dMixin):
     def __init__(self, mu: float, sigma_sq: float):
         pass
 
-    def __init__(self, mu: float, sigma: Optional[float] = None, sigma_sq: Optional[float] = None):
+    def __init__(self, mu: float,
+                 sigma: Optional[float] = None,
+                 sigma_sq: Optional[float] = None):
 
-        assert any_are_not_none(sigma, sigma_sq) and any_are_none(sigma, sigma_sq)
+        assert (
+            any_are_not_none(sigma, sigma_sq) and
+            any_are_none(sigma, sigma_sq)
+        )
 
         self._mu: float = mu
         if sigma is not None:

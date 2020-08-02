@@ -6,12 +6,20 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous
 
 
 class StudentsT(RVContinuous1dMixin):
+    """
+    Student's t-distribution (or simply the t-distribution) is any member of a
+    family of continuous probability distributions that arises when estimating
+    the mean of a normally distributed population in situations where the sample
+    size is small and the population standard deviation is unknown.
 
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution
+    """
     def __init__(self, nu: float, mu: float = 0, sigma: float = 1, sigma_sq: float = None):
         """
+        Create a new Student's t distribution.
+
         :param nu: Number of degrees of freedom.
         """
-
         assert any([sigma, sigma_sq]) and not all([sigma, sigma_sq])
 
         self._nu: float = nu

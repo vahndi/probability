@@ -4,7 +4,15 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous
 
 
 class Laplace(RVContinuous1dMixin):
+    """
+    The Laplace distribution is also sometimes called the double exponential
+    distribution, because it can be thought of as two exponential distributions
+    (with an additional location parameter) spliced together back-to-back.
+    The difference between two independent identically distributed exponential
+    random variables is governed by a Laplace distribution
 
+    https://en.wikipedia.org/wiki/Laplace_distribution
+    """
     def __init__(self, mu: float, b: float):
         self._mu: float = mu
         self._b: float = b

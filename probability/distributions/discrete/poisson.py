@@ -4,9 +4,22 @@ from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMi
 
 
 class Poisson(RVDiscrete1dMixin):
+    """
+    The Poisson distribution is a discrete probability distribution that
+    expresses the probability of a given number of events occurring in a fixed
+    interval of time or space if these events occur with a known constant mean
+    rate and independently of the time since the last event.
+    The Poisson distribution can also be used for the number of events in other
+    specified intervals such as distance, area or volume.
 
+    https://en.wikipedia.org/wiki/Poisson_distribution
+    """
     def __init__(self, lambda_: int):
+        """
+        Create a new poisson distribution.
 
+        :param lambda_: Average rate at which events occur.
+        """
         self._lambda: int = lambda_
         self._reset_distribution()
 

@@ -4,6 +4,22 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous
 
 
 class Gamma(RVContinuous1dMixin, object):
+    """
+    The gamma distribution is a two-parameter family of continuous probability
+    distributions. The exponential distribution, Erlang distribution, and
+    chi-squared distribution are special cases of the gamma distribution.
+
+    The _parametrization with k and θ appears to be more common in econometrics
+    and certain other applied fields, where for example the gamma distribution
+    is frequently used to model waiting times.
+
+    The _parametrization with α and β is more common in Bayesian statistics,
+    where the gamma distribution is used as a conjugate prior distribution for
+    various types of inverse scale (rate) parameters, such as the λ (rate) of
+    an exponential distribution or of a Poisson distribution
+
+    https://en.wikipedia.org/wiki/Gamma_distribution
+    """
 
     _parametrization: str
 
@@ -16,7 +32,9 @@ class Gamma(RVContinuous1dMixin, object):
         self._reset_distribution()
 
     def _reset_distribution(self):
-        self._distribution: rv_continuous = gamma(a=self._alpha, scale=1 / self._beta)
+        self._distribution: rv_continuous = gamma(
+            a=self._alpha, scale=1 / self._beta
+        )
 
     @staticmethod
     def from_alpha_beta(alpha: float, beta: float) -> 'Gamma':

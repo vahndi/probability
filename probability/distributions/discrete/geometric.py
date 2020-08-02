@@ -5,10 +5,18 @@ from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMi
 
 class Geometric(RVDiscrete1dMixin):
     """
-    Class to represent a (shifted) geometric distribution.
+    The (shifted) geometric distribution gives the probability that the first
+    occurrence of success requires k independent trials, each with success
+    probability p.
+
+    https://en.wikipedia.org/wiki/Geometric_distribution
     """
     def __init__(self, p: float):
+        """
+        Create a new shifted geometric distribution.
 
+        :param p: Probability of success in any individual trial.
+        """
         self._p: float = p
         self._reset_distribution()
 

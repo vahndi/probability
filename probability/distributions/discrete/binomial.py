@@ -5,10 +5,21 @@ from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMi
 
 class Binomial(RVDiscrete1dMixin):
     """
+    The binomial distribution with parameters n and p is the discrete
+    probability distribution of the number of successes in a sequence of n
+    independent experiments, each asking a yes–no question, and each with its
+    own boolean-valued outcome: success/yes/true/one (with probability p) or
+    failure/no/false/zero (with probability q = 1 − p)
+
     https://en.wikipedia.org/wiki/Binomial_distribution
     """
     def __init__(self, n: int, p: float):
+        """
+        Create a new binomial distribution.
 
+        :param n: Number of trials.
+        :param p: Probability of success in an individual trial.
+        """
         self._n: int = n
         self._p: float = p
         self._reset_distribution()

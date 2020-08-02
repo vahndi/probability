@@ -4,7 +4,16 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous
 
 
 class Lomax(RVContinuous1dMixin):
+    """
+    The Lomax distribution, conditionally also called the Pareto Type II
+    distribution, is a heavy-tail probability distribution used in business,
+    economics, actuarial science, queueing theory and Internet traffic modeling.
 
+    It is essentially a Pareto distribution that has been shifted so that its
+    support begins at zero.
+
+    https://en.wikipedia.org/wiki/Lomax_distribution
+    """
     def __init__(self, lambda_: float, alpha: float):
 
         self._lambda: float = lambda_
@@ -13,7 +22,9 @@ class Lomax(RVContinuous1dMixin):
 
     def _reset_distribution(self):
 
-        self._distribution: rv_continuous = lomax(c=self._alpha, scale=self._lambda)
+        self._distribution: rv_continuous = lomax(
+            c=self._alpha, scale=self._lambda
+        )
 
     @property
     def lambda_(self) -> float:

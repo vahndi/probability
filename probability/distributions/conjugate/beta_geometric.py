@@ -7,7 +7,8 @@ from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 
 class BetaGeometric(ConjugateMixin):
     """
-    Class for calculating Bayesian probabilities using the Shifted Beta-Geometric distribution.
+    Class for calculating Bayesian probabilities using the Shifted
+    Beta-Geometric distribution.
 
     Prior Hyper-parameters
     ----------------------
@@ -33,8 +34,10 @@ class BetaGeometric(ConjugateMixin):
     """
     def __init__(self, alpha: float, beta: float, n: int, k: int):
         """
-        :param alpha: Value for the α hyper-parameter of the prior Beta distribution.
-        :param beta: Value for the β hyper-parameter of the prior Beta distribution.
+        :param alpha: Value for the α hyper-parameter of the prior Beta
+                      distribution.
+        :param beta: Value for the β hyper-parameter of the prior Beta
+                     distribution.
         :param n: Number of trials.
         :param k: Number of trials until first success.
         """
@@ -62,8 +65,14 @@ class BetaGeometric(ConjugateMixin):
 
     def __str__(self):
 
-        return f'BetaGeometric(n={self._n}, α={self._alpha}, β={self._beta})'
+        return f'BetaGeometric(' \
+               f'n={self._n}, ' \
+               f'α={self._alpha}, ' \
+               f'β={self._beta})'
 
     def __repr__(self):
 
-        return f'BetaGeometric(n={self._n}, alpha={self._alpha}, beta={self._beta})'
+        return f'BetaGeometric(' \
+               f'n={self._n}, ' \
+               f'alpha={self._alpha}, ' \
+               f'beta={self._beta})'
