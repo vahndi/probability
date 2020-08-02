@@ -1,9 +1,5 @@
 from scipy.stats import beta as beta_dist, rv_continuous
 
-from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
-from probability.distributions.special import prob_bb_greater_exact
-from scipy.stats import beta as beta_dist, rv_continuous
-
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.special import prob_bb_greater_exact

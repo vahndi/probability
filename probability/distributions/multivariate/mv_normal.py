@@ -25,7 +25,9 @@ class MVNormal(
         self._reset_distribution()
 
     def _reset_distribution(self):
-        self._distribution: multi_rv_generic = multivariate_normal(mean=self._mu, cov=self._sigma)
+        self._distribution: multi_rv_generic = multivariate_normal(
+            mean=self._mu, cov=self._sigma
+        )
 
     @property
     def mu(self) -> ndarray:
