@@ -4,7 +4,9 @@ from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMi
 
 
 class Binomial(RVDiscrete1dMixin):
-
+    """
+    https://en.wikipedia.org/wiki/Binomial_distribution
+    """
     def __init__(self, n: int, p: float):
 
         self._n: int = n
@@ -40,3 +42,10 @@ class Binomial(RVDiscrete1dMixin):
     def __repr__(self):
 
         return f'Binomial(n={self._n}, p={self._p})'
+
+    def __eq__(self, other: 'Binomial'):
+
+        return (
+            self._n == other._n and
+            abs(self._p - other._p) < 1e-10
+        )

@@ -4,6 +4,7 @@ from pandas import Series
 from scipy.stats import rv_discrete, multinomial
 
 from probability.custom_types import FloatArray1d
+from probability.distributions import Binomial
 from probability.distributions.mixins.rv_mixins import EntropyMixin, \
     RVSNdMixin, PMFNdMixin
 from probability.utils import k_tuples_summing_to_n
@@ -13,7 +14,9 @@ class Multinomial(
     RVSNdMixin, PMFNdMixin, EntropyMixin,
     object
 ):
-
+    """
+    https://en.wikipedia.org/wiki/Multinomial_distribution
+    """
     def __init__(self, n: int, p: FloatArray1d):
         """
         Create a new Multinomial distribution.
@@ -76,3 +79,9 @@ class Multinomial(
 
         p = ', '.join([f'{k}={v}' for k, v in self._p.items()])
         return f'Multinomial({p})'
+
+    def __getitem__(self, item) -> Binomial:
+
+        return Binomial(
+            n=self._n, p=self._p[item]
+        )

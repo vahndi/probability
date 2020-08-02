@@ -2,7 +2,7 @@ from unittest.case import TestCase
 
 from pandas import Series
 
-from probability.distributions import Dirichlet
+from probability.distributions import Dirichlet, Beta
 
 
 class TestDirichlet(TestCase):
@@ -48,3 +48,10 @@ class TestDirichlet(TestCase):
             'Dirichlet(a=0.4, b=0.3, c=0.2, d=0.1)',
             str(self.d_series)
         )
+
+    def test_get_item(self):
+
+        for k, v in self.d_series.alpha.items():
+            expected = Beta(alpha=v, beta=1-v)
+            actual = self.d_series[k]
+            self.assertTrue(expected == actual)

@@ -6,7 +6,9 @@ from probability.distributions.special import prob_bb_greater_exact
 
 
 class Beta(RVContinuous1dMixin):
-
+    """
+    https://en.wikipedia.org/wiki/Beta_distribution
+    """
     def __init__(self, alpha: float, beta: float):
 
         self._alpha: float = alpha
@@ -52,3 +54,10 @@ class Beta(RVContinuous1dMixin):
     def __lt__(self, other: 'Beta') -> float:
 
         return other < self
+
+    def __eq__(self, other: 'Beta') -> bool:
+
+        return (
+            abs(self._alpha - other._alpha) < 1e-10 and
+            abs(self._beta - other._beta) < 1e-10
+        )

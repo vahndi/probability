@@ -2,7 +2,7 @@ from unittest.case import TestCase
 
 from pandas import Series
 
-from probability.distributions import Multinomial
+from probability.distributions import Multinomial, Binomial
 
 
 class TestMultinomial(TestCase):
@@ -51,3 +51,11 @@ class TestMultinomial(TestCase):
             'Multinomial(a=0.4, b=0.3, c=0.2, d=0.1)',
             str(self.m_series)
         )
+
+    def test_get_item(self):
+
+        for k, v in self.m_series.p.items():
+            expected = Binomial(n=self.m_series.n,
+                                p=self.m_series.p[k])
+            actual = self.m_series[k]
+            self.assertTrue(expected == actual)

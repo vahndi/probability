@@ -3,6 +3,7 @@ from scipy.stats import dirichlet
 from scipy.stats._multivariate import multi_rv_generic
 
 from probability.custom_types import FloatArray1d
+from probability.distributions import Beta
 from probability.distributions.mixins.rv_mixins import RVSNdMixin, PDFNdMixin, \
     EntropyMixin, MeanNdMixin, VarNdMixin
 
@@ -11,7 +12,9 @@ class Dirichlet(
     RVSNdMixin, PDFNdMixin, EntropyMixin, MeanNdMixin, VarNdMixin,
     object
 ):
-
+    """
+    https://en.wikipedia.org/wiki/Dirichlet_distribution
+    """
     def __init__(self, alpha: FloatArray1d):
 
         if not isinstance(alpha, Series):
@@ -53,3 +56,10 @@ class Dirichlet(
 
         params = ', '.join([f'{k}={v}' for k, v in self._alpha.items()])
         return f'Dirichlet({params})'
+
+    def __getitem__(self, item) -> Beta:
+
+        return Beta(
+            alpha=self._alpha[item],
+            beta=self._alpha.sum() - self._alpha[item]
+        )
