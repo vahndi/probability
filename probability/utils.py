@@ -34,3 +34,10 @@ def any_are_not_none(*args) -> bool:
 
 def any_are_none(*args) -> bool:
     return any([arg is None for arg in args])
+
+
+def is_binomial(data: Series) -> bool:
+
+    return (
+        set(data.unique()).issubset({0, 1})
+    )
