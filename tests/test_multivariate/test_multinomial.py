@@ -12,6 +12,7 @@ class TestMultinomial(TestCase):
         self.p = Series({'a': 0.4, 'b': 0.3, 'c': 0.2, 'd': 0.1})
         self.m_array = Multinomial(n=10, p=self.p.values)
         self.m_series = Multinomial(n=10, p=self.p)
+        self.m_dict = Multinomial(n=10, p=self.p.to_dict())
 
     def test_init_with_array(self):
 
@@ -23,6 +24,12 @@ class TestMultinomial(TestCase):
 
         expected = self.p
         actual = self.m_series.p
+        self.assertTrue(expected.equals(actual))
+
+    def test_init_with_dict(self):
+
+        expected = self.p
+        actual = self.m_dict.p
         self.assertTrue(expected.equals(actual))
 
     def test_set_alpha_with_array(self):

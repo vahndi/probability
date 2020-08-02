@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from pandas import Series
 from scipy.stats import rv_discrete, multinomial
@@ -17,7 +17,7 @@ class Multinomial(
     """
     https://en.wikipedia.org/wiki/Multinomial_distribution
     """
-    def __init__(self, n: int, p: FloatArray1d):
+    def __init__(self, n: int, p: Union[FloatArray1d, dict]):
         """
         Create a new Multinomial distribution.
 
@@ -25,7 +25,9 @@ class Multinomial(
         :param p: Probability of each outcome in any given trial.
         """
         self._n: int = n
-        if not isinstance(p, Series):
+        if isinstance(p, dict):
+            p = Series(p)
+        elif not isinstance(p, Series):
             p = Series(
                 data=p,
                 index=[f'x{k}' for k in range(1, len(p) + 1)]
