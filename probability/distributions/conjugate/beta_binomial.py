@@ -8,6 +8,7 @@ from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
+from probability.utils import is_binomial
 
 
 class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
@@ -45,6 +46,8 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     """
     def __init__(self, alpha: float, beta: float, n: int, m: int):
         """
+        Create a new beta-binomial distribution.
+
         :param alpha: Value for the α hyper-parameter of the prior Beta
                       distribution.
         :param beta: Value for the β hyper-parameter of the prior Beta
@@ -139,10 +142,13 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
         distributions of posteriors most likely to generate the given data.
 
         :param data: DataFrame containing discrete data.
-        :param prob_vars: Names of binary variables to find probability of.
+        :param prob_vars: Name(s) of binomial variables whose posteriors to find
+                          probability of.
         :param cond_vars: Names of discrete variables to condition on.
                           Calculations will be done for the cartesian product
-                          of values in each variable.
+                          of variable values
+                          e.g if cA={1,2} and cB={3,4} then
+                          cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
         :param stats: Optional stats to append to the output e.g. 'alpha',
                       'median'.
         :return: DataFrame with columns for each conditioning variable, a 'p'
@@ -151,6 +157,11 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
         """
         if isinstance(prob_vars, str):
             prob_vars = [prob_vars]
+        if len(prob_vars) > 1:
+            if not all(is_binomial(data[prob_var]) for prob_var in prob_vars):
+                raise ValueError(
+                    'If passing more than one prob_var, each must be binomial'
+                )
         if isinstance(cond_vars, str):
             cond_vars = [cond_vars]
         cond_products = product(
@@ -166,13 +177,31 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
                 cond_dict[cond_var] = cond_value
             n_cond: int = len(cond_data)
             for prob_var in prob_vars:
-                prob_dict = cond_dict.copy()
-                m_prob: int = cond_data[prob_var].sum()
-                prob_dict['p'] = prob_var
-                prob_dict['Beta'] = Beta(
-                    alpha=m_prob, beta=n_cond - m_prob
-                )
-                betas.append(prob_dict)
+                if is_binomial(data[prob_var]):
+                    # one or more binomial columns
+                    prob_dict = cond_dict.copy()
+                    m_prob: int = cond_data[prob_var].sum()
+                    prob_dict['prob_var'] = prob_var
+                    prob_dict['prob_val'] = 1
+                    prob_dict['Beta'] = Beta(
+                        alpha=m_prob, beta=n_cond - m_prob
+                    )
+                    betas.append(prob_dict)
+                else:
+                    # single multinomial column
+                    for state in data[prob_var].unique():
+                        prob_dict = cond_dict.copy()
+                        m_prob = len(cond_data.loc[
+                            cond_data[prob_var] == state,
+                            prob_var
+                        ])
+                        prob_dict['prob_var'] = prob_var
+                        prob_dict['prob_val'] = state
+                        prob_dict['Beta'] = Beta(
+                            alpha=m_prob, beta=n_cond - m_prob
+                        )
+                        betas.append(prob_dict)
+
         betas_data = DataFrame(betas)
         if stats is not None:
             if isinstance(stats, str):
@@ -192,11 +221,13 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     def __str__(self):
 
         return (
-            f'BetaBinomial(n={self._n}, α={self._alpha}, β={self._beta})'
+            f'BetaBinomial(α={self._alpha}, β={self._beta}, '
+            f'n={self._n}, m={self._m})'
         )
 
     def __repr__(self):
 
         return (
-            f'BetaBinomial(n={self._n}, alpha={self._alpha}, beta={self._beta})'
+            f'BetaBinomial(alpha={self._alpha}, beta={self._beta}, '
+            f'n={self._n}, m={self._m})'
         )

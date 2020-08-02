@@ -10,11 +10,16 @@ class TestBetaBinomial(TestCase):
     def setUp(self) -> None:
 
         self.series = Series(data=[0] * 6 + [1] * 4)
-        self.data_frame = DataFrame({
+        self.binomial_data = DataFrame({
             'a': [1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2],
             'b': [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
             'c': [0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1],
-            'd': [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0]
+            'd': [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+        })
+        self.multinomial_data = DataFrame({
+            'a': [1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2],
+            'b': [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
+            'e': [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3]
         })
 
     def test_infer_posterior(self):
@@ -24,20 +29,23 @@ class TestBetaBinomial(TestCase):
         self.assertEqual(expected.alpha, actual.alpha)
         self.assertEqual(expected.beta, actual.beta)
 
-    def test_infer_posteriors(self):
+    def test_infer_posteriors_binomial(self):
 
-        expected = DataFrame([
-            {'a': 1, 'b': 1, 'p': 'c', 'Beta': Beta(0, 3)},
-            {'a': 2, 'b': 1, 'p': 'c', 'Beta': Beta(1, 2)},
-            {'a': 1, 'b': 2, 'p': 'c', 'Beta': Beta(2, 1)},
-            {'a': 2, 'b': 2, 'p': 'c', 'Beta': Beta(3, 0)},
-            {'a': 1, 'b': 1, 'p': 'd', 'Beta': Beta(3, 0)},
-            {'a': 2, 'b': 1, 'p': 'd', 'Beta': Beta(2, 1)},
-            {'a': 1, 'b': 2, 'p': 'd', 'Beta': Beta(1, 2)},
-            {'a': 2, 'b': 2, 'p': 'd', 'Beta': Beta(0, 3)}
-        ])
+        expected = DataFrame(
+            data=[
+                (1, 1, 'c', 1, Beta(0, 3)),
+                (2, 1, 'c', 1, Beta(1, 2)),
+                (1, 2, 'c', 1, Beta(2, 1)),
+                (2, 2, 'c', 1, Beta(3, 0)),
+                (1, 1, 'd', 1, Beta(3, 0)),
+                (2, 1, 'd', 1, Beta(2, 1)),
+                (1, 2, 'd', 1, Beta(1, 2)),
+                (2, 2, 'd', 1, Beta(0, 3))
+            ],
+            columns=['a', 'b', 'prob_var', 'prob_val', 'Beta']
+        )
         actual = BetaBinomial.infer_posteriors(
-            data=self.data_frame,
+            data=self.binomial_data,
             prob_vars=['c', 'd'],
             cond_vars=['a', 'b']
         )
@@ -45,8 +53,42 @@ class TestBetaBinomial(TestCase):
             actual_beta = actual.loc[
                 (actual['a'] == row['a']) &
                 (actual['b'] == row['b']) &
-                (actual['p'] == row['p']),
+                (actual['prob_var'] == row['prob_var']) &
+                (actual['prob_val'] == row['prob_val']),
                 'Beta'
             ].iloc[0]
-            self.assertEqual(row['Beta'].alpha, actual_beta.alpha)
-            self.assertEqual(row['Beta'].beta, actual_beta.beta)
+            self.assertTrue(row['Beta'] == actual_beta)
+
+    def test_infer_posteriors_multinomial(self):
+
+        expected = DataFrame(
+            data=[
+                (1, 1, 'e', 1, Beta(3, 0)),
+                (2, 1, 'e', 1, Beta(1, 2)),
+                (1, 2, 'e', 1, Beta(0, 3)),
+                (2, 2, 'e', 1, Beta(0, 3)),
+                (1, 1, 'e', 2, Beta(0, 3)),
+                (2, 1, 'e', 2, Beta(2, 1)),
+                (1, 2, 'e', 2, Beta(2, 1)),
+                (2, 2, 'e', 2, Beta(0, 3)),
+                (1, 1, 'e', 3, Beta(0, 3)),
+                (2, 1, 'e', 3, Beta(0, 3)),
+                (1, 2, 'e', 3, Beta(1, 2)),
+                (2, 2, 'e', 3, Beta(3, 0)),
+            ],
+            columns=['a', 'b', 'prob_var', 'prob_val', 'Beta']
+        )
+        actual = BetaBinomial.infer_posteriors(
+            data=self.multinomial_data,
+            prob_vars='e',
+            cond_vars=['a', 'b']
+        )
+        for _, row in expected.iterrows():
+            actual_beta = actual.loc[
+                (actual['a'] == row['a']) &
+                (actual['b'] == row['b']) &
+                (actual['prob_var'] == row['prob_var']) &
+                (actual['prob_val'] == row['prob_val']),
+                'Beta'
+            ].iloc[0]
+            self.assertTrue(row['Beta'] == actual_beta)
