@@ -5,7 +5,7 @@ from scipy.stats import dirichlet
 from scipy.stats._multivariate import multi_rv_generic
 
 from probability.custom_types import FloatArray1d
-from probability.distributions import Beta
+from probability.distributions.continuous import Beta
 from probability.distributions.mixins.rv_mixins import RVSNdMixin, PDFNdMixin, \
     EntropyMixin, MeanNdMixin, VarNdMixin
 
@@ -66,4 +66,14 @@ class Dirichlet(
         return Beta(
             alpha=self._alpha[item],
             beta=self._alpha.sum() - self._alpha[item]
+        )
+
+    def __eq__(self, other: 'Dirichlet'):
+
+        return (
+                set(self._alpha.keys()) == set(other._alpha.keys()) and
+                all(
+                    abs(self._alpha[k] - other._alpha[k]) < 1e-10
+                    for k in self._alpha.keys()
+                )
         )

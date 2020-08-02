@@ -35,8 +35,10 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
     """
     def __init__(self, alpha: float, beta: float, n: int, x_mean: float):
         """
-        :param alpha: Value for the α hyper-parameter of the prior Gamma distribution.
-        :param beta: Value for the β hyper-parameter of the prior Gamma distribution.
+        :param alpha: Value for the α hyper-parameter of the prior Gamma
+                      distribution.
+        :param beta: Value for the β hyper-parameter of the prior Gamma
+                     distribution.
         :param n: Number of observations.
         :param x_mean: Average duration of, or time between, observations.
         """
@@ -110,8 +112,20 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
 
     def __str__(self):
 
-        return f'GammaExponential(α={self._alpha}, β={self._beta}, n={self._n}, x̄={self._x_mean})'
+        return (
+            f'GammaExponential('
+            f'α={self._alpha}, '
+            f'β={self._beta}, '
+            f'n={self._n}, '
+            f'x̄={self._x_mean})'
+        )
 
     def __repr__(self):
 
-        return f'GammaExponential(alpha={self._alpha}, beta={self._beta}, n={self._n}, x_mean={self._x_mean})'
+        return (
+            f'GammaExponential('
+            f'alpha={self._alpha}, '
+            f'beta={self._beta}, '
+            f'n={self._n}, '
+            f'x_mean={self._x_mean})'
+        )

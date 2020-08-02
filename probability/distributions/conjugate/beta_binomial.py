@@ -142,8 +142,8 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
         distributions of posteriors most likely to generate the given data.
 
         :param data: DataFrame containing discrete data.
-        :param prob_vars: Name(s) of binomial variables whose posteriors to find
-                          probability of.
+        :param prob_vars: Name(s) of binomial (or name of multinomial) variables
+                          whose posteriors to find probability of.
         :param cond_vars: Names of discrete variables to condition on.
                           Calculations will be done for the cartesian product
                           of variable values
@@ -151,9 +151,10 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
                           cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
         :param stats: Optional stats to append to the output e.g. 'alpha',
                       'median'.
-        :return: DataFrame with columns for each conditioning variable, a 'p'
-                 column indicating the probability variable and a 'Beta'
-                 column containing the distribution.
+        :return: DataFrame with columns for each conditioning variable, a
+                 'prob_var' column indicating the probability variable, a
+                 `prob_val` column indicating the value of the probability
+                 variable, and a `Beta` column containing the distribution.
         """
         if isinstance(prob_vars, str):
             prob_vars = [prob_vars]

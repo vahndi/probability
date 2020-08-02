@@ -26,8 +26,7 @@ class TestBetaBinomial(TestCase):
 
         expected = Beta(alpha=4, beta=6)
         actual = BetaBinomial.infer_posterior(self.series)
-        self.assertEqual(expected.alpha, actual.alpha)
-        self.assertEqual(expected.beta, actual.beta)
+        self.assertEqual(expected, actual)
 
     def test_infer_posteriors_binomial(self):
 
