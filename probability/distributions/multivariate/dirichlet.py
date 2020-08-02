@@ -1,5 +1,7 @@
-from typing import Union
+from typing import Union, Iterable, Optional, List
 
+from matplotlib.axes import Axes
+from mpl_format.axes.axis_utils import new_axes
 from pandas import Series
 from scipy.stats import dirichlet
 from scipy.stats._multivariate import multi_rv_generic
@@ -77,3 +79,34 @@ class Dirichlet(
                     for k in self._alpha.keys()
                 )
         )
+
+    def plot(
+            self,
+            x: Iterable,
+            kind: str = 'line',
+            colors: Optional[List[str]] = None,
+            ax: Optional[Axes] = None,
+            **kwargs
+    ) -> Axes:
+        """
+        Plot the function.
+
+        :param x: Range of values of x to plot p(x) over.
+        :param kind: Kind of plot e.g. 'bar', 'line'.
+        :param colors: Optional list of colors for each series.
+        :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for the matplotlib plot function.
+        """
+        if colors is None:
+            colors = [f'C{i}' for i in range(len(self._alpha))]
+        if len(colors) != len(self._alpha):
+            raise ValueError(f'Pass 0 colors or {len(self._alpha)}.')
+        ax = ax or new_axes()
+        for k, color in zip(self._alpha.keys(), colors):
+            data = self[k].pdf().at(x)
+            data.plot(kind=kind, color=color, ax=ax, label=f'{k}', **kwargs)
+        ax.legend()
+        ax.set_xlabel('x')
+        ax.set_ylabel('PDF')
+
+        return ax

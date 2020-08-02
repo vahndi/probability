@@ -9,24 +9,31 @@ from typing import overload, Iterable, Union, Optional
 
 from mpl_format.axes.axis_utils import new_axes
 
+from probability.distributions.mixins.plottable_mixin import PlottableMixin
+
 
 class ContinuousFunctionNd(object):
 
-    def __init__(self, distribution: rv_continuous, method_name: str, name: str,
-                 num_dims: int, parent: object):
+    def __init__(self,
+                 distribution: rv_continuous,
+                 method_name: str,
+                 name: str,
+                 num_dims: int,
+                 parent: PlottableMixin):
         """
         :param distribution: The scipy distribution to calculate with.
         :param method_name: The name of the method to call on the distribution.
         :param name: An intuitive name for the function.
         :param num_dims: The number of dimensions, K, of the function.
-        :param parent: The parent distribution object, used to call str(...) for series labels.
+        :param parent: The parent distribution object, used to call str(...) for
+                       series labels.
         """
         self._distribution = distribution
         self._num_dims = num_dims
         self._method_name: str = method_name
         self._name: str = name
         self._method = getattr(distribution, method_name)
-        self._parent: object = parent
+        self._parent: PlottableMixin = parent
 
     @overload
     def at(self, x: Iterable[float]) -> float:
@@ -44,7 +51,9 @@ class ContinuousFunctionNd(object):
         """
         Evaluate the function for each value of [x1, x2, ..., xk] given as x.
 
-        :param x: [x1, x2, ..., xk] or [[x11, x12, ..., x1k], [x21, x22, ..., x2k], ...]
+        :param x: [x1, x2, ..., xk] or [[x11, x12, ..., x1k],
+                                        [x21, x22, ..., x2k],
+                                        ...]
         """
         x = array(x)
         if x.ndim == 1:

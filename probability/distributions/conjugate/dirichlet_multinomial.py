@@ -4,7 +4,7 @@ from typing import Union, List, Optional
 from pandas import Series, DataFrame
 from pandas.core.dtypes.common import is_categorical_dtype
 
-from probability.custom_types import Array1d
+from probability.custom_types import Array1d, FloatArray1d
 from probability.distributions.multivariate import Dirichlet, Multinomial
 from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 
@@ -49,7 +49,10 @@ class DirichletMultinomial(ConjugateMixin):
     * https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution
     * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
     """
-    def __init__(self, alpha: Series, n: int, x: Series):
+    def __init__(self,
+                 alpha: Union[FloatArray1d, dict],
+                 n: int,
+                 x: Union[FloatArray1d, dict]):
         """
         Create a new dirichlet-multinomial distribution.
 
@@ -70,8 +73,6 @@ class DirichletMultinomial(ConjugateMixin):
                 data=x,
                 index=[f'x{k}' for k in range(1, len(x) + 1)]
             )
-        if alpha.index != x.index:
-            raise ValueError('alpha and x must have the same index')
 
         self._alpha = alpha
         self._x = x
@@ -125,7 +126,10 @@ class DirichletMultinomial(ConjugateMixin):
     def posterior(self, **kwargs) -> Dirichlet:
 
         return Dirichlet(
-            alpha=self._alpha + self._x
+            alpha=Series({
+                self._alpha.index[k]: self._alpha.iloc[k] + self._x.iloc[k]
+                for k in range(len(self._alpha))
+            })
         )
 
     @staticmethod

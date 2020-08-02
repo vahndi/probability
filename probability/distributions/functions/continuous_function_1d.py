@@ -9,7 +9,10 @@ from mpl_format.axes.axis_utils import new_axes
 
 class ContinuousFunction1d(object):
 
-    def __init__(self, distribution: rv_continuous, method_name: str, name: str,
+    def __init__(self,
+                 distribution: rv_continuous,
+                 method_name: str,
+                 name: str,
                  parent: PlottableMixin):
 
         self._distribution = distribution
