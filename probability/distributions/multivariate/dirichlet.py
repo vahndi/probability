@@ -1,3 +1,5 @@
+from typing import Union
+
 from pandas import Series
 from scipy.stats import dirichlet
 from scipy.stats._multivariate import multi_rv_generic
@@ -15,9 +17,11 @@ class Dirichlet(
     """
     https://en.wikipedia.org/wiki/Dirichlet_distribution
     """
-    def __init__(self, alpha: FloatArray1d):
+    def __init__(self, alpha: Union[FloatArray1d, dict]):
 
-        if not isinstance(alpha, Series):
+        if isinstance(alpha, dict):
+            alpha = Series(alpha)
+        elif not isinstance(alpha, Series):
             alpha = Series(
                 data=alpha,
                 index=[f'α{k}' for k in range(1, len(alpha) + 1)]

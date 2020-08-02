@@ -11,6 +11,7 @@ class TestDirichlet(TestCase):
         self.alpha = Series({'a': 0.4, 'b': 0.3, 'c': 0.2, 'd': 0.1})
         self.d_array = Dirichlet(alpha=self.alpha.values)
         self.d_series = Dirichlet(alpha=self.alpha)
+        self.d_dict = Dirichlet(alpha=self.alpha.to_dict())
 
     def test_init_with_array(self):
         expected = Series({'α1': 0.4, 'α2': 0.3, 'α3': 0.2, 'α4': 0.1})
@@ -21,6 +22,12 @@ class TestDirichlet(TestCase):
 
         expected = self.alpha
         actual = self.d_series.alpha
+        self.assertTrue(expected.equals(actual))
+
+    def test_init_with_dict(self):
+
+        expected = self.alpha
+        actual = self.d_dict.alpha
         self.assertTrue(expected.equals(actual))
 
     def test_set_alpha_with_array(self):
