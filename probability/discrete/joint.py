@@ -2,6 +2,7 @@ from collections import OrderedDict
 from itertools import product
 from typing import List, Dict, Union
 
+from numpy import ndarray
 from pandas import Series, DataFrame
 from pgmpy.factors.discrete import JointProbabilityDistribution as JPD
 
@@ -169,7 +170,10 @@ class Joint(object):
                 )
             else:
                 state_ix.append(list(range(len(self.state_names[variable]))))
-        return self._jpd.values[tuple(state_ix)]
+        result = self._jpd.values[tuple(state_ix)]
+        if isinstance(result, ndarray):
+            result = result.sum()
+        return result
 
     def conditional(self, **kwargs) -> 'Joint':
         """

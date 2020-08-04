@@ -54,15 +54,18 @@ class TestJoint(TestCase):
     def test_cookies_from_observations(self):
 
         cookies = Joint.from_observations(make_cookies_observations())
-        # variables
-        self.assertEqual(['bowl', 'flavor'],
-                         cookies.variables)
+        # variable names
+        self.assertEqual(['bowl', 'flavor'], cookies.variables)
         # state names
-        self.assertEqual(['bowl 1', 'bowl 2'],
-                         cookies.state_names['bowl'])
+        self.assertEqual(['bowl 1', 'bowl 2'], cookies.state_names['bowl'])
         self.assertEqual(['chocolate', 'vanilla'],
                          cookies.state_names['flavor'])
-        # probabilities
+        # probabilities of 1 variable
+        self.assertEqual(1 / 2, cookies.p(bowl='bowl 1'))
+        self.assertEqual(1 / 2, cookies.p(bowl='bowl 2'))
+        self.assertEqual(3 / 8, cookies.p(flavor='chocolate'))
+        self.assertEqual(5 / 8, cookies.p(flavor='vanilla'))
+        # probabilities of 2 variables
         self.assertEqual(1 / 8, cookies.p(bowl='bowl 1', flavor='chocolate'))
         self.assertEqual(3 / 8, cookies.p(bowl='bowl 1', flavor='vanilla'))
         self.assertEqual(1 / 4, cookies.p(bowl='bowl 2', flavor='chocolate'))

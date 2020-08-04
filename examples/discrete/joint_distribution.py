@@ -32,7 +32,7 @@ def fruit_boxes():
     p_b__f = p_fb.condition('fruit')
     print(p_b__f, '\n')
     # P(box|fruit=orange)
-    p_b__f_orange = p_fb.given(fruit='orange')
+    p_b__f_orange = p_fb.conditional(fruit='orange')
     print(p_b__f_orange, '\n')
     # P(box=blue|fruit=orange)
     p_b_blue__f_orange = p_b__f.p(box='blue', fruit='orange')
