@@ -2,6 +2,7 @@ from unittest.case import TestCase
 
 from pandas import DataFrame
 
+from examples.think_bayes.make_data import make_cookies_observations
 from probability.discrete.joint import Joint
 from tests.shared import read_distribution
 
@@ -49,3 +50,45 @@ class TestJoint(TestCase):
         self.assertEqual(['box', 'fruit'], self.p_bf__obs.variables)
         self.assertEqual(['box'], self.p_b__dict.variables)
         self.assertEqual(['box', 'fruit'], self.p_bf__dict.variables)
+
+    def test_cookies_from_observations(self):
+
+        cookies = Joint.from_observations(make_cookies_observations())
+        # variables
+        self.assertEqual(['bowl', 'flavor'],
+                         cookies.variables)
+        # state names
+        self.assertEqual(['bowl 1', 'bowl 2'],
+                         cookies.state_names['bowl'])
+        self.assertEqual(['chocolate', 'vanilla'],
+                         cookies.state_names['flavor'])
+        # probabilities
+        self.assertEqual(1 / 8, cookies.p(bowl='bowl 1', flavor='chocolate'))
+        self.assertEqual(3 / 8, cookies.p(bowl='bowl 1', flavor='vanilla'))
+        self.assertEqual(1 / 4, cookies.p(bowl='bowl 2', flavor='chocolate'))
+        self.assertEqual(1 / 4, cookies.p(bowl='bowl 2', flavor='vanilla'))
+        # conditional probabilities
+        self.assertEqual(
+            1 / 4, cookies.conditional(bowl='bowl 1').p(flavor='chocolate')
+        )
+        self.assertEqual(
+            3 / 4, cookies.conditional(bowl='bowl 1').p(flavor='vanilla')
+        )
+        self.assertEqual(
+            1 / 2, cookies.conditional(bowl='bowl 2').p(flavor='chocolate')
+        )
+        self.assertEqual(
+            1 / 2, cookies.conditional(bowl='bowl 2').p(flavor='vanilla')
+        )
+        self.assertEqual(
+            1 / 3, cookies.conditional(flavor='chocolate').p(bowl='bowl 1')
+        )
+        self.assertEqual(
+            2 / 3, cookies.conditional(flavor='chocolate').p(bowl='bowl 2')
+        )
+        self.assertEqual(
+            6 / 10, cookies.conditional(flavor='vanilla').p(bowl='bowl 1')
+        )
+        self.assertEqual(
+            4 / 10, cookies.conditional(flavor='vanilla').p(bowl='bowl 2')
+        )

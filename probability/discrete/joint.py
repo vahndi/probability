@@ -1,10 +1,9 @@
 from collections import OrderedDict
 from itertools import product
-from pandas import Series, DataFrame
-from pgmpy.factors.discrete import JointProbabilityDistribution as JPD
 from typing import List, Dict, Union
 
-from probability.discrete.cpt import CPT
+from pandas import Series, DataFrame
+from pgmpy.factors.discrete import JointProbabilityDistribution as JPD
 
 
 class Joint(object):
@@ -42,7 +41,7 @@ class Joint(object):
             values.append(value)
 
         new_data = DataFrame(values).sort_values(
-            variable_names[::-1]
+            variable_names
         ).set_index(variable_names)['p']
 
         return new_data
@@ -143,29 +142,50 @@ class Joint(object):
         return self._jpd.variables
 
     @property
+    def state_names(self) -> Dict[str, List[str]]:
+
+        return self._jpd.state_names
+
+    @property
     def jpd(self) -> JPD:
         """
         Return the wrapped pgmpy JointProbabilityDistribution.
         """
         return self._jpd
 
-    def condition(self, variables: Union[str, List[str]]) -> CPT:
+    def p(self, **kwargs) -> float:
         """
-        Return a CPT from the Joint.
+        Return the single figure probability of an assigment of particular
+        states to each of the variables in the joint distribution.
 
-        :param variables: Variables to condition on.
+        :param kwargs: variable names and states
         """
-        variables: List[str] = (
-            [variables] if isinstance(variables, str) else variables
-        )
-        if not set(variables).issubset(self.variables):
-            raise ValueError(
-                'Conditioning variables must be a subset of joint variables.'
-            )
-        if len(variables) != len(self.variables) - 1:
-            raise ValueError('Can only condition on all but one variables.')
-        # for state_values in product():
-        pass
+        state_ix = []
+        for variable in self.variables:
+            if variable in kwargs.keys():
+                state_ix.append(
+                    self.state_names[variable]
+                        .index(kwargs[variable])
+                )
+            else:
+                state_ix.append(list(range(len(self.state_names[variable]))))
+        return self._jpd.values[tuple(state_ix)]
+
+    def conditional(self, **kwargs) -> 'Joint':
+        """
+        Return the joint distribution conditioned on the states of each of the
+        given variables.
+        """
+        jpd = self._jpd.conditional_distribution([
+            (variable, self.state_names[variable].index(state))
+            for variable, state in kwargs.items()
+        ], inplace=False)
+        jpd.state_names = {
+            variable: self.state_names[variable]
+            for variable in self.variables
+            if variable not in kwargs.keys()
+        }
+        return Joint(jpd=jpd)
 
     def __getitem__(self, item):
         """
