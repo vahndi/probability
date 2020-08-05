@@ -207,3 +207,5 @@ fabric.properties
 /probability/distributions/discrete/negative_binomial.py
 
 /assets/
+/probability/discrete/
+
