@@ -2,7 +2,8 @@ from matplotlib.axes import Axes
 from scipy.stats import rv_continuous
 from typing import Iterable
 
-from probability.distributions.mixins.plottable_mixin import PlottableMixin
+from probability.distributions.mixins.plottable_mixin import \
+    ContinuousPlottableMixin
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
     Moment1dMixin, EntropyMixin, Median1dMixin, Mean1dMixin, StD1dMixin, \
     Var1dMixin, Interval1dMixin, Support1dMixin, PDF1dMixin, \
@@ -14,7 +15,7 @@ class RVContinuous1dMixin(
     RVS1dMixin, Moment1dMixin, EntropyMixin, Median1dMixin, Mean1dMixin,
     StD1dMixin, Var1dMixin, Interval1dMixin, Support1dMixin, PDF1dMixin,
     CDFContinuous1dMixin, SFContinuous1dMixin, PPFContinuous1dMixin,
-    ISFContinuous1dMixin, PlottableMixin, object
+    ISFContinuous1dMixin, ContinuousPlottableMixin, object
 ):
 
     _distribution: rv_continuous

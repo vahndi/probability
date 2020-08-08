@@ -5,11 +5,11 @@ from pandas import Series, DataFrame
 from pandas.core.dtypes.common import is_categorical_dtype
 
 from probability.custom_types import Array1d, FloatArray1d
+from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.multivariate import Dirichlet, Multinomial
-from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
 
 
-class DirichletMultinomial(ConjugateMixin):
+class DirichletMultinomialConjugate(ConjugateMixin, object):
     """
     Class for calculating Bayesian probabilities using the dirichlet-multinomial
     distribution.

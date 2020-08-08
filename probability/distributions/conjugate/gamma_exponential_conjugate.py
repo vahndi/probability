@@ -1,12 +1,15 @@
 from scipy.stats import lomax
 
-from probability.distributions.continuous.gamma import Gamma
+from probability.distributions.continuous.lomax import Lomax
 from probability.distributions.continuous.exponential import Exponential
-from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
-from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
+from probability.distributions.continuous.gamma import Gamma
+from probability.distributions.mixins.conjugate import ConjugateMixin, \
+    PredictiveMixin
 
 
-class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
+class GammaExponentialConjugate(ConjugateMixin,
+                                PredictiveMixin,
+                                object):
     """
     Class for calculating Bayesian probabilities using the Gamma-Exponential
     distribution.
@@ -34,6 +37,7 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
     * https://en.wikipedia.org/wiki/Exponential_distribution
     * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
     """
+
     def __init__(self, alpha: float, beta: float, n: int, x_mean: float):
         """
         :param alpha: Value for the α hyper-parameter of the prior Gamma
@@ -103,14 +107,24 @@ class GammaExponential(RVContinuous1dMixin, ConjugateMixin):
             alpha=self._alpha, beta=self._beta
         ).with_x_label('λ').prepend_to_label('Prior: ')
 
-    def likelihood(self, x: float) -> Exponential:
-        raise NotImplementedError
+    def likelihood(self) -> Exponential:
+        return Exponential(lambda_=1 / self._x_mean)
 
     def posterior(self) -> Gamma:
 
         return Gamma(
             alpha=self.alpha_prime, beta=self.beta_prime
         ).with_x_label('λ').prepend_to_label('Posterior: ')
+
+    def prior_predictive(self) -> Lomax:
+
+        return Lomax(lambda_=self._beta,
+                     alpha=self._alpha)
+
+    def posterior_predictive(self, n_new: int) -> Lomax:
+
+        return Lomax(lambda_=self._beta + self._n * self._x_mean,
+                     alpha=self._alpha + n_new)
 
     def __str__(self):
 

@@ -16,6 +16,7 @@ def plot_wikipedia_pdfs():
     Exponential(lambda_=0.5).plot(x=x, color='orange', ax=ax)
     Exponential(lambda_=1).plot(x=x, color='purple', ax=ax)
     Exponential(lambda_=1.5).plot(x=x, color='lightblue', ax=ax)
+    ax.legend()
     ax.set_ylim(0, 1.5)
     plt.show()
 
@@ -28,6 +29,7 @@ def plot_wikipedia_cdfs():
     Exponential(lambda_=0.5).cdf().plot(x=x, color='orange', ax=ax)
     Exponential(lambda_=1).cdf().plot(x=x, color='purple', ax=ax)
     Exponential(lambda_=1.5).cdf().plot(x=x, color='lightblue', ax=ax)
+    ax.legend()
     ax.set_ylim(0, 1.0)
     plt.show()
 

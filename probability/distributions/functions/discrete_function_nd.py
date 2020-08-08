@@ -17,7 +17,8 @@ class DiscreteFunctionNd(object):
         :param method_name: The name of the method to call on the distribution.
         :param name: An intuitive name for the function.
         :param num_dims: The number of dimensions, K, of the function.
-        :param parent: The parent distribution object, used to call str(...) for series labels.
+        :param parent: The parent distribution object, used to call str(...)
+                       for series labels.
         """
         self._distribution = distribution
         self._num_dims = num_dims
@@ -42,7 +43,9 @@ class DiscreteFunctionNd(object):
         """
         Evaluate the function for each value of [x1, x2, ..., xk] given as x.
 
-        :param x: [x1, x2, ..., xk] or [[x11, x12, ..., x1k], [x21, x22, ..., x2k], ...]
+        :param x: [x1, x2, ..., xk] or [[x11, x12, ..., x1k],
+                                        [x21, x22, ..., x2k],
+                                        ...]
         """
         x = array(x)
         if x.ndim == 1:
@@ -73,7 +76,7 @@ class DiscreteFunctionNd(object):
         ax = ax or new_axes()
         if self._num_dims > 2:
             data = data.sort_values(ascending=False)
-        data.plot.bar(color=color, label=str(self._parent), ax=ax)
+        data.plot.bar(color=color, label=str(self._parent), ax=ax, **kwargs)
         ax.set_xlabel('x')
         ax.set_ylabel(self._name)
         ax.legend(loc='upper right')

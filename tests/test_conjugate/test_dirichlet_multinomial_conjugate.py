@@ -3,11 +3,11 @@ from unittest.case import TestCase
 from pandas import DataFrame, Series
 
 from probability.distributions import Dirichlet
-from probability.distributions.conjugate.dirichlet_multinomial import \
-    DirichletMultinomial
+from probability.distributions.conjugate.dirichlet_multinomial_conjugate import \
+    DirichletMultinomialConjugate
 
 
-class TestDirichletMultinomial(TestCase):
+class TestDirichletMultinomialConjugate(TestCase):
 
     def setUp(self) -> None:
 
@@ -22,7 +22,7 @@ class TestDirichletMultinomial(TestCase):
     def test_infer_posterior(self):
 
         expected = Dirichlet(alpha={'a': 5, 'b': 3, 'c': 2})
-        actual = DirichletMultinomial.infer_posterior(self.series)
+        actual = DirichletMultinomialConjugate.infer_posterior(self.series)
         self.assertEqual(expected, actual)
 
     def test_infer_posteriors(self):
@@ -40,7 +40,7 @@ class TestDirichletMultinomial(TestCase):
             ],
             columns=['a', 'b', 'prob_var', 'Dirichlet']
         )
-        actual = DirichletMultinomial.infer_posteriors(
+        actual = DirichletMultinomialConjugate.infer_posteriors(
             data=self.multinomial_data,
             prob_vars=['e', 'f'],
             cond_vars=['a', 'b']

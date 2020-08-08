@@ -43,3 +43,11 @@ class Lomax(RVContinuous1dMixin):
     def alpha(self, value: float):
         self._alpha = value
         self._reset_distribution()
+
+    def __str__(self):
+
+        return f'Lomax(λ={self._lambda}, α={self._alpha})'
+
+    def __repr__(self):
+
+        return f'Lomax(lambda_={self._lambda}, alpha={self._alpha})'

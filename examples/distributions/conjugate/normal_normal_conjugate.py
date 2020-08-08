@@ -4,16 +4,18 @@ from numpy import arange
 from scipy import randn
 from scipy.stats import norm
 
-from probability.distributions.conjugate.inv_gamma_normal import InvGammaNormal
+from probability.distributions.conjugate.normal_normal_conjugate import \
+    NormalNormalConjugate
 
 
 x = arange(0, 20.01, 0.01)
 mu, sigma = 2, 3
 x_i = mu + sigma * randn(1000)
-dist = InvGammaNormal(alpha=1, beta=1, x=x_i, mu=2)
+dist_1 = NormalNormalConjugate(mu_0=1.5, sigma_sq_0=8, sigma_sq=9, x=x_i)
+dist_2 = NormalNormalConjugate(mu_0=1.5, tau_0=1 / 8, tau=1 / 9, x=x_i)
 
 
-def plot_parameters():
+def plot_parameters(dist: NormalNormalConjugate):
 
     ax = new_axes()
     dist.prior().plot(x=x, color='r', ax=ax)
@@ -22,7 +24,7 @@ def plot_parameters():
     plt.show()
 
 
-def plot_predictions():
+def plot_predictions(dist: NormalNormalConjugate):
 
     ax = new_axes()
     predicted = dist.rvs(100000)
@@ -36,5 +38,6 @@ def plot_predictions():
 
 if __name__ == '__main__':
 
-    plot_parameters()
-    plot_predictions()
+    for dist_num in (dist_1, dist_2):
+        plot_parameters(dist_num)
+        plot_predictions(dist_num)

@@ -2,10 +2,10 @@ from typing import Optional
 
 from probability.distributions import Beta
 from probability.distributions.discrete.geometric import Geometric
-from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
+from probability.distributions.mixins.conjugate import ConjugateMixin
 
 
-class BetaGeometric(ConjugateMixin):
+class BetaGeometricConjugate(ConjugateMixin, object):
     """
     Class for calculating Bayesian probabilities using the Shifted
     Beta-Geometric distribution.

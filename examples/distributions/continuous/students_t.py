@@ -51,7 +51,8 @@ def plot_wikipedia_pdfs_vs_normal():
         ax = axes.flat[d]
         normal.plot(x=x_wikipedia_2, color='blue', ax=ax)
         for d2 in range(d):
-            StudentsT(nu=max_degrees[d2]).plot(x=x_wikipedia_2, color='green', alpha=0.5 ** (d - d2), ax=ax)
+            StudentsT(nu=max_degrees[d2]).plot(x=x_wikipedia_2, color='green',
+                                               alpha=0.5 ** (d - d2), ax=ax)
         StudentsT(nu=max_degrees[d]).plot(x=x_wikipedia_2, color='red', ax=ax)
         ax.legend(loc='upper right')
     plt.show()

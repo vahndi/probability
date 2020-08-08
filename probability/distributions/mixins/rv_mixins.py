@@ -392,7 +392,7 @@ class SFContinuous1dMixin(object):
         """
         return ContinuousFunction1d(
             distribution=self._distribution,
-            method_name='logcdf', name='log(CDF)',
+            method_name='sf', name='log(SF)',
             parent=self
         )
 
@@ -417,7 +417,7 @@ class SFDiscrete1dMixin(object):
         """
         return DiscreteFunction1d(
             distribution=self._distribution,
-            method_name='logcdf', name='log(CDF)',
+            method_name='logsf', name='log(SF)',
             parent=self
         )
 

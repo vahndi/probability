@@ -17,6 +17,7 @@ def plot_wikipedia_pdfs():
     Lomax(lambda_=2, alpha=2).plot(x=x, color='green', ax=ax)
     Lomax(lambda_=4, alpha=1).plot(x=x, color='red', ax=ax)
     Lomax(lambda_=6, alpha=1).plot(x=x, color='orange', ax=ax)
+    ax.legend()
     plt.show()
 
 
@@ -29,6 +30,7 @@ def plot_wikipedia_cdfs():
     Lomax(lambda_=2, alpha=2).cdf().plot(x=x, color='green', ax=ax)
     Lomax(lambda_=4, alpha=1).cdf().plot(x=x, color='red', ax=ax)
     Lomax(lambda_=6, alpha=1).cdf().plot(x=x, color='orange', ax=ax)
+    ax.legend()
     plt.show()
 
 

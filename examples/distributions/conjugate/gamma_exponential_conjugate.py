@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 from mpl_format.axes.axis_utils import new_axes
 from numpy import arange, linspace
-from probability.distributions.conjugate.gamma_exponential import GammaExponential
+from probability.distributions.conjugate.gamma_exponential_conjugate import \
+    GammaExponentialConjugate
 
 
 rates = arange(0, 5, 0.01)
@@ -10,7 +11,7 @@ durations = linspace(0.1, 10, 1000)
 
 def plot_gamma_exponential():
 
-    ge = GammaExponential(alpha=10, beta=5, n=100, x_mean=0.3)
+    ge = GammaExponentialConjugate(alpha=10, beta=5, n=100, x_mean=0.3)
     ax = new_axes()
     ge.prior().plot(x=rates, color='r', ax=ax)
     ge.posterior().plot(x=rates, color='g', ax=ax)

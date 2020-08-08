@@ -2,10 +2,10 @@ from unittest.case import TestCase
 
 from pandas import Series, DataFrame
 
-from probability.distributions import Beta, BetaBinomial
+from probability.distributions import Beta, BetaBinomialConjugate
 
 
-class TestBetaBinomial(TestCase):
+class TestBetaBinomialConjugate(TestCase):
 
     def setUp(self) -> None:
 
@@ -25,7 +25,7 @@ class TestBetaBinomial(TestCase):
     def test_infer_posterior(self):
 
         expected = Beta(alpha=4, beta=6)
-        actual = BetaBinomial.infer_posterior(self.series)
+        actual = BetaBinomialConjugate.infer_posterior(self.series)
         self.assertEqual(expected, actual)
 
     def test_infer_posteriors_binomial(self):
@@ -43,7 +43,7 @@ class TestBetaBinomial(TestCase):
             ],
             columns=['a', 'b', 'prob_var', 'prob_val', 'Beta']
         )
-        actual = BetaBinomial.infer_posteriors(
+        actual = BetaBinomialConjugate.infer_posteriors(
             data=self.binomial_data,
             prob_vars=['c', 'd'],
             cond_vars=['a', 'b']
@@ -77,7 +77,7 @@ class TestBetaBinomial(TestCase):
             ],
             columns=['a', 'b', 'prob_var', 'prob_val', 'Beta']
         )
-        actual = BetaBinomial.infer_posteriors(
+        actual = BetaBinomialConjugate.infer_posteriors(
             data=self.multinomial_data,
             prob_vars='e',
             cond_vars=['a', 'b']

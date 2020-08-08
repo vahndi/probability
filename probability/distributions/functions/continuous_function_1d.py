@@ -3,7 +3,8 @@ from pandas import Series
 from scipy.stats import rv_continuous
 from typing import Iterable, overload, Optional
 
-from probability.distributions.mixins.plottable_mixin import PlottableMixin
+from probability.distributions.mixins.plottable_mixin import \
+    ContinuousPlottableMixin
 from mpl_format.axes.axis_utils import new_axes
 
 
@@ -13,13 +14,13 @@ class ContinuousFunction1d(object):
                  distribution: rv_continuous,
                  method_name: str,
                  name: str,
-                 parent: PlottableMixin):
+                 parent: ContinuousPlottableMixin):
 
         self._distribution = distribution
         self._method_name: str = method_name
         self._name: str = name
         self._method = getattr(distribution, method_name)
-        self._parent: PlottableMixin = parent
+        self._parent: ContinuousPlottableMixin = parent
 
     @overload
     def at(self, x: float) -> float:
@@ -40,7 +41,9 @@ class ContinuousFunction1d(object):
 
     def plot(self,
              x: Iterable,
-             kind: str = 'line', color: str = 'C0', ax: Optional[Axes] = None,
+             kind: str = 'line',
+             color: str = 'C0',
+             ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
         Plot the function.
@@ -53,12 +56,24 @@ class ContinuousFunction1d(object):
         """
         data: Series = self.at(x)
         ax = ax or new_axes()
-        if self._name in ('PDF', 'CDF', 'log(PDF)'):
+        if self._method_name in ('pdf', 'cdf', 'logpdf'):
             if 'label' not in kwargs.keys():
                 kwargs['label'] = self._parent.label
             data.plot(kind=kind, color=color, ax=ax, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
         ax.set_xlabel(self._parent.x_label)
-        ax.set_ylabel(self._name)
+
+        if self._parent.y_label:
+            ax.set_ylabel(self._parent.y_label)
+        else:
+            if self._method_name == 'pdf':
+                ax.set_ylabel('P(X = x)')
+            elif self._method_name == 'cdf':
+                ax.set_ylabel('P(X ≤ x)')
+            elif self._method_name == 'logpdf':
+                ax.set_ylabel('log P(X = x)')
+            else:
+                ax.set_ylabel(self._name)
+
         return ax

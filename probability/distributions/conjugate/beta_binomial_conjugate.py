@@ -1,17 +1,19 @@
 from itertools import product
+from typing import Optional, Union, List
 
 from pandas import Series, DataFrame
-from scipy.stats import betabinom
-from typing import Optional, Union, List
 
 from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
-from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
-from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
+from probability.distributions.discrete.beta_binomial import BetaBinomial
+from probability.distributions.mixins.conjugate import ConjugateMixin, \
+    PredictiveMixin
 from probability.utils import is_binomial
 
 
-class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
+class BetaBinomialConjugate(ConjugateMixin,
+                            PredictiveMixin,
+                            object):
     """
     Class for calculating Bayesian probabilities using the beta-binomial
     distribution.
@@ -44,7 +46,7 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     * https://en.wikipedia.org/wiki/Beta-binomial_distribution
     * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
     """
-    def __init__(self, alpha: float, beta: float, n: int, m: int):
+    def __init__(self, alpha: float, beta: float, n: int, k: int):
         """
         Create a new beta-binomial distribution.
 
@@ -52,18 +54,13 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
                       distribution.
         :param beta: Value for the β hyper-parameter of the prior Beta
                       distribution.
-        :param n: Number of trials.
-        :param m: Number of successes.
+        :param n: Observed number of trials.
+        :param k: Observed number of successes.
         """
         self._alpha: float = alpha
         self._beta: float = beta
         self._n: int = n
-        self._m: int = m
-        self._reset_distribution()
-
-    def _reset_distribution(self):
-
-        self._distribution = betabinom(self._n, self._alpha, self._beta)
+        self._k: int = k
 
     @property
     def alpha(self) -> float:
@@ -72,7 +69,6 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     @alpha.setter
     def alpha(self, value: float):
         self._alpha = value
-        self._reset_distribution()
 
     @property
     def beta(self) -> float:
@@ -81,7 +77,6 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     @beta.setter
     def beta(self, value: float):
         self._beta = value
-        self._reset_distribution()
 
     @property
     def n(self) -> float:
@@ -90,33 +85,63 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
     @n.setter
     def n(self, value: float):
         self._n = value
-        self._reset_distribution()
 
     @property
-    def m(self) -> float:
-        return self._m
+    def k(self) -> float:
+        return self._k
 
-    @m.setter
-    def m(self, value: float):
-        self._m = value
+    @k.setter
+    def k(self, value: float):
+        self._k = value
 
     def prior(self) -> Beta:
         return Beta(
             alpha=self._alpha, beta=self._beta
-        ).with_x_label('θ').prepend_to_label('Prior: ')
+        ).with_y_label('$P(p=x|α,β)$').prepend_to_label('Prior: ')
 
-    def likelihood(self, m: Optional[int] = None) -> Binomial:
-        m = m if m is not None else self._m
+    def likelihood(self) -> Binomial:
         return Binomial(
             n=self._n,
-            p=m / self._n
-        ).with_x_label('k')  # * comb(n, k)
+            p=self._k / self._n
+        ).with_x_label('k')
 
-    def posterior(self, m: Optional[int] = None) -> Beta:
-        m = m if m is not None else self._m
+    def posterior(self) -> Beta:
         return Beta(
-            alpha=self._alpha + m, beta=self._beta + self._n - m
-        ).with_x_label('θ').prepend_to_label('Posterior: ')
+            alpha=self._alpha + self._k,
+            beta=self._beta + self._n - self._k
+        ).with_y_label('$P(p=x|α+k,β+n-k)$').prepend_to_label('Posterior: ')
+
+    def prior_predictive(self, n_: Optional[int] = None) -> BetaBinomial:
+        """
+        Return a BetaBinomial describing the expected distribution of future
+        successes of n trials based on the prior parameter estimates.
+
+        :param n_: Optional number of trials over which to calculate probability
+                  of success. Leave blank to use the same n as the observed
+                  number of trials.
+        """
+        n_ = n_ if n_ is not None else self._n
+        return BetaBinomial(
+            n=n_,
+            alpha=self._alpha,
+            beta=self._beta
+        ).with_y_label(r'$P(\tilde{X}=k|\tilde{n},α,β)$')
+
+    def posterior_predictive(self, n_: Optional[int] = None) -> BetaBinomial:
+        """
+        Return a BetaBinomial describing the expected distribution of future
+        successes of n trials based on the posterior parameter estimates.
+
+        :param n_: Optional number of trials over which to calculate probability
+                  of success. Leave blank to use the same n as the observed
+                  number of trials.
+        """
+        n_ = n_ if n_ is not None else self._n
+        return BetaBinomial(
+            n=n_,
+            alpha=self._alpha + self._k,
+            beta=self._beta + self._n - self._k
+        ).with_y_label(r'$P(\tilde{X}=k|\tilde{n},α+k,β+n-k)$')
 
     @staticmethod
     def infer_posterior(data: Series) -> 'Beta':
@@ -223,12 +248,12 @@ class BetaBinomial(RVDiscrete1dMixin, ConjugateMixin):
 
         return (
             f'BetaBinomial(α={self._alpha}, β={self._beta}, '
-            f'n={self._n}, m={self._m})'
+            f'n={self._n}, k={self._k})'
         )
 
     def __repr__(self):
 
         return (
             f'BetaBinomial(alpha={self._alpha}, beta={self._beta}, '
-            f'n={self._n}, m={self._m})'
+            f'n={self._n}, k={self._k})'
         )

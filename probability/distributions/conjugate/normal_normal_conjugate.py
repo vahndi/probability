@@ -1,16 +1,16 @@
 from math import sqrt
+from typing import overload, Optional
+
 from numpy import array, ndarray
 from scipy.stats import norm
-from typing import overload, Optional
 
 from probability.custom_types import Array1d
 from probability.distributions.continuous.normal import Normal
-from probability.distributions.mixins.conjugate_mixin import ConjugateMixin
-from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
+from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.utils import none_are_none, all_are_none
 
 
-class NormalNormal(RVContinuous1dMixin, ConjugateMixin):
+class NormalNormalConjugate(ConjugateMixin, object):
 
     @overload
     def __init__(self, mu_0: float, sigma_sq_0: float, sigma_sq: float, x: Array1d):

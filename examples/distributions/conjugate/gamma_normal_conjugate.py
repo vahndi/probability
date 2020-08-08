@@ -4,12 +4,13 @@ from numpy import arange
 from scipy import randn
 from scipy.stats import norm
 
-from probability.distributions.conjugate.gamma_normal import GammaNormal
+from probability.distributions.conjugate.gamma_normal_conjugate import \
+    GammaNormalConjugate
 
 x = arange(0, 1.01, 0.001)
 mu, sigma = 2, 3
 x_i = mu + sigma * randn(1000)
-dist = GammaNormal(alpha=1, beta=1, x=x_i, mu=2)
+dist = GammaNormalConjugate(alpha=1, beta=1, x=x_i, mu=2)
 
 
 def plot_parameters():

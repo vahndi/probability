@@ -1,7 +1,7 @@
-from collections import OrderedDict
-from itertools import permutations, product
-from pandas import Series, DataFrame
+from itertools import permutations
 from typing import List, Tuple
+
+from pandas import Series
 
 
 def k_tuples_summing_to_n(k, n) -> List[Tuple[int]]:
