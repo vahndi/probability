@@ -34,7 +34,7 @@ def plot_ml_app():
     plt.show()
 
 
-def plot_example():
+def plot_examples():
 
     alphas = [0.5, 5, 1, 2, 2]
     betas = [0.5, 1, 3, 2, 5]
@@ -79,7 +79,15 @@ def plot_example():
     plt.show()
 
 
+def plot_example():
+
+    bb = BetaBinomialConjugate(alpha=2, beta=5, n=10, k=7)
+    bb.plot(n_=15)
+    plt.show()
+
+
 if __name__ == '__main__':
 
     # plot_ml_app()
+    plot_examples()
     plot_example()

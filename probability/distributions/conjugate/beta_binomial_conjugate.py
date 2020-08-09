@@ -1,6 +1,8 @@
 from itertools import product
 from typing import Optional, Union, List
 
+from matplotlib.figure import Figure
+from mpl_format.figures.figure_formatter import FigureFormatter
 from pandas import Series, DataFrame
 
 from probability.distributions.continuous.beta import Beta
@@ -8,6 +10,7 @@ from probability.distributions.discrete import Binomial
 from probability.distributions.discrete.beta_binomial import BetaBinomial
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
     PredictiveMixin
+from probability.supports import SUPPORT_BETA
 from probability.utils import is_binomial
 
 
@@ -143,6 +146,51 @@ class BetaBinomialConjugate(ConjugateMixin,
             beta=self._beta + self._n - self._k
         ).with_y_label(r'$P(\tilde{X}=k|\tilde{n},α+k,β+n-k)$')
 
+    def plot(self, n_, **kwargs) -> Figure:
+        """
+        Plot a grid of the different components of the Compound Distribution.
+        
+        :param n_: number of trials over which to calculate predictive 
+                   distributions
+        :param kwargs: kwargs for plot methods
+        """
+        k_predict = range(n_ + 1)
+        ff = FigureFormatter(n_rows=2, n_cols=3)
+        (
+            ax_prior, ax_data, ax_posterior,
+            ax_prior_predictive, ax_likelihood, ax_posterior_predictive
+        ) = ff.axes.flat
+
+        self.prior().plot(x=SUPPORT_BETA, ax=ax_prior.axes, **kwargs)
+        self.posterior().plot(x=SUPPORT_BETA, ax=ax_posterior.axes, **kwargs)
+        self.prior_predictive(n_=n_).plot(
+            k=k_predict, kind='line',
+            marker='o', ax=ax_prior_predictive.axes
+        )
+        self.posterior_predictive(n_=n_).plot(
+            k=k_predict, kind='line',
+            marker='o', ax=ax_posterior_predictive.axes,
+            **kwargs
+        )
+
+        ax_prior.set_title_text('prior').add_legend()
+        ax_posterior.set_title_text('posterior').add_legend()
+        ax_prior_predictive.set_title_text('prior predictive').add_legend()
+        ax_posterior_predictive.set_title_text(
+            'posterior predictive'
+        ).add_legend()
+        # plot data
+        observations = Series(
+            data=[1] * self._k + [0] * (self._n - self._k)
+        ).sample(frac=1)
+        observations.index = range(1, self._n + 1)
+        observations.plot.bar(ax=ax_data.axes, **kwargs)
+        # plot likelihood
+        self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood.axes)
+        ax_likelihood.set_title_text('likelihood')
+        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
+        return ff.figure
+
     @staticmethod
     def infer_posterior(data: Series) -> 'Beta':
         """
@@ -247,13 +295,18 @@ class BetaBinomialConjugate(ConjugateMixin,
     def __str__(self):
 
         return (
-            f'BetaBinomial(α={self._alpha}, β={self._beta}, '
+            f'BetaBinomial('
+            f'α={self._alpha}, '
+            f'β={self._beta}, '
             f'n={self._n}, k={self._k})'
         )
 
     def __repr__(self):
 
         return (
-            f'BetaBinomial(alpha={self._alpha}, beta={self._beta}, '
-            f'n={self._n}, k={self._k})'
+            f'BetaBinomial('
+            f'alpha={self._alpha}, '
+            f'beta={self._beta}, '
+            f'n={self._n}, '
+            f'k={self._k})'
         )

@@ -1,5 +1,7 @@
 from typing import Union
 
+from matplotlib.figure import Figure
+
 from probability.custom_types import RVMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
@@ -28,6 +30,13 @@ class ConjugateMixin(object):
         """
         Return a distribution reflecting the posterior belief about the
         distribution of the parameters, after observing the data.
+        """
+        raise NotImplementedError
+
+    def plot(self, **kwargs) -> Figure:
+        """
+        Return a figure with the prior, likelihood, posterior and predictive
+        distributions, if they exist.
         """
         raise NotImplementedError
 
