@@ -106,7 +106,7 @@ class BetaBinomialConjugate(ConjugateMixin,
         return Binomial(
             n=self._n,
             p=self._k / self._n
-        ).with_x_label('k')
+        )
 
     def posterior(self) -> Beta:
         return Beta(
@@ -164,13 +164,12 @@ class BetaBinomialConjugate(ConjugateMixin,
         self.prior().plot(x=SUPPORT_BETA, ax=ax_prior.axes, **kwargs)
         self.posterior().plot(x=SUPPORT_BETA, ax=ax_posterior.axes, **kwargs)
         self.prior_predictive(n_=n_).plot(
-            k=k_predict, kind='line',
-            marker='o', ax=ax_prior_predictive.axes
+            k=k_predict, kind='bar',
+            ax=ax_prior_predictive.axes, **kwargs
         )
         self.posterior_predictive(n_=n_).plot(
-            k=k_predict, kind='line',
-            marker='o', ax=ax_posterior_predictive.axes,
-            **kwargs
+            k=k_predict, kind='bar',
+            ax=ax_posterior_predictive.axes, **kwargs
         )
 
         ax_prior.set_title_text('prior').add_legend()
@@ -185,10 +184,10 @@ class BetaBinomialConjugate(ConjugateMixin,
         ).sample(frac=1)
         observations.index = range(1, self._n + 1)
         observations.plot.bar(ax=ax_data.axes, **kwargs)
+        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
         # plot likelihood
         self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood.axes)
         ax_likelihood.set_title_text('likelihood')
-        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
         return ff.figure
 
     @staticmethod

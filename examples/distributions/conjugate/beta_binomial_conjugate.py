@@ -88,6 +88,6 @@ def plot_example():
 
 if __name__ == '__main__':
 
-    # plot_ml_app()
+    plot_ml_app()
     plot_examples()
     plot_example()

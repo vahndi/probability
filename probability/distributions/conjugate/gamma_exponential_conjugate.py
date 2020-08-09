@@ -1,8 +1,11 @@
+from mpl_format.figures import FigureFormatter
+from numpy.ma import arange
+from pandas import Series
 from scipy.stats import lomax
 
-from probability.distributions.continuous.lomax import Lomax
 from probability.distributions.continuous.exponential import Exponential
 from probability.distributions.continuous.gamma import Gamma
+from probability.distributions.continuous.lomax import Lomax
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
     PredictiveMixin
 
@@ -41,9 +44,9 @@ class GammaExponentialConjugate(ConjugateMixin,
     def __init__(self, alpha: float, beta: float, n: int, x_mean: float):
         """
         :param alpha: Value for the α hyper-parameter of the prior Gamma
-                      distribution.
+                      distribution (number of observations).
         :param beta: Value for the β hyper-parameter of the prior Gamma
-                     distribution.
+                     distribution (sum of observations).
         :param n: Number of observations.
         :param x_mean: Average duration of, or time between, observations.
         """
@@ -105,7 +108,7 @@ class GammaExponentialConjugate(ConjugateMixin,
     def prior(self) -> Gamma:
         return Gamma(
             alpha=self._alpha, beta=self._beta
-        ).with_x_label('λ').prepend_to_label('Prior: ')
+        ).with_y_label('$P(λ=x|α,β)$').prepend_to_label('Prior: ')
 
     def likelihood(self) -> Exponential:
         return Exponential(lambda_=1 / self._x_mean)
@@ -114,17 +117,79 @@ class GammaExponentialConjugate(ConjugateMixin,
 
         return Gamma(
             alpha=self.alpha_prime, beta=self.beta_prime
-        ).with_x_label('λ').prepend_to_label('Posterior: ')
+        ).with_y_label(r'$P(λ=x|α+n,β+n\bar{x})$').prepend_to_label(
+            'Posterior: '
+        )
 
     def prior_predictive(self) -> Lomax:
 
-        return Lomax(lambda_=self._beta,
-                     alpha=self._alpha)
+        return Lomax(
+            lambda_=self._beta, alpha=self._alpha
+        ).with_y_label(r'$P(\tilde{X}=x|α,β)$')
 
-    def posterior_predictive(self, n_new: int) -> Lomax:
+    def posterior_predictive(self) -> Lomax:
 
-        return Lomax(lambda_=self._beta + self._n * self._x_mean,
-                     alpha=self._alpha + n_new)
+        return Lomax(
+            lambda_=self._beta + self._n * self._x_mean,
+            alpha=self._alpha + self._n
+        ).with_y_label(r'$P(\tilde{X}=x|α+n,β+n\bar{x})$')
+
+    def plot(self, **kwargs):
+
+        ppf_gamma_prior = self.prior().ppf().at(.99)
+        ppf_gamma_posterior = self.posterior().ppf().at(.99)
+        x_gamma_max = int(max(ppf_gamma_prior, ppf_gamma_posterior)) + 1
+        x_gamma = arange(0, x_gamma_max + 0.001, 0.001)
+        ff = FigureFormatter(n_rows=2, n_cols=3)
+        (
+            ax_prior, ax_data, ax_posterior,
+            ax_prior_predictive, ax_likelihood, ax_posterior_predictive
+        ) = ff.axes.flat
+
+        self.prior().plot(x=x_gamma, ax=ax_prior.axes, **kwargs)
+        self.posterior().plot(x=x_gamma, ax=ax_posterior.axes, **kwargs)
+        y_max_params = max(ax_prior.get_y_max(), ax_posterior.get_y_max())
+        ax_prior.set_y_lim(0, y_max_params)
+        ax_posterior.set_y_lim(0, y_max_params)
+
+        ppf_lomax_prior = self.prior_predictive().ppf().at(.99)
+        ppf_lomax_posterior = self.posterior_predictive().ppf().at(.99)
+        x_lomax_max = int(max(ppf_lomax_prior, ppf_lomax_posterior)) + 1
+        x_lomax = arange(0, x_lomax_max + 0.001, 0.001)
+        self.prior_predictive().plot(
+            x=x_lomax, kind='line',
+            ax=ax_prior_predictive.axes,
+            **kwargs
+        )
+        self.posterior_predictive().plot(
+            x=x_lomax, kind='line',
+            ax=ax_posterior_predictive.axes,
+            **kwargs
+        )
+        y_max_pred = max(ax_prior_predictive.get_y_max(),
+                         ax_posterior_predictive.get_y_max())
+        ax_prior_predictive.set_y_lim(0, y_max_pred)
+        ax_posterior_predictive.set_y_lim(0, y_max_pred)
+
+        ax_prior.set_title_text('prior').add_legend()
+        ax_posterior.set_title_text('posterior').add_legend()
+        ax_prior_predictive.set_title_text('prior predictive').add_legend()
+        ax_posterior_predictive.set_title_text(
+            'posterior predictive'
+        ).add_legend()
+        # plot data
+        observations = Series(
+            Exponential(lambda_=1 / self._x_mean).rvs(self._n)
+        )
+        observations = observations * (1 / self._x_mean) / observations.mean()
+        observations.plot.bar(ax=ax_data.axes, **kwargs)
+        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
+        # plot likelihood
+        x_exponential_max = int(self.likelihood().ppf().at(0.99)) + 1
+        x_exponential = arange(0, x_exponential_max + 0.001, 0.001)
+        self.likelihood().plot(x=x_exponential, ax=ax_likelihood.axes)
+        ax_likelihood.set_title_text('likelihood')
+        return ff.figure
 
     def __str__(self):
 
