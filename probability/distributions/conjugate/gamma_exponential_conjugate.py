@@ -135,9 +135,13 @@ class GammaExponentialConjugate(ConjugateMixin,
         ).with_y_label(r'$P(\tilde{X}=x|α+n,β+n\bar{x})$')
 
     def plot(self, **kwargs):
+        """
+        Plot a grid of the different components of the Compound Distribution.
 
-        ppf_gamma_prior = self.prior().ppf().at(.99)
-        ppf_gamma_posterior = self.posterior().ppf().at(.99)
+        :param kwargs: kwargs for plot methods
+        """
+        ppf_gamma_prior = self.prior().ppf().at(0.99)
+        ppf_gamma_posterior = self.posterior().ppf().at(0.99)
         x_gamma_max = int(max(ppf_gamma_prior, ppf_gamma_posterior)) + 1
         x_gamma = arange(0, x_gamma_max + 0.001, 0.001)
         ff = FigureFormatter(n_rows=2, n_cols=3)
@@ -152,8 +156,8 @@ class GammaExponentialConjugate(ConjugateMixin,
         ax_prior.set_y_lim(0, y_max_params)
         ax_posterior.set_y_lim(0, y_max_params)
 
-        ppf_lomax_prior = self.prior_predictive().ppf().at(.99)
-        ppf_lomax_posterior = self.posterior_predictive().ppf().at(.99)
+        ppf_lomax_prior = self.prior_predictive().ppf().at(0.99)
+        ppf_lomax_posterior = self.posterior_predictive().ppf().at(0.99)
         x_lomax_max = int(max(ppf_lomax_prior, ppf_lomax_posterior)) + 1
         x_lomax = arange(0, x_lomax_max + 0.001, 0.001)
         self.prior_predictive().plot(
