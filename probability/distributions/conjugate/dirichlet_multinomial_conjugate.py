@@ -9,7 +9,7 @@ from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.multivariate import Dirichlet, Multinomial
 
 
-class DirichletMultinomialConjugate(ConjugateMixin, object):
+class _DirichletMultinomialConjugate(ConjugateMixin, object):
     """
     Class for calculating Bayesian probabilities using the dirichlet-multinomial
     distribution.
