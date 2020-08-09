@@ -5,17 +5,17 @@ from scipy import randn
 from scipy.stats import norm
 
 from probability.distributions.conjugate.normal_normal_conjugate import \
-    NormalNormalConjugate
+    _NormalNormalConjugate
 
 
 x = arange(0, 20.01, 0.01)
 mu, sigma = 2, 3
 x_i = mu + sigma * randn(1000)
-dist_1 = NormalNormalConjugate(mu_0=1.5, sigma_sq_0=8, sigma_sq=9, x=x_i)
-dist_2 = NormalNormalConjugate(mu_0=1.5, tau_0=1 / 8, tau=1 / 9, x=x_i)
+dist_1 = _NormalNormalConjugate(mu_0=1.5, sigma_sq_0=8, sigma_sq=9, x=x_i)
+dist_2 = _NormalNormalConjugate(mu_0=1.5, tau_0=1 / 8, tau=1 / 9, x=x_i)
 
 
-def plot_parameters(dist: NormalNormalConjugate):
+def plot_parameters(dist: _NormalNormalConjugate):
 
     ax = new_axes()
     dist.prior().plot(x=x, color='r', ax=ax)
@@ -24,7 +24,7 @@ def plot_parameters(dist: NormalNormalConjugate):
     plt.show()
 
 
-def plot_predictions(dist: NormalNormalConjugate):
+def plot_predictions(dist: _NormalNormalConjugate):
 
     ax = new_axes()
     predicted = dist.rvs(100000)

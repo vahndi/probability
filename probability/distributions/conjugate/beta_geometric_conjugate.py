@@ -4,11 +4,16 @@ from pandas import Series
 
 from probability.distributions import Beta
 from probability.distributions.discrete.geometric import Geometric
-from probability.distributions.mixins.conjugate import ConjugateMixin
+from probability.distributions.mixins.conjugate import ConjugateMixin, \
+    AlphaFloatMixin, BetaFloatMixin, NIntMixin, KIntMixin
 from probability.supports import SUPPORT_BETA
 
 
-class BetaGeometricConjugate(ConjugateMixin, object):
+class BetaGeometricConjugate(
+    ConjugateMixin,
+    AlphaFloatMixin, BetaFloatMixin, NIntMixin, KIntMixin,
+    object
+):
     """
     Class for calculating Bayesian probabilities using the Shifted
     Beta-Geometric distribution.
@@ -33,7 +38,7 @@ class BetaGeometricConjugate(ConjugateMixin, object):
     -----
     * https://en.wikipedia.org/wiki/Beta_distribution
     * https://en.wikipedia.org/wiki/Geometric_distribution
-    * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
+    * https://en.wikipedia.org/wiki/Conjugate_prior
     """
     def __init__(self, alpha: float, beta: float, n: int, k: int):
         """
@@ -49,6 +54,14 @@ class BetaGeometricConjugate(ConjugateMixin, object):
         self._n: int = n
         self._k: int = k
 
+    @property
+    def alpha_prime(self) -> float:
+        return self._alpha + self._n
+
+    @property
+    def beta_prime(self) -> float:
+        return self._beta + self._k
+
     def prior(self) -> Beta:
         return Beta(
             alpha=self._alpha, beta=self._beta
@@ -59,8 +72,8 @@ class BetaGeometricConjugate(ConjugateMixin, object):
 
     def posterior(self) -> Beta:
         return Beta(
-            alpha=self._alpha + self._n,
-            beta=self._beta + self._k
+            alpha=self.alpha_prime,
+            beta=self.beta_prime
         ).with_y_label('$P(p=x|α+n,β+k)$').prepend_to_label('Posterior: ')
 
     def plot(self, **kwargs) -> Figure:
@@ -92,6 +105,7 @@ class BetaGeometricConjugate(ConjugateMixin, object):
         # plot likelihood
         self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood.axes)
         ax_likelihood.set_title_text('likelihood')
+        ax_likelihood.add_legend()
         return ff.figure
 
     def __str__(self):

@@ -47,7 +47,7 @@ class DirichletMultinomialConjugate(ConjugateMixin, object):
     * https://en.wikipedia.org/wiki/Dirichlet_distribution
     * https://en.wikipedia.org/wiki/Multinomial_distribution
     * https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution
-    * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
+    * https://en.wikipedia.org/wiki/Conjugate_prior
     """
     def __init__(self,
                  alpha: Union[FloatArray1d, dict],

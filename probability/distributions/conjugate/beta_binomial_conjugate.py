@@ -9,14 +9,17 @@ from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.discrete.beta_binomial import BetaBinomial
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
-    PredictiveMixin
+    PredictiveMixin, AlphaFloatMixin, BetaFloatMixin, NIntMixin, KIntMixin
 from probability.supports import SUPPORT_BETA
 from probability.utils import is_binomial
 
 
-class BetaBinomialConjugate(ConjugateMixin,
-                            PredictiveMixin,
-                            object):
+class BetaBinomialConjugate(
+    ConjugateMixin,
+    PredictiveMixin,
+    AlphaFloatMixin, BetaFloatMixin, NIntMixin, KIntMixin,
+    object
+):
     """
     Class for calculating Bayesian probabilities using the beta-binomial
     distribution.
@@ -47,7 +50,7 @@ class BetaBinomialConjugate(ConjugateMixin,
     * https://en.wikipedia.org/wiki/Beta_distribution
     * https://en.wikipedia.org/wiki/Binomial_distribution
     * https://en.wikipedia.org/wiki/Beta-binomial_distribution
-    * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
+    * https://en.wikipedia.org/wiki/Conjugate_prior
     """
     def __init__(self, alpha: float, beta: float, n: int, k: int):
         """
@@ -66,36 +69,12 @@ class BetaBinomialConjugate(ConjugateMixin,
         self._k: int = k
 
     @property
-    def alpha(self) -> float:
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value: float):
-        self._alpha = value
+    def alpha_prime(self) -> float:
+        return self._alpha + self._k
 
     @property
-    def beta(self) -> float:
-        return self._beta
-
-    @beta.setter
-    def beta(self, value: float):
-        self._beta = value
-
-    @property
-    def n(self) -> float:
-        return self._n
-
-    @n.setter
-    def n(self, value: float):
-        self._n = value
-
-    @property
-    def k(self) -> float:
-        return self._k
-
-    @k.setter
-    def k(self, value: float):
-        self._k = value
+    def beta_prime(self) -> float:
+        return self._beta + self._n - self._k
 
     def prior(self) -> Beta:
         return Beta(
@@ -110,8 +89,8 @@ class BetaBinomialConjugate(ConjugateMixin,
 
     def posterior(self) -> Beta:
         return Beta(
-            alpha=self._alpha + self._k,
-            beta=self._beta + self._n - self._k
+            alpha=self.alpha_prime,
+            beta=self.beta_prime
         ).with_y_label('$P(p=x|α+k,β+n-k)$').prepend_to_label('Posterior: ')
 
     def prior_predictive(self, n_: Optional[int] = None) -> BetaBinomial:
@@ -142,8 +121,8 @@ class BetaBinomialConjugate(ConjugateMixin,
         n_ = n_ if n_ is not None else self._n
         return BetaBinomial(
             n=n_,
-            alpha=self._alpha + self._k,
-            beta=self._beta + self._n - self._k
+            alpha=self.alpha_prime,
+            beta=self.beta_prime
         ).with_y_label(r'$P(\tilde{X}=k|\tilde{n},α+k,β+n-k)$')
 
     def plot(self, n_, **kwargs) -> Figure:
@@ -188,6 +167,7 @@ class BetaBinomialConjugate(ConjugateMixin,
         # plot likelihood
         self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood.axes)
         ax_likelihood.set_title_text('likelihood')
+        ax_likelihood.add_legend()
         return ff.figure
 
     @staticmethod

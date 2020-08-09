@@ -34,7 +34,7 @@ class DiscreteFunction1d(object):
         """
         Evaluation of the function for each value of k.
         """
-        if isinstance(k, int):
+        if isinstance(k, int) or isinstance(k, float):
             return self._method(k)
         elif isinstance(k, Iterable):
             return Series(index=k, data=self._method(k), name=self._name)

@@ -25,7 +25,7 @@ class NegativeBinomial(RVDiscrete1dMixin):
         :param p: Probability of a failure.
         """
         self._r: int = r
-        self._x: float = p
+        self._p: float = p
         self._reset_distribution()
 
     def _reset_distribution(self):

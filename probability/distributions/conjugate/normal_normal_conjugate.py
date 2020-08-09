@@ -10,7 +10,7 @@ from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.utils import none_are_none, all_are_none
 
 
-class NormalNormalConjugate(ConjugateMixin, object):
+class _NormalNormalConjugate(ConjugateMixin, object):
 
     @overload
     def __init__(self, mu_0: float, sigma_sq_0: float, sigma_sq: float, x: Array1d):

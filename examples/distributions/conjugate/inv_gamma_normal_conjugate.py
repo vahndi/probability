@@ -5,13 +5,13 @@ from scipy import randn
 from scipy.stats import norm
 
 from probability.distributions.conjugate.inv_gamma_normal_conjugate import \
-    InvGammaNormalConjugate
+    _InvGammaNormalConjugate
 
 
 x = arange(0, 20.01, 0.01)
 mu, sigma = 2, 3
 x_i = mu + sigma * randn(1000)
-dist = InvGammaNormalConjugate(alpha=1, beta=1, x=x_i, mu=2)
+dist = _InvGammaNormalConjugate(alpha=1, beta=1, x=x_i, mu=2)
 
 
 def plot_parameters():

@@ -34,7 +34,7 @@ class ContinuousFunction1d(object):
         """
         Log of the probability density function of the given RV.
         """
-        if isinstance(x, float):
+        if isinstance(x, float) or isinstance(x, int):
             return self._method(x)
         elif isinstance(x, Iterable):
             return Series(index=x, data=self._method(x), name=self._name)

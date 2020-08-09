@@ -64,3 +64,55 @@ class PredictiveMixin(object):
         the data.
         """
         raise NotImplementedError
+
+
+class AlphaFloatMixin(object):
+
+    _alpha: float
+
+    @property
+    def alpha(self) -> float:
+        return self._alpha
+
+    @alpha.setter
+    def alpha(self, value: float):
+        self._alpha = value
+
+
+class BetaFloatMixin(object):
+
+    _beta: float
+
+    @property
+    def beta(self) -> float:
+        return self._beta
+
+    @beta.setter
+    def beta(self, value: float):
+        self._beta = value
+
+
+class NIntMixin(object):
+
+    _n: int
+
+    @property
+    def n(self) -> float:
+        return self._n
+
+    @n.setter
+    def n(self, value: int):
+        self._n = value
+
+
+class KIntMixin(object):
+
+    _k: int
+
+    @property
+    def k(self) -> float:
+        return self._k
+
+    @k.setter
+    def k(self, value: int):
+        self._k = value

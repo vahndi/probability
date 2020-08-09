@@ -7,12 +7,15 @@ from probability.distributions.continuous.exponential import Exponential
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.lomax import Lomax
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
-    PredictiveMixin
+    PredictiveMixin, AlphaFloatMixin, BetaFloatMixin, NIntMixin
 
 
-class GammaExponentialConjugate(ConjugateMixin,
-                                PredictiveMixin,
-                                object):
+class GammaExponentialConjugate(
+    ConjugateMixin,
+    PredictiveMixin,
+    AlphaFloatMixin, BetaFloatMixin, NIntMixin,
+    object
+):
     """
     Class for calculating Bayesian probabilities using the Gamma-Exponential
     distribution.
@@ -38,7 +41,7 @@ class GammaExponentialConjugate(ConjugateMixin,
     -----
     * https://en.wikipedia.org/wiki/Gamma_distribution
     * https://en.wikipedia.org/wiki/Exponential_distribution
-    * https://en.wikipedia.org/wiki/Conjugate_prior#When_likelihood_function_is_a_discrete_distribution
+    * https://en.wikipedia.org/wiki/Conjugate_prior
     """
 
     def __init__(self, alpha: float, beta: float, n: int, x_mean: float):
@@ -60,33 +63,6 @@ class GammaExponentialConjugate(ConjugateMixin,
 
         self._distribution = lomax(c=self.alpha_prime,
                                    scale=self.beta_prime)
-
-    @property
-    def alpha(self) -> float:
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value: float):
-        self._alpha = value
-        self._reset_distribution()
-
-    @property
-    def beta(self) -> float:
-        return self._beta
-
-    @beta.setter
-    def beta(self, value: float):
-        self._beta = value
-        self._reset_distribution()
-
-    @property
-    def n(self):
-        return self._n
-
-    @n.setter
-    def n(self, value: float):
-        self._n = value
-        self._reset_distribution()
 
     @property
     def x_mean(self) -> float:
@@ -130,8 +106,8 @@ class GammaExponentialConjugate(ConjugateMixin,
     def posterior_predictive(self) -> Lomax:
 
         return Lomax(
-            lambda_=self._beta + self._n * self._x_mean,
-            alpha=self._alpha + self._n
+            lambda_=self.beta_prime,
+            alpha=self.alpha_prime
         ).with_y_label(r'$P(\tilde{X}=x|α+n,β+n\bar{x})$')
 
     def plot(self, **kwargs):
@@ -193,6 +169,7 @@ class GammaExponentialConjugate(ConjugateMixin,
         x_exponential = arange(0, x_exponential_max + 0.001, 0.001)
         self.likelihood().plot(x=x_exponential, ax=ax_likelihood.axes)
         ax_likelihood.set_title_text('likelihood')
+        ax_likelihood.add_legend()
         return ff.figure
 
     def __str__(self):

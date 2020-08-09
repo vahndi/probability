@@ -9,7 +9,7 @@ from probability.distributions.continuous.inv_gamma import InvGamma
 from probability.distributions.mixins.conjugate import ConjugateMixin
 
 
-class GammaNormalConjugate(ConjugateMixin, object):
+class _GammaNormalConjugate(ConjugateMixin, object):
 
     def __init__(self, alpha: float, beta: float,
                  x: Array1d, mu: float):

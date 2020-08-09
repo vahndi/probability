@@ -75,6 +75,7 @@ def plot_examples():
     # plot likelihood
     bb.likelihood().plot(k=k, color='k', ax=ax_likelihood.axes)
     ax_likelihood.set_title_text('likelihood')
+    ax_likelihood.add_legend()
     ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
     plt.show()
 
