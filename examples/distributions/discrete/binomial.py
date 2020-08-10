@@ -15,7 +15,8 @@ def plot_wikipedia_pmfs():
     """
     ax = new_axes()
     Binomial(n=20, p=0.5).plot(
-        k=k_wiki, kind='line', color='blue', ax=ax, ls='', marker='d'
+        k=k_wiki, kind='line', color='blue', ax=ax, ls='', marker='d',
+        mean=True
     )
     Binomial(n=20, p=0.7).plot(
         k=k_wiki, kind='line', color='lightgreen', ax=ax, ls='', marker='s'

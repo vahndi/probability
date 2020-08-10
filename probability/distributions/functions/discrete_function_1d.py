@@ -1,4 +1,5 @@
 from matplotlib.axes import Axes
+from mpl_format.axes import AxesFormatter
 from pandas import Series
 from scipy.stats import rv_discrete
 from typing import Iterable, overload, Optional
@@ -42,6 +43,9 @@ class DiscreteFunction1d(object):
     def plot(self, k: Iterable[int],
              color: str = 'C0',
              kind: str = 'bar',
+             mean: bool = False,
+             median: bool = False,
+             std: bool = False,
              ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
@@ -50,11 +54,14 @@ class DiscreteFunction1d(object):
         :param k: Range of values of k to plot p(k) over.
         :param color: Optional color for the series.
         :param kind: Kind of plot e.g. 'bar', 'line'.
+        :param mean: Whether to show marker and label for the mean.
+        :param median: Whether to show marker and label for the median.
+        :param std: Whether to show marker and label for the standard deviation.
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
         data: Series = self.at(k)
-        ax = ax or new_axes()
+        axf = AxesFormatter(axes=ax)
 
         # special kwargs
         vlines = None
@@ -64,14 +71,40 @@ class DiscreteFunction1d(object):
             kwargs['label'] = self._parent.label
 
         if self._method_name == 'pmf':
-            data.plot(kind=kind, color=color, ax=ax, **kwargs)
+            data.plot(kind=kind, color=color, ax=axf.axes, **kwargs)
         elif self._method_name == 'cdf':
             data.plot(kind='line', color=color, drawstyle='steps-post',
-                      ax=ax, **kwargs)
+                      ax=axf.axes, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
         if vlines:
-            ax.vlines(x=k, ymin=0, ymax=data.values, color=color)
+            axf.axes.vlines(x=k, ymin=0, ymax=data.values, color=color)
+
+        y_min = axf.get_y_min()
+        y_max = axf.get_y_max()
+        x_mean = self._distribution.mean()
+        if mean:
+            axf.add_v_lines(x=x_mean, y_min=y_min, y_max=y_max,
+                            line_styles='--', colors=color)
+            axf.add_text(x=x_mean, y=self._distribution.pmf(x_mean),
+                         text=f'mean={x_mean: 0.3f}', color=color,
+                         ha='center', va='bottom')
+        if median:
+            x_median = self._distribution.median()
+            axf.add_v_lines(x=x_median, y_min=y_min, y_max=y_max,
+                            line_styles='-.', colors=color)
+            axf.add_text(x=x_median, y=self._distribution.pmf(x_median),
+                         text=f'median={x_median: 0.3f}', color=color,
+                         ha='center', va='bottom')
+        if std:
+            x_std = self._distribution.std()
+            axf.add_v_lines(x=[x_mean - x_std, x_mean + x_std],
+                            y_min=y_min, y_max=y_max,
+                            line_styles=':', colors=color)
+            axf.add_text(x=x_mean - x_std / 2,
+                         y=self._distribution.pmf(x_mean - x_std / 2),
+                         text=f'std={x_std: 0.3f}', color=color,
+                         ha='center', va='bottom')
 
         ax.set_xlabel(self._parent.x_label)
 
