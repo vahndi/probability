@@ -1,11 +1,12 @@
+from typing import Iterable, overload, Optional
+
 from matplotlib.axes import Axes
+from mpl_format.axes import AxesFormatter
 from pandas import Series
 from scipy.stats import rv_continuous
-from typing import Iterable, overload, Optional
 
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableMixin
-from mpl_format.axes.axis_utils import new_axes
 
 
 class ContinuousFunction1d(object):
@@ -43,6 +44,9 @@ class ContinuousFunction1d(object):
              x: Iterable,
              kind: str = 'line',
              color: str = 'C0',
+             mean: bool = False,
+             median: bool = False,
+             std: bool = False,
              ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
@@ -51,17 +55,48 @@ class ContinuousFunction1d(object):
         :param x: Range of values of x to plot p(x) over.
         :param kind: Kind of plot e.g. 'bar', 'line'.
         :param color: Optional color for the series.
+        :param mean: Whether to show marker and label for the mean.
+        :param median: Whether to show marker and label for the median.
+        :param std: Whether to show marker and label for the standard deviation.
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
         data: Series = self.at(x)
-        ax = ax or new_axes()
+        axf = AxesFormatter(axes=ax)
         if self._method_name in ('pdf', 'cdf', 'logpdf'):
             if 'label' not in kwargs.keys():
                 kwargs['label'] = self._parent.label
-            data.plot(kind=kind, color=color, ax=ax, **kwargs)
+            data.plot(kind=kind, color=color, ax=axf.axes, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
+
+        # stats
+        y_min = axf.get_y_min()
+        y_max = axf.get_y_max()
+        x_mean = self._distribution.mean()
+        if mean:
+            axf.add_v_lines(x=x_mean, y_min=y_min, y_max=y_max,
+                            line_styles='--', colors=color)
+            axf.add_text(x=x_mean, y=self._distribution.pdf(x_mean),
+                         text=f'mean={x_mean: 0.3f}', color=color,
+                         ha='center', va='bottom')
+        if median:
+            x_median = self._distribution.median()
+            axf.add_v_lines(x=x_median, y_min=y_min, y_max=y_max,
+                            line_styles='-.', colors=color)
+            axf.add_text(x=x_median, y=self._distribution.pdf(x_median),
+                         text=f'median={x_median: 0.3f}', color=color,
+                         ha='center', va='bottom')
+        if std:
+            x_std = self._distribution.std()
+            axf.add_v_lines(x=[x_mean - x_std, x_mean + x_std],
+                            y_min=y_min, y_max=y_max,
+                            line_styles=':', colors=color)
+            axf.add_text(x=x_mean - x_std / 2,
+                         y=self._distribution.pdf(x_mean - x_std / 2),
+                         text=f'std={x_std: 0.3f}', color=color,
+                         ha='center', va='bottom')
+
         ax.set_xlabel(self._parent.x_label)
 
         if self._parent.y_label:

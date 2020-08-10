@@ -14,11 +14,11 @@ def plot_wikipedia_pdfs():
     https://en.wikipedia.org/wiki/Beta_distribution#/media/File:Beta_distribution_pdf.svg
     """
     ax = new_axes(width=10, height=10)
-    Beta(0.5, 0.5).pdf().plot(x=x, color='red', ax=ax)
-    Beta(5, 1).pdf().plot(x=x, color='blue', ax=ax)
-    Beta(1, 3).pdf().plot(x=x, color='green', ax=ax)
-    Beta(2, 2).pdf().plot(x=x, color='purple', ax=ax)
-    Beta(2, 5).pdf().plot(x=x, color='orange', ax=ax)
+    Beta(0.5, 0.5).pdf().plot(x=x, color='red', mean=True, std=True, ax=ax)
+    Beta(5, 1).pdf().plot(x=x, color='blue', mean=True, ax=ax)
+    Beta(1, 3).pdf().plot(x=x, color='green', mean=True, ax=ax)
+    Beta(2, 2).pdf().plot(x=x, color='purple', mean=True, ax=ax)
+    Beta(2, 5).pdf().plot(x=x, color='orange', mean=True, ax=ax)
     ax.set_ylim(0, 2.5)
     ax.set_title('Probability density function')
     ax.legend(loc='upper center')
