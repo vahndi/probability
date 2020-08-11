@@ -8,7 +8,4 @@ Required
 * scipy
 * matplotlib
 * mpl-format
-
-Optional
---------
-* numba - used for faster exact calculation of Beta-Binomial inequality
+* numba (used for faster exact calculation of Beta-Binomial inequality)
