@@ -84,14 +84,14 @@ class GammaPoissonConjugate(
 
         return NegativeBinomial(
             r=self._alpha,
-            p=1 - 1 / (1 + self._beta)
+            p=1 / (1 + self._beta)
         ).with_y_label(r'$P(\tilde{X}=x|α,β)$')
 
     def posterior_predictive(self) -> NegativeBinomial:
 
         return NegativeBinomial(
             r=self.alpha_prime,
-            p=1 - 1 / (1 + self.beta_prime)
+            p=1 / (1 + self.beta_prime)
         ).with_y_label(r'$P(\tilde{X}=x|α+k,β+n)$')
 
     def plot(self, **kwargs):

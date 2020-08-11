@@ -29,8 +29,12 @@ class NegativeBinomial(RVDiscrete1dMixin):
         self._reset_distribution()
 
     def _reset_distribution(self):
-
-        self._distribution: rv_discrete = nbinom(self._r, self._p)
+        """
+        https://stackoverflow.com/questions/40846992/
+        alternative-parametrization-of-the-negative-binomial-in-scipy
+        #comment109394209_47406400
+        """
+        self._distribution: rv_discrete = nbinom(self._r, 1 - self._p)
 
     @property
     def r(self) -> float:
