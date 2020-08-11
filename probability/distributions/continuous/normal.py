@@ -14,7 +14,7 @@ class Normal(RVContinuous1dMixin):
 
     https://en.wikipedia.org/wiki/Normal_distribution
     """
-    _parametrization: str
+    _parameterization: str
 
     @overload
     def __init__(self, mu: float, sigma: float):
@@ -36,10 +36,10 @@ class Normal(RVContinuous1dMixin):
         self._mu: float = mu
         if sigma is not None:
             self._sigma: float = sigma
-            self._parametrization: str = 'μσ'
+            self._parameterization: str = 'μσ'
         else:
             self._sigma: float = sqrt(sigma_sq)
-            self._parametrization: str = 'μσ²'
+            self._parameterization: str = 'μσ²'
         self._reset_distribution()
 
     def _reset_distribution(self):
@@ -74,14 +74,14 @@ class Normal(RVContinuous1dMixin):
 
     def __str__(self):
 
-        if self._parametrization == 'μσ':
+        if self._parameterization == 'μσ':
             return f'Normal(μ={self._mu}, σ={self._sigma})'
-        elif self._parametrization == 'μσ²':
+        elif self._parameterization == 'μσ²':
             return f'Normal(μ={self._mu}, σ²={self.sigma_sq})'
 
     def __repr__(self):
 
-        if self._parametrization == 'μσ':
+        if self._parameterization == 'μσ':
             return f'Normal(mu={self._mu}, sigma={self._sigma})'
-        elif self._parametrization == 'μσ²':
+        elif self._parameterization == 'μσ²':
             return f'Normal(mu={self._mu}, sigma_sq={self.sigma_sq})'

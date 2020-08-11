@@ -35,11 +35,11 @@ class _NormalNormalConjugate(ConjugateMixin, object):
         if sigma_sq_0 is not None:
             self._sigma_sq = sigma_sq
             self._sigma_sq_0 = sigma_sq_0
-            self._parametrization = 'μ₀σ₀²σ²'
+            self._parameterization = 'μ₀σ₀²σ²'
         else:
             self._sigma_sq = 1 / tau
             self._sigma_sq_0 = 1 / tau_0
-            self._parametrization = 'μ₀τ₀τ'
+            self._parameterization = 'μ₀τ₀τ'
 
         self._reset_distribution()
 
@@ -129,14 +129,14 @@ class _NormalNormalConjugate(ConjugateMixin, object):
 
     def __str__(self):
 
-        if self._parametrization == 'μ₀σ₀²σ²':
+        if self._parameterization == 'μ₀σ₀²σ²':
             return f'NormalNormal(μ₀={self._mu_0}, σ₀²={self._sigma_sq_0}, σ²={self._sigma_sq})'
-        elif self._parametrization == 'μ₀τ₀τ':
+        elif self._parameterization == 'μ₀τ₀τ':
             return f'NormalNormal(μ₀={self._mu_0}, τ₀={self.tau_0}, τ={self.tau})'
 
     def __repr__(self):
 
-        if self._parametrization == 'μ₀σ₀²σ²':
+        if self._parameterization == 'μ₀σ₀²σ²':
             return f'NormalNormal(mu_0={self._mu_0}, sigma_sq_0={self._sigma_sq_0}, sigma_sq={self._sigma_sq})'
-        elif self._parametrization == 'μ₀τ₀τ':
+        elif self._parameterization == 'μ₀τ₀τ':
             return f'NormalNormal(mu_0={self._mu_0}, tau_0={self.tau_0}, tau={self.tau})'

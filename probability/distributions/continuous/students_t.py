@@ -14,7 +14,8 @@ class StudentsT(RVContinuous1dMixin):
 
     https://en.wikipedia.org/wiki/Student%27s_t-distribution
     """
-    def __init__(self, nu: float, mu: float = 0, sigma: float = 1, sigma_sq: float = None):
+    def __init__(self, nu: float, mu: float = 0,
+                 sigma: float = 1, sigma_sq: float = None):
         """
         Create a new Student's t distribution.
 
@@ -26,15 +27,17 @@ class StudentsT(RVContinuous1dMixin):
         self._mu: float = mu
         if sigma is not None:
             self._sigma: float = sigma
-            self._parametrization: str = 'μσ'
+            self._parameterization: str = 'μσ'
         else:
             self._sigma: float = sqrt(sigma_sq)
-            self._parametrization: str = 'μσ²'
+            self._parameterization: str = 'μσ²'
         self._reset_distribution()
 
     def _reset_distribution(self):
 
-        self._distribution: rv_continuous = t(self._nu, loc=self._mu, scale=self._sigma)
+        self._distribution: rv_continuous = t(
+            self._nu, loc=self._mu, scale=self._sigma
+        )
 
     @property
     def nu(self):
@@ -74,14 +77,26 @@ class StudentsT(RVContinuous1dMixin):
         self._reset_distribution()
 
     def __str__(self):
-        if self._parametrization == 'μσ':
-            return f'StudentsT($\\nu$={self._nu}, μ={self._mu}, σ={self._sigma})'
-        elif self._parametrization == 'μσ²':
-            return f'StudentsT($\\nu$={self._nu}, μ={self._mu}, σ²={self.sigma_sq})'
+        if self._parameterization == 'μσ':
+            return f'StudentsT(' \
+                   f'$\\nu$={self._nu}, ' \
+                   f'μ={self._mu}, ' \
+                   f'σ={self._sigma})'
+        elif self._parameterization == 'μσ²':
+            return f'StudentsT(' \
+                   f'$\\nu$={self._nu}, ' \
+                   f'μ={self._mu}, ' \
+                   f'σ²={self.sigma_sq})'
 
     def __repr__(self):
 
-        if self._parametrization == 'μσ':
-            return f'StudentsT(nu={self._nu}, mu={self._mu}, sigma={self._sigma})'
-        elif self._parametrization == 'μσ²':
-            return f'StudentsT(nu={self._nu}, mu={self._mu}, sigma_sq={self.sigma_sq})'
+        if self._parameterization == 'μσ':
+            return f'StudentsT(' \
+                   f'nu={self._nu}, ' \
+                   f'mu={self._mu}, ' \
+                   f'sigma={self._sigma})'
+        elif self._parameterization == 'μσ²':
+            return f'StudentsT(' \
+                   f'nu={self._nu}, ' \
+                   f'mu={self._mu}, ' \
+                   f'sigma_sq={self.sigma_sq})'

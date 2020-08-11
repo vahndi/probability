@@ -9,11 +9,11 @@ class Gamma(RVContinuous1dMixin, object):
     distributions. The exponential distribution, Erlang distribution, and
     chi-squared distribution are special cases of the gamma distribution.
 
-    The _parametrization with k and θ appears to be more common in econometrics
+    The parameterization with k and θ appears to be more common in econometrics
     and certain other applied fields, where for example the gamma distribution
     is frequently used to model waiting times.
 
-    The _parametrization with α and β is more common in Bayesian statistics,
+    The parameterization with α and β is more common in Bayesian statistics,
     where the gamma distribution is used as a conjugate prior distribution for
     various types of inverse scale (rate) parameters, such as the λ (rate) of
     an exponential distribution or of a Poisson distribution
@@ -21,14 +21,14 @@ class Gamma(RVContinuous1dMixin, object):
     https://en.wikipedia.org/wiki/Gamma_distribution
     """
 
-    _parametrization: str
+    _parameterization: str
 
-    def __init__(self, alpha: float, beta: float, parametrization: str = 'αβ'):
+    def __init__(self, alpha: float, beta: float, parameterization: str = 'αβ'):
 
-        assert parametrization in ('αβ', 'kθ')
+        assert parameterization in ('αβ', 'kθ')
         self._alpha: float = alpha
         self._beta: float = beta
-        self._parametrization: str = parametrization
+        self._parameterization: str = parameterization
         self._reset_distribution()
 
     def _reset_distribution(self):
@@ -39,12 +39,12 @@ class Gamma(RVContinuous1dMixin, object):
     @staticmethod
     def from_alpha_beta(alpha: float, beta: float) -> 'Gamma':
 
-        return Gamma(alpha=alpha, beta=beta, parametrization='αβ')
+        return Gamma(alpha=alpha, beta=beta, parameterization='αβ')
 
     @staticmethod
     def from_k_theta(k: float, theta: float) -> 'Gamma':
 
-        return Gamma(alpha=k, beta=1 / theta, parametrization='kθ')
+        return Gamma(alpha=k, beta=1 / theta, parameterization='kθ')
 
     @property
     def alpha(self) -> float:
@@ -84,14 +84,14 @@ class Gamma(RVContinuous1dMixin, object):
 
     def __str__(self):
 
-        if self._parametrization == 'αβ':
+        if self._parameterization == 'αβ':
             return f'Gamma(α={self._alpha}, β={self._beta})'
-        elif self._parametrization == 'kθ':
+        elif self._parameterization == 'kθ':
             return f'Gamma(k={self._alpha}, θ={1 / self._beta})'
 
     def __repr__(self):
 
-        if self._parametrization == 'αβ':
+        if self._parameterization == 'αβ':
             return f'Gamma(alpha={self._alpha}, beta={self._beta})'
-        elif self._parametrization == 'kθ':
+        elif self._parameterization == 'kθ':
             return f'Gamma(k={self._alpha}, theta={1 / self._beta})'
