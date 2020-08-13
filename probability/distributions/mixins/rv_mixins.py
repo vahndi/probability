@@ -1,7 +1,7 @@
 from numpy import ndarray
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.stats._distn_infrastructure import rv_generic
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union, Iterable
 
 from probability.distributions.functions.continuous_function_1d import ContinuousFunction1d
 from probability.distributions.functions.continuous_function_nd import ContinuousFunctionNd
@@ -480,3 +480,44 @@ class ISFDiscrete1dMixin(object):
             method_name='isf', name='ISF',
             parent=self
         )
+
+
+class StatMixin(object):
+
+    def stat(self, stat: Union[str, dict], as_dict: bool):
+        """
+        Calculate a stat by calling the method on the object.
+
+        :param stat: Name of stat or dict mapping name to iterable of args.
+        :param as_dict: Return as a dict with a key as name made from the
+                        stat name and arguments.
+        """
+        if isinstance(stat, str):
+            stat_name = stat
+            stat_col = stat
+            stat_args = ()
+        elif isinstance(stat, dict):
+            stat_name = list(stat.keys())[0]
+            stat_args = list(stat.values())[0]
+            if (
+                    not isinstance(stat_args, Iterable) or
+                    isinstance(stat_args, str)
+            ):
+                stat_args = (stat_args,)
+            stat_col = '__'.join([
+                stat_name,
+                '_'.join([str(arg) for arg in stat_args])
+            ])
+        else:
+            raise TypeError('Stat must be a str or dict')
+        if hasattr(self, stat_name):
+            if callable(getattr(self, stat_name)):
+                stat_val = getattr(self, stat_name)(*stat_args)
+            else:
+                stat_val = getattr(self, stat_name)
+        else:
+            raise ValueError(f'No stat named {stat_name}')
+        if as_dict:
+            return {stat_col: stat_val}
+        else:
+            return stat_val

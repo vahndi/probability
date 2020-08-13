@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Iterable
 
 from matplotlib.figure import Figure
 from mpl_format.figures.figure_formatter import FigureFormatter
@@ -171,7 +171,7 @@ class BetaBinomialConjugate(
         return ff.figure
 
     @staticmethod
-    def infer_posterior(data: Series) -> 'Beta':
+    def infer_posterior(data: Series) -> Beta:
         """
         Return a new Beta distribution of the posterior most likely to generate
         the given data.
@@ -187,7 +187,7 @@ class BetaBinomialConjugate(
             data: DataFrame,
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
-            stats: Optional[Union[str, List[str]]] = None
+            stats: Optional[Union[str, dict, List[Union[str, dict]]]] = None
     ) -> DataFrame:
         """
         Return a DataFrame mapping probability and conditional variables to Beta
@@ -202,7 +202,8 @@ class BetaBinomialConjugate(
                           e.g if cA={1,2} and cB={3,4} then
                           cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
         :param stats: Optional stats to append to the output e.g. 'alpha',
-                      'median'.
+                      'median'. To pass arguments use a dict mapping stat
+                      name to iterable of args.
         :return: DataFrame with columns for each conditioning variable, a
                  'prob_var' column indicating the probability variable, a
                  `prob_val` column indicating the value of the probability
@@ -220,6 +221,11 @@ class BetaBinomialConjugate(
         cond_products = product(
             *[data[cond_var].unique() for cond_var in cond_vars]
         )
+        if stats is not None:
+            if isinstance(stats, str) or isinstance(stats, dict):
+                stats = [stats]
+        else:
+            stats = []
         betas = []
         # iterate over conditions
         for cond_values in cond_products:
@@ -236,9 +242,10 @@ class BetaBinomialConjugate(
                     m_prob: int = cond_data[prob_var].sum()
                     prob_dict['prob_var'] = prob_var
                     prob_dict['prob_val'] = 1
-                    prob_dict['Beta'] = Beta(
-                        alpha=m_prob, beta=n_cond - m_prob
-                    )
+                    beta = Beta(alpha=m_prob, beta=n_cond - m_prob)
+                    prob_dict['Beta'] = beta
+                    for stat in stats:
+                        prob_dict = {**prob_dict, ** beta.stat(stat, True)}
                     betas.append(prob_dict)
                 else:
                     # single multinomial column
@@ -250,25 +257,14 @@ class BetaBinomialConjugate(
                         ])
                         prob_dict['prob_var'] = prob_var
                         prob_dict['prob_val'] = state
-                        prob_dict['Beta'] = Beta(
-                            alpha=m_prob, beta=n_cond - m_prob
-                        )
+                        beta = Beta(alpha=m_prob, beta=n_cond - m_prob)
+                        prob_dict['Beta'] = beta
+                        for stat in stats:
+                            prob_dict = {**prob_dict, **beta.stat(stat, True)}
                         betas.append(prob_dict)
 
         betas_data = DataFrame(betas)
-        if stats is not None:
-            if isinstance(stats, str):
-                stats = [stats]
-                for stat in stats:
-                    if hasattr(Beta, stat):
-                        if callable(getattr(Beta, stat)):
-                            betas_data[stat] = betas_data['Beta'].map(
-                                lambda b: getattr(b, stat)()
-                            )
-                        else:
-                            betas_data[stat] = betas_data['Beta'].map(
-                                lambda b: getattr(b, stat)
-                            )
+
         return betas_data
 
     def __str__(self):
