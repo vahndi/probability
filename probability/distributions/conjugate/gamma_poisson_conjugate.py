@@ -1,6 +1,5 @@
-from ctypes import Union
 from itertools import product
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from mpl_format.figures import FigureFormatter
 from numpy.ma import arange
