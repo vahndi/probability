@@ -202,16 +202,16 @@ class _DirichletMultinomialConjugate(ConjugateMixin, object):
         if stats is not None:
             if isinstance(stats, str):
                 stats = [stats]
-                for stat in stats:
-                    if hasattr(Dirichlet, stat):
-                        if callable(getattr(Dirichlet, stat)):
-                            dirichlets_data[stat] = dirichlets_data['Beta'].map(
-                                lambda b: getattr(b, stat)()
-                            )
-                        else:
-                            dirichlets_data[stat] = dirichlets_data['Beta'].map(
-                                lambda b: getattr(b, stat)
-                            )
+            for stat in stats:
+                if hasattr(Dirichlet, stat):
+                    if callable(getattr(Dirichlet, stat)):
+                        dirichlets_data[stat] = dirichlets_data['Beta'].map(
+                            lambda b: getattr(b, stat)()
+                        )
+                    else:
+                        dirichlets_data[stat] = dirichlets_data['Beta'].map(
+                            lambda b: getattr(b, stat)
+                        )
         return dirichlets_data
 
     def __str__(self):
