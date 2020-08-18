@@ -9,7 +9,9 @@ from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.discrete.beta_binomial import BetaBinomial
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
-    PredictiveMixin, AlphaFloatMixin, BetaFloatMixin, NIntMixin, KIntMixin
+    PredictiveMixin
+from probability.distributions.mixins.attributes import AlphaFloatMixin, \
+    BetaFloatMixin, NIntMixin, KIntMixin
 from probability.supports import SUPPORT_BETA
 from probability.utils import is_binomial
 

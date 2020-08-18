@@ -2,10 +2,17 @@ from math import sqrt
 
 from scipy.stats import t, rv_continuous
 
+from probability.distributions.mixins.attributes import MuFloatDMixin, \
+    SigmaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class StudentsT(RVContinuous1dMixin):
+class StudentsT(
+    RVContinuous1dMixin,
+    MuFloatDMixin,
+    SigmaFloatDMixin,
+    object
+):
     """
     Student's t-distribution (or simply the t-distribution) is any member of a
     family of continuous probability distributions that arises when estimating
@@ -47,24 +54,6 @@ class StudentsT(RVContinuous1dMixin):
     def nu(self, value: float):
 
         self._nu = value
-        self._reset_distribution()
-
-    @property
-    def mu(self) -> float:
-        return self._mu
-
-    @mu.setter
-    def mu(self, value: float):
-        self._mu = value
-        self._reset_distribution()
-
-    @property
-    def sigma(self) -> float:
-        return self._sigma
-
-    @sigma.setter
-    def sigma(self, value: float):
-        self._sigma = value
         self._reset_distribution()
 
     @property

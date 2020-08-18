@@ -1,9 +1,16 @@
 from scipy.stats import rv_continuous, gamma
 
+from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
+    BetaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Gamma(RVContinuous1dMixin, object):
+class Gamma(
+    RVContinuous1dMixin,
+    AlphaFloatDMixin,
+    BetaFloatDMixin,
+    object
+):
     """
     The gamma distribution is a two-parameter family of continuous probability
     distributions. The exponential distribution, Erlang distribution, and
@@ -45,24 +52,6 @@ class Gamma(RVContinuous1dMixin, object):
     def from_k_theta(k: float, theta: float) -> 'Gamma':
 
         return Gamma(alpha=k, beta=1 / theta, parameterization='kθ')
-
-    @property
-    def alpha(self) -> float:
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value: float):
-        self._alpha = value
-        self._reset_distribution()
-
-    @property
-    def beta(self) -> float:
-        return self._beta
-
-    @beta.setter
-    def beta(self, value: float):
-        self._beta = value
-        self._reset_distribution()
 
     @property
     def k(self) -> float:

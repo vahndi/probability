@@ -3,11 +3,18 @@ from typing import overload, Optional
 
 from scipy.stats import norm, rv_continuous
 
+from probability.distributions.mixins.attributes import MuFloatDMixin, \
+    SigmaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 from probability.utils import any_are_not_none, any_are_none
 
 
-class Normal(RVContinuous1dMixin):
+class Normal(
+    RVContinuous1dMixin,
+    MuFloatDMixin,
+    SigmaFloatDMixin,
+    object
+):
     """
     The normal distribution is a type of continuous probability distribution for
     a real-valued random variable.
@@ -44,24 +51,6 @@ class Normal(RVContinuous1dMixin):
 
     def _reset_distribution(self):
         self._distribution: rv_continuous = norm(self._mu, self._sigma)
-
-    @property
-    def mu(self) -> float:
-        return self._mu
-
-    @mu.setter
-    def mu(self, value: float):
-        self._mu = value
-        self._reset_distribution()
-
-    @property
-    def sigma(self) -> float:
-        return self._sigma
-
-    @sigma.setter
-    def sigma(self, value: float):
-        self._sigma = value
-        self._reset_distribution()
 
     @property
     def sigma_sq(self) -> float:

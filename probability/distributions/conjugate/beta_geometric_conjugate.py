@@ -4,8 +4,9 @@ from pandas import Series
 
 from probability.distributions import Beta
 from probability.distributions.discrete.geometric import Geometric
-from probability.distributions.mixins.conjugate import ConjugateMixin, \
-    AlphaFloatMixin, BetaFloatMixin, NIntMixin, KIntMixin
+from probability.distributions.mixins.conjugate import ConjugateMixin
+from probability.distributions.mixins.attributes import AlphaFloatMixin, \
+    BetaFloatMixin, NIntMixin, KIntMixin
 from probability.supports import SUPPORT_BETA
 
 

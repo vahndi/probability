@@ -7,7 +7,9 @@ from probability.distributions.continuous.exponential import Exponential
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.lomax import Lomax
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
-    PredictiveMixin, AlphaFloatMixin, BetaFloatMixin, NIntMixin
+    PredictiveMixin
+from probability.distributions.mixins.attributes import AlphaFloatMixin, \
+    BetaFloatMixin, NIntMixin
 
 
 class GammaExponentialConjugate(

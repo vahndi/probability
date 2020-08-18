@@ -1,10 +1,18 @@
 from scipy.stats import betabinom, rv_discrete
 
+from probability.distributions.mixins.attributes import NIntDMixin, \
+    AlphaFloatDMixin, BetaFloatDMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
 
 
-class BetaBinomial(RVDiscrete1dMixin):
+class BetaBinomial(
+    RVDiscrete1dMixin,
+    NIntDMixin,
+    AlphaFloatDMixin,
+    BetaFloatDMixin,
+    object
+):
     """
     The beta-binomial distribution is a family of discrete probability
     distributions on a finite support of non-negative integers arising when the
@@ -42,33 +50,6 @@ class BetaBinomial(RVDiscrete1dMixin):
         self._distribution: rv_discrete = betabinom(
             self._n, self._alpha, self._beta
         )
-
-    @property
-    def n(self) -> float:
-        return self._n
-
-    @n.setter
-    def n(self, value: float):
-        self._n = value
-        self._reset_distribution()
-
-    @property
-    def alpha(self) -> float:
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value: float):
-        self._alpha = value
-        self._reset_distribution()
-
-    @property
-    def beta(self) -> float:
-        return self._beta
-
-    @beta.setter
-    def beta(self, value: float):
-        self._beta = value
-        self._reset_distribution()
 
     def __str__(self):
         return f'BetaBinomial(' \

@@ -5,7 +5,9 @@ from pandas import Series
 from probability.distributions import Poisson, NegativeBinomial
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
-    PredictiveMixin, AlphaFloatMixin, BetaFloatMixin, NIntMixin, KIntMixin
+    PredictiveMixin
+from probability.distributions.mixins.attributes import AlphaFloatMixin, \
+    BetaFloatMixin, NIntMixin, KIntMixin
 
 
 class GammaPoissonConjugate(

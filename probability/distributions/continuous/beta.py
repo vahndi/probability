@@ -1,11 +1,18 @@
 from scipy.stats import beta as beta_dist, rv_continuous
 
+from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
+    BetaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.special import prob_bb_greater_exact
 
 
-class Beta(RVContinuous1dMixin):
+class Beta(
+    RVContinuous1dMixin,
+    AlphaFloatDMixin,
+    BetaFloatDMixin,
+    object
+):
     """
     The beta distribution is a family of continuous probability distributions
     defined on the interval [0, 1] parameterized by two positive shape
@@ -31,24 +38,6 @@ class Beta(RVContinuous1dMixin):
 
     def _reset_distribution(self):
         self._distribution: rv_continuous = beta_dist(self._alpha, self._beta)
-
-    @property
-    def alpha(self) -> float:
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value: float):
-        self._alpha = value
-        self._reset_distribution()
-
-    @property
-    def beta(self) -> float:
-        return self._beta
-
-    @beta.setter
-    def beta(self, value: float):
-        self._beta = value
-        self._reset_distribution()
 
     def __str__(self):
 

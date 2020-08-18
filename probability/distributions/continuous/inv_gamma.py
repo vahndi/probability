@@ -1,9 +1,16 @@
 from scipy.stats import invgamma, rv_continuous
 
+from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
+    BetaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class InvGamma(RVContinuous1dMixin, object):
+class InvGamma(
+    RVContinuous1dMixin,
+    AlphaFloatDMixin,
+    BetaFloatDMixin,
+    object
+):
     """
     The inverse gamma distribution is a two-parameter family of continuous
     probability distributions on the positive real line, which is the
@@ -26,25 +33,9 @@ class InvGamma(RVContinuous1dMixin, object):
 
     def _reset_distribution(self):
 
-        self._distribution: rv_continuous = invgamma(a=self._alpha, scale=self._beta)
-
-    @property
-    def alpha(self) -> float:
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value: float):
-        self._alpha = value
-        self._reset_distribution()
-
-    @property
-    def beta(self) -> float:
-        return self._beta
-
-    @beta.setter
-    def beta(self, value: float):
-        self._beta = value
-        self._reset_distribution()
+        self._distribution: rv_continuous = invgamma(
+            a=self._alpha, scale=self._beta
+        )
 
     def __str__(self):
 

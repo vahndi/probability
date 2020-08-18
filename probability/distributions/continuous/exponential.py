@@ -1,9 +1,14 @@
 from scipy.stats import expon, rv_continuous
 
+from probability.distributions.mixins.attributes import LambdaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Exponential(RVContinuous1dMixin):
+class Exponential(
+    RVContinuous1dMixin,
+    LambdaFloatDMixin,
+    object
+):
     """
     The exponential distribution is the probability distribution of the time
     between events in a Poisson point process, i.e., a process in which events
@@ -26,14 +31,6 @@ class Exponential(RVContinuous1dMixin):
     def _reset_distribution(self):
 
         self._distribution: rv_continuous = expon(loc=0, scale=1 / self._lambda)
-
-    @property
-    def lambda_(self) -> float:
-        return self._lambda
-
-    @lambda_.setter
-    def lambda_(self, value: float):
-        self._lambda = value
 
     def __str__(self):
 

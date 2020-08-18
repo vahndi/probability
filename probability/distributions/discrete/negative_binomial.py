@@ -1,9 +1,14 @@
 from scipy.stats import rv_discrete, nbinom
 
+from probability.distributions.mixins.attributes import PFloatDMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
 
 
-class NegativeBinomial(RVDiscrete1dMixin):
+class NegativeBinomial(
+    RVDiscrete1dMixin,
+    PFloatDMixin,
+    object
+):
     """
     The negative binomial distribution is a discrete probability distribution
     that models the number of failures k in a sequence of independent and
@@ -43,15 +48,6 @@ class NegativeBinomial(RVDiscrete1dMixin):
     @r.setter
     def r(self, value: float):
         self._r = value
-        self._reset_distribution()
-
-    @property
-    def p(self) -> float:
-        return self._p
-
-    @p.setter
-    def p(self, value: float):
-        self._p = value
         self._reset_distribution()
 
     def __str__(self):

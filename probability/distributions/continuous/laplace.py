@@ -1,9 +1,14 @@
 from scipy.stats import laplace, rv_continuous
 
+from probability.distributions.mixins.attributes import MuFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
-class Laplace(RVContinuous1dMixin):
+class Laplace(
+    RVContinuous1dMixin,
+    MuFloatDMixin,
+    object
+):
     """
     The Laplace distribution is also sometimes called the double exponential
     distribution, because it can be thought of as two exponential distributions
@@ -20,15 +25,6 @@ class Laplace(RVContinuous1dMixin):
 
     def _reset_distribution(self):
         self._distribution: rv_continuous = laplace(self._mu, self._b)
-
-    @property
-    def mu(self) -> float:
-        return self._mu
-
-    @mu.setter
-    def mu(self, value: float):
-        self._mu = value
-        self._reset_distribution()
 
     @property
     def b(self) -> float:
