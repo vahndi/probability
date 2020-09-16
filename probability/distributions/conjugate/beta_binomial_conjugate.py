@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Optional, Union, List, Iterable
+from typing import Optional, Union, List
 
 from matplotlib.figure import Figure
 from mpl_format.figures.figure_formatter import FigureFormatter
@@ -8,10 +8,10 @@ from pandas import Series, DataFrame
 from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.discrete.beta_binomial import BetaBinomial
-from probability.distributions.mixins.conjugate import ConjugateMixin, \
-    PredictiveMixin
 from probability.distributions.mixins.attributes import AlphaFloatMixin, \
     BetaFloatMixin, NIntMixin, KIntMixin
+from probability.distributions.mixins.conjugate import ConjugateMixin, \
+    PredictiveMixin
 from probability.supports import SUPPORT_BETA
 from probability.utils import is_binomial
 

@@ -1,12 +1,17 @@
 from numpy import ndarray
+from pandas import DataFrame
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.stats._distn_infrastructure import rv_generic
-from typing import Tuple, Optional, Union, Iterable
+from typing import Tuple, Optional, Union, Iterable, List
 
-from probability.distributions.functions.continuous_function_1d import ContinuousFunction1d
-from probability.distributions.functions.continuous_function_nd import ContinuousFunctionNd
-from probability.distributions.functions.discrete_function_1d import DiscreteFunction1d
-from probability.distributions.functions.discrete_function_nd import DiscreteFunctionNd
+from probability.distributions.functions.continuous_function_1d import \
+    ContinuousFunction1d
+from probability.distributions.functions.continuous_function_nd import \
+    ContinuousFunctionNd
+from probability.distributions.functions.discrete_function_1d import \
+    DiscreteFunction1d
+from probability.distributions.functions.discrete_function_nd import \
+    DiscreteFunctionNd
 
 NUM_SAMPLES_COMPARISON = 100000
 
@@ -51,14 +56,18 @@ class RVS1dMixin(object):
 class RVSNdMixin(object):
 
     _distribution: rv_generic
+    _names: List[str]
 
     def rvs(self, num_samples: int,
-            random_state: Optional[int] = None) -> ndarray:
+            random_state: Optional[int] = None) -> DataFrame:
         """
         Sample `num_samples` random values from the distribution.
         """
-        return self._distribution.rvs(size=num_samples,
-                                      random_state=random_state)
+        return DataFrame(
+            data=self._distribution.rvs(size=num_samples,
+                                        random_state=random_state),
+            columns=self._names
+        )
 
     def prob_greater_than(self, other: 'RVSNdMixin',
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> ndarray:

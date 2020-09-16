@@ -8,12 +8,18 @@ from scipy.stats._multivariate import multi_rv_generic
 
 from probability.custom_types import FloatArray1d
 from probability.distributions.continuous import Beta
+from probability.distributions.mixins.nd_mixin import NdMixin
 from probability.distributions.mixins.rv_mixins import RVSNdMixin, PDFNdMixin, \
     EntropyMixin, MeanNdMixin, VarNdMixin
 
 
 class Dirichlet(
-    RVSNdMixin, PDFNdMixin, EntropyMixin, MeanNdMixin, VarNdMixin,
+    NdMixin,
+    RVSNdMixin,
+    PDFNdMixin,
+    EntropyMixin,
+    MeanNdMixin,
+    VarNdMixin,
     object
 ):
     """
@@ -24,11 +30,13 @@ class Dirichlet(
         if isinstance(alpha, dict):
             alpha = Series(alpha)
         elif not isinstance(alpha, Series):
+            names = [f'α{k}' for k in range(1, len(alpha) + 1)]
             alpha = Series(
                 data=alpha,
-                index=[f'α{k}' for k in range(1, len(alpha) + 1)]
+                index=names
             )
         self._alpha: Series = alpha
+        self._set_names(list(alpha.keys()))
         self._num_dims = len(alpha)
         self._reset_distribution()
 
