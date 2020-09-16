@@ -6,7 +6,8 @@ from scipy.stats import multivariate_normal
 from scipy.stats._multivariate import multi_rv_generic
 
 from probability.custom_types import FloatOrFloatArray1d, FloatOrFloatArray2d
-from probability.distributions.mixins.rv_mixins import RVSNdMixin, EntropyMixin, PDFNdMixin, CDFContinuousNdMixin
+from probability.distributions.mixins.rv_mixins import \
+    RVSNdMixin, EntropyMixin, PDFNdMixin, CDFContinuousNdMixin
 
 
 class MVNormal(

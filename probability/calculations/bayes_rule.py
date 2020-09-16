@@ -44,56 +44,6 @@ class BayesRule(object):
         self._prior: Dirichlet = prior
         self._likelihood: Mapping[Any, Dirichlet] = likelihood
 
-    # @staticmethod
-    # def from_counts(
-    #         counts: DataFrame,
-    #         likelihood_uncertainty: bool = False,
-    # ) -> Dict[str, 'BayesRule']:
-    #     """
-    #     Return a new BayesRule class using a DataFrame of counts.
-    #
-    #     :param counts: DataFrame of counts where the index represents the
-    #                    different states of the evidence B, and each column
-    #                    represents the likelihood for one value of the prior A.
-    #     :param likelihood_uncertainty: Set to True if there is uncertainty
-    #                                    around the likelihood i.e. if a
-    #                                    likelihood value could be in any other
-    #                                    category.
-    #     """
-    #     bayes_rules = {}
-    #
-    #     n = counts.sum().sum()
-    #
-    #     for prior_state in counts.columns:
-    #         prior_counts = counts[prior_state]
-    #         n_prior = prior_counts.sum()
-    #         prior = BetaBinomialConjugate(1, 1, n, n_prior).posterior()
-    #         if likelihood_uncertainty:
-    #             likelihood = Series(
-    #                 index=counts.index,
-    #                 data=prior_counts.map(
-    #                     lambda k_likelihood: BetaBinomialConjugate(
-    #                         1, 1, n_prior, k_likelihood
-    #                     ).posterior()
-    #                 )
-    #             )
-    #         else:
-    #             likelihood = Series(
-    #                 index=counts.index,
-    #                 data=prior_counts.map(
-    #                     lambda k_likelihood: BetaBinomialConjugate(
-    #                         1, 1, k_likelihood, k_likelihood
-    #                     ).posterior()
-    #                 )
-    #             )
-    #
-    #         bayes_rules[prior_state] = BayesRule(
-    #             prior=prior,
-    #             likelihood=likelihood,
-    #         )
-    #
-    #     return bayes_rules
-
     @staticmethod
     def from_counts(
             data: DataFrame,

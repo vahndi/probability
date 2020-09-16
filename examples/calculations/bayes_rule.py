@@ -20,7 +20,10 @@ losses: Series = \
 losses.index = range(100_000, 5_000_001, 100_000)
 losses = losses.round(0).astype(int)
 
-data = concat([wins, losses], axis=1)[['win', 'loss']]
+data = concat([wins, losses], axis=1)[['loss', 'win']]
+axf = AxesFormatter()
+data.plot.bar(ax=axf.axes)
+axf.show()
 
 
 def plot_probs(probs: DataFrame):
