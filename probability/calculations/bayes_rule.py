@@ -18,28 +18,9 @@ class BayesRule(object):
           - the likelihood P(B|A)
           - the evidence P(B)
 
-        :param prior: Beta or Dirichlet where each dimension represents
-                      one likelihood category.
-        :param likelihood: If prior is Beta, Series with values of float or
-                           Beta likelihoods.
-                           if prior is Dirichlet, DataFrame with columns of
-                           float likelihoods or Series with values of Dirichlet
-                           likelihoods
-
-                           (b) Beta
-                           (c) Mapping[Any, Single figure]
-                           (d) Mapping[Any, Beta]
-
-        N.B. need to implement Dirichlet because of evidence calculation
-        e.g. if prior_1 = 0.3, prior_2 = 0.5 and prior_3 = 0.2 and
-                like_1 = 0.7, like_2 = 0.2 and like_1 = 0.1
-        Then for p1:
-            using Beta then evidence is
-                (0.3 * 0.7) + (0.5 + 0.2) * (0.2 + 0.1) = 0.42
-            using Dirichlet evidence is
-                (0.3 * 0.7) + (0.5 * 0.2) + (0.2 * 0.1) = 0.33
-        This would lead to a lower overall probability using Beta than reality,
-        in this case.
+        :param prior: Dirichlet where each dimension represents one likelihood
+                      category.
+        :param likelihood: Series with values of Dirichlet likelihoods.
         """
         self._prior: Dirichlet = prior
         self._likelihood: Mapping[Any, Dirichlet] = likelihood
@@ -47,6 +28,7 @@ class BayesRule(object):
     @staticmethod
     def from_counts(
             data: DataFrame,
+            prior_weight: float = 1.0
     ) -> 'BayesRule':
         """
         Return a new BayesRule class using a DataFrame of counts.
@@ -54,8 +36,10 @@ class BayesRule(object):
         :param data: DataFrame of counts where the index represents the
                      different states of the evidence B, and each column
                      represents the likelihood for one value of the prior A.
+        :param prior_weight: Proportion of the overall counts to use as the
+                             prior probability.
         """
-        prior = Dirichlet(1 + data.sum())
+        prior = Dirichlet(1 + data.sum() * prior_weight)
         likelihood = Series({
             key: Dirichlet(1 + row)
             for key, row in data.iterrows()

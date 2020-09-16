@@ -26,7 +26,7 @@ data.plot.bar(ax=axf.axes)
 axf.show()
 
 
-def plot_probs(probs: DataFrame):
+def plot_probs(probs: DataFrame, weight):
 
     axf = AxesFormatter()
     data = probs.stack(
@@ -36,9 +36,11 @@ def plot_probs(probs: DataFrame):
     axf.rotate_x_tick_labels(90)
     axf.set_y_lim(0, 1.05)
     axf.set_axis_below().grid()
+    axf.set_text(title=str(weight))
     axf.show()
 
 
-br = BayesRule.from_counts(data)
-samples = br.sample_posterior(10000)
-plot_probs(samples)
+for weight in (0, 0.001, 0.01, 0.1, 1.0, 1000):
+    br = BayesRule.from_counts(data, prior_weight=weight)
+    samples = br.sample_posterior(10000)
+    plot_probs(samples, weight)
