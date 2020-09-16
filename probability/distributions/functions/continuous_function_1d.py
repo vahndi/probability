@@ -63,6 +63,8 @@ class ContinuousFunction1d(object):
         """
         data: Series = self.at(x)
         axf = AxesFormatter(axes=ax)
+        ax = axf.axes
+
         if self._method_name in ('pdf', 'cdf', 'logpdf'):
             if 'label' not in kwargs.keys():
                 kwargs['label'] = self._parent.label

@@ -62,6 +62,7 @@ class DiscreteFunction1d(object):
         """
         data: Series = self.at(k)
         axf = AxesFormatter(axes=ax)
+        ax = axf.axes
 
         # special kwargs
         vlines = None
