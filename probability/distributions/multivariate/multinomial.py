@@ -3,7 +3,7 @@ from typing import List, Tuple, Union
 from pandas import Series
 from scipy.stats import rv_discrete, multinomial
 
-from probability.custom_types import FloatArray1d
+from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.discrete import Binomial
 from probability.distributions.mixins.rv_mixins import EntropyMixin, \
     RVSNdMixin, PMFNdMixin

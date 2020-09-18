@@ -2,7 +2,7 @@ from matplotlib.axes import Axes
 from numpy import ndarray
 from typing import Optional
 
-from probability.custom_types import RVMixin
+from probability.custom_types.compound_types import RVMixin
 from mpl_format.axes.axis_utils import new_axes
 
 

@@ -41,6 +41,7 @@ def plot_probs(probs: DataFrame, weight):
 
 
 for weight in (0, 0.001, 0.01, 0.1, 1.0, 1000):
+
     br = BayesRule.from_counts(data, prior_weight=weight)
-    samples = br.sample_posterior(10000)
+    samples = br.posterior(10000)
     plot_probs(samples, weight)

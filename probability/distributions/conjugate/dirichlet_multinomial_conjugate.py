@@ -4,7 +4,7 @@ from typing import Union, List, Optional
 from pandas import Series, DataFrame
 from pandas.core.dtypes.common import is_categorical_dtype
 
-from probability.custom_types import Array1d, FloatArray1d
+from probability.custom_types.external_custom_types import Array1d, FloatArray1d
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.multivariate import Dirichlet, Multinomial
 

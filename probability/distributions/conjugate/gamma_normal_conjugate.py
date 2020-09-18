@@ -3,7 +3,8 @@ from math import sqrt
 from numpy import array, ndarray, power
 from scipy.stats import t, rv_continuous
 
-from probability.custom_types import RVMixin, Array1d
+from probability.custom_types.external_custom_types import Array1d
+from probability.custom_types.compound_types import RVMixin
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.inv_gamma import InvGamma
 from probability.distributions.mixins.conjugate import ConjugateMixin

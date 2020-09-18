@@ -2,7 +2,7 @@ from typing import Union
 
 from matplotlib.figure import Figure
 
-from probability.custom_types import RVMixin
+from probability.custom_types.compound_types import RVMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \

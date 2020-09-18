@@ -1,5 +1,5 @@
 from numpy import ndarray
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.stats._distn_infrastructure import rv_generic
 from typing import Tuple, Optional, Union, Iterable, List
@@ -21,12 +21,15 @@ class RVS1dMixin(object):
     _distribution: rv_generic
 
     def rvs(self, num_samples: int,
-            random_state: Optional[int] = None) -> ndarray:
+            random_state: Optional[int] = None) -> Series:
         """
         Sample `num_samples` random values from the distribution.
         """
-        return self._distribution.rvs(size=num_samples,
-                                      random_state=random_state)
+        samples = Series(self._distribution.rvs(
+            size=num_samples, random_state=random_state
+        ))
+        samples.index.name = 'sample_index'
+        return samples
 
     def prob_greater_than(self, other: 'RVS1dMixin',
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
@@ -63,11 +66,13 @@ class RVSNdMixin(object):
         """
         Sample `num_samples` random values from the distribution.
         """
-        return DataFrame(
+        samples = DataFrame(
             data=self._distribution.rvs(size=num_samples,
                                         random_state=random_state),
             columns=self._names
         )
+        samples.index.name = 'sample_index'
+        return samples
 
     def prob_greater_than(self, other: 'RVSNdMixin',
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> ndarray:
