@@ -1,7 +1,12 @@
 from scipy.stats import beta as beta_dist, rv_continuous
 
+from probability.calculations.calculation import BinaryOperatorCalculation, \
+    CalculationInput, DistributionCalculation, UnaryOperatorCalculation
+from probability.calculations.operators import MultiplyDistributions, \
+    ComplementDistribution
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.special import prob_bb_greater_exact
@@ -11,6 +16,7 @@ class Beta(
     RVContinuous1dMixin,
     AlphaFloatDMixin,
     BetaFloatDMixin,
+    CalculableMixin,
     object
 ):
     """
