@@ -21,7 +21,7 @@ class TestDistributionCalculation(TestCase):
 
     def test_b1__mul__b2_result(self):
 
-        result = self.b1__mul__b2.execute()
+        result = self.b1__mul__b2.output()
         self.assertAlmostEqual(0.42, result.mean(), 2)
         self.assertAlmostEqual(0.014, result.std(), 3)
 
@@ -34,7 +34,7 @@ class TestDistributionCalculation(TestCase):
 
     def test_b3__mul__b1__mul__b2_result(self):
 
-        result = self.b3__mul__b1__mul__b2.execute()
+        result = self.b3__mul__b1__mul__b2.output()
         self.assertAlmostEqual(0.21, result.mean(), 2)
         self.assertAlmostEqual(0.0096, result.std(), 4)
 
@@ -47,6 +47,6 @@ class TestDistributionCalculation(TestCase):
 
     def test_b1__mul__comp__b1_result(self):
 
-        result = self.b1__mul__comp__b1.execute()
+        result = self.b1__mul__comp__b1.output()
         self.assertAlmostEqual(0.21, result.mean(), 2)
         self.assertAlmostEqual(0.006, result.std(), 3)

@@ -1,4 +1,4 @@
-from typing import Mapping, Any, Union, Optional
+from typing import Union, Optional
 
 from pandas import DataFrame, Series
 
@@ -78,9 +78,9 @@ class BayesRule(object):
         :param likelihood: Single-figure likelihood.
         :return: Single-figure posterior probability.
         """
-        return (prior * likelihood) / (
-            (prior * likelihood) + ((1 - prior) * (1 - likelihood))
-        )
+        lp_1 = prior * likelihood
+        lp_0 = (1 - prior) * (1 - likelihood)
+        return lp_1 / (lp_1 + lp_0)
 
     @staticmethod
     def _posterior__p_f__l_fm(

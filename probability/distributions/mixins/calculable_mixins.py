@@ -1,22 +1,38 @@
-from probability.calculations.calculation import DistributionCalculation, \
-    BinaryOperatorCalculation, CalculationInput, UnaryOperatorCalculation
-from probability.calculations.operators import MultiplyDistributions, \
-    ComplementDistribution
+from probability.calculations.calculation import ProbabilityCalculation, \
+    BinaryOperatorCalculation, SampleCalculation, \
+    CalculationContext, ValueCalculation, UnaryOperatorCalculation
+from probability.calculations.operators import Multiply, Complement
+from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
 
 class CalculableMixin(object):
 
-    def __mul__(self, other) -> DistributionCalculation:
+    def __mul__(self, other) -> ProbabilityCalculation:
 
-        if isinstance(other, DistributionCalculation):
-            name_2 = other.name
+        if isinstance(other, ProbabilityCalculation):
+            context = other.context
+            input_2 = other
         else:
-            name_2 = str(other)
+            context = CalculationContext()
+            if isinstance(other, float):
+                input_2 = ValueCalculation(calc_input=other, context=context)
+            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+                input_2 = SampleCalculation(calc_input=other, context=context)
+            else:
+                raise TypeError(
+                    'other must be type Rvs1dMixin, RvsNdMixin or float'
+                )
+
+        input_1 = SampleCalculation(
+            calc_input=self,
+            context=context
+        )
 
         return BinaryOperatorCalculation(
-            calc_input_1=CalculationInput(name=str(self), value=self),
-            calc_input_2=CalculationInput(name=name_2, value=other),
-            operator=MultiplyDistributions
+            calc_input_1=input_1,
+            calc_input_2=input_2,
+            operator=Multiply,
+            context=context
         )
 
     def __rsub__(self, other):
@@ -25,8 +41,10 @@ class CalculableMixin(object):
                 (isinstance(other, int) or isinstance(other, float)) and
                 other == 1
         ):
+            context = CalculationContext()
             return UnaryOperatorCalculation(
-                calc_input=CalculationInput(name=str(self), value=self),
-                operator=ComplementDistribution
+                calc_input=SampleCalculation(calc_input=self, context=context),
+                operator=Complement,
+                context=context
             )
         raise NotImplementedError

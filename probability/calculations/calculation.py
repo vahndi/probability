@@ -6,15 +6,40 @@ from probability.calculations.mixins import OperatorMixin
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \
     NUM_SAMPLES_COMPARISON
 
+CalculationValue = Union[int, float, Series, DataFrame]
 
-class DistributionCalculation(object):
 
-    executed_values: dict
+class CalculationContext(object):
 
-    def execute(self) -> Any:
+    def __init__(self):
+
+        self._context = {}
+
+    def __setitem__(self, name: str, value: CalculationValue):
+
+        self._context[name] = value
+
+    def __getitem__(self, name: str) -> CalculationValue:
+
+        return self._context[name]
+
+    def has_object_named(self, name: str) -> bool:
+
+        return name in self._context.keys()
+
+
+class ProbabilityCalculation(object):
+
+    context: CalculationContext
+
+    def output(
+            self,
+            num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
+    ) -> Any:
 
         raise NotImplementedError
 
+    @property
     def name(self) -> str:
 
         raise NotImplementedError
@@ -24,113 +49,56 @@ class DistributionCalculation(object):
         return f'DistributionCalculation: {self.name}'
 
 
-CalculationValue = Union[int, float,
-                         RVS1dMixin, RVSNdMixin,
-                         DistributionCalculation]
-
-
-class CalculationInput(object):
-
-    valid_types = (int, float, RVS1dMixin, RVSNdMixin, Series, DataFrame)
-
-    def __init__(self, name: str, value: CalculationValue):
-
-        if (
-                not any(isinstance(value, valid_type)
-                        for valid_type in self.valid_types) and
-                not isinstance(value, DistributionCalculation)
-        ):
-            raise TypeError(
-                f'Invalid type for CalculationInput value: '
-                f'{value.__class__.__name__}'
-            )
-        self.name: str = name
-        self.value: CalculationValue = value
+CalculationValue = Union[int, float, RVS1dMixin, RVSNdMixin]
 
 
 class BinaryOperatorCalculation(
-    DistributionCalculation
+    ProbabilityCalculation
 ):
 
     def __init__(self,
-                 calc_input_1: CalculationInput,
-                 calc_input_2: CalculationInput,
-                 operator: Type[OperatorMixin]):
+                 calc_input_1: ProbabilityCalculation,
+                 calc_input_2: ProbabilityCalculation,
+                 operator: Type[OperatorMixin],
+                 context: CalculationContext):
 
-        self.calc_input_1: CalculationInput = calc_input_1
-        self.calc_input_2: CalculationInput = calc_input_2
+        self.calc_input_1: ProbabilityCalculation = calc_input_1
+        self.calc_input_2: ProbabilityCalculation = calc_input_2
         self.operator: Type[OperatorMixin] = operator
-        self._result = None
+        self.context: CalculationContext = context
         self.executed_values = {}
 
-    def execute(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
 
-        if self._result is None:
-
-            # calculate input 1
-            input_1_value = self.calc_input_1.value
-            input_1_name = self.calc_input_1.name
-            if type(input_1_value) in (int, float, Series, DataFrame):
-                value_1 = input_1_value
-            elif (
-                    isinstance(input_1_value, RVS1dMixin) or
-                    isinstance(input_1_value, RVSNdMixin)
-            ):
-                if num_samples is None:
-                    num_samples = NUM_SAMPLES_COMPARISON
-                value_1 = input_1_value.rvs(num_samples)
-            elif isinstance(input_1_value, DistributionCalculation):
-                value_1 = input_1_value.execute()
-                for name, value in input_1_value.executed_values.items():
-                    self.executed_values[name] = value
+        if self.context.has_object_named(self.name):
+            return self.context[self.name]
+        else:
+            # get input 1
+            if self.context.has_object_named(self.calc_input_1.name):
+                input_1 = self.context[self.calc_input_1.name]
             else:
-                raise TypeError(f'Cannot operate on type {type(input_1_value)}')
-            if input_1_name not in self.executed_values:
-                self.executed_values[input_1_name] = value_1
-
-            # calculate input 2
-            input_2_value = self.calc_input_2.value
-            input_2_name = self.calc_input_2.name
-
-            if type(input_2_value) in (int, float, Series, DataFrame):
-                value_2 = input_2_value
-            elif (
-                    isinstance(input_2_value, RVS1dMixin) or
-                    isinstance(input_2_value, RVSNdMixin)
-            ):
-                if num_samples is None:
-                    num_samples = NUM_SAMPLES_COMPARISON
-                value_2 = input_2_value.rvs(num_samples)
-            elif isinstance(input_2_value, DistributionCalculation):
-                value_2 = input_2_value.execute()
-                for name, value in input_2_value.executed_values.items():
-                    self.executed_values[name] = value
+                input_1 = self.calc_input_1.output(num_samples=num_samples)
+                self.context[self.calc_input_1.name] = input_1
+            # get input 2
+            if self.context.has_object_named(self.calc_input_2.name):
+                input_2 = self.context[self.calc_input_2.name]
             else:
-                raise TypeError(f'Cannot operate on type {type(input_2_value)}')
-            if input_2_name not in self.executed_values:
-                self.executed_values[input_2_name] = value_2
-
-            # calculate result
-            if self.name not in self.executed_values:
-                self._result = self.operator.operate(
-                    self.executed_values[input_1_name],
-                    self.executed_values[input_2_name]
-                )
-                self.executed_values[self.name] = self._result
-            else:
-                self._result = self.executed_values[self.name]
-
-        return self._result
+                input_2 = self.calc_input_2.output(num_samples=num_samples)
+                self.context[self.calc_input_2.name] = input_2
+            # calculate output
+            result = self.operator.operate(input_1, input_2)
+            self.context[self.name] = result
+            return result
 
     @property
     def name(self) -> str:
 
-        if isinstance(self.calc_input_1.value, DistributionCalculation):
+        if type(self.calc_input_1) not in (ValueCalculation, SampleCalculation):
             name_1 = f'({self.calc_input_1.name})'
         else:
             name_1 = f'{self.calc_input_1.name}'
 
-        if isinstance(self.calc_input_2.value, DistributionCalculation):
+        if type(self.calc_input_2) not in (ValueCalculation, SampleCalculation):
             name_2 = f'({self.calc_input_2.name})'
         else:
             name_2 = f'{self.calc_input_2.name}'
@@ -138,54 +106,81 @@ class BinaryOperatorCalculation(
         return self.operator.get_name(name_1, name_2)
 
 
-class UnaryOperatorCalculation(DistributionCalculation):
+class UnaryOperatorCalculation(ProbabilityCalculation):
 
     def __init__(self,
-                 calc_input: CalculationInput,
-                 operator: Type[OperatorMixin]):
+                 calc_input: ProbabilityCalculation,
+                 operator: Type[OperatorMixin],
+                 context: CalculationContext):
 
-        self.calc_input: CalculationInput = calc_input
+        self.calc_input: ProbabilityCalculation = calc_input
         self.operator: Type[OperatorMixin] = operator
-        self._result = None
-        self.executed_values = {}
+        self.context: CalculationContext = context
 
-    def execute(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
 
-        if self._result is None:
-
+        if self.context.has_object_named(self.name):
+            return self.context[self.name]
+        else:
             # calculate input
-            input_value = self.calc_input.value
-            input_name = self.calc_input.name
-            if type(input_value) in (int, float, Series, DataFrame):
-                value = input_value
-            elif (
-                    isinstance(input_value, RVS1dMixin) or
-                    isinstance(input_value, RVSNdMixin)
-            ):
-                if num_samples is None:
-                    num_samples = NUM_SAMPLES_COMPARISON
-                value = input_value.rvs(num_samples)
-            elif isinstance(input_value, DistributionCalculation):
-                value = input_value.execute()
-                for name, value in input_value.executed_values.items():
-                    self.executed_values[name] = value
+            if self.context.has_object_named(self.calc_input.name):
+                input_ = self.context[self.calc_input.name]
             else:
-                raise TypeError(f'Cannot operate on type {type(input_value)}')
-            if input_name not in self.executed_values:
-                self.executed_values[input_name] = value
-
-            # calculate result
-            if self.name not in self.executed_values:
-                self._result = self.operator.operate(
-                    self.executed_values[input_name],
-                )
-                self.executed_values[self.name] = self._result
-            else:
-                self._result = self.executed_values[self.name]
-
-        return self._result
+                input_ = self.calc_input.output(num_samples)
+                self.context[self.calc_input.name] = input_
+            # calculate output
+            result = self.operator.operate(input_)
+            self.context[self.name] = result
+            return result
 
     @property
     def name(self) -> str:
 
         return self.operator.get_name(self.calc_input.name)
+
+
+class SampleCalculation(ProbabilityCalculation):
+
+    def __init__(self,
+                 calc_input: Union[RVS1dMixin, RVSNdMixin],
+                 context: CalculationContext):
+
+        self.calc_input: Union[RVS1dMixin, RVSNdMixin] = calc_input
+        self.context: CalculationContext = context
+
+    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+
+        if self.context.has_object_named(self.name):
+            return self.context[self.name]
+        else:
+            result = self.calc_input.rvs(num_samples)
+            self.context[self.name] = result
+            return result
+
+    @property
+    def name(self):
+
+        return str(self.calc_input)
+
+
+class ValueCalculation(ProbabilityCalculation):
+
+    def __init__(self,
+                 calc_input: float,
+                 context: CalculationContext):
+
+        self.calc_input = calc_input
+        self.context = context
+
+    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+
+        if self.context.has_object_named(self.name):
+            return self.context[self.name]
+        else:
+            self.context[self.name] = self.calc_input
+            return self.calc_input
+
+    @property
+    def name(self):
+
+        return str(self.calc_input)

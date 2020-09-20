@@ -1,5 +1,7 @@
-from probability.calculations.calculation import CalculationInput
+from ctypes import Union
+
 from probability.calculations.mixins import OperatorMixin
+from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
 
 class BinaryOperator(OperatorMixin):
@@ -7,12 +9,12 @@ class BinaryOperator(OperatorMixin):
     symbol: str
 
     @classmethod
-    def get_name(cls, name_1, name_2):
+    def get_name(cls, name_1: str, name_2: str):
 
         return f'{name_1} {cls.symbol} {name_2}'
 
 
-class AddDistributions(
+class Add(
     BinaryOperator,
     object
 ):
@@ -20,13 +22,12 @@ class AddDistributions(
     symbol = '+'
 
     @staticmethod
-    def operate(input_1: CalculationInput,
-                input_2: CalculationInput,
+    def operate(value_1, value_2,
                 num_samples: int = None):
         raise NotImplementedError
 
 
-class SubtractDistributions(
+class Subtract(
     BinaryOperator,
     object
 ):
@@ -34,13 +35,12 @@ class SubtractDistributions(
     symbol = '-'
 
     @staticmethod
-    def operate(input_1: CalculationInput,
-                input_2: CalculationInput,
+    def operate(value_1, value_2,
                 num_samples: int = None):
         raise NotImplementedError
 
 
-class MultiplyDistributions(
+class Multiply(
     BinaryOperator,
     object
 ):
@@ -53,7 +53,7 @@ class MultiplyDistributions(
         return value_1 * value_2
 
 
-class DivideDistributions(
+class Divide(
     BinaryOperator,
     object
 ):
@@ -61,23 +61,20 @@ class DivideDistributions(
     symbol = '/'
 
     @staticmethod
-    def operate(input_1: CalculationInput,
-                input_2: CalculationInput,
-                num_samples: int = None):
+    def operate(value_1, value_2):
         raise NotImplementedError
 
 
-class ComplementDistribution(
+class Complement(
     OperatorMixin,
     object
 ):
 
     @classmethod
-    def get_name(cls, name):
+    def get_name(cls, name: str):
         return f'1 - {name}'
 
     @staticmethod
     def operate(value):
 
         return 1 - value
-
