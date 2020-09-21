@@ -1,4 +1,4 @@
-from typing import Union, Type, Any, Optional
+from typing import Union, Type, Optional
 
 from pandas import DataFrame, Series
 
@@ -23,6 +23,10 @@ class CalculationContext(object):
 
         return self._context[name]
 
+    def context(self) -> dict:
+
+        return self._context
+
     def has_object_named(self, name: str) -> bool:
 
         return name in self._context.keys()
@@ -35,7 +39,7 @@ class ProbabilityCalculation(object):
     def output(
             self,
             num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
-    ) -> Any:
+    ) -> CalculationValue:
 
         raise NotImplementedError
 
@@ -68,7 +72,9 @@ class BinaryOperatorCalculation(
         self.context: CalculationContext = context
         self.executed_values = {}
 
-    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+    def output(
+            self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
+    ) -> CalculationValue:
 
         if self.context.has_object_named(self.name):
             return self.context[self.name]
@@ -117,7 +123,9 @@ class UnaryOperatorCalculation(ProbabilityCalculation):
         self.operator: Type[OperatorMixin] = operator
         self.context: CalculationContext = context
 
-    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+    def output(
+            self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
+    ) -> CalculationValue:
 
         if self.context.has_object_named(self.name):
             return self.context[self.name]
@@ -148,7 +156,9 @@ class SampleCalculation(ProbabilityCalculation):
         self.calc_input: Union[RVS1dMixin, RVSNdMixin] = calc_input
         self.context: CalculationContext = context
 
-    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+    def output(
+            self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
+    ) -> Union[Series, DataFrame]:
 
         if self.context.has_object_named(self.name):
             return self.context[self.name]
@@ -158,7 +168,7 @@ class SampleCalculation(ProbabilityCalculation):
             return result
 
     @property
-    def name(self):
+    def name(self) -> str:
 
         return str(self.calc_input)
 
@@ -169,10 +179,12 @@ class ValueCalculation(ProbabilityCalculation):
                  calc_input: float,
                  context: CalculationContext):
 
-        self.calc_input = calc_input
-        self.context = context
+        self.calc_input: float = calc_input
+        self.context: CalculationContext = context
 
-    def output(self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON):
+    def output(
+            self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
+    ) -> float:
 
         if self.context.has_object_named(self.name):
             return self.context[self.name]
@@ -181,6 +193,6 @@ class ValueCalculation(ProbabilityCalculation):
             return self.calc_input
 
     @property
-    def name(self):
+    def name(self) -> str:
 
         return str(self.calc_input)

@@ -1,7 +1,4 @@
-from ctypes import Union
-
 from probability.calculations.mixins import OperatorMixin
-from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
 
 class BinaryOperator(OperatorMixin):
