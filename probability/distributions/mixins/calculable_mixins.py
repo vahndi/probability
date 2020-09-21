@@ -1,6 +1,7 @@
-from probability.calculations.calculation import ProbabilityCalculation, \
+from probability.calculations.calculations import ProbabilityCalculation, \
     BinaryOperatorCalculation, SampleCalculation, \
-    CalculationContext, ValueCalculation, UnaryOperatorCalculation
+    ValueCalculation, UnaryOperatorCalculation
+from probability.calculations.context import CalculationContext
 from probability.calculations.operators import Multiply, Complement
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 

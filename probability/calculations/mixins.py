@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, List
 
 
 class OperatorMixin(object):
@@ -13,6 +13,9 @@ class AggregatorMixin(object):
     aggregate: Callable[[Any], Any]
 
 
-class CalculationMixin(object):
+class ProbabilityCalculationMixin(object):
 
-    execute: Callable[[], Any]
+    context: Any
+    input_calcs: List['ProbabilityCalculationMixin']
+    set_context: Callable[[Any], 'ProbabilityCalculationMixin']
+

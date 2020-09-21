@@ -1,40 +1,26 @@
-from typing import Union, Type, Optional
+from typing import Union, Type, Optional, List
 
 from pandas import DataFrame, Series
 
-from probability.calculations.mixins import OperatorMixin
+from probability.calculations.context import CalculationContext
+from probability.calculations.mixins import OperatorMixin, \
+    ProbabilityCalculationMixin
+from probability.custom_types.calculation_types import CalculationValue
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \
     NUM_SAMPLES_COMPARISON
 
-CalculationValue = Union[int, float, Series, DataFrame]
 
-
-class CalculationContext(object):
-
-    def __init__(self):
-
-        self._context = {}
-
-    def __setitem__(self, name: str, value: CalculationValue):
-
-        self._context[name] = value
-
-    def __getitem__(self, name: str) -> CalculationValue:
-
-        return self._context[name]
-
-    def context(self) -> dict:
-
-        return self._context
-
-    def has_object_named(self, name: str) -> bool:
-
-        return name in self._context.keys()
-
-
-class ProbabilityCalculation(object):
+class ProbabilityCalculation(
+    ProbabilityCalculationMixin,
+    object
+):
 
     context: CalculationContext
+
+    @property
+    def input_calcs(self) -> List['ProbabilityCalculation']:
+
+        raise NotImplementedError
 
     def output(
             self,
@@ -48,12 +34,16 @@ class ProbabilityCalculation(object):
 
         raise NotImplementedError
 
+    def set_context(
+            self, context: CalculationContext
+    ) -> 'ProbabilityCalculation':
+
+        self.context = context
+        return self
+
     def __repr__(self):
 
         return f'DistributionCalculation: {self.name}'
-
-
-CalculationValue = Union[int, float, RVS1dMixin, RVSNdMixin]
 
 
 class BinaryOperatorCalculation(
@@ -71,6 +61,11 @@ class BinaryOperatorCalculation(
         self.operator: Type[OperatorMixin] = operator
         self.context: CalculationContext = context
         self.executed_values = {}
+
+    @property
+    def input_calcs(self) -> List[ProbabilityCalculation]:
+
+        return [self.calc_input_1, self.calc_input_2]
 
     def output(
             self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
@@ -123,6 +118,10 @@ class UnaryOperatorCalculation(ProbabilityCalculation):
         self.operator: Type[OperatorMixin] = operator
         self.context: CalculationContext = context
 
+    @property
+    def input_calcs(self) -> List['ProbabilityCalculation']:
+        return [self.calc_input]
+
     def output(
             self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> CalculationValue:
@@ -156,6 +155,11 @@ class SampleCalculation(ProbabilityCalculation):
         self.calc_input: Union[RVS1dMixin, RVSNdMixin] = calc_input
         self.context: CalculationContext = context
 
+    @property
+    def input_calcs(self) -> List['ProbabilityCalculation']:
+
+        return []
+
     def output(
             self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> Union[Series, DataFrame]:
@@ -181,6 +185,11 @@ class ValueCalculation(ProbabilityCalculation):
 
         self.calc_input: float = calc_input
         self.context: CalculationContext = context
+
+    @property
+    def input_calcs(self) -> List['ProbabilityCalculation']:
+
+        return []
 
     def output(
             self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
