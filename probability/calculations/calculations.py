@@ -39,6 +39,8 @@ class ProbabilityCalculation(
     ) -> 'ProbabilityCalculation':
 
         self.context = context
+        for input_calc in self.input_calcs:
+            input_calc.set_context(context)
         return self
 
     def __repr__(self):
