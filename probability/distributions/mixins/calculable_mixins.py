@@ -1,6 +1,6 @@
 from typing import overload, Union, Mapping, Any
 
-from pandas import Series
+from pandas import Series, DataFrame
 
 from probability.calculations.calculations import ProbabilityCalculation, \
     BinaryOperatorCalculation, SampleCalculation, \
@@ -26,8 +26,21 @@ class CalculableMixin(object):
 
         pass
 
-    def __mul__(self, other):
+    @overload
+    def __mul__(
+            self, other: DataFrame
+    ) -> Union[DataFrame, Mapping[Any, Mapping[Any, ProbabilityCalculation]]]:
 
+        pass
+
+    def __mul__(self, other):
+        """
+        Multiply the Distribution by a float, distribution, Series or DataFrame.
+
+        :param other: The multiplier. N.B. if it is a Series or a DataFrame,
+                      the context of each value will not be synced. Use
+                      `sync_context` if syncing is needed.
+        """
         if isinstance(other, ProbabilityCalculation):
             context = other.context
             input_2 = other
@@ -37,14 +50,12 @@ class CalculableMixin(object):
                 input_2 = ValueCalculation(calc_input=other, context=context)
             elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
                 input_2 = SampleCalculation(calc_input=other, context=context)
-            elif isinstance(other, Series):
-                return Series({
-                    key: (self * value).set_context(context)
-                    for key, value in other.items()
-                })
+            elif isinstance(other, Series) or isinstance(other, DataFrame):
+                return other * self
             else:
                 raise TypeError(
-                    'other must be type Rvs1dMixin, RvsNdMixin or float'
+                    'other must be type Rvs1dMixin, RvsNdMixin float, '
+                    'Series or DataFrame'
                 )
 
         input_1 = SampleCalculation(
@@ -63,8 +74,12 @@ class CalculableMixin(object):
 
         return CalculableMixin.__mul__(other, self)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other) -> ProbabilityCalculation:
+        """
+        Used for returning the synced complement of a distribution.
 
+        :param other: Must be 1
+        """
         if (
                 (isinstance(other, int) or isinstance(other, float)) and
                 other == 1
