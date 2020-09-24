@@ -2,10 +2,12 @@ from typing import overload, Union, Mapping, Any
 
 from pandas import Series, DataFrame
 
-from probability.calculations.calculations import ProbabilityCalculation, \
+from probability.calculations.calculations import \
+    ProbabilityCalculation, \
     BinaryOperatorCalculation, SampleCalculation, \
     ValueCalculation, UnaryOperatorCalculation
 from probability.calculations.context import CalculationContext
+from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.calculations.operators import Multiply, Complement, Add
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
@@ -41,7 +43,7 @@ class CalculableMixin(object):
                       the context of each value will not be synced. Use
                       `sync_context` if syncing is needed.
         """
-        if isinstance(other, ProbabilityCalculation):
+        if isinstance(other, ProbabilityCalculationMixin):
             context = other.context
             input_2 = other
         else:

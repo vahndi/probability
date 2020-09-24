@@ -5,10 +5,17 @@ from pandas import DataFrame, Series
 from probability.calculations.context import CalculationContext
 from probability.calculations.mixins import OperatorMixin, \
     ProbabilityCalculationMixin
-from probability.calculations.operators import Multiply, Add
+from probability.calculations.operators import Multiply, Add, BinaryOperator
 from probability.custom_types.calculation_types import CalculationValue
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \
     NUM_SAMPLES_COMPARISON
+
+
+class SimpleCalculation(
+    ProbabilityCalculationMixin,
+    object
+):
+    pass
 
 
 class ProbabilityCalculation(
@@ -20,13 +27,6 @@ class ProbabilityCalculation(
 
     @property
     def input_calcs(self) -> List['ProbabilityCalculation']:
-
-        raise NotImplementedError
-
-    def output(
-            self,
-            num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
-    ) -> CalculationValue:
 
         raise NotImplementedError
 
@@ -173,12 +173,12 @@ class BinaryOperatorCalculation(
     def __init__(self,
                  calc_input_1: ProbabilityCalculation,
                  calc_input_2: ProbabilityCalculation,
-                 operator: Type[OperatorMixin],
+                 operator: Type[BinaryOperator],
                  context: CalculationContext):
 
         self.calc_input_1: ProbabilityCalculation = calc_input_1
         self.calc_input_2: ProbabilityCalculation = calc_input_2
-        self.operator: Type[OperatorMixin] = operator
+        self.operator: Type[BinaryOperator] = operator
         self.context: CalculationContext = context
         self.executed_values = {}
 
@@ -207,19 +207,40 @@ class BinaryOperatorCalculation(
                 input_2 = self.calc_input_2.output(num_samples=num_samples)
                 self.context[self.calc_input_2.name] = input_2
             # calculate output
-            result = self.operator.operate(input_1, input_2)
+            value_1_calc = not (
+                isinstance(self.calc_input_1, SimpleCalculation) or
+                isinstance(self.calc_input_1, int) or
+                isinstance(self.calc_input_1, float)
+            )
+            value_2_calc = not (
+                isinstance(self.calc_input_2, SimpleCalculation) or
+                isinstance(self.calc_input_2, int) or
+                isinstance(self.calc_input_2, float)
+            )
+            result = self.operator.operate(
+                value_1=input_1, value_2=input_2,
+                value_1_calc=value_1_calc, value_2_calc=value_2_calc
+            )
             self.context[self.name] = result
             return result
 
     @property
     def name(self) -> str:
 
-        if type(self.calc_input_1) not in (ValueCalculation, SampleCalculation):
+        if (
+                not isinstance(self.calc_input_1, SimpleCalculation) and
+                not isinstance(self.calc_input_1, int) and
+                not isinstance(self.calc_input_1, float)
+        ):
             name_1 = f'({self.calc_input_1.name})'
         else:
             name_1 = f'{self.calc_input_1.name}'
 
-        if type(self.calc_input_2) not in (ValueCalculation, SampleCalculation):
+        if (
+                not isinstance(self.calc_input_2, SimpleCalculation) and
+                not isinstance(self.calc_input_2, int) and
+                not isinstance(self.calc_input_2, float)
+        ):
             name_2 = f'({self.calc_input_2.name})'
         else:
             name_2 = f'{self.calc_input_2.name}'
@@ -230,16 +251,16 @@ class BinaryOperatorCalculation(
 class UnaryOperatorCalculation(ProbabilityCalculation):
 
     def __init__(self,
-                 calc_input: ProbabilityCalculation,
+                 calc_input: ProbabilityCalculationMixin,
                  operator: Type[OperatorMixin],
                  context: CalculationContext):
 
-        self.calc_input: ProbabilityCalculation = calc_input
+        self.calc_input: ProbabilityCalculationMixin = calc_input
         self.operator: Type[OperatorMixin] = operator
         self.context: CalculationContext = context
 
     @property
-    def input_calcs(self) -> List['ProbabilityCalculation']:
+    def input_calcs(self) -> List['ProbabilityCalculationMixin']:
         return [self.calc_input]
 
     def output(
@@ -266,7 +287,7 @@ class UnaryOperatorCalculation(ProbabilityCalculation):
         return self.operator.get_name(self.calc_input.name)
 
 
-class SampleCalculation(ProbabilityCalculation):
+class SampleCalculation(SimpleCalculation):
 
     def __init__(self,
                  calc_input: Union[RVS1dMixin, RVSNdMixin],
@@ -300,7 +321,7 @@ class SampleCalculation(ProbabilityCalculation):
         return str(self.calc_input)
 
 
-class ValueCalculation(ProbabilityCalculation):
+class ValueCalculation(SimpleCalculation):
 
     def __init__(self,
                  calc_input: float,

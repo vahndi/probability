@@ -68,7 +68,6 @@ class TestDistributionCalculation(TestCase):
                 actual.std()[f'0.5 * {dist_name}[{name}]'], 3
             )
         self.assertIsInstance(actual, DataFrame)
-        # TODO: check output column names
 
     def test_rvs2d__mul__float_name(self):
 
@@ -92,7 +91,6 @@ class TestDistributionCalculation(TestCase):
                 actual.std()[f'{dist_name}[{name}] * 0.5'], 3
             )
         self.assertIsInstance(actual, DataFrame)
-        # TODO: check output column names
 
     def test_rvs1d__mul__rvs1d_name(self):
 
@@ -104,7 +102,8 @@ class TestDistributionCalculation(TestCase):
         result = self.b1__mul__b2.output()
         self.assertAlmostEqual(0.42, result.mean(), 2)
         self.assertAlmostEqual(0.014, result.std(), 3)
-        # TODO: check output name
+        self.assertEqual('Beta(α=700, β=300) * Beta(α=600, β=400)',
+                         result.name)
 
     def test_float__mul__rvs1d__mul__rvs1d_name(self):
 
@@ -119,7 +118,8 @@ class TestDistributionCalculation(TestCase):
         actual = (0.5 * self.b1 * self.b2).output()
         self.assertAlmostEqual(expected.mean(), actual.mean(), 3)
         self.assertAlmostEqual(expected.std(), actual.std(), 3)
-        # TODO: check output name
+        self.assertEqual('(0.5 * Beta(α=700, β=300)) * Beta(α=600, β=400)',
+                         actual.name)
 
     def test_rvs1d__mul__float__mul__rvs1d_name(self):
 
@@ -134,7 +134,8 @@ class TestDistributionCalculation(TestCase):
         actual = (self.b1 * 0.5 * self.b2).output()
         self.assertAlmostEqual(expected.mean(), actual.mean(), 3)
         self.assertAlmostEqual(expected.std(), actual.std(), 3)
-        # TODO: check output name
+        self.assertEqual('(Beta(α=700, β=300) * 0.5) * Beta(α=600, β=400)',
+                         actual.name)
 
     def test_rvs1d__mul__rvs1d__mul__float_name(self):
 
@@ -149,7 +150,8 @@ class TestDistributionCalculation(TestCase):
         actual = (self.b1 * self.b2 * 0.5).output()
         self.assertAlmostEqual(expected.mean(), actual.mean(), 3)
         self.assertAlmostEqual(expected.std(), actual.std(), 3)
-        # TODO: check output name
+        self.assertEqual('(Beta(α=700, β=300) * Beta(α=600, β=400)) * 0.5',
+                         actual.name)
 
     def test_comp__rvs1d__name(self):
 
@@ -162,7 +164,8 @@ class TestDistributionCalculation(TestCase):
         expected = 1 - (self.b1.rvs(NUM_SAMPLES_COMPARISON))
         self.assertAlmostEqual(expected.mean(), result.mean(), 3)
         self.assertAlmostEqual(expected.std(), result.std(), 2)
-        # TODO: check output name
+        self.assertEqual('1 - Beta(α=700, β=300)',
+                         result.name)
 
     def test_rvs1d__mul__rvs1d__mul__rvs1d_name(self):
 
@@ -176,7 +179,10 @@ class TestDistributionCalculation(TestCase):
         result = self.b3__mul__b1__mul__b2.output()
         self.assertAlmostEqual(0.21, result.mean(), 2)
         self.assertAlmostEqual(0.0096, result.std(), 4)
-        # TODO: check output name
+        self.assertEqual(
+            'Beta(α=500, β=500) * (Beta(α=700, β=300) * Beta(α=600, β=400))',
+            result.name
+        )
 
     def test_rvs1d__mul__comp__rvs1d_name(self):
 
@@ -190,4 +196,5 @@ class TestDistributionCalculation(TestCase):
         result = self.b1__mul__comp__b1.output()
         self.assertAlmostEqual(0.21, result.mean(), 2)
         self.assertAlmostEqual(0.006, result.std(), 3)
-        # TODO: check output name
+        self.assertEqual('Beta(α=700, β=300) * (1 - Beta(α=700, β=300))',
+                         result.name)
