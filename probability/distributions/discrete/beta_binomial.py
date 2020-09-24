@@ -2,6 +2,7 @@ from scipy.stats import betabinom, rv_discrete
 
 from probability.distributions.mixins.attributes import NIntDMixin, \
     AlphaFloatDMixin, BetaFloatDMixin
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
 
@@ -11,6 +12,7 @@ class BetaBinomial(
     NIntDMixin,
     AlphaFloatDMixin,
     BetaFloatDMixin,
+    CalculableMixin,
     object
 ):
     """

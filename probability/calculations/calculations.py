@@ -5,6 +5,7 @@ from pandas import DataFrame, Series
 from probability.calculations.context import CalculationContext
 from probability.calculations.mixins import OperatorMixin, \
     ProbabilityCalculationMixin
+from probability.calculations.operators import Multiply, Add
 from probability.custom_types.calculation_types import CalculationValue
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \
     NUM_SAMPLES_COMPARISON
@@ -43,9 +44,126 @@ class ProbabilityCalculation(
             input_calc.set_context(context)
         return self
 
+    def __mul__(self, other):
+        """
+        Multiply the Distribution by a float, distribution,
+        ProbabilityCalculation, Series or DataFrame.
+
+        :param other: The multiplier. N.B. if it is a Series or a DataFrame,
+                      the context of each value will not be synced. Use
+                      `sync_context` if syncing is needed.
+        """
+        if isinstance(other, ProbabilityCalculation):
+            input_2 = other
+            input_2.set_context(self.context)
+        else:
+            context = CalculationContext()
+            if isinstance(other, float):
+                input_2 = ValueCalculation(calc_input=other, context=context)
+            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+                input_2 = SampleCalculation(calc_input=other, context=context)
+            elif isinstance(other, Series) or isinstance(other, DataFrame):
+                return other * self
+            else:
+                raise TypeError(
+                    'other must be type Rvs1dMixin, RvsNdMixin float, '
+                    'Series or DataFrame'
+                )
+
+        return BinaryOperatorCalculation(
+            calc_input_1=self,
+            calc_input_2=input_2,
+            operator=Multiply,
+            context=self.context
+        )
+
+    def __rmul__(self, other):
+
+        if isinstance(other, ProbabilityCalculation):
+            input_1 = other
+            input_1.set_context(self.context)
+        else:
+            context = CalculationContext()
+            if isinstance(other, float):
+                input_1 = ValueCalculation(calc_input=other, context=context)
+            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+                input_1 = SampleCalculation(calc_input=other, context=context)
+            elif isinstance(other, Series) or isinstance(other, DataFrame):
+                return other * self
+            else:
+                raise TypeError(
+                    'other must be type Rvs1dMixin, RvsNdMixin float, '
+                    'Series or DataFrame'
+                )
+
+        return BinaryOperatorCalculation(
+            calc_input_1=input_1,
+            calc_input_2=self,
+            operator=Multiply,
+            context=self.context
+        )
+
+    def __add__(self, other):
+
+        if isinstance(other, ProbabilityCalculation):
+            input_2 = other
+            input_2.set_context(self.context)
+        else:
+            context = CalculationContext()
+            if isinstance(other, float):
+                input_2 = ValueCalculation(calc_input=other, context=context)
+            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+                input_2 = SampleCalculation(calc_input=other, context=context)
+            elif isinstance(other, Series) or isinstance(other, DataFrame):
+                return other * self
+            else:
+                raise TypeError(
+                    'other must be type Rvs1dMixin, RvsNdMixin float, '
+                    'Series or DataFrame'
+                )
+
+        return BinaryOperatorCalculation(
+            calc_input_1=self,
+            calc_input_2=input_2,
+            operator=Add,
+            context=self.context
+        )
+
+    def __radd__(self, other):
+
+        if other == 0:
+            return self
+        else:
+            if isinstance(other, ProbabilityCalculation):
+                input_1 = other
+                input_1.set_context(self.context)
+            else:
+                context = CalculationContext()
+                if isinstance(other, float):
+                    input_1 = ValueCalculation(calc_input=other,
+                                               context=context)
+                elif isinstance(other, RVS1dMixin) or isinstance(other,
+                                                                 RVSNdMixin):
+                    input_1 = SampleCalculation(calc_input=other,
+                                                context=context)
+                elif isinstance(other, Series) or isinstance(other, DataFrame):
+                    return other * self
+                else:
+                    raise TypeError(
+                        'other must be type Rvs1dMixin, RvsNdMixin float, '
+                        'Series or DataFrame'
+                    )
+
+            return BinaryOperatorCalculation(
+                calc_input_1=input_1,
+                calc_input_2=self,
+                operator=Add,
+                context=self.context
+            )
+
     def __repr__(self):
 
-        return f'DistributionCalculation: {self.name}'
+        return self.name
 
 
 class BinaryOperatorCalculation(
@@ -169,7 +287,10 @@ class SampleCalculation(ProbabilityCalculation):
         if self.context.has_object_named(self.name):
             return self.context[self.name]
         else:
-            result = self.calc_input.rvs(num_samples)
+            if isinstance(self.calc_input, RVS1dMixin):
+                result = self.calc_input.rvs(num_samples)
+            else:
+                result = self.calc_input.rvs(num_samples, full_name=True)
             self.context[self.name] = result
             return result
 

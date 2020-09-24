@@ -5,13 +5,17 @@ from scipy.stats import rv_discrete, multinomial
 
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.discrete import Binomial
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_mixins import EntropyMixin, \
     RVSNdMixin, PMFNdMixin
 from probability.utils import k_tuples_summing_to_n
 
 
 class Multinomial(
-    RVSNdMixin, PMFNdMixin, EntropyMixin,
+    RVSNdMixin,
+    PMFNdMixin,
+    EntropyMixin,
+    CalculableMixin,
     object
 ):
     """

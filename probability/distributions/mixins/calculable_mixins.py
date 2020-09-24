@@ -6,7 +6,7 @@ from probability.calculations.calculations import ProbabilityCalculation, \
     BinaryOperatorCalculation, SampleCalculation, \
     ValueCalculation, UnaryOperatorCalculation
 from probability.calculations.context import CalculationContext
-from probability.calculations.operators import Multiply, Complement
+from probability.calculations.operators import Multiply, Complement, Add
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
 
@@ -72,7 +72,34 @@ class CalculableMixin(object):
 
     def __rmul__(self, other):
 
-        return CalculableMixin.__mul__(other, self)
+        if isinstance(other, ProbabilityCalculation):
+            context = other.context
+            input_1 = other
+        else:
+            context = CalculationContext()
+            if isinstance(other, float):
+                input_1 = ValueCalculation(calc_input=other, context=context)
+            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+                input_1 = SampleCalculation(calc_input=other, context=context)
+            elif isinstance(other, Series) or isinstance(other, DataFrame):
+                return other * self
+            else:
+                raise TypeError(
+                    'other must be type Rvs1dMixin, RvsNdMixin float, '
+                    'Series or DataFrame'
+                )
+
+        input_2 = SampleCalculation(
+            calc_input=self,
+            context=context
+        )
+
+        return BinaryOperatorCalculation(
+            calc_input_1=input_1,
+            calc_input_2=input_2,
+            operator=Multiply,
+            context=context
+        )
 
     def __rsub__(self, other) -> ProbabilityCalculation:
         """
@@ -90,4 +117,43 @@ class CalculableMixin(object):
                 operator=Complement,
                 context=context
             )
-        raise NotImplementedError
+        else:
+            raise NotImplementedError
+
+    def __add__(self, other):
+
+        if isinstance(other, ProbabilityCalculation):
+            context = other.context
+            input_2 = other
+        else:
+            context = CalculationContext()
+            if isinstance(other, float):
+                input_2 = ValueCalculation(calc_input=other, context=context)
+            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+                input_2 = SampleCalculation(calc_input=other, context=context)
+            elif isinstance(other, Series) or isinstance(other, DataFrame):
+                return other * self
+            else:
+                raise TypeError(
+                    'other must be type Rvs1dMixin, RvsNdMixin float, '
+                    'Series or DataFrame'
+                )
+
+        input_1 = SampleCalculation(
+            calc_input=self,
+            context=context
+        )
+
+        return BinaryOperatorCalculation(
+            calc_input_1=input_1,
+            calc_input_2=input_2,
+            operator=Add,
+            context=context
+        )
+
+    def __radd__(self, other):
+
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)

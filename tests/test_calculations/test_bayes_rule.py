@@ -3,7 +3,6 @@ from unittest.case import TestCase
 from pandas import Series
 
 from probability.calculations.bayes_rule import BayesRule
-from probability.distributions import Beta
 
 
 class TestBayesRule(TestCase):

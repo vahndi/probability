@@ -1,12 +1,14 @@
 from scipy.stats import laplace, rv_continuous
 
 from probability.distributions.mixins.attributes import MuFloatDMixin
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
 class Laplace(
     RVContinuous1dMixin,
     MuFloatDMixin,
+    CalculableMixin,
     object
 ):
     """

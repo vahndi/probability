@@ -1,12 +1,14 @@
 from scipy.stats import expon, rv_continuous
 
 from probability.distributions.mixins.attributes import LambdaFloatDMixin
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
 class Exponential(
     RVContinuous1dMixin,
     LambdaFloatDMixin,
+    CalculableMixin,
     object
 ):
     """

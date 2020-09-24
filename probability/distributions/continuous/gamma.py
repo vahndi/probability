@@ -2,6 +2,7 @@ from scipy.stats import rv_continuous, gamma
 
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
@@ -9,6 +10,7 @@ class Gamma(
     RVContinuous1dMixin,
     AlphaFloatDMixin,
     BetaFloatDMixin,
+    CalculableMixin,
     object
 ):
     """

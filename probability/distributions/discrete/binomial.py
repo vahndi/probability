@@ -1,13 +1,16 @@
 from scipy.stats import binom, rv_discrete
 
 from probability.distributions.mixins.attributes import NIntDMixin, PFloatDMixin
-from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.rv_discrete_1d_mixin import \
+    RVDiscrete1dMixin
 
 
 class Binomial(
     RVDiscrete1dMixin,
     NIntDMixin,
     PFloatDMixin,
+    CalculableMixin,
     object
 ):
     """

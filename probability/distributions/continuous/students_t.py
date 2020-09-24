@@ -4,6 +4,7 @@ from scipy.stats import t, rv_continuous
 
 from probability.distributions.mixins.attributes import MuFloatDMixin, \
     SigmaFloatDMixin
+from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
 
 
@@ -11,6 +12,7 @@ class StudentsT(
     RVContinuous1dMixin,
     MuFloatDMixin,
     SigmaFloatDMixin,
+    CalculableMixin,
     object
 ):
     """
