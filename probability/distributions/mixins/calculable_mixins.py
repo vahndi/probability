@@ -55,8 +55,17 @@ class CalculableMixin(object):
                 input_2 = ValueCalculation(calc_input=other, context=context)
             elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
                 input_2 = SampleCalculation(calc_input=other, context=context)
-            elif isinstance(other, Series) or isinstance(other, DataFrame):
-                return other * self
+            elif isinstance(other, Series):
+                return Series({
+                    key: self * value
+                    for key, value in other.iteritems()
+                })
+            elif isinstance(other, DataFrame):
+                return DataFrame({
+                    column: {key: self * value
+                             for key, value in other[column].iteritems()}
+                    for column in other.columns
+                })
             else:
                 raise TypeError(
                     'other must be type Rvs1dMixin, RvsNdMixin float, '

@@ -171,7 +171,7 @@ class Complement(
             return (1 - value).rename(f'1 - {value.name}')
         elif isinstance(value, DataFrame):
             result = 1 - value
-            result = result.rename(columns=lambda c: f'1 - {c.name}')
+            result = result.rename(columns=lambda c: f'1 - {c}')
             return result
         else:
             raise TypeError(

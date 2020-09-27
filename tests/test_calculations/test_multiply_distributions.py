@@ -1,8 +1,7 @@
-from unittest.case import TestCase
+from itertools import product
 
 from pandas import DataFrame, Series
 
-from probability.distributions import Beta, Dirichlet
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 from tests.test_calculations.base_test import BaseTest
 
@@ -241,3 +240,83 @@ class TestMultiplyDistributions(BaseTest):
                 expected.std()[column],
                 actual.std()[column], 3
             )
+
+    def test_rvs1d__mul__series_names(self):
+
+        actual = self.b1 * self.b_series
+        for ix, value in actual.iteritems():
+            self.assertEqual(
+                f'{str(self.b1)} * {str(self.b_series[ix])}',
+                actual[ix].name
+            )
+
+    def test_rvs1d__mul__series_results(self):
+
+        actual = self.b1 * self.b_series
+        for ix, value in actual.iteritems():
+            expected_output = (self.b1 * self.b_series[ix]).output()
+            value_output = value.output()
+            self.assertAlmostEqual(expected_output.mean(),
+                                   value_output.mean(), 3)
+            self.assertAlmostEqual(expected_output.std(),
+                                   value_output.std(), 2)
+
+    def test_series__mul__rvs1d__names(self):
+
+        actual = self.b_series * self.b1
+        for ix, value in actual.iteritems():
+            self.assertEqual(
+                f'{str(self.b_series[ix])} * {str(self.b1)}',
+                actual[ix].name
+            )
+
+    def test_series__mul__rvs1d_results(self):
+
+        actual = self.b_series * self.b1
+        for ix, value in actual.iteritems():
+            expected_output = (self.b_series[ix] * self.b1).output()
+            actual_output = value.output()
+            self.assertAlmostEqual(expected_output.mean(),
+                                   actual_output.mean(), 3)
+            self.assertAlmostEqual(expected_output.std(),
+                                   actual_output.std(), 2)
+
+    def test_rvs1d__mul__dataframe_names(self):
+
+        actual = self.b1 * self.b_frame
+        for ix, column in product(actual.index, actual.columns):
+            self.assertEqual(
+                f'{str(self.b1)} * {str(self.b_frame.loc[ix, column])}',
+                actual.loc[ix, column].name
+            )
+
+    def test_rvs1d__mul__dataframe_results(self):
+
+        actual = self.b1 * self.b_frame
+        for ix, column in product(actual.index, actual.columns):
+            expected_output = (self.b1 * self.b_frame.loc[ix, column]).output()
+            actual_output = actual.loc[ix, column].output()
+            self.assertAlmostEqual(expected_output.mean(),
+                                   actual_output.mean(), 3)
+            self.assertAlmostEqual(expected_output.std(),
+                                   actual_output.std(), 2)
+
+    def test_dataframe__mul__rvs1d_names(self):
+
+        actual = self.b_frame * self.b1
+        for ix, column in product(actual.index, actual.columns):
+            self.assertEqual(
+                f'{str(self.b_frame.loc[ix, column])} * {str(self.b1)}',
+                actual.loc[ix, column].name
+            )
+
+    def test_dataframe__mul__rvs1d_results(self):
+
+        actual = self.b_frame * self.b1
+        for ix, column in product(actual.index, actual.columns):
+            expected_output = (self.b_frame.loc[ix, column] * self.b1).output()
+            actual_output = actual.loc[ix, column].output()
+            self.assertAlmostEqual(expected_output.mean(),
+                                   actual_output.mean(), 3)
+            self.assertAlmostEqual(expected_output.std(),
+                                   actual_output.std(), 2)
