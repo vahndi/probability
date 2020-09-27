@@ -120,6 +120,11 @@ class Multiply(
                                   for column in value_1.columns]
                 return result
             elif isinstance(value_2, DataFrame):
+                if value_1.shape[1] != value_2.shape[1]:
+                    raise ValueError(
+                        'Can only multiply 2 dataframes together with same '
+                        'number of columns'
+                    )
                 result = DataFrame.from_dict({
                     f'{l1}{col_1}{r1} * {l2}{col_2}{r2}':
                         value_1[col_1] * value_2[col_2]

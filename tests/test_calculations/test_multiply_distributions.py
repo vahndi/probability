@@ -4,19 +4,10 @@ from pandas import DataFrame, Series
 
 from probability.distributions import Beta, Dirichlet
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
+from tests.test_calculations.base_test import BaseTest
 
 
-class TestDistributionCalculation(TestCase):
-
-    def setUp(self) -> None:
-
-        self.b1 = Beta(700, 300)
-        self.b2 = Beta(600, 400)
-        self.b3 = Beta(500, 500)
-        self.d1 = Dirichlet([500, 300, 200])
-        self.b1__mul__b2 = self.b1 * self.b2
-        self.b3__mul__b1__mul__b2 = self.b3 * self.b1__mul__b2
-        self.b1__mul__comp__b1 = self.b1 * (1 - self.b1)
+class TestMultiplyDistributions(BaseTest):
 
     def test_float___mul__rvs1d_name(self):
 
@@ -57,21 +48,20 @@ class TestDistributionCalculation(TestCase):
             columns=lambda c: f'0.5 * {c}'
         )
         actual = (0.5 * self.d1).output()
-        dist_name = 'Dirichlet(α1=500, α2=300, α3=200)'
         for name in self.d1.names:
             self.assertAlmostEqual(
-                expected.mean()[f'0.5 * {dist_name}[{name}]'],
-                actual.mean()[f'0.5 * {dist_name}[{name}]'], 3
+                expected.mean()[f'0.5 * {str(self.d1)}[{name}]'],
+                actual.mean()[f'0.5 * {str(self.d1)}[{name}]'], 3
             )
             self.assertAlmostEqual(
-                expected.std()[f'0.5 * {dist_name}[{name}]'],
-                actual.std()[f'0.5 * {dist_name}[{name}]'], 3
+                expected.std()[f'0.5 * {str(self.d1)}[{name}]'],
+                actual.std()[f'0.5 * {str(self.d1)}[{name}]'], 3
             )
         self.assertIsInstance(actual, DataFrame)
 
     def test_rvs2d__mul__float_name(self):
 
-        self.assertEqual('Dirichlet(α1=500, α2=300, α3=200) * 0.5',
+        self.assertEqual(f'{str(self.d1)} * 0.5',
                          (self.d1 * 0.5).name)
 
     def test_rvs2d__mul__float_result(self):
@@ -80,15 +70,14 @@ class TestDistributionCalculation(TestCase):
             columns=lambda c: f'{c} * 0.5'
         )
         actual = (self.d1 * 0.5).output()
-        dist_name = 'Dirichlet(α1=500, α2=300, α3=200)'
         for name in self.d1.names:
             self.assertAlmostEqual(
-                expected.mean()[f'{dist_name}[{name}] * 0.5'],
-                actual.mean()[f'{dist_name}[{name}] * 0.5'], 3
+                expected.mean()[f'{str(self.d1)}[{name}] * 0.5'],
+                actual.mean()[f'{str(self.d1)}[{name}] * 0.5'], 3
             )
             self.assertAlmostEqual(
-                expected.std()[f'{dist_name}[{name}] * 0.5'],
-                actual.std()[f'{dist_name}[{name}] * 0.5'], 3
+                expected.std()[f'{str(self.d1)}[{name}] * 0.5'],
+                actual.std()[f'{str(self.d1)}[{name}] * 0.5'], 3
             )
         self.assertIsInstance(actual, DataFrame)
 
@@ -153,20 +142,6 @@ class TestDistributionCalculation(TestCase):
         self.assertEqual('(Beta(α=700, β=300) * Beta(α=600, β=400)) * 0.5',
                          actual.name)
 
-    def test_comp__rvs1d__name(self):
-
-        result = 1 - self.b1
-        self.assertEqual('1 - Beta(α=700, β=300)', result.name)
-
-    def test_comp__rvs1d__result(self):
-
-        result = (1 - self.b1).output()
-        expected = 1 - (self.b1.rvs(NUM_SAMPLES_COMPARISON))
-        self.assertAlmostEqual(expected.mean(), result.mean(), 3)
-        self.assertAlmostEqual(expected.std(), result.std(), 2)
-        self.assertEqual('1 - Beta(α=700, β=300)',
-                         result.name)
-
     def test_rvs1d__mul__rvs1d__mul__rvs1d_name(self):
 
         self.assertEqual(
@@ -184,17 +159,85 @@ class TestDistributionCalculation(TestCase):
             result.name
         )
 
-    def test_rvs1d__mul__comp__rvs1d_name(self):
+    def test_rvs1d__mul__rvs2d_name(self):
 
         self.assertEqual(
-            'Beta(α=700, β=300) * (1 - Beta(α=700, β=300))',
-            self.b1__mul__comp__b1.name
+            f'{str(self.b1)} * {str(self.d1)}',
+            (self.b1 * self.d1).name
         )
 
-    def test_rvs1d__mul__comp__rvs1d_result(self):
+    def test_rvs1d__mul__rvs2d_result(self):
 
-        result = self.b1__mul__comp__b1.output()
-        self.assertAlmostEqual(0.21, result.mean(), 2)
-        self.assertAlmostEqual(0.006, result.std(), 3)
-        self.assertEqual('Beta(α=700, β=300) * (1 - Beta(α=700, β=300))',
-                         result.name)
+        actual = (self.b1 * self.d1).output()
+        expected = (
+            self.d1.rvs(100_000, full_name=True).mul(
+                self.b1.rvs(100_000), axis=0
+            )
+        ).rename(
+            columns=lambda c: f'{str(self.b1)} * {c}'
+        )
+        for name in self.d1.names:
+            self.assertAlmostEqual(
+                expected.mean()[f'{str(self.b1)} * {str(self.d1)}[{name}]'],
+                actual.mean()[f'{str(self.b1)} * {str(self.d1)}[{name}]'], 3
+            )
+            self.assertAlmostEqual(
+                expected.std()[f'{str(self.b1)} * {str(self.d1)}[{name}]'],
+                actual.std()[f'{str(self.b1)} * {str(self.d1)}[{name}]'], 3
+            )
+        self.assertIsInstance(actual, DataFrame)
+
+    def test_rvs2d__mul__rvs1d_name(self):
+
+        self.assertEqual(
+            f'{str(self.d1)} * {str(self.b1)}',
+            (self.d1 * self.b1).name
+        )
+
+    def test_rvs2d__mul__rvs1d_result(self):
+
+        actual = (self.d1 * self.b1).output()
+        expected = (
+            self.d1.rvs(100_000, full_name=True).mul(
+                self.b1.rvs(100_000), axis=0
+            )
+        ).rename(
+            columns=lambda c: f'{c} * {str(self.b1)}'
+        )
+        for name in self.d1.names:
+            self.assertAlmostEqual(
+                expected.mean()[f'{str(self.d1)}[{name}] * {str(self.b1)}'],
+                actual.mean()[f'{str(self.d1)}[{name}] * {str(self.b1)}'], 3
+            )
+            self.assertAlmostEqual(
+                expected.std()[f'{str(self.d1)}[{name}] * {str(self.b1)}'],
+                actual.std()[f'{str(self.d1)}[{name}] * {str(self.b1)}'], 3
+            )
+        self.assertIsInstance(actual, DataFrame)
+
+    def test_rvs2d__mul__rvs2d_name(self):
+
+        self.assertEqual(
+            f'{str(self.d1)} * {str(self.d2)}',
+            (self.d1 * self.d2).name
+        )
+
+    def test_rvs2d__mul__rvs2d_result(self):
+
+        actual = (self.d1 * self.d2).output()
+        d1_samples = self.d1.rvs(NUM_SAMPLES_COMPARISON, full_name=True)
+        d2_samples = self.d2.rvs(NUM_SAMPLES_COMPARISON, full_name=True)
+        expected = DataFrame.from_dict({
+            f'{col_1} * {col_2}':
+                d1_samples[col_1] * d2_samples[col_2]
+            for col_1, col_2 in zip(d1_samples.columns, d2_samples.columns)
+        })
+        for column in expected.columns:
+            self.assertAlmostEqual(
+                expected.mean()[column],
+                actual.mean()[column], 3
+            )
+            self.assertAlmostEqual(
+                expected.std()[column],
+                actual.std()[column], 3
+            )
