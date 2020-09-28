@@ -1,3 +1,5 @@
+from operator import truediv
+
 from probability.calculations.operators.binary_operator import BinaryOperator
 
 
@@ -7,7 +9,5 @@ class Divide(
 ):
 
     symbol = '/'
-
-    @staticmethod
-    def operate(value_1, value_2):
-        raise NotImplementedError
+    operator = truediv
+    pandas_op_name = 'div'
