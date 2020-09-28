@@ -23,6 +23,13 @@ class SampleCalculation(SimpleCalculation):
 
         return []
 
+    def set_context(
+            self, context: CalculationContext
+    ) -> 'SampleCalculation':
+
+        self.context = context
+        return self
+
     def output(
             self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> Union[Series, DataFrame]:
