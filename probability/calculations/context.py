@@ -3,7 +3,7 @@ from typing import Union
 
 from pandas import Series, DataFrame
 
-from probability.calculations.mixins import ProbabilityCalculationMixin
+from probability.calculations.operators.complement import ProbabilityCalculationMixin
 from probability.custom_types.calculation_types import CalculationValue
 
 

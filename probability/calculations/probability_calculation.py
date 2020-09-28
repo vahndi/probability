@@ -3,8 +3,9 @@ from typing import List
 from pandas import DataFrame, Series
 
 from probability.calculations.context import CalculationContext
-from probability.calculations.mixins import ProbabilityCalculationMixin
-from probability.calculations.operators import Multiply, Add
+from probability.calculations.operators.complement import ProbabilityCalculationMixin
+from probability.calculations.operators.add import Add
+from probability.calculations.operators.multiply import Multiply
 from probability.calculations.sample_calculation import SampleCalculation
 from probability.calculations.value_calculation import ValueCalculation
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
