@@ -2,7 +2,7 @@ from typing import Union, List, Optional
 
 from pandas import Series, DataFrame
 
-from probability.calculations.operators.complement import ProbabilityCalculationMixin
+from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.calculations.simple_calculation import SimpleCalculation
 from probability.calculations.context import CalculationContext
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \

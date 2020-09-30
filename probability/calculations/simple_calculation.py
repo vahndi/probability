@@ -1,4 +1,4 @@
-from probability.calculations.operators.complement import ProbabilityCalculationMixin
+from probability.calculations.mixins import ProbabilityCalculationMixin
 
 
 class SimpleCalculation(

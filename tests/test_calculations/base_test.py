@@ -24,3 +24,4 @@ class BaseTest(TestCase):
             'c1': {'r1': self.b1, 'r2': self.b2},
             'c2': {'r1': self.b2, 'r2': self.b3}
         })
+        self.float_series = Series({'$100': 0.8, '$200': 0.6})

@@ -39,5 +39,38 @@ class TestCompoundCalculations(BaseTest):
         b2comps = 1 - b2s
         expected = (b1s * b2s) + (b1comps * b2comps)
         actual = result.output()
-        self.assertAlmostEqual(expected.mean(), actual.mean(), 4)
-        self.assertAlmostEqual(expected.std(), actual.std(), 4)
+        self.assertAlmostEqual(expected.mean(), actual.mean(), 3)
+        self.assertAlmostEqual(expected.std(), actual.std(), 3)
+
+    def test_float__mul__comp_name(self):
+
+        result = 0.5 * (1 - self.b1)
+        self.assertEqual(
+            f'0.5 * (1 - {str(self.b1)})',
+            result.name
+        )
+
+    def test_float__mul__comp_result(self):
+
+        actual = 0.5 * (1 - self.b1).output()
+        expected = 0.5 * (1 - self.b1.rvs(NUM_SAMPLES_COMPARISON))
+        self.assertAlmostEqual(expected.mean(), actual.mean(), 3)
+        self.assertAlmostEqual(expected.std(), actual.std(), 3)
+
+    def test_rvs1d__mul__float_map_name(self):
+
+        result = self.b1 * self.float_series
+        for key, calc in result.items():
+            self.assertEqual(
+                f'{str(self.b1)} * {self.float_series[key]}',
+                result[key].name
+            )
+
+    def test_comp_rvs1d__mul__float_map_name(self):
+
+        result = (1 - self.b1) * self.float_series
+        for key, calc in result.items():
+            self.assertEqual(
+                f'(1 - {str(self.b1)}) * {self.float_series[key]}',
+                result[key].name
+            )

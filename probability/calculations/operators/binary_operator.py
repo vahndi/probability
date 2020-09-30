@@ -2,7 +2,7 @@ from typing import Tuple, Any, Callable
 
 from pandas import Series, DataFrame
 
-from probability.calculations.operators.complement import OperatorMixin
+from probability.calculations.mixins import OperatorMixin
 from probability.custom_types.calculation_types import CalculationValue
 
 

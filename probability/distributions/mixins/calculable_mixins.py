@@ -5,8 +5,8 @@ from pandas import Series, DataFrame
 from probability.calculations.binary_operator_calculation import \
     BinaryOperatorCalculation
 from probability.calculations.context import CalculationContext
-from probability.calculations.operators.complement import ProbabilityCalculationMixin, \
-    Complement
+from probability.calculations.operators.complement import Complement
+from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.calculations.operators.divide import Divide
 from probability.calculations.operators.add import Add
 from probability.calculations.operators.multiply import Multiply

@@ -3,13 +3,15 @@ from typing import Type, List, Optional
 from probability.calculations.probability_calculation import \
     ProbabilityCalculation
 from probability.calculations.context import CalculationContext
-from probability.calculations.operators.complement import OperatorMixin, \
+from probability.calculations.mixins import OperatorMixin, \
     ProbabilityCalculationMixin
 from probability.custom_types.calculation_types import CalculationValue
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 
-class UnaryOperatorCalculation(ProbabilityCalculation):
+class UnaryOperatorCalculation(
+    ProbabilityCalculation
+):
 
     def __init__(self,
                  calc_input: ProbabilityCalculationMixin,
