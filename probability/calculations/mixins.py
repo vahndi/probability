@@ -9,12 +9,6 @@ class OperatorMixin(object):
     operate: Callable
 
 
-class AggregatorMixin(object):
-
-    function_name: str
-    aggregate: Callable[[Any], Any]
-
-
 class ProbabilityCalculationMixin(object):
 
     name: str

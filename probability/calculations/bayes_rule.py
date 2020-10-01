@@ -178,7 +178,7 @@ class BayesRule(object):
     @staticmethod
     def _posterior__p_b__l_b(
             prior: Beta, likelihood: Beta,
-    ):
+    ) -> ProbabilityCalculationMixin:
         """
         Return a Series of posterior probabilities sampled from a
         Beta-distributed prior and likelihood.
@@ -196,7 +196,7 @@ class BayesRule(object):
     @staticmethod
     def _posterior__p_b__l_bm(
             prior: Beta, likelihood: AnyBetaMap,
-    ):
+    ) -> Series:
         """
         Calculate a DataFrame of sampled posterior probabilities from a
         Beta-distributed prior and a Series of Beta-distributed likelihoods.
@@ -233,27 +233,25 @@ class BayesRule(object):
     @staticmethod
     def _posterior__p_d__l_d(
         prior: Dirichlet, likelihood: Dirichlet,
-    ) -> DataFrame:
+    ) -> ProbabilityCalculationMixin:
         """
         Return a DataFrame of posterior probabilities sampled from a
         Dirichlet-distributed prior and likelihood.
 
         :param prior: Dirichlet-distributed prior probability.
         :param likelihood: Dirichlet-distributed likelihood.
-        :param num_samples: Number of samples to draw from each distribution.
-        :return: DataFrame of posterior probability samples with sample number
-                 index and prior categories as columns.
+        :return: Posterior probability calculation.
         """
-        p_prior = prior.rvs(num_samples)
-        p_likelihood = likelihood.rvs(num_samples)
-        p_evidence = (p_prior * p_likelihood).sum(axis=1)
-        posterior = (p_prior * p_likelihood).div(p_evidence, axis=0)
+        numerator = prior * likelihood
+        denominator = numerator.sum()
+        posterior = numerator / denominator
+        sync_context(posterior)
         return posterior
 
     @staticmethod
     def _posterior__p_d__l_dm(
             prior: Dirichlet, likelihood: AnyDirichletMap,
-    ) -> DataFrame:
+    ) -> Series:
         """
         Return a DataFrame of posterior probabilities sampled from a
         Dirichlet-distributed prior and a Series of Dirichlet-distributed
@@ -261,25 +259,15 @@ class BayesRule(object):
 
         :param prior: Dirichlet-distributed prior probability.
         :param likelihood: Dirichlet-distributed likelihood.
-        :param num_samples: Number of samples to draw from each distribution.
-        :return: DataFrame of posterior probability samples with sample number
-                 index and prior categories as columns.
+        :return: Series of posterior probability calculations.
         """
-        posterior_samples = {}
-        for like_name, like in likelihood.items():
-            posteriors = BayesRule._posterior__p_d__l_d(
-                prior=prior, likelihood=like,
-            )
-            for prior_name in posteriors.columns:
-                posterior_samples[
-                    like_name, prior_name
-                ] = posteriors[prior_name]
-        data = DataFrame(posterior_samples)
-        data.columns.names = ['likelihood', 'prior']
-        data.index.name = 'sample_index'
-        return data
+        numerators = prior * likelihood
+        denominators = numerators.map(lambda c: c.sum())
+        posteriors = numerators / denominators
+        sync_context(posteriors)
+        return posteriors
 
-    def posterior(self) -> Union[float, Series, DataFrame]:
+    def posterior(self) -> Union[float, ProbabilityCalculationMixin, Series]:
         """
         Return samples from the posterior P(A|B).
         Columns are tuples of (a, b).

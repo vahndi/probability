@@ -1,4 +1,4 @@
-from operator import mul, truediv, add, sub
+from operator import mul, truediv, add
 
 from pandas import DataFrame, Series
 
@@ -7,6 +7,7 @@ from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.calculations.operators.add import Add
 from probability.calculations.operators.divide import Divide
 from probability.calculations.operators.multiply import Multiply
+from probability.calculations.operators.sum import Sum
 from probability.calculations.sample_calculation import SampleCalculation
 from probability.calculations.simple_calculation import SimpleCalculation
 from probability.calculations.value_calculation import ValueCalculation
@@ -14,8 +15,7 @@ from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
 
 def forward_binary_operation(
-    item_1,
-    item_2,
+    item_1, item_2,
     builtin_operator,
     calc_operator_type
 ):
@@ -58,8 +58,7 @@ def forward_binary_operation(
 
 
 def reverse_binary_operation(
-    item_1,
-    item_2,
+    item_1, item_2,
     builtin_operator,
     calc_operator_type
 ):
@@ -175,6 +174,17 @@ class ProbabilityCalculation(
 
         return reverse_binary_operation(
             self, other, truediv, Divide
+        )
+
+    def sum(self):
+
+        from probability.calculations.aggregator_calculation import \
+            AggregatorCalculation
+
+        return AggregatorCalculation(
+            calc_input=self,
+            aggregator=Sum,
+            context=self.context
         )
 
     def __repr__(self):

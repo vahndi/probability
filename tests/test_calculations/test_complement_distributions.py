@@ -28,8 +28,6 @@ class TestComplementDistributions(BaseTest):
         expected = (
                 1 - self.d1.rvs(NUM_SAMPLES_COMPARISON, full_name=True)
         ).rename(columns=lambda c: f'1 - {c}')
-        print(result)
-        print(expected)
         for column in expected.columns:
             self.assertAlmostEqual(expected[column].mean(),
                                    result[column].mean(), 3)

@@ -22,6 +22,10 @@ class TestBayesRule(TestCase):
             '$200': Beta(1 + 6, 1 + 4)
         })
         self.likelihood_dirichlet = Dirichlet([1 + 6, 1 + 3, 1 + 1])
+        self.likelihood_dirichlet_map = Series({
+            '$100': Dirichlet([1 + 8, 1 + 1, 1 + 1]),
+            '$200': Dirichlet([1 + 6, 1 + 3, 1 + 1])
+        })
 
     def test_posterior__p_f__l_f(self):
 
@@ -114,7 +118,7 @@ class TestBayesRule(TestCase):
             posterior.name
         )
         output = posterior.output()
-        self.assertAlmostEqual(output.mean(), 0.59, 2)
+        self.assertAlmostEqual(output.mean(), 0.6, 1)
         self.assertAlmostEqual(output.std(), 0.2, 2)
 
     def test_posterior__p_b__l_bm(self):
@@ -152,3 +156,25 @@ class TestBayesRule(TestCase):
             prior=self.prior_dirichlet,
             likelihood=self.likelihood_dirichlet
         ).posterior()
+        self.assertEqual(
+            f'({str(self.prior_dirichlet)} * {str(self.likelihood_dirichlet)})'
+            f' / (sum'
+            f'({str(self.prior_dirichlet)} * {str(self.likelihood_dirichlet)})'
+            f')',
+            posterior.name
+        )
+
+    def test_posterior__p_d__l_dm(self):
+
+        posterior = BayesRule(
+            prior=self.prior_dirichlet,
+            likelihood=self.likelihood_dirichlet_map
+        ).posterior()
+        for key, likelihood in self.likelihood_dirichlet_map.items():
+            self.assertEqual(
+                f'({str(self.prior_dirichlet)} * {str(likelihood)})'
+                f' / (sum'
+                f'({str(self.prior_dirichlet)} * {str(likelihood)})'
+                f')',
+                posterior[key].name
+            )
