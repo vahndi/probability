@@ -1,18 +1,20 @@
 from typing import Union, Iterable
 
 from mpl_toolkits.axes_grid1.mpl_axes import Axes
-from numpy import array, ndarray
+from numpy import ndarray
+from pandas import Series
 from scipy.stats import multivariate_normal
 from scipy.stats._multivariate import multi_rv_generic
 
-from probability.custom_types.external_custom_types import \
-    FloatOrFloatArray1d, FloatOrFloatArray2d
+from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.rv_mixins import \
     RVSNdMixin, EntropyMixin, PDFNdMixin, CDFContinuousNdMixin
 
 
 class MVNormal(
+    NdMixin,
     RVSNdMixin,
     CDFContinuousNdMixin,
     PDFNdMixin,
@@ -20,36 +22,68 @@ class MVNormal(
     CalculableMixin,
     object
 ):
+    """
+    https://en.wikipedia.org/wiki/Multivariate_normal_distribution
+    """
+    def __init__(self,
+                 mu: Union[FloatArray1d, dict, Series],
+                 sigma: Union[FloatArray1d, dict, Series]):
+        """
+        Create a new multi-variate normal distribution.
 
-    def __init__(self, mu: FloatOrFloatArray1d, sigma: FloatOrFloatArray2d):
+        :param mu: List or mapping of means.
+        :param sigma: List or mapping of standard deviations.
+        """
+        if (
+                (isinstance(mu, dict) or isinstance(mu, Series)) and
+                (isinstance(sigma, dict) or isinstance(sigma, Series))
+        ):
+            if not set(mu.keys()) == set(sigma.keys()):
+                raise ValueError('keys for mu and sigma must be identical')
 
-        self._mu: ndarray = array(mu)
-        if isinstance(mu, float):
-            self._num_dims = 1
+        if isinstance(mu, dict) or isinstance(mu, Series):
+            names = mu.keys()
+        elif isinstance(sigma, dict) or isinstance(sigma, Series):
+            names = sigma.keys()
         else:
-            self._num_dims = len(self._mu)
-        self._sigma: ndarray = array(sigma)
+            names = [f'x{k}' for k in range(1, len(mu) + 1)]
+
+        if isinstance(mu, dict):
+            mu = Series(mu)
+        elif not isinstance(mu, Series):
+            mu = Series(data=mu, index=names)
+
+        if isinstance(sigma, dict):
+            sigma = Series(sigma)
+        elif not isinstance(sigma, Series):
+            sigma = Series(data=sigma, index=names)
+
+        self._mu: Series = mu
+        self._sigma: Series = sigma
+        self._set_names(names)
+        self._num_dims = len(self._mu)
         self._reset_distribution()
 
     def _reset_distribution(self):
         self._distribution: multi_rv_generic = multivariate_normal(
-            mean=self._mu, cov=self._sigma
+            mean=self._mu.values,
+            cov=self._sigma.values
         )
 
     @property
-    def mu(self) -> ndarray:
+    def mu(self) -> Series:
         return self._mu
 
     @mu.setter
-    def mu(self, value: FloatOrFloatArray1d):
+    def mu(self, value: Series):
         self._mu = value
 
     @property
-    def sigma(self) -> ndarray:
+    def sigma(self) -> Series:
         return self._sigma
 
     @sigma.setter
-    def sigma(self, value: FloatOrFloatArray2d):
+    def sigma(self, value: Series):
         self._sigma = value
 
     def plot_2d(self,

@@ -27,8 +27,14 @@ class Dirichlet(
     """
     https://en.wikipedia.org/wiki/Dirichlet_distribution
     """
-    def __init__(self, alpha: Union[FloatArray1d, dict]):
+    def __init__(self, alpha: Union[FloatArray1d, dict, Series]):
+        """
+        Create a new Dirichlet distribution.
 
+        :param alpha: List of probabilities summing to 1, or a dict mapping
+                      names to probabilities. If a list is passed, names will
+                      be α1, ..., αK
+        """
         if isinstance(alpha, dict):
             alpha = Series(alpha)
         elif not isinstance(alpha, Series):
@@ -50,6 +56,7 @@ class Dirichlet(
 
     @property
     def alpha(self) -> Series:
+
         return self._alpha
 
     @alpha.setter

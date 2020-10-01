@@ -1,12 +1,12 @@
+from typing import Iterable, overload, Optional
+
 from matplotlib.axes import Axes
 from mpl_format.axes import AxesFormatter
 from pandas import Series
 from scipy.stats import rv_discrete
-from typing import Iterable, overload, Optional
 
 from probability.distributions.mixins.plottable_mixin import \
     DiscretePlottableMixin
-from mpl_format.axes.axis_utils import new_axes
 
 
 class DiscreteFunction1d(object):
