@@ -1,25 +1,26 @@
 from typing import Union
 
-from pandas import DataFrame, Series
+from pandas import Series
 
+from probability.calculations.bayes_rule.bayes_rule import BayesRule
 from probability.calculations.context import sync_context
 from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.custom_types.external_custom_types import AnyFloatMap, \
     IntFloatMap
-from probability.custom_types.internal_custom_types import AnyBetaMap, \
-    AnyDirichletMap
-from probability.custom_types.type_checking import is_any_dirichlet_map, \
-    is_any_float_map, is_any_beta_map
-from probability.distributions import Dirichlet, Beta
+from probability.custom_types.internal_custom_types import AnyBetaMap
+from probability.custom_types.type_checking import is_any_float_map, \
+    is_any_beta_map
+from probability.distributions import Beta
 
 
-class BayesRule(object):
-
+class BinaryBayesRule(BayesRule):
+    """
+    Class for testing binary hypotheses with Bayes Rule.
+    """
     def __init__(
             self,
-            prior: Union[float, Beta, AnyFloatMap, Dirichlet],
-            likelihood: Union[float, Beta, Dirichlet,
-                              AnyFloatMap, AnyBetaMap, AnyDirichletMap]
+            prior: Union[float, Beta, AnyFloatMap],
+            likelihood: Union[float, Beta, AnyFloatMap, AnyBetaMap]
     ):
         """
         Create a new Bayes Rule object from:
@@ -31,44 +32,10 @@ class BayesRule(object):
                       category.
         :param likelihood: Series with values of Dirichlet likelihoods.
         """
-        self._prior: Union[float, Beta, AnyFloatMap, Dirichlet] = prior
+        self._prior: Union[float, Beta, AnyFloatMap] = prior
         self._likelihood: Union[
-            float, Beta, Dirichlet,
-            AnyFloatMap, AnyBetaMap, AnyDirichletMap
+            float, Beta, AnyFloatMap, AnyBetaMap
         ] = likelihood
-
-    @staticmethod
-    def from_counts(
-            data: DataFrame,
-            prior_weight: float = 1.0
-    ) -> 'BayesRule':
-        """
-        Return a new BayesRule class using a DataFrame of counts.
-
-        :param data: DataFrame of counts where the index represents the
-                     different states of the evidence B, and each column
-                     represents the likelihood for one value of the prior A.
-        :param prior_weight: Proportion of the overall counts to use as the
-                             prior probability.
-        """
-        prior = Dirichlet(1 + data.sum() * prior_weight)
-        likelihood = Series({
-            key: Dirichlet(1 + row)
-            for key, row in data.iterrows()
-        })
-        return BayesRule(prior=prior, likelihood=likelihood)
-
-    @property
-    def prior(self) -> Union[float, Beta, AnyFloatMap, Dirichlet]:
-
-        return self._prior
-
-    @property
-    def likelihood(self) -> Union[
-            float, AnyFloatMap, AnyBetaMap, AnyDirichletMap
-    ]:
-
-        return self._likelihood
 
     @staticmethod
     def _posterior__p_f__l_f(
@@ -99,7 +66,7 @@ class BayesRule(object):
         :return: Series of single-figure posterior probabilities.
         """
         return Series({
-            key: BayesRule._posterior__p_f__l_f(prior, value)
+            key: BinaryBayesRule._posterior__p_f__l_f(prior, value)
             for key, value in likelihood.items()
         })
 
@@ -223,49 +190,10 @@ class BayesRule(object):
         :param likelihood: Series of float likelihoods.
         :return: Series of single figure probabilities.
         """
-        if not set(prior.keys()) == set(likelihood.keys()):
-            raise ValueError('keys of prior and float must be the same')
         lp_1: Series = prior * likelihood
         lp_0: Series = (1 - prior) * (1 - likelihood)
         posterior = lp_1 / (lp_1 + lp_0)
         return posterior
-
-    @staticmethod
-    def _posterior__p_d__l_d(
-        prior: Dirichlet, likelihood: Dirichlet,
-    ) -> ProbabilityCalculationMixin:
-        """
-        Return a DataFrame of posterior probabilities sampled from a
-        Dirichlet-distributed prior and likelihood.
-
-        :param prior: Dirichlet-distributed prior probability.
-        :param likelihood: Dirichlet-distributed likelihood.
-        :return: Posterior probability calculation.
-        """
-        numerator = prior * likelihood
-        denominator = numerator.sum()
-        posterior = numerator / denominator
-        sync_context(posterior)
-        return posterior
-
-    @staticmethod
-    def _posterior__p_d__l_dm(
-            prior: Dirichlet, likelihood: AnyDirichletMap,
-    ) -> Series:
-        """
-        Return a DataFrame of posterior probabilities sampled from a
-        Dirichlet-distributed prior and a Series of Dirichlet-distributed
-        likelihoods.
-
-        :param prior: Dirichlet-distributed prior probability.
-        :param likelihood: Dirichlet-distributed likelihood.
-        :return: Series of posterior probability calculations.
-        """
-        numerators = prior * likelihood
-        denominators = numerators.map(lambda c: c.sum())
-        posteriors = numerators / denominators
-        sync_context(posteriors)
-        return posteriors
 
     def posterior(self) -> Union[float, ProbabilityCalculationMixin, Series]:
         """
@@ -274,60 +202,49 @@ class BayesRule(object):
         """
         if isinstance(self._prior, float):
             if isinstance(self._likelihood, float):
-                return BayesRule._posterior__p_f__l_f(
+                return BinaryBayesRule._posterior__p_f__l_f(
                     prior=self._prior,
                     likelihood=self._likelihood
                 )
             elif is_any_float_map(self._likelihood):
-                return BayesRule._posterior__p_f__l_fm(
+                return BinaryBayesRule._posterior__p_f__l_fm(
                     prior=self._prior,
                     likelihood=self._likelihood
                 )
             elif isinstance(self._likelihood, Beta):
-                return BayesRule._posterior__p_f__l_b(
+                return BinaryBayesRule._posterior__p_f__l_b(
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
             elif is_any_beta_map(self._likelihood):
-                return BayesRule._posterior__p_f__l_bm(
+                return BinaryBayesRule._posterior__p_f__l_bm(
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
         elif isinstance(self._prior, Beta):
             if isinstance(self._likelihood, float):
-                return BayesRule._posterior__p_b__l_f(
+                return BinaryBayesRule._posterior__p_b__l_f(
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
             elif is_any_float_map(self._likelihood):
-                return BayesRule._posterior__p_b__l_fm(
+                return BinaryBayesRule._posterior__p_b__l_fm(
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
             elif isinstance(self._likelihood, Beta):
-                return BayesRule._posterior__p_b__l_b(
+                return BinaryBayesRule._posterior__p_b__l_b(
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
             elif is_any_beta_map(self._likelihood):
-                return BayesRule._posterior__p_b__l_bm(
+                return BinaryBayesRule._posterior__p_b__l_bm(
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
         elif is_any_float_map(self._prior):
             if is_any_float_map(self._likelihood):
-                return BayesRule._posterior__p_fm__l__fm(
-                    prior=self._prior,
-                    likelihood=self._likelihood,
-                )
-        elif isinstance(self._prior, Dirichlet):
-            if isinstance(self._likelihood, Dirichlet):
-                return BayesRule._posterior__p_d__l_d(
-                    prior=self._prior,
-                    likelihood=self._likelihood,
-                )
-            elif is_any_dirichlet_map(self._likelihood):
-                return BayesRule._posterior__p_d__l_dm(
+                return BinaryBayesRule._posterior__p_fm__l__fm(
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )

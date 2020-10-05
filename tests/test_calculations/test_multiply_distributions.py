@@ -152,7 +152,7 @@ class TestMultiplyDistributions(BaseTest):
 
         result = self.b3__mul__b1__mul__b2.output()
         self.assertAlmostEqual(0.21, result.mean(), 2)
-        self.assertAlmostEqual(0.0096, result.std(), 4)
+        self.assertAlmostEqual(0.0096, result.std(), 3)
         self.assertEqual(
             'Beta(α=500, β=500) * (Beta(α=700, β=300) * Beta(α=600, β=400))',
             result.name

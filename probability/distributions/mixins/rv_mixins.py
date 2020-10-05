@@ -1,8 +1,9 @@
+from typing import Tuple, Optional, Union, Iterable, List
+
 from numpy import ndarray
-from pandas import DataFrame, Series, MultiIndex
+from pandas import DataFrame, Series
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.stats._distn_infrastructure import rv_generic
-from typing import Tuple, Optional, Union, Iterable, List
 
 from probability.distributions.functions.continuous_function_1d import \
     ContinuousFunction1d
@@ -93,7 +94,6 @@ class RVS1dMixin(object):
 
 class RVSNdMixin(object):
 
-    _distribution: rv_generic
     _names: List[str]
 
     def rvs(self, num_samples: int,
@@ -269,7 +269,6 @@ class PDF1dMixin(object):
 
 class PDFNdMixin(object):
 
-    _distribution: rv_generic
     _num_dims: int
 
     def pdf(self) -> ContinuousFunctionNd:
@@ -322,7 +321,6 @@ class PMF1dMixin(object):
 
 class PMFNdMixin(object):
 
-    _distribution: rv_generic
     _num_dims: int
 
     def pmf(self) -> DiscreteFunctionNd:
@@ -375,7 +373,6 @@ class CDFContinuous1dMixin(object):
 
 class CDFContinuousNdMixin(object):
 
-    _distribution: rv_continuous
     _num_dims: int
 
     def cdf(self) -> ContinuousFunctionNd:
