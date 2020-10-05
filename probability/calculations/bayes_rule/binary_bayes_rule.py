@@ -8,8 +8,8 @@ from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.custom_types.external_custom_types import AnyFloatMap, \
     IntFloatMap
 from probability.custom_types.internal_custom_types import AnyBetaMap
-from probability.custom_types.type_checking import is_any_float_map, \
-    is_any_beta_map
+from probability.custom_types.type_checking import is_any_beta_map, \
+    is_any_numeric_map
 from probability.distributions import Beta
 
 
@@ -206,7 +206,7 @@ class BinaryBayesRule(BayesRule):
                     prior=self._prior,
                     likelihood=self._likelihood
                 )
-            elif is_any_float_map(self._likelihood):
+            elif is_any_numeric_map(self._likelihood):
                 return BinaryBayesRule._posterior__p_f__l_fm(
                     prior=self._prior,
                     likelihood=self._likelihood
@@ -227,7 +227,7 @@ class BinaryBayesRule(BayesRule):
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
-            elif is_any_float_map(self._likelihood):
+            elif is_any_numeric_map(self._likelihood):
                 return BinaryBayesRule._posterior__p_b__l_fm(
                     prior=self._prior,
                     likelihood=self._likelihood,
@@ -242,8 +242,8 @@ class BinaryBayesRule(BayesRule):
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
-        elif is_any_float_map(self._prior):
-            if is_any_float_map(self._likelihood):
+        elif is_any_numeric_map(self._prior):
+            if is_any_numeric_map(self._likelihood):
                 return BinaryBayesRule._posterior__p_fm__l__fm(
                     prior=self._prior,
                     likelihood=self._likelihood,

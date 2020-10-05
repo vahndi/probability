@@ -7,8 +7,8 @@ from probability.calculations.context import sync_context
 from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.custom_types.external_custom_types import AnyFloatMap
 from probability.custom_types.internal_custom_types import AnyDirichletMap
-from probability.custom_types.type_checking import is_any_float_map, \
-    is_any_dirichlet_map
+from probability.custom_types.type_checking import is_any_dirichlet_map, \
+    is_any_numeric_map
 from probability.distributions import Dirichlet
 
 
@@ -129,8 +129,8 @@ class MultipleBayesRule(BayesRule):
         Return samples from the posterior P(A|B).
         Columns are tuples of (a, b).
         """
-        if is_any_float_map(self._prior):
-            if is_any_float_map(self._likelihood):
+        if is_any_numeric_map(self._prior):
+            if is_any_numeric_map(self._likelihood):
                 return MultipleBayesRule._posterior__p_fm__l__fm(
                     prior=self._prior,
                     likelihood=self._likelihood,

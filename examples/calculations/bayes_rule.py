@@ -2,7 +2,8 @@ from mpl_format.axes import AxesFormatter
 from pandas import concat, Series, DataFrame
 from seaborn import boxplot
 
-from probability.calculations.bayes_rule import BayesRule
+from probability.calculations.bayes_rule.binary_bayes_rule import \
+    BinaryBayesRule
 from probability.distributions import Poisson
 
 """
@@ -42,6 +43,6 @@ def plot_probs(probs: DataFrame, weight):
 
 for weight in (0, 0.001, 0.01, 0.1, 1.0, 1000):
 
-    br = BayesRule.from_counts(data, prior_weight=weight)
+    br = BinaryBayesRule.from_counts(data, prior_weight=weight)
     samples = br.posterior(10000)
     plot_probs(samples, weight)
