@@ -1,3 +1,5 @@
+from typing import Union
+
 from scipy.stats import beta as beta_dist, rv_continuous
 
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
@@ -5,6 +7,7 @@ from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 from probability.distributions.special import prob_bb_greater_exact
 
 
@@ -49,18 +52,23 @@ class Beta(
 
         return f'Beta(alpha={self._alpha}, beta={self._beta})'
 
-    def __gt__(self, other: 'Beta') -> float:
+    def __gt__(self, other: Union['Beta', float]) -> float:
 
-        return prob_bb_greater_exact(
-            alpha_1=self._alpha, beta_1=self._beta, m_1=0, n_1=0,
-            alpha_2=other._alpha, beta_2=other._beta, m_2=0, n_2=0
-        )
+        if isinstance(other, float):
+            return (self.rvs(NUM_SAMPLES_COMPARISON) > other).mean()
+        elif isinstance(other, Beta):
+            return prob_bb_greater_exact(
+                alpha_1=self._alpha, beta_1=self._beta, m_1=0, n_1=0,
+                alpha_2=other._alpha, beta_2=other._beta, m_2=0, n_2=0
+            )
+        else:
+            raise TypeError('other must be of type float or Rvs1dMixin')
 
-    def __lt__(self, other: 'Beta') -> float:
+    def __lt__(self, other: Union['Beta', float]) -> float:
 
         return other < self
 
-    def __eq__(self, other: 'Beta') -> bool:
+    def __eq__(self, other: Union['Beta', float]) -> bool:
 
         return (
             abs(self._alpha - other._alpha) < 1e-10 and

@@ -42,19 +42,53 @@ class RVS1dMixin(object):
 
         return (self.rvs(num_samples) < other.rvs(num_samples)).mean()
 
-    def __gt__(self, other: 'RVS1dMixin') -> float:
+    def __gt__(self, other: Union['RVS1dMixin', float]) -> float:
 
-        return (
-            self.rvs(NUM_SAMPLES_COMPARISON) >
-            other.rvs(NUM_SAMPLES_COMPARISON)
-        ).mean()
+        if isinstance(other, float):
+            return (self.rvs(NUM_SAMPLES_COMPARISON) > other).mean()
+        elif isinstance(other, RVS1dMixin):
+            return (
+                self.rvs(NUM_SAMPLES_COMPARISON) >
+                other.rvs(NUM_SAMPLES_COMPARISON)
+            ).mean()
+        else:
+            raise TypeError('other must be of type float or Rvs1dMixin')
 
-    def __lt__(self, other: 'RVS1dMixin') -> float:
+    def __ge__(self, other: Union['RVS1dMixin', float]) -> float:
 
-        return (
-            self.rvs(NUM_SAMPLES_COMPARISON) <
-            other.rvs(NUM_SAMPLES_COMPARISON)
-        ).mean()
+        if isinstance(other, float):
+            return (self.rvs(NUM_SAMPLES_COMPARISON) >= other).mean()
+        elif isinstance(other, RVS1dMixin):
+            return (
+                self.rvs(NUM_SAMPLES_COMPARISON) >=
+                other.rvs(NUM_SAMPLES_COMPARISON)
+            ).mean()
+        else:
+            raise TypeError('other must be of type float or Rvs1dMixin')
+
+    def __lt__(self, other: Union['RVS1dMixin', float]) -> float:
+
+        if isinstance(other, float):
+            return (self.rvs(NUM_SAMPLES_COMPARISON) < other).mean()
+        elif isinstance(other, RVS1dMixin):
+            return (
+                self.rvs(NUM_SAMPLES_COMPARISON) <
+                other.rvs(NUM_SAMPLES_COMPARISON)
+            ).mean()
+        else:
+            raise TypeError('other must be of type float or Rvs1dMixin')
+
+    def __le__(self, other: Union['RVS1dMixin', float]) -> float:
+
+        if isinstance(other, float):
+            return (self.rvs(NUM_SAMPLES_COMPARISON) <= other).mean()
+        elif isinstance(other, RVS1dMixin):
+            return (
+                self.rvs(NUM_SAMPLES_COMPARISON) <=
+                other.rvs(NUM_SAMPLES_COMPARISON)
+            ).mean()
+        else:
+            raise TypeError('other must be of type float or Rvs1dMixin')
 
 
 class RVSNdMixin(object):

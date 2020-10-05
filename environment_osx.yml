@@ -6,8 +6,8 @@ channels:
 dependencies:
   - _pytorch_select=0.1=cpu_0
   - blas=1.0=mkl
-  - ca-certificates=2020.4.5.2=hecda079_0
-  - certifi=2020.4.5.2=py36h9f0ad1d_0
+  - ca-certificates=2020.6.20=hecda079_0
+  - certifi=2020.6.20=py36h9f0ad1d_0
   - cffi=1.14.0=py36h356ff06_0
   - cycler=0.10.0=py_2
   - decorator=4.4.2=py_0
@@ -20,9 +20,11 @@ dependencies:
   - libffi=3.2.1=h4a8c4bd_1007
   - libgfortran=4.0.0=2
   - liblapack=3.8.0=14_mkl
+  - libllvm10=10.0.1=h009f743_3
   - libopenblas=0.3.9=h3d69b6c_0
   - libpng=1.6.37=hbbe82c9_1
   - llvm-openmp=10.0.0=h28b9765_0
+  - llvmlite=0.34.0=py36h739e7dc_4
   - matplotlib=3.2.1=0
   - matplotlib-base=3.2.1=py36h83d3ec1_0
   - mkl=2019.5=281
@@ -30,8 +32,9 @@ dependencies:
   - ncurses=6.1=h0a44026_1002
   - networkx=2.4=py_1
   - ninja=1.10.0=ha1b3eb9_0
+  - numba=0.51.2=py36h959d312_1
   - numpy=1.18.5=py36hdc5ca10_0
-  - openssl=1.1.1g=h0b31af3_0
+  - openssl=1.1.1h=haf1e3a3_0
   - pandas=1.0.4=py36hcc1bba6_0
   - patsy=0.5.1=py_0
   - pgmpy=0.1.10=py36_0
@@ -57,7 +60,8 @@ dependencies:
   - xz=5.2.5=h0b31af3_0
   - zlib=1.2.11=h0b31af3_1006
   - pip:
-    - mpl-format==0.259
+    - compound-types==0.0.3
+    - mpl-format==0.277
     - seaborn==0.10.1
 prefix: /Users/vahndi.minah/anaconda3/envs/probability_env
 
