@@ -116,7 +116,7 @@ class TestBinaryBayesRule(TestCase):
         )
         output = posterior.output()
         self.assertAlmostEqual(output.mean(), 0.6, 1)
-        self.assertAlmostEqual(output.std(), 0.2, 2)
+        self.assertAlmostEqual(output.std(), 0.2, 1)
 
     def test_posterior__p_b__l_bm(self):
 
