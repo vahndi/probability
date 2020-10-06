@@ -19,7 +19,7 @@ class BinaryBayesRule(BayesRule):
     """
     def __init__(
             self,
-            prior: Union[float, Beta, AnyFloatMap],
+            prior: Union[float, Beta, AnyFloatMap, AnyBetaMap],
             likelihood: Union[float, Beta, AnyFloatMap, AnyBetaMap]
     ):
         """
@@ -248,7 +248,81 @@ class BinaryBayesRule(BayesRule):
         sync_context(posterior)
         return posterior
 
-    def posterior(self) -> Union[float, ProbabilityCalculationMixin, Series]:
+    @staticmethod
+    def _posterior__p_bm__l_f(
+            prior: AnyBetaMap, likelihood: float
+    ) -> AnyCalculationMap:
+        """
+        Calculate a Series of posterior probability calculations from a
+        Series of Beta-distributed priors and a single figure likelihood.
+
+        :param prior: Series of Beta-distributed priors.
+        :param likelihood: Single figure likelihood.
+        :return: Series of posterior probability calculations.
+        """
+        lp_1: Series = prior * likelihood
+        lp_0: Series = (1 - prior) * (1 - likelihood)
+        posterior = lp_1 / (lp_1 + lp_0)
+        sync_context(posterior)
+        return posterior
+
+    @staticmethod
+    def _posterior__p_bm__l_fm(
+            prior: AnyBetaMap, likelihood: AnyFloatMap
+    ) -> AnyCalculationMap:
+        """
+        Calculate a Series of posterior probability calculations from a
+        Series of Beta-distributed priors and a single figure likelihood.
+
+        :param prior: Series of Beta-distributed priors.
+        :param likelihood: Series of single figure likelihoods.
+        :return: Series of posterior probability calculations.
+        """
+        lp_1: Series = prior * likelihood
+        lp_0: Series = (1 - prior) * (1 - likelihood)
+        posterior = lp_1 / (lp_1 + lp_0)
+        sync_context(posterior)
+        return posterior
+
+    @staticmethod
+    def _posterior__p_bm__l_b(
+            prior: AnyBetaMap, likelihood: Beta
+    ) -> AnyCalculationMap:
+        """
+        Calculate a Series of posterior probability calculations from a
+        Series of Beta-distributed priors and a single figure likelihood.
+
+        :param prior: Series of Beta-distributed priors.
+        :param likelihood: Beta-distributed likelihood.
+        :return: Series of posterior probability calculations.
+        """
+        lp_1: Series = prior * likelihood
+        lp_0: Series = (1 - prior) * (1 - likelihood)
+        posterior = lp_1 / (lp_1 + lp_0)
+        sync_context(posterior)
+        return posterior
+
+    @staticmethod
+    def _posterior__p_bm__l_bm(
+            prior: AnyBetaMap, likelihood: AnyBetaMap
+    ) -> AnyCalculationMap:
+        """
+        Calculate a Series of posterior probability calculations from a
+        Series of Beta-distributed priors and a single figure likelihood.
+
+        :param prior: Series of Beta-distributed priors.
+        :param likelihood: Series of Beta-distributed likelihoods.
+        :return: Series of posterior probability calculations.
+        """
+        lp_1: Series = prior * likelihood
+        lp_0: Series = (1 - prior) * (1 - likelihood)
+        posterior = lp_1 / (lp_1 + lp_0)
+        sync_context(posterior)
+        return posterior
+
+    def posterior(self) -> Union[
+        float, ProbabilityCalculationMixin, Series, AnyCalculationMap
+    ]:
         """
         Return samples from the posterior P(A|B).
         Columns are tuples of (a, b).
@@ -325,6 +399,30 @@ class BinaryBayesRule(BayesRule):
                 )
             elif is_any_beta_map(self._likelihood):
                 return BinaryBayesRule._posterior__p_fm__l_bm(
+                    prior=self._prior,
+                    likelihood=self._likelihood
+                )
+        elif is_any_beta_map(self._prior):
+            if (
+                    isinstance(self._likelihood, float) or
+                    isinstance(self._likelihood, int)
+            ):
+                return BinaryBayesRule._posterior__p_bm__l_f(
+                    prior=self._prior,
+                    likelihood=self._likelihood
+                )
+            elif is_any_numeric_map(self._likelihood):
+                return BinaryBayesRule._posterior__p_bm__l_fm(
+                    prior=self._prior,
+                    likelihood=self._likelihood
+                )
+            elif isinstance(self._likelihood, Beta):
+                return BinaryBayesRule._posterior__p_bm__l_b(
+                    prior=self._prior,
+                    likelihood=self._likelihood
+                )
+            elif is_any_beta_map(self._likelihood):
+                return BinaryBayesRule._posterior__p_bm__l_bm(
                     prior=self._prior,
                     likelihood=self._likelihood
                 )

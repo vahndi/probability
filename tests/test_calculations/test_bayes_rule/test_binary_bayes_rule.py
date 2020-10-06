@@ -14,6 +14,8 @@ class TestBinaryBayesRule(TestCase):
         self.prior_float = 0.3
         self.prior_beta = Beta(1 + 3, 1 + 7)
         self.prior_float_map = Series({'$100': 0.3, '$200': 0.2})
+        self.prior_beta_map = Series({'$100': Beta(1 + 3, 1 + 7),
+                                      '$200': Beta(1 + 2, 1 + 8)})
         self.likelihood_float = 0.8
         self.likelihood_float_map = Series({'$100': 0.8, '$200': 0.6})
         self.likelihood_beta = Beta(1 + 8, 1 + 2)
@@ -192,5 +194,69 @@ class TestBinaryBayesRule(TestCase):
                 f'({prior[key]} * {str(likelihood[key])}) / '
                 f'(({prior[key]} * {str(likelihood[key])}) + '
                 f'({1 - prior[key]} * (1 - {str(likelihood[key])})))',
+                posterior[key].name
+            )
+
+    def test_posterior__p_bm__l_f(self):
+
+        prior = self.prior_beta_map
+        likelihood = self.likelihood_float
+        posterior = BinaryBayesRule(
+            prior=prior,
+            likelihood=likelihood
+        ).posterior()
+        for key in self.prior_float_map.keys():
+            self.assertEqual(
+                f'({prior[key]} * {str(likelihood)}) / '
+                f'(({prior[key]} * {str(likelihood)}) + '
+                f'(({str(1 - prior[key])}) * {str(1 - likelihood)}))',
+                posterior[key].name
+            )
+
+    def test_posterior__p_bm__l_fm(self):
+
+        prior = self.prior_float_map
+        likelihood = self.likelihood_beta_map
+        posterior = BinaryBayesRule(
+            prior=prior,
+            likelihood=likelihood
+        ).posterior()
+        for key in self.prior_float_map.keys():
+            self.assertEqual(
+                f'({prior[key]} * {str(likelihood[key])}) / '
+                f'(({prior[key]} * {str(likelihood[key])}) + '
+                f'({1 - prior[key]} * (1 - {str(likelihood[key])})))',
+                posterior[key].name
+            )
+
+    def test_posterior__p_bm__l_b(self):
+
+        prior = self.prior_beta_map
+        likelihood = self.likelihood_beta
+        posterior = BinaryBayesRule(
+            prior=prior,
+            likelihood=likelihood
+        ).posterior()
+        for key in self.prior_beta_map.keys():
+            self.assertEqual(
+                f'({prior[key]} * {str(likelihood)}) / '
+                f'(({prior[key]} * {str(likelihood)}) + '
+                f'(({str(1 - prior[key])}) * (1 - {str(likelihood)})))',
+                posterior[key].name
+            )
+
+    def test_posterior__p_bm__l_bm(self):
+
+        prior = self.prior_beta_map
+        likelihood = self.likelihood_beta_map
+        posterior = BinaryBayesRule(
+            prior=prior,
+            likelihood=likelihood
+        ).posterior()
+        for key in self.prior_beta_map.keys():
+            self.assertEqual(
+                f'({prior[key]} * {str(likelihood[key])}) / '
+                f'(({prior[key]} * {str(likelihood[key])}) + '
+                f'(({str(1 - prior[key])}) * (1 - {str(likelihood[key])})))',
                 posterior[key].name
             )
