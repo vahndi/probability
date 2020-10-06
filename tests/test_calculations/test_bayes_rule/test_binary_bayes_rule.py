@@ -130,6 +130,24 @@ class TestBinaryBayesRule(TestCase):
                 posterior[key].name
             )
 
+    def test_posterior__p_fm__l_f(self):
+
+        posterior = BinaryBayesRule(
+            prior=self.prior_float_map,
+            likelihood=self.likelihood_float
+        ).posterior()
+        normalization = (
+            (self.prior_float_map * self.likelihood_float) +
+            ((1 - self.prior_float_map) * (1 - self.likelihood_float))
+        )
+        for key in self.prior_float_map.keys():
+            self.assertEqual(
+                self.prior_float_map[key] *
+                self.likelihood_float /
+                normalization[key],
+                posterior[key]
+            )
+
     def test_posterior__p_fm__l_fm(self):
 
         posterior = BinaryBayesRule(
@@ -143,4 +161,36 @@ class TestBinaryBayesRule(TestCase):
                 (prior * likelihood) /
                 ((prior * likelihood) + ((1 - prior) * (1 - likelihood))),
                 posterior[key]
+            )
+
+    def test_posterior__p_fm__l_b(self):
+
+        prior = self.prior_float_map
+        likelihood = self.likelihood_beta
+        posterior = BinaryBayesRule(
+            prior=prior,
+            likelihood=likelihood
+        ).posterior()
+        for key in self.prior_float_map.keys():
+            self.assertEqual(
+                f'({prior[key]} * {str(likelihood)}) / '
+                f'(({prior[key]} * {str(likelihood)}) + '
+                f'({1 - prior[key]} * (1 - {str(likelihood)})))',
+                posterior[key].name
+            )
+
+    def test_posterior__p_fm__l_bm(self):
+
+        prior = self.prior_float_map
+        likelihood = self.likelihood_beta_map
+        posterior = BinaryBayesRule(
+            prior=prior,
+            likelihood=likelihood
+        ).posterior()
+        for key in self.prior_float_map.keys():
+            self.assertEqual(
+                f'({prior[key]} * {str(likelihood[key])}) / '
+                f'(({prior[key]} * {str(likelihood[key])}) + '
+                f'({1 - prior[key]} * (1 - {str(likelihood[key])})))',
+                posterior[key].name
             )
