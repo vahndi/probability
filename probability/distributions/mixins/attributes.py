@@ -1,3 +1,12 @@
+"""
+Naming Convention: [Big]ST[D]Mixin
+
+Big = Is a capital letter
+S = Parameter name
+T = Data Type
+D = Has a distribution to reset
+"""
+
 from typing import Callable
 
 
@@ -70,6 +79,21 @@ class KIntMixin(object):
         self._k = value
 
 
+class BigKIntDMixin(object):
+
+    _K: int
+    _reset_distribution: Callable
+
+    @property
+    def K(self) -> float:
+        return self._K
+
+    @K.setter
+    def K(self, value: int):
+        self._K = value
+        self._reset_distribution()
+
+
 class LambdaFloatDMixin(object):
 
     _lambda: float
@@ -100,6 +124,21 @@ class MuFloatDMixin(object):
         self._reset_distribution()
 
 
+class BigMIntDMixin(object):
+
+    _M: int
+    _reset_distribution: Callable
+
+    @property
+    def M(self) -> float:
+        return self._M
+
+    @M.setter
+    def M(self, value: int):
+        self._M = value
+        self._reset_distribution()
+
+
 class NIntMixin(object):
 
     _n: int
@@ -125,6 +164,21 @@ class NIntDMixin(object):
     @n.setter
     def n(self, value: int):
         self._n = value
+        self._reset_distribution()
+
+
+class BigNIntDMixin(object):
+
+    _N: int
+    _reset_distribution: Callable
+
+    @property
+    def N(self) -> float:
+        return self._N
+
+    @N.setter
+    def N(self, value: int):
+        self._N = value
         self._reset_distribution()
 
 
