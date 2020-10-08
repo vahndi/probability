@@ -3,7 +3,7 @@ from unittest.case import TestCase
 from pandas import DataFrame
 
 from probability.calculations.bayes_rule import MultipleBayesRule
-from probability.discrete._old.joint import Joint
+from probability.discrete.discrete import Discrete
 
 
 class TestChapter01(TestCase):
@@ -16,13 +16,13 @@ class TestChapter01(TestCase):
         self.bowl_2_and_chocolate = 0.25
         self.bowl_2_and_vanilla = 0.25
         cookie_data = TestChapter01.make_cookies_observations()
-        self.cookies = Joint.from_observations(cookie_data)
+        self.cookies = Discrete.from_observations(cookie_data)
         self.vanilla = self.cookies.p(flavor='vanilla')
-        self.vanilla__bowl_1 = self.cookies.conditional(
+        self.vanilla__bowl_1 = self.cookies.given(
             bowl='bowl 1').p(flavor='vanilla')
-        self.vanilla__bowl_2 = self.cookies.conditional(
+        self.vanilla__bowl_2 = self.cookies.given(
             bowl='bowl 2').p(flavor='vanilla')
-        self.bowl = Joint.from_dict({
+        self.bowl = Discrete.from_probs({
             'bowl 1': 0.5, 'bowl 2': 0.5},
             variables=['bowl']
         )
@@ -30,15 +30,15 @@ class TestChapter01(TestCase):
         self.bowl_2 = self.bowl.p(bowl='bowl 2')
 
         # m & m's
-        self.mix_1994 = Joint.from_dict({
+        self.mix_1994 = Discrete.from_probs({
             'brown': 0.3, 'yellow': 0.2, 'red': 0.2,
             'green': 0.1, 'orange': 0.1, 'tan': 0.1
         }, variables='color')
-        self.mix_1996 = Joint.from_dict({
+        self.mix_1996 = Discrete.from_probs({
             'blue': 0.24, 'green': 0.2, 'orange': 0.16,
             'yellow': 0.14, 'red': 0.13, 'brown': 0.13
         }, variables='color')
-        self.bag = Joint.from_dict({1994: 0.5, 1996: 0.5}, variables='bag')
+        self.bag = Discrete.from_probs({1994: 0.5, 1996: 0.5}, variables='bag')
 
     @staticmethod
     def make_cookies_observations() -> DataFrame:
@@ -71,13 +71,13 @@ class TestChapter01(TestCase):
         bowl_1__vanilla = self.bowl_1 * self.vanilla__bowl_1 / self.vanilla
         self.assertEqual(0.6, bowl_1__vanilla)
         self.assertEqual(
-            0.6, self.cookies.conditional(flavor='vanilla').p(bowl='bowl 1')
+            0.6, self.cookies.given(flavor='vanilla').p(bowl='bowl 1')
         )
 
     def test__01_05(self):
 
         self.assertEqual(self.bowl_2, 0.5)
-        vanilla__bowl_2 = self.cookies.conditional(
+        vanilla__bowl_2 = self.cookies.given(
             bowl='bowl 2').p(flavor='vanilla')
         self.assertEqual(0.5, vanilla__bowl_2)
         vanilla = (

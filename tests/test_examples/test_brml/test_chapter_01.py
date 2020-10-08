@@ -37,7 +37,7 @@ class TestChapter01(TestCase):
             'Wales': 2_980_700
         })
         population_counts.index.name = 'country'
-        populations = Discrete.from_counts(counts=population_counts)
+        populations = Discrete.from_counts(data=population_counts)
         self.assertAlmostEqual(0.882, populations.p(country='England'), 3)
         self.assertAlmostEqual(0.074, populations.p(country='Scotland'), 3)
         self.assertAlmostEqual(0.043, populations.p(country='Wales'), 3)
@@ -48,14 +48,7 @@ class TestChapter01(TestCase):
         }, orient='columns')
         language_probs.index.name = 'language'
         language_probs.columns.name = 'country'
-        language__given__country = Conditional(
-            data=language_probs,
-            variables=['language', 'country'],
-            states={
-                'language': ['English', 'Scottish', 'Welsh'],
-                'country': ['England', 'Scotland', 'Wales']
-            }
-        )
+        language__given__country = Conditional(data=language_probs)
         self.assertIsInstance(language__given__country.data, DataFrame)
         self.assertListEqual(
             ['language'],
@@ -82,3 +75,69 @@ class TestChapter01(TestCase):
                 country__language.p(country=country, language=language),
                 3
             )
+
+    def test__example_1_2(self):
+
+        has_kj = Discrete.from_probs(
+            data={'yes': 1e-5, 'no': 1 - 1e-5},
+            variables='has_kj'
+        )
+        self.assertEqual(1e-5, has_kj.p(has_kj='yes'))
+        self.assertEqual(1 - 1e-5, has_kj.p(has_kj='no'))
+        eats_hbs__given__has_kj = Conditional.from_probs(
+            data={
+                ('yes', 'yes'): 0.9,
+                ('no', 'yes'): 0.1
+            },
+            joint_variables='eats_hbs',
+            conditional_variables='has_kj'
+        )
+        eats_hbs = Discrete.from_probs(
+            data={'yes': 0.5, 'no': 0.5},
+            variables='eats_hbs'
+        )
+        # 1
+        has_kj__given__eats_hbs = eats_hbs__given__has_kj * has_kj / eats_hbs
+        self.assertEqual(
+            1.8e-5,
+            has_kj__given__eats_hbs.p(has_kj='yes', eats_hbs='yes')
+        )
+        # 2
+        eats_hbs = Discrete.from_probs(
+            data={'yes': 0.001, 'no': 0.999},
+            variables='eats_hbs'
+        )
+        has_kj__given__eats_hbs = eats_hbs__given__has_kj * has_kj / eats_hbs
+        self.assertEqual(
+            9 / 1000,
+            has_kj__given__eats_hbs.p(has_kj='yes', eats_hbs='yes')
+        )
+
+    def test__example_1_3(self):
+
+        butler = Discrete.from_probs(
+            data={'yes': 0.6, 'no': 0.4}, variables='butler'
+        )
+        maid = Discrete.from_probs(
+            data={'yes': 0.2, 'no': 0.8}, variables='maid'
+        )
+        butler__and__maid = butler * maid
+        knife__given__butler__and__maid = Conditional.from_probs(data={
+                ('yes', 'no', 'no'): 0.3,
+                ('yes', 'no', 'yes'): 0.2,
+                ('yes', 'yes', 'no'): 0.6,
+                ('yes', 'yes', 'yes'): 0.1,
+                ('no', 'no', 'no'): 0.7,
+                ('no', 'no', 'yes'): 0.8,
+                ('no', 'yes', 'no'): 0.4,
+                ('no', 'yes', 'yes'): 0.9,
+            },
+            joint_variables='knife_used',
+            conditional_variables=['butler', 'maid']
+        )
+        butler__and__maid__and__knife = (
+            knife__given__butler__and__maid * butler__and__maid
+        )
+        butler__given__knife = butler__and__maid__and__knife.given(
+            knife_used='yes').p(butler='yes')
+        self.assertAlmostEqual(0.728, butler__given__knife, 3)
