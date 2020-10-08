@@ -1,7 +1,7 @@
 from itertools import product
 from typing import Union, List, Dict, overload, Optional
 
-from pandas import Series, DataFrame, MultiIndex
+from pandas import Series, DataFrame, MultiIndex, merge
 
 from probability.discrete.conditional import Conditional
 from probability.discrete.prob_utils import p, given, valid_name_comparator
@@ -217,10 +217,45 @@ class Discrete(object):
             )
         # calculate conditional distribution
         data = given(self._data, **given_conditions)
+        variables = [var for var in self._variables
+                     if var not in given_conditions.keys()]
+        states = {
+            variable: self._states[variable]
+            for variable in variables
+        }
         return Discrete(
+            data=data, variables=variables, states=states
+        )
+
+    def conditional(self, *conditionals) -> Conditional:
+        """
+        Return a Conditional table  the distribution on the conditional
+        variables.
+
+        :param conditionals: Names of variables to condition over every value of
+        """
+        col_names = self._data.index.names
+        joint_variables = [n for n in col_names if n not in conditionals]
+        variables = [n for n in col_names if n not in conditionals]
+        variables.extend([n for n in col_names if n in conditionals])
+        data = self._data.copy().rename('p_cond').reset_index()
+        conditionals = list(conditionals)
+        if conditionals:
+            # find total probabilities for each combination of unique values in
+            # the conditional variables e.g. P(C)
+            sums = data.groupby(conditionals).sum().reset_index()
+            # normalize each individual probability e.g. p(Ai,Bj,Ck,Dl) to
+            # probability of its conditional values p(Ck)
+            sums = sums[conditionals + ['p_cond']].rename(
+                columns={'p_cond': 'p_sum'})
+            merged = merge(left=data, right=sums, on=conditionals)
+            merged['p_cond'] = merged['p_cond'] / merged['p_sum']
+            data = merged[variables + ['p_cond']]
+        data = data.set_index(variables)['p_cond']
+        return Conditional.from_probs(
             data=data,
-            variables=self._variables,
-            states=self._states
+            joint_variables=joint_variables,
+            conditional_variables=conditionals
         )
 
     def __mul__(self, other: Union[Conditional, 'Discrete']) -> 'Discrete':

@@ -141,3 +141,30 @@ class TestChapter01(TestCase):
         butler__given__knife = butler__and__maid__and__knife.given(
             knife_used='yes').p(butler='yes')
         self.assertAlmostEqual(0.728, butler__given__knife, 3)
+
+    def test__example_1_4(self):
+
+        occupied__given__alice__and__bob = Conditional.from_probs({
+                (True, False, False): 1,
+                (True, False, True): 1,
+                (True, True, False): 1,
+                (True, True, True): 0,
+            },
+            joint_variables='occupied',
+            conditional_variables=['alice', 'bob']
+        )
+        alice__and__bob = Discrete.from_probs({
+            (False, False): 0.25,
+            (False, True): 0.25,
+            (True, False): 0.25,
+            (True, True): 0.25,
+        }, variables=['alice', 'bob'])
+        alice__and__bob__and__occupied = (
+            occupied__given__alice__and__bob * alice__and__bob
+        )
+        self.assertEqual(
+            1,
+            alice__and__bob__and__occupied.given(
+                alice=True, occupied=True
+            ).p(bob=False)
+        )
