@@ -1,3 +1,4 @@
+from itertools import product
 from unittest.case import TestCase
 
 from pandas import Series, Index, DataFrame
@@ -168,3 +169,56 @@ class TestChapter01(TestCase):
                 alice=True, occupied=True
             ).p(bob=False)
         )
+
+    def test__example_1_7(self):
+
+        c__given__a__and__b = Conditional.binary_from_probs(
+            data={
+                (0, 0): 0.1,
+                (0, 1): 0.99,
+                (1, 0): 0.8,
+                (1, 1): 0.25,
+            },
+            joint_variable='C',
+            conditional_variables=['A', 'B']
+        )
+        a = Discrete.binary(0.65, 'A')
+        b = Discrete.binary(0.77, 'B')
+        a__and__b = a * b
+        a__and__b__and__c = a__and__b * c__given__a__and__b
+        self.assertAlmostEqual(
+            0.8436,
+            a__and__b__and__c.given(C=0).p(A=1),
+            4
+        )
+
+    def test__1_3_1(self):
+
+        t = Discrete.from_observations(
+            data=DataFrame({
+                't': [s_a + s_b
+                      for s_a, s_b in product(range(1, 7), range(1, 7))]
+            })
+        )
+        s_a__s_b = Discrete.from_probs(
+            data={
+                (a, b): 1 / 36
+                for a, b in product(range(1, 7), range(1, 7))
+            },
+            variables=['s_a', 's_b']
+        )
+        t_9__given__s_a__s_b = Conditional.from_probs(
+            data={
+                (9, a, b): int(a + b == 9)
+                for a, b in product(range(1, 7), range(1, 7))
+            },
+            joint_variables=['t'],
+            conditional_variables=['s_a', 's_b']
+        )
+        t_9__s_a__s_b = t_9__given__s_a__s_b * s_a__s_b
+        t_9 = t_9__s_a__s_b / t.p(t=9)
+        for s_a, s_b in product(range(1, 6), range(1, 6)):
+            self.assertEqual(
+                t_9.p(s_a=s_a, s_b=s_b),
+                0.25 if s_a + s_b == 9 else 0
+            )
