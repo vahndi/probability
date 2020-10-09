@@ -4,10 +4,14 @@ from typing import Union, List, Dict, overload, Optional
 from pandas import Series, DataFrame, MultiIndex, merge
 
 from probability.discrete.conditional import Conditional
+from probability.discrete.mixins import StatesMixin
 from probability.discrete.prob_utils import p, given, valid_name_comparator
 
 
-class Discrete(object):
+class Discrete(
+    StatesMixin,
+    object
+):
 
     @overload
     def __init__(self, data: Series,
@@ -32,17 +36,12 @@ class Discrete(object):
         if isinstance(states, list):
             states = {self._variables[0]: states}
         self._states: Dict[str, list] = states
-        self._data.name = f'p({", ".join(self._variables)})'
+        self._data.name = f'p({",".join(self._variables)})'
 
     @property
     def variables(self) -> List[str]:
 
         return self._variables
-
-    @property
-    def states(self) -> Dict[str, list]:
-
-        return self._states
 
     @staticmethod
     def from_counts(
@@ -192,6 +191,18 @@ class Discrete(object):
             data=data, variables=variables, states=states
         )
 
+    @staticmethod
+    def binary(prob: float, variable: str):
+        """
+        Create a single variable binary probability.
+
+        :param prob: P(variable = 1)
+        :param variable: Name of variable.
+        """
+        return Discrete.from_probs(
+            {0: 1 - prob, 1: prob}, variables=variable
+        )
+
     @property
     def data(self) -> Series:
 
@@ -308,3 +319,7 @@ class Discrete(object):
             variables=data.index.names,
             states=self._states
         )
+
+    def __repr__(self):
+
+        return f'p({",".join(self._variables)})'

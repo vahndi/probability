@@ -111,3 +111,31 @@ class TestConditional(TestCase):
         )
         self.check_conditional(language__given__country)
         print(language__given__country)
+
+    def test_binary_from_probs(self):
+
+        c__a_b__1 = Conditional.from_probs(
+            data={
+                (1, 0, 0): 0.1,
+                (1, 0, 1): 0.99,
+                (1, 1, 0): 0.8,
+                (1, 1, 1): 0.25,
+                (0, 0, 0): 1 - 0.1,
+                (0, 0, 1): 1 - 0.99,
+                (0, 1, 0): 1 - 0.8,
+                (0, 1, 1): 1 - 0.25,
+            },
+            joint_variables='C',
+            conditional_variables=['A', 'B']
+        ).data
+        c__a_b__2 = Conditional.binary_from_probs(
+            data={
+                (0, 0): 0.1,
+                (0, 1): 0.99,
+                (1, 0): 0.8,
+                (1, 1): 0.25,
+            },
+            joint_variable='C',
+            conditional_variables=['A', 'B']
+        ).data
+        self.assertTrue(c__a_b__1.equals(c__a_b__2))

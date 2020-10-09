@@ -1,9 +1,14 @@
 from typing import List, Dict, Optional, Union
 
-from pandas import DataFrame, Series
+from pandas import DataFrame, Series, MultiIndex
+
+from probability.discrete.mixins import StatesMixin
 
 
-class Conditional(object):
+class Conditional(
+    StatesMixin,
+    object
+):
 
     def __init__(self,
                  data: DataFrame,
@@ -49,6 +54,10 @@ class Conditional(object):
                     ) for variable in self._conditional_variables
                 }
             }
+        else:
+            if set(states.keys()) != set(joint_variables +
+                                         conditional_variables):
+                raise ValueError('states must match variables')
         self._states: Dict[str, list] = states
 
     @staticmethod
@@ -58,7 +67,21 @@ class Conditional(object):
             conditional_variables: Union[str, List[str]],
             states: Optional[Dict[str, list]] = None
     ) -> 'Conditional':
+        """
+        Create a conditional probability table from a Series of data
+        probabilities.
+        N.B. for a distribution with j joint variables and c conditional
+        variables, index columns must be in the order:
+            [joint_1, ..., joint_j, conditional_1, .... conditional_c]
 
+        :param data: Series with joint and conditional variable states in the
+                     index, and p(joints|conditionals) as values.
+        :param joint_variables: Joint variable name or names.
+        :param conditional_variables: Conditional variable name or names.
+        :param states: Optional dictionary mapping variable names to their
+                       possible states. If not given, uses states present in the
+                       data.
+        """
         if isinstance(data, dict):
             data = Series(data)
         if isinstance(joint_variables, str):
@@ -84,6 +107,53 @@ class Conditional(object):
             states=states
         )
 
+    @staticmethod
+    def binary_from_probs(
+            data: Union[dict, Series],
+            joint_variable: str,
+            conditional_variables: Union[str, List[str]],
+            conditional_states: Optional[Dict[str, list]] = None
+    ) -> 'Conditional':
+        """
+        Create a conditional probability table for a binary variable e.g. B
+        using probabilities that p(B) = 1, given different values of the
+        conditional variables.
+
+        :param data: Series with conditional variable states in the index
+                     columns and p(B|C1, ...) = 1 for the values.
+        :param joint_variable: Name of the joint variable.
+        :param conditional_variables: Name(s) of the conditional variables.
+        :param conditional_states: Optional mapping of names of  conditional
+                                   variables to their possible states. If not
+                                   given, uses states present in the data.
+        """
+        if isinstance(data, dict):
+            data = Series(data)
+        joint_variables = [joint_variable]
+        if isinstance(conditional_variables, str):
+            conditional_variables = [conditional_variables]
+        binary_data = {}
+        for ix, value in data.items():
+            if isinstance(data.index, MultiIndex):
+                binary_data[tuple([1] + list(ix))] = value
+                binary_data[tuple([0] + list(ix))] = 1 - value
+            else:
+                binary_data[(ix, 1)] = value
+                binary_data[(ix, 0)] = 1 - value
+        if conditional_states is not None:
+            states = {
+                **conditional_states,
+                **{joint_variable: [0, 1]}
+            }
+        else:
+            states = None
+        return Conditional.from_probs(
+            data=binary_data,
+            joint_variables=joint_variables,
+            conditional_variables=conditional_variables,
+            states=states
+        )
+
     @property
     def data(self) -> DataFrame:
 
@@ -91,20 +161,27 @@ class Conditional(object):
 
     @property
     def joint_variables(self) -> List[str]:
-
+        """
+        Return a list of the names of the joint variables.
+        """
         return self._joint_variables
 
     @property
     def conditional_variables(self) -> List[str]:
-
+        """
+        Return a list of the names of the conditional variables.
+        """
         return self._conditional_variables
 
     @property
     def variables(self) -> List[str]:
-
+        """
+        Return a list of the names of all of the variables.
+        """
         return self._joint_variables + self._conditional_variables
 
-    @property
-    def states(self) -> Dict[str, list]:
+    def __repr__(self):
 
-        return self._states
+        str_joints = ','.join(self._joint_variables)
+        str_conds = ','.join(self._conditional_variables)
+        return f'p({str_joints}|{str_conds})'
