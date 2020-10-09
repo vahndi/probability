@@ -1,6 +1,9 @@
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, TYPE_CHECKING
 
 from pandas import DataFrame, Series, MultiIndex
+
+if TYPE_CHECKING:
+    from probability.discrete import Discrete
 
 from probability.discrete.mixins import StatesMixin
 
@@ -10,11 +13,13 @@ class Conditional(
     object
 ):
 
-    def __init__(self,
-                 data: DataFrame,
-                 joint_variables: Optional[Union[str, List[str]]] = None,
-                 conditional_variables: Optional[Union[str, List[str]]] = None,
-                 states: Optional[Dict[str, list]] = None):
+    def __init__(
+            self,
+            data: DataFrame,
+            joint_variables: Optional[Union[str, List[str]]] = None,
+            conditional_variables: Optional[Union[str, List[str]]] = None,
+            states: Optional[Dict[str, list]] = None
+    ):
 
         """
         Create a new Conditional Probability Table.
@@ -179,6 +184,49 @@ class Conditional(
         Return a list of the names of all of the variables.
         """
         return self._joint_variables + self._conditional_variables
+
+    def given(self, **given_conditions) -> Union['Conditional', 'Discrete']:
+        """
+        Condition on values of variables. If values are given for all
+        conditional variables, returns a Discrete distribution, otherwise
+        returns a Conditional with variables matching that subset of conditions.
+
+        :param given_conditions: Dict[{name}__{comparator}, value] for each
+                                 conditioned variable.
+        """
+        condition_names = given_conditions.keys()
+        if not set(condition_names).issubset(self._conditional_variables):
+            raise ValueError('given variables is not subset of conditions')
+        elif set(condition_names) == set(self._conditional_variables):
+            from probability.discrete import Discrete
+            selector = [given_conditions[variable]
+                        for variable in self._conditional_variables]
+            discrete_data = self._data[tuple(selector)]
+            return Discrete.from_probs(
+                data=discrete_data,
+                variables=self._joint_variables
+            )
+        else:
+            given_vars = list(given_conditions.keys())
+            selectors = [
+                col for col in self._data.columns
+                if all(
+                    col[
+                        self._conditional_variables.index(variable)
+                    ] == given_conditions[variable]
+                    for variable in given_vars
+                )
+            ]
+            cond_data = self._data[selectors]
+            drop_cols = given_vars if len(given_vars) > 1 else given_vars[0]
+            cond_data = cond_data.droplevel(drop_cols, axis=1)
+            cond_vars = [var for var in self._conditional_variables
+                         if var not in given_vars]
+            return Conditional(
+                data=cond_data,
+                joint_variables=self.joint_variables,
+                conditional_variables=cond_vars
+            )
 
     def __repr__(self):
 

@@ -2,6 +2,7 @@ from unittest.case import TestCase
 
 from pandas import Series, DataFrame
 
+from probability.discrete import Conditional
 from probability.discrete.discrete import Discrete
 
 
@@ -215,3 +216,42 @@ class TestDiscrete(TestCase):
             'green': 0.1, 'orange': 0.1, 'tan': 0.1
         }, variables='color')
         self.assertIsInstance(mix_1994, Discrete)
+
+    def test_conditional_all_variables(self):
+
+        expected = Discrete.binary(0, 'A_xor_B').data
+        xor = Conditional.binary_from_probs(
+            data={
+                (0, 0): 0,
+                (0, 1): 1,
+                (1, 0): 1,
+                (1, 1): 0,
+            },
+            joint_variable='A_xor_B',
+            conditional_variables=['A', 'B']
+        )
+        actual = xor.given(A=1, B=1).data
+        self.assertTrue(expected.equals(actual))
+
+    def test_conditional_one_variable(self):
+
+        expected = Conditional.binary_from_probs(
+            data={
+                0: 0,
+                1: 1,
+            },
+            joint_variable='A_xor_B',
+            conditional_variables='B'
+        ).data
+        xor = Conditional.binary_from_probs(
+            data={
+                (0, 0): 0,
+                (0, 1): 1,
+                (1, 0): 1,
+                (1, 1): 0,
+            },
+            joint_variable='A_xor_B',
+            conditional_variables=['A', 'B']
+        )
+        actual = xor.given(A=0).data
+        self.assertTrue(expected.equals(actual))
