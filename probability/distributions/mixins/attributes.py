@@ -10,6 +10,21 @@ D = Has a distribution to reset
 from typing import Callable
 
 
+class AFloatDMixin(object):
+
+    _a: float
+    _reset_distribution: Callable
+
+    @property
+    def a(self) -> float:
+        return self._a
+
+    @a.setter
+    def alpha(self, value: float):
+        self._a = value
+        self._reset_distribution()
+
+
 class AlphaFloatMixin(object):
 
     _alpha: float
@@ -35,6 +50,21 @@ class AlphaFloatDMixin(object):
     @alpha.setter
     def alpha(self, value: float):
         self._alpha = value
+        self._reset_distribution()
+
+
+class BFloatDMixin(object):
+
+    _b: float
+    _reset_distribution: Callable
+
+    @property
+    def b(self) -> float:
+        return self._b
+
+    @b.setter
+    def alpha(self, value: float):
+        self._b = value
         self._reset_distribution()
 
 
