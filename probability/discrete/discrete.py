@@ -269,17 +269,72 @@ class Discrete(
             conditional_variables=conditionals
         )
 
-    def __mul__(self, other: Union[Conditional, 'Discrete']) -> 'Discrete':
+    def marginal(self, *marginals) -> 'Discrete':
+        """
+        Marginalize the distribution over the variables not in args, leaving the
+        marginal probability of args.
+
+        :param marginals: Names of variables to put in the margin.
+        :return: Marginalized distribution.
+        """
+        if not set(marginals).issubset(self._variables):
+            raise ValueError('Marginals are not subset of variables.')
+        data = (
+            self._data.to_frame()
+                .groupby(list(marginals))[self._data.name]
+                .sum()
+        )
+        variables = [v for v in self._variables
+                     if v in marginals]
+        states = {
+            variable: self._states[variable]
+            for variable in variables
+        }
+        return Discrete(
+            data=data, variables=variables, states=states
+        )
+
+    def __mul__(
+            self, other: Union[Conditional, 'Discrete']
+    ) -> Union[Conditional, 'Discrete']:
         """
         Multiply by another Discrete or by a Conditional.
         """
         if isinstance(other, Conditional):
-            data = (other.data * self._data).unstack()
-            return Discrete(
-                data=data,
-                variables=data.index.names,
-                states=self._states
-            )
+            if not set(self._variables).issubset(other.conditional_variables):
+                raise ValueError('variables do not match.')
+            if set(other.conditional_variables) == set(self._variables):
+                data = (other.data * self._data).unstack()
+                return Discrete(
+                    data=data,
+                    variables=list(data.index.names),
+                    states={**self._states, **other._states}
+                )
+            else:
+                # stack by conditional variables of Conditional
+                stacked = other.data.stack(other.conditional_variables)
+                # stack by joint variables of discrete
+                unstacked = stacked.unstack()
+                # calculate new distribution
+                distribution = self._data * unstacked
+                # reshape for new conditional
+                reshaped: DataFrame = distribution.stack(self._variables).unstack(
+                    list(set(other.conditional_variables) -
+                         set(self._variables))
+                )
+                joints = sorted(reshaped.index.names)
+                conditionals = sorted(reshaped.columns.names)
+                if len(joints) > 1:
+                    reshaped = reshaped.reorder_levels(joints, axis=0)
+                if len(conditionals) > 1:
+                    reshaped = reshaped.reorder_levels(conditionals, axis=1)
+                reshaped = reshaped.sort_index()
+                return Conditional(
+                    data=reshaped,
+                    joint_variables=joints,
+                    conditional_variables=conditionals,
+                    states=other._states
+                )
         elif isinstance(other, Discrete):
             results = {}
             for (s1k, s1v), (s2k, s2v) in product(
