@@ -271,8 +271,8 @@ class Discrete(
 
     def marginal(self, *marginals) -> 'Discrete':
         """
-        Marginalize the distribution over the variables not in args, leaving the
-        marginal probability of args.
+        Marginalize the distribution over the variables not in args,
+        leaving the marginal probability of args.
 
         :param marginals: Names of variables to put in the margin.
         :return: Marginalized distribution.
@@ -304,7 +304,7 @@ class Discrete(
             if not set(self._variables).issubset(other.conditional_variables):
                 raise ValueError('variables do not match.')
             if set(other.conditional_variables) == set(self._variables):
-                data = (other.data * self._data).unstack()
+                data = (other.data * self._data).stack(self._variables)
                 return Discrete(
                     data=data,
                     variables=list(data.index.names),
@@ -313,12 +313,14 @@ class Discrete(
             else:
                 # stack by conditional variables of Conditional
                 stacked = other.data.stack(other.conditional_variables)
-                # stack by joint variables of discrete
-                unstacked = stacked.unstack()
+                # stack by joint variables of Discrete
+                unstacked = stacked.unstack(self._variables)
                 # calculate new distribution
                 distribution = self._data * unstacked
                 # reshape for new conditional
-                reshaped: DataFrame = distribution.stack(self._variables).unstack(
+                reshaped: DataFrame = distribution.stack(
+                    self._variables
+                ).unstack(
                     list(set(other.conditional_variables) -
                          set(self._variables))
                 )
