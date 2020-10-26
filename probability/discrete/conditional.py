@@ -1,6 +1,8 @@
+from itertools import chain, product, repeat
 from typing import List, Dict, Optional, Union, TYPE_CHECKING
 
-from pandas import DataFrame, Series, MultiIndex
+from numpy import product as np_product
+from pandas import DataFrame, Series, MultiIndex, concat
 
 if TYPE_CHECKING:
     from probability.discrete import Discrete
@@ -179,6 +181,14 @@ class Conditional(
         return self._conditional_variables
 
     @property
+    def conditional_states(self) -> Dict[str, list]:
+
+        return {
+            variable: self._states[variable]
+            for variable in self._conditional_variables
+        }
+
+    @property
     def variables(self) -> List[str]:
         """
         Return a list of the names of all of the variables.
@@ -233,3 +243,101 @@ class Conditional(
         str_joints = ','.join(self._joint_variables)
         str_conds = ','.join(self._conditional_variables)
         return f'p({str_joints}|{str_conds})'
+
+    def __mul__(self, other: 'Conditional'):
+
+        if not isinstance(other, Conditional):
+            return other * self
+
+        def expand_conditions(
+                data: DataFrame, new_states: Dict[str, list]
+        ) -> DataFrame:
+            """
+            Repeat the data for each state of the new_states dict.
+
+            :param data: Original data.
+            :param new_states: Dict mapping new variables to states.
+            """
+            num_additional_states = np_product([
+                len(values) for _, values in new_states.items()
+            ])
+            data_width = data.shape[1]
+            expanded_data = concat(
+                [data for _ in range(num_additional_states)],
+                axis=1
+            )
+            expanded_index = (
+                list(data.columns.values)
+                if isinstance(expanded_data.columns, MultiIndex)
+                else [(x,) for x in expanded_data.columns.values]
+            )
+            additional_index = list(chain.from_iterable(
+                repeat(x, data_width)
+                for x in list(product(*new_states.values()))
+            ))
+            new_names = list(new_states.keys()) + list(data.columns.names)
+            new_columns = [tuple(chain(ai, xi))
+                           for ai, xi in zip(additional_index, expanded_index)]
+            expanded_data.columns = MultiIndex.from_tuples(
+                tuples=new_columns, names=new_names
+            )
+            return expanded_data
+
+        # for each conditional that is only in one distribution,
+        # replicate the other distribution for each state in that conditional
+        self_conds = set(self._conditional_variables)
+        other_conds = set(other._conditional_variables)
+        if len(other_conds - self_conds) > 0:
+            self_data = expand_conditions(self._data, {
+                cond: other._states[cond]
+                for cond in other_conds
+                if cond not in self_conds
+            })
+        else:
+            self_data = self._data
+        if len(self_conds - other_conds) > 0:
+            other_data = expand_conditions(other._data, {
+                cond: self._states[cond]
+                for cond in self_conds
+                if cond not in other_conds
+            })
+        else:
+            other_data = other._data
+
+        # multiply joint variables as if it were a joint distribution
+        results = {}
+        for d1_states, d1_values in self_data.iterrows():
+            for d2_states, d2_values in other_data.iterrows():
+                if isinstance(d1_states, tuple):
+                    k1 = [x for x in d1_states]
+                else:
+                    k1 = [d1_states]
+                if isinstance(d2_states, tuple):
+                    k2 = [x for x in d2_states]
+                else:
+                    k2 = [d2_states]
+                key = tuple(k1 + k2)
+                results[key] = d1_values * d2_values
+        data = DataFrame(results).T
+        data.index.names = (
+            list(self_data.index.names) +
+            list(other_data.index.names)
+        )
+        data = data.reorder_levels(sorted(data.index.names), axis=0)
+        data = data.reorder_levels(sorted(data.columns.names), axis=1)
+        new_joints = list(data.index.names)
+        new_conds = list(data.columns.names)
+        new_states = {
+            variable: (
+                self._states[variable]
+                if variable in self._states.keys()
+                else other._states[variable]
+            )
+            for variable in set(new_joints + new_conds)
+        }
+        return Conditional(
+            data=data,
+            joint_variables=new_joints,
+            conditional_variables=new_conds,
+            states=new_states
+        )

@@ -243,7 +243,7 @@ class Discrete(
         Return a Conditional table  the distribution on the conditional
         variables.
 
-        :param conditionals: Names of variables to condition over every value of
+        :param conditionals: Names of variables to condition over each value of.
         """
         col_names = self._data.index.names
         joint_variables = [n for n in col_names if n not in conditionals]
@@ -339,19 +339,19 @@ class Discrete(
                 )
         elif isinstance(other, Discrete):
             results = {}
-            for (s1k, s1v), (s2k, s2v) in product(
+            for (d1_state, d1_value), (d2_state, d2_value) in product(
                 self._data.items(), other._data.items()
             ):
-                if isinstance(s1k, tuple):
-                    k1 = [x for x in s1k]
+                if isinstance(d1_state, tuple):
+                    k1 = [x for x in d1_state]
                 else:
-                    k1 = [s1k]
-                if isinstance(s2k, tuple):
-                    k2 = [x for x in s2k]
+                    k1 = [d1_state]
+                if isinstance(d2_state, tuple):
+                    k2 = [x for x in d2_state]
                 else:
-                    k2 = [s2k]
+                    k2 = [d2_state]
                 key = tuple(k1 + k2)
-                results[key] = s1v * s2v
+                results[key] = d1_value * d2_value
             data = Series(results)
             variables = (
                 list(self._data.index.names) +
