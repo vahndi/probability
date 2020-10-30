@@ -3,7 +3,8 @@ from scipy.stats import lomax, rv_continuous
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
-from probability.distributions.mixins.rv_continuous_1d_mixin import RVContinuous1dMixin
+from probability.distributions.mixins.rv_continuous_1d_mixin import \
+    RVContinuous1dMixin
 
 
 class Lomax(

@@ -2,7 +2,8 @@ from scipy.stats import geom, rv_discrete
 
 from probability.distributions.mixins.attributes import PFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
-from probability.distributions.mixins.rv_discrete_1d_mixin import RVDiscrete1dMixin
+from probability.distributions.mixins.rv_discrete_1d_mixin import \
+    RVDiscrete1dMixin
 
 
 class Geometric(
