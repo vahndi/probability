@@ -93,8 +93,20 @@ class _InvGammaNormalConjugate(ConjugateMixin, object):
 
     def __str__(self):
 
-        return f'InvGammaNormal(α={self._alpha}, β={self._beta}, μ={self._mu}, n={self.n})'
+        return (
+            f'InvGammaNormal('
+            f'α={self._alpha}, '
+            f'β={self._beta}, '
+            f'μ={self._mu}, '
+            f'n={self.n})'
+        )
 
     def __repr__(self):
 
-        return f'InvGammaNormal(alpha={self._alpha}, beta={self._beta}, mu={self._mu}, n={self.n})'
+        return (
+            f'InvGammaNormal('
+            f'alpha={self._alpha}, '
+            f'beta={self._beta}, '
+            f'mu={self._mu}, '
+            f'n={self.n})'
+        )

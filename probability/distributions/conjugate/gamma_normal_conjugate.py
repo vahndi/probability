@@ -89,7 +89,20 @@ class _GammaNormalConjugate(ConjugateMixin, object):
         ).with_x_label('τ').prepend_to_label('Posterior: ')
 
     def __str__(self):
-        return f'GammaNormal(α={self._alpha}, β={self._beta}, μ={self._mu}, n={self.n})'
+
+        return (
+            f'GammaNormal('
+            f'α={self._alpha}, '
+            f'β={self._beta}, '
+            f'μ={self._mu}, '
+            f'n={self.n})'
+        )
 
     def __repr__(self):
-        return f'GammaNormal(alpha={self._alpha}, beta={self._beta}, mu={self._mu}, n={self.n})'
+        return (
+            f'GammaNormal('
+            f'alpha={self._alpha}, '
+            f'beta={self._beta}, '
+            f'mu={self._mu}, '
+            f'n={self.n})'
+        )

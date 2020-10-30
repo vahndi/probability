@@ -13,16 +13,22 @@ from probability.utils import none_are_none, all_are_none
 class _NormalNormalConjugate(ConjugateMixin, object):
 
     @overload
-    def __init__(self, mu_0: float, sigma_sq_0: float, sigma_sq: float, x: Array1d):
+    def __init__(
+            self, mu_0: float, sigma_sq_0: float, sigma_sq: float, x: Array1d
+    ):
         pass
 
     @overload
     def __init__(self, mu_0: float, tau_0: float, tau: float, x: Array1d):
         pass
 
-    def __init__(self, mu_0: float, x: Array1d,
-                 sigma_sq_0: Optional[float] = None, sigma_sq: Optional[float] = None,
-                 tau_0: Optional[float] = None, tau: Optional[float] = None):
+    def __init__(
+            self, mu_0: float, x: Array1d,
+            sigma_sq_0: Optional[float] = None,
+            sigma_sq: Optional[float] = None,
+            tau_0: Optional[float] = None,
+            tau: Optional[float] = None
+    ):
 
         assert (
             none_are_none(sigma_sq_0, sigma_sq) and all_are_none(tau_0, tau)
@@ -130,13 +136,33 @@ class _NormalNormalConjugate(ConjugateMixin, object):
     def __str__(self):
 
         if self._parameterization == 'μ₀σ₀²σ²':
-            return f'NormalNormal(μ₀={self._mu_0}, σ₀²={self._sigma_sq_0}, σ²={self._sigma_sq})'
+            return (
+                f'NormalNormal('
+                f'μ₀={self._mu_0}, '
+                f'σ₀²={self._sigma_sq_0}, '
+                f'σ²={self._sigma_sq})'
+            )
         elif self._parameterization == 'μ₀τ₀τ':
-            return f'NormalNormal(μ₀={self._mu_0}, τ₀={self.tau_0}, τ={self.tau})'
+            return (
+                f'NormalNormal('
+                f'μ₀={self._mu_0}, '
+                f'τ₀={self.tau_0}, '
+                f'τ={self.tau})'
+            )
 
     def __repr__(self):
 
         if self._parameterization == 'μ₀σ₀²σ²':
-            return f'NormalNormal(mu_0={self._mu_0}, sigma_sq_0={self._sigma_sq_0}, sigma_sq={self._sigma_sq})'
+            return (
+                f'NormalNormal('
+                f'mu_0={self._mu_0}, '
+                f'sigma_sq_0={self._sigma_sq_0}, '
+                f'sigma_sq={self._sigma_sq})'
+            )
         elif self._parameterization == 'μ₀τ₀τ':
-            return f'NormalNormal(mu_0={self._mu_0}, tau_0={self.tau_0}, tau={self.tau})'
+            return (
+                f'NormalNormal('
+                f'mu_0={self._mu_0}, '
+                f'tau_0={self.tau_0}, '
+                f'tau={self.tau})'
+            )
