@@ -235,11 +235,10 @@ class BetaBinomialConjugate(
         """
         if isinstance(prob_vars, str):
             prob_vars = [prob_vars]
-        if len(prob_vars) > 1:
-            if not all(is_binomial(data[prob_var]) for prob_var in prob_vars):
-                raise ValueError(
-                    'If passing more than one prob_var, each must be binomial'
-                )
+        if not all(is_binomial(data[prob_var]) for prob_var in prob_vars):
+            raise ValueError(
+                'If passing more than one prob_var, each must be binomial'
+            )
         if isinstance(cond_vars, str):
             cond_vars = [cond_vars]
         cond_products = product(
@@ -260,40 +259,20 @@ class BetaBinomialConjugate(
                 cond_dict[cond_var] = cond_value
             n_cond: int = len(cond_data)
             for prob_var in prob_vars:
-                if is_binomial(data[prob_var]):
-                    # one or more binomial columns
-                    prob_dict = cond_dict.copy()
-                    m_prob: int = cond_data[prob_var].sum()
-                    prob_dict['prob_var'] = prob_var
-                    prob_dict['prob_val'] = 1
-                    posterior = BetaBinomialConjugate(
-                        alpha=alpha, beta=beta,
-                        n=n_cond, k=m_prob
-                    ).posterior()
-                    prob_dict['Beta'] = posterior
-                    for stat in stats:
-                        prob_dict = {**prob_dict,
-                                     ** posterior.stat(stat, True)}
-                    betas.append(prob_dict)
-                else:
-                    # single multinomial column
-                    for state in data[prob_var].unique():
-                        prob_dict = cond_dict.copy()
-                        m_prob = len(cond_data.loc[
-                            cond_data[prob_var] == state,
-                            prob_var
-                        ])
-                        prob_dict['prob_var'] = prob_var
-                        prob_dict['prob_val'] = state
-                        posterior = BetaBinomialConjugate(
-                            alpha=alpha, beta=beta,
-                            n=n_cond, k=m_prob
-                        ).posterior()
-                        prob_dict['Beta'] = posterior
-                        for stat in stats:
-                            prob_dict = {**prob_dict,
-                                         **posterior.stat(stat, True)}
-                        betas.append(prob_dict)
+                # one or more binomial columns
+                prob_dict = cond_dict.copy()
+                m_prob: int = cond_data[prob_var].sum()
+                prob_dict['prob_var'] = prob_var
+                prob_dict['prob_val'] = 1
+                posterior = BetaBinomialConjugate(
+                    alpha=alpha, beta=beta,
+                    n=n_cond, k=m_prob
+                ).posterior()
+                prob_dict['Beta'] = posterior
+                for stat in stats:
+                    prob_dict = {**prob_dict,
+                                 ** posterior.stat(stat, True)}
+                betas.append(prob_dict)
 
         betas_data = DataFrame(betas)
 
