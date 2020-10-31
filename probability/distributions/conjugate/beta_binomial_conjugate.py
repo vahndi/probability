@@ -14,7 +14,7 @@ from probability.distributions.mixins.attributes import AlphaFloatMixin, \
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
     PredictiveMixin
 from probability.supports import SUPPORT_BETA
-from probability.utils import is_binomial
+from probability.utils import is_binary
 
 
 class BetaBinomialConjugate(
@@ -214,7 +214,7 @@ class BetaBinomialConjugate(
         distributions of posteriors most likely to generate the given data.
 
         :param data: DataFrame containing discrete data.
-        :param prob_vars: Name(s) of binomial (or name of multinomial) variables
+        :param prob_vars: Name(s) of binary variables
                           whose posteriors to find probability of.
         :param cond_vars: Names of discrete variables to condition on.
                           Calculations will be done for the cartesian product
@@ -235,10 +235,8 @@ class BetaBinomialConjugate(
         """
         if isinstance(prob_vars, str):
             prob_vars = [prob_vars]
-        if not all(is_binomial(data[prob_var]) for prob_var in prob_vars):
-            raise ValueError(
-                'If passing more than one prob_var, each must be binomial'
-            )
+        if not all(is_binary(data[prob_var]) for prob_var in prob_vars):
+            raise ValueError('Prob vars must be binary valued')
         if isinstance(cond_vars, str):
             cond_vars = [cond_vars]
         cond_products = product(

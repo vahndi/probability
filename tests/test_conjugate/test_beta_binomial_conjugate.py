@@ -28,7 +28,7 @@ class TestBetaBinomialConjugate(TestCase):
         actual = BetaBinomialConjugate.infer_posterior(self.series)
         self.assertEqual(expected, actual)
 
-    def test_infer_posteriors_binomial(self):
+    def test_infer_posteriors(self):
 
         b__0_3 = Beta(1 + 0, 1 + 3)
         b__1_2 = Beta(1 + 1, 1 + 2)
@@ -63,7 +63,7 @@ class TestBetaBinomialConjugate(TestCase):
             ].iloc[0]
             self.assertTrue(row['Beta'] == actual_beta)
 
-    def test_infer_posteriors_binomial_with_stats(self):
+    def test_infer_posteriors_with_stats(self):
 
         b__0_3 = Beta(1 + 0, 1 + 3)
         b__1_2 = Beta(1 + 1, 1 + 2)

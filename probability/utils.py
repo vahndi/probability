@@ -36,7 +36,7 @@ def any_are_none(*args) -> bool:
     return any([arg is None for arg in args])
 
 
-def is_binomial(data: Series) -> bool:
+def is_binary(data: Series) -> bool:
 
     return (
         set(data.unique()).issubset({0, 1})

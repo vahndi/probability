@@ -1,6 +1,9 @@
+from itertools import product
+from typing import Union, List, Optional
+
 from matplotlib.figure import Figure
 from mpl_format.figures import FigureFormatter
-from pandas import Series
+from pandas import Series, DataFrame
 
 from probability.distributions import Beta
 from probability.distributions.conjugate.priors import UniformPrior
@@ -9,6 +12,7 @@ from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.mixins.attributes import AlphaFloatMixin, \
     BetaFloatMixin, NIntMixin, KIntMixin
 from probability.supports import SUPPORT_BETA
+from probability.utils import is_binary
 
 
 class BetaGeometricConjugate(
@@ -148,6 +152,80 @@ class BetaGeometricConjugate(
             n=num_experiments,
             k=num_trials
         ).posterior()
+
+    @staticmethod
+    def infer_posteriors(
+            data: DataFrame,
+            prob_vars: Union[str, List[str]],
+            cond_vars: Union[str, List[str]],
+            stats: Optional[Union[str, dict, List[Union[str, dict]]]] = None,
+            alpha: float = UniformPrior.Geometric.alpha,
+            beta: float = UniformPrior.Geometric.beta
+    ) -> DataFrame:
+        """
+        Return a DataFrame mapping probability and conditional variables to Beta
+        distributions of posteriors most likely to generate the given data.
+
+        :param data: DataFrame containing discrete data.
+        :param prob_vars: Name(s) of binary variables
+                          whose posteriors to find probability of.
+        :param cond_vars: Names of discrete variables to condition on.
+                          Calculations will be done for the cartesian product
+                          of variable values
+                          e.g if cA={1,2} and cB={3,4} then
+                          cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
+        :param stats: Optional stats to append to the output e.g. 'alpha',
+                      'median'. To pass arguments use a dict mapping stat
+                      name to iterable of args.
+        :param alpha: Value for the α hyper-parameter of each prior Beta
+                      distribution.
+        :param beta: Value for the β hyper-parameter of each prior Beta
+                     distribution.
+        :return: DataFrame with columns for each conditioning variable,
+                 a 'prob_var' column indicating the probability variable,
+                 a `prob_val` column indicating the value of the probability
+                 variable, and a `Beta` column containing the distribution.
+        """
+        if isinstance(prob_vars, str):
+            prob_vars = [prob_vars]
+        if not all(is_binary(data[prob_var]) for prob_var in prob_vars):
+            raise ValueError('Prob vars must be binary valued')
+        if isinstance(cond_vars, str):
+            cond_vars = [cond_vars]
+        cond_products = product(
+            *[data[cond_var].unique() for cond_var in cond_vars]
+        )
+        if stats is not None:
+            if isinstance(stats, str) or isinstance(stats, dict):
+                stats = [stats]
+        else:
+            stats = []
+        geoms = []
+        # iterate over conditions
+        for cond_values in cond_products:
+            cond_data = data
+            cond_dict = {}
+            for cond_var, cond_value in zip(cond_vars, cond_values):
+                cond_data = cond_data.loc[cond_data[cond_var] == cond_value]
+                cond_dict[cond_var] = cond_value
+            for prob_var in prob_vars:
+                # one or more binomial columns
+                prob_dict = cond_dict.copy()
+                prob_dict['prob_var'] = prob_var
+                prob_dict['prob_val'] = 1
+                posterior = BetaGeometricConjugate.infer_posterior(
+                    alpha=alpha, beta=beta,
+                    data=cond_data[prob_var]
+                )
+                prob_dict['Geometric'] = posterior
+                for stat in stats:
+                    prob_dict = {**prob_dict,
+                                 ** posterior.stat(stat, True)}
+                geoms.append(prob_dict)
+
+        geoms_data = DataFrame(geoms)
+
+        return geoms_data
 
     def __str__(self):
 
