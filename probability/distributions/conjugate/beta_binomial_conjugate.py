@@ -70,6 +70,8 @@ class BetaBinomialConjugate(
         self._n: int = n
         self._k: int = k
 
+    # region posterior hyper-parameters
+
     @property
     def alpha_prime(self) -> float:
         return self._alpha + self._k
@@ -77,6 +79,8 @@ class BetaBinomialConjugate(
     @property
     def beta_prime(self) -> float:
         return self._beta + self._n - self._k
+
+    # endregion
 
     def prior(self) -> Beta:
         return Beta(
@@ -94,6 +98,8 @@ class BetaBinomialConjugate(
             alpha=self.alpha_prime,
             beta=self.beta_prime
         ).with_y_label('$P(p=x|α+k,β+n-k)$').prepend_to_label('Posterior: ')
+
+    # region predictive
 
     def prior_predictive(self, n_: Optional[int] = None) -> BetaBinomial:
         """
@@ -126,6 +132,8 @@ class BetaBinomialConjugate(
             alpha=self.alpha_prime,
             beta=self.beta_prime
         ).with_y_label(r'$P(\tilde{X}=k|\tilde{n},α+k,β+n-k)$')
+
+    # endregion
 
     def plot(self, n_, **kwargs) -> Figure:
         """
@@ -173,23 +181,31 @@ class BetaBinomialConjugate(
         return ff.figure
 
     @staticmethod
-    def infer_posterior(data: Series) -> Beta:
+    def infer_posterior(data: Series,
+                        alpha: float = 1, beta: float = 1) -> Beta:
         """
         Return a new Beta distribution of the posterior most likely to generate
         the given data.
 
         :param data: Series of `1`s and `0`s or `True`s and `False`s
+        :param alpha: Value for the α hyper-parameter of the prior Beta
+                      distribution.
+        :param beta: Value for the β hyper-parameter of the prior Beta
+                     distribution.
         """
-        alpha: int = data.sum()
-        beta: int = len(data) - alpha
-        return Beta(alpha=alpha, beta=beta)
+        return BetaBinomialConjugate(
+            alpha=alpha, beta=beta,
+            n=len(data), k=data.sum()
+        ).posterior()
 
     @staticmethod
     def infer_posteriors(
             data: DataFrame,
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
-            stats: Optional[Union[str, dict, List[Union[str, dict]]]] = None
+            stats: Optional[Union[str, dict, List[Union[str, dict]]]] = None,
+            alpha: float = 1,
+            beta: float = 1
     ) -> DataFrame:
         """
         Return a DataFrame mapping probability and conditional variables to Beta
@@ -206,9 +222,13 @@ class BetaBinomialConjugate(
         :param stats: Optional stats to append to the output e.g. 'alpha',
                       'median'. To pass arguments use a dict mapping stat
                       name to iterable of args.
-        :return: DataFrame with columns for each conditioning variable, a
-                 'prob_var' column indicating the probability variable, a
-                 `prob_val` column indicating the value of the probability
+        :param alpha: Value for the α hyper-parameter of each prior Beta
+                      distribution.
+        :param beta: Value for the β hyper-parameter of each prior Beta
+                     distribution.
+        :return: DataFrame with columns for each conditioning variable,
+                 a 'prob_var' column indicating the probability variable,
+                 a `prob_val` column indicating the value of the probability
                  variable, and a `Beta` column containing the distribution.
         """
         if isinstance(prob_vars, str):
@@ -244,10 +264,14 @@ class BetaBinomialConjugate(
                     m_prob: int = cond_data[prob_var].sum()
                     prob_dict['prob_var'] = prob_var
                     prob_dict['prob_val'] = 1
-                    beta = Beta(alpha=m_prob, beta=n_cond - m_prob)
-                    prob_dict['Beta'] = beta
+                    posterior = BetaBinomialConjugate(
+                        alpha=alpha, beta=beta,
+                        n=n_cond, k=m_prob
+                    ).posterior()
+                    prob_dict['Beta'] = posterior
                     for stat in stats:
-                        prob_dict = {**prob_dict, ** beta.stat(stat, True)}
+                        prob_dict = {**prob_dict,
+                                     ** posterior.stat(stat, True)}
                     betas.append(prob_dict)
                 else:
                     # single multinomial column
@@ -259,10 +283,14 @@ class BetaBinomialConjugate(
                         ])
                         prob_dict['prob_var'] = prob_var
                         prob_dict['prob_val'] = state
-                        beta = Beta(alpha=m_prob, beta=n_cond - m_prob)
-                        prob_dict['Beta'] = beta
+                        posterior = BetaBinomialConjugate(
+                            alpha=alpha, beta=beta,
+                            n=n_cond, k=m_prob
+                        ).posterior()
+                        prob_dict['Beta'] = posterior
                         for stat in stats:
-                            prob_dict = {**prob_dict, **beta.stat(stat, True)}
+                            prob_dict = {**prob_dict,
+                                         **posterior.stat(stat, True)}
                         betas.append(prob_dict)
 
         betas_data = DataFrame(betas)
