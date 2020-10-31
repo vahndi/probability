@@ -77,7 +77,7 @@ class BetaGeometricConjugate(
         ).with_y_label('$P(p=x|α,β)$').prepend_to_label('Prior: ')
 
     def likelihood(self) -> Geometric:
-        return Geometric(p=1 / self._k)
+        return Geometric(p=self._n / self._k)
 
     def posterior(self) -> Beta:
         return Beta(
