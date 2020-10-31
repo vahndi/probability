@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 from mpl_format.figures.figure_formatter import FigureFormatter
 from pandas import Series, DataFrame
 
+from probability.distributions import UniformPrior
 from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.discrete.beta_binomial import BetaBinomial
@@ -182,7 +183,8 @@ class BetaBinomialConjugate(
 
     @staticmethod
     def infer_posterior(data: Series,
-                        alpha: float = 1, beta: float = 1) -> Beta:
+                        alpha: float = UniformPrior.Binomial.alpha,
+                        beta: float = UniformPrior.Binomial.beta) -> Beta:
         """
         Return a new Beta distribution of the posterior most likely to generate
         the given data.
@@ -204,8 +206,8 @@ class BetaBinomialConjugate(
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
             stats: Optional[Union[str, dict, List[Union[str, dict]]]] = None,
-            alpha: float = 1,
-            beta: float = 1
+            alpha: float = UniformPrior.Binomial.alpha,
+            beta: float = UniformPrior.Binomial.beta
     ) -> DataFrame:
         """
         Return a DataFrame mapping probability and conditional variables to Beta

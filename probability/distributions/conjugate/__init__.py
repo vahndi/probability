@@ -1,6 +1,7 @@
 from probability.distributions.conjugate.beta_binomial_conjugate import BetaBinomialConjugate
-from probability.distributions.conjugate._dirichlet_multinomial_conjugate import _DirichletMultinomialConjugate
 from probability.distributions.conjugate.gamma_exponential_conjugate import GammaExponentialConjugate
-from probability.distributions.conjugate._gamma_normal_conjugate import _GammaNormalConjugate
-from probability.distributions.conjugate._inv_gamma_normal_conjugate import _InvGammaNormalConjugate
-from probability.distributions.conjugate._normal_normal_conjugate import _NormalNormalConjugate
+
+from probability.distributions.conjugate.priors import UniformPrior
+from probability.distributions.conjugate.priors import JeffreysPrior
+from probability.distributions.conjugate.priors import ReferencePrior
+from probability.distributions.conjugate.priors import MDIPrior
