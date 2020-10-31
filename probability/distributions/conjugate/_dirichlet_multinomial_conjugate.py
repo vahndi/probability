@@ -168,7 +168,7 @@ class _DirichletMultinomialConjugate(ConjugateMixin, object):
         :param cond_vars: Names of discrete variables to condition on.
                           Calculations will be done for the cartesian product
                           of variable values
-                          e.g if cA={1,2} and cB={3,4} then
+                          e.g if cA = {1, 2} and cB = {3, 4} then
                           cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
         :param stats: Optional stats to append to the output e.g. 'alpha',
                       'mean'.

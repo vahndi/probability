@@ -3,7 +3,7 @@ from unittest.case import TestCase
 from pandas import DataFrame, Series
 
 from probability.distributions import Dirichlet
-from probability.distributions.conjugate.dirichlet_multinomial_conjugate import \
+from probability.distributions.conjugate._dirichlet_multinomial_conjugate import \
     _DirichletMultinomialConjugate
 
 
