@@ -5,7 +5,7 @@ from matplotlib.figure import Figure
 from mpl_format.figures.figure_formatter import FigureFormatter
 from pandas import Series, DataFrame
 
-from probability.distributions import UniformPrior
+from probability.distributions.conjugate.priors import UniformPrior
 from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete import Binomial
 from probability.distributions.discrete.beta_binomial import BetaBinomial

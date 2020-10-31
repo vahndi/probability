@@ -3,6 +3,7 @@ from mpl_format.figures import FigureFormatter
 from pandas import Series
 
 from probability.distributions import Beta
+from probability.distributions.conjugate.priors import UniformPrior
 from probability.distributions.discrete.geometric import Geometric
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.mixins.attributes import AlphaFloatMixin, \
@@ -24,11 +25,14 @@ class BetaGeometricConjugate(
     * `α` and `β` are the hyper-parameters of the Beta prior.
     * `α > 0`
     * `β > 0`
-    * Interpretation is α-1 experiments and β-1 failures.
+    * Interpretation is α experiments and β failures.
 
     Posterior Hyper-parameters
     --------------------------
-    * `k` is the number of trials until the first success.
+    * `k` is the number of trials up to and including the first success.
+      This is equal to the total number of observations across all experiments.
+    * `n` is the number of experiments (each experiment consists of one or more
+                                        trials)
 
     Model parameters
     ----------------
@@ -47,7 +51,7 @@ class BetaGeometricConjugate(
                       distribution. Number of experiments.
         :param beta: Value for the β hyper-parameter of the prior Beta
                      distribution.
-        :param n: Number of trials.
+        :param n: Number of experiments.
         :param k: Number of trials up to and including first success.
         """
         self._alpha: float = alpha
@@ -55,13 +59,17 @@ class BetaGeometricConjugate(
         self._n: int = n
         self._k: int = k
 
+    # region posterior hyper-parameters
+
     @property
     def alpha_prime(self) -> float:
         return self._alpha + self._n
 
     @property
     def beta_prime(self) -> float:
-        return self._beta + self._k
+        return self._beta + self._k - self._n
+
+    # endregion
 
     def prior(self) -> Beta:
         return Beta(
@@ -75,7 +83,7 @@ class BetaGeometricConjugate(
         return Beta(
             alpha=self.alpha_prime,
             beta=self.beta_prime
-        ).with_y_label('$P(p=x|α+n,β+k)$').prepend_to_label('Posterior: ')
+        ).with_y_label('$P(p=x|α+n,β+k-n)$').prepend_to_label('Posterior: ')
 
     def plot(self, **kwargs) -> Figure:
         """
@@ -108,6 +116,38 @@ class BetaGeometricConjugate(
         ax_likelihood.set_title_text('likelihood')
         ax_likelihood.add_legend()
         return ff.figure
+
+    @staticmethod
+    def infer_posterior(data: Series,
+                        alpha: float = UniformPrior.Geometric.alpha,
+                        beta: float = UniformPrior.Geometric.beta) -> Beta:
+        """
+        Return a new Beta distribution of the posterior most likely to generate
+        the given data.
+
+        Assumes that each experiment was completed such that the number of
+        # successes observed equals the number of experiments.
+
+        https://en.wikipedia.org/wiki/Geometric_distribution#Statistical_inference
+
+        :param data: Series of `1`s and `0`s or `True`s and `False`s
+                     The data represents a series of experiments where each
+                     experiment ends with an observation of 1 preceded by
+                     0 or more observations of 0.
+        :param alpha: Value for the α hyper-parameter of the prior Beta
+                      distribution.
+        :param beta: Value for the β hyper-parameter of the prior Beta
+                     distribution.
+        """
+        # assume that each experiment was completed such that the number of
+        # successes observed equals the number of experiments
+        num_experiments = data.sum()
+        num_trials = len(data)
+        return BetaGeometricConjugate(
+            alpha=alpha, beta=beta,
+            n=num_experiments,
+            k=num_trials
+        ).posterior()
 
     def __str__(self):
 
