@@ -2,11 +2,12 @@ from typing import Union, Iterable
 
 from mpl_toolkits.axes_grid1.mpl_axes import Axes
 from numpy import ndarray
-from pandas import Series
+from pandas import Series, DataFrame
 from scipy.stats import multivariate_normal
 from scipy.stats._multivariate import multi_rv_generic
 
-from probability.custom_types.external_custom_types import FloatArray1d
+from probability.custom_types.external_custom_types import FloatArray1d, \
+    FloatArray2d
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.rv_mixins import \
@@ -27,7 +28,7 @@ class MVNormal(
     """
     def __init__(self,
                  mu: Union[FloatArray1d, dict, Series],
-                 sigma: Union[FloatArray1d, dict, Series]):
+                 sigma: FloatArray2d):
         """
         Create a new multi-variate normal distribution.
 
@@ -43,8 +44,6 @@ class MVNormal(
 
         if isinstance(mu, dict) or isinstance(mu, Series):
             names = mu.keys()
-        elif isinstance(sigma, dict) or isinstance(sigma, Series):
-            names = sigma.keys()
         else:
             names = [f'x{k}' for k in range(1, len(mu) + 1)]
 
@@ -53,13 +52,10 @@ class MVNormal(
         elif not isinstance(mu, Series):
             mu = Series(data=mu, index=names)
 
-        if isinstance(sigma, dict):
-            sigma = Series(sigma)
-        elif not isinstance(sigma, Series):
-            sigma = Series(data=sigma, index=names)
-
         self._mu: Series = mu
-        self._sigma: Series = sigma
+        self._sigma: DataFrame = DataFrame(
+            data=sigma, index=names, columns=names
+        )
         self._set_names(names)
         self._num_dims = len(self._mu)
         self._reset_distribution()
@@ -79,11 +75,11 @@ class MVNormal(
         self._mu = value
 
     @property
-    def sigma(self) -> Series:
+    def sigma(self) -> DataFrame:
         return self._sigma
 
     @sigma.setter
-    def sigma(self, value: Series):
+    def sigma(self, value: DataFrame):
         self._sigma = value
 
     def plot_2d(self,
@@ -105,8 +101,8 @@ class MVNormal(
 
     def __str__(self):
 
-        return f'MVNormal(μ={self._mu}, Σ={self._sigma.tolist()})'
+        return f'MVNormal(μ={self._mu}, Σ={self._sigma.values})'
 
     def __repr__(self):
 
-        return f'MVNormal(mu={self._mu}, sigma={self._sigma.tolist()})'
+        return f'MVNormal(mu={self._mu}, sigma={self._sigma.values})'

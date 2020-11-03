@@ -3,14 +3,15 @@ from typing import Union, List, Optional
 
 from matplotlib.figure import Figure
 from mpl_format.figures import FigureFormatter
+from numpy.random import choice
 from pandas import Series, DataFrame
 
-from probability.distributions import Beta
 from probability.distributions.conjugate.priors import UniformPrior
+from probability.distributions.continuous.beta import Beta
 from probability.distributions.discrete.geometric import Geometric
-from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.mixins.attributes import AlphaFloatMixin, \
     BetaFloatMixin, NIntMixin, KIntMixin
+from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.supports import SUPPORT_BETA
 from probability.utils import is_binary
 
@@ -34,9 +35,9 @@ class BetaGeometricConjugate(
     Posterior Hyper-parameters
     --------------------------
     * `k` is the number of trials up to and including the first success.
-      This is equal to the total number of observations across all experiments.
+      This is equal to the total number of trials across all experiments.
     * `n` is the number of experiments (each experiment consists of one or more
-                                        trials)
+                                        trials, each ending with a success)
 
     Model parameters
     ----------------
@@ -49,14 +50,17 @@ class BetaGeometricConjugate(
     * https://en.wikipedia.org/wiki/Geometric_distribution
     * https://en.wikipedia.org/wiki/Conjugate_prior
     """
-    def __init__(self, alpha: float, beta: float, n: int, k: int):
+    def __init__(self, n: int, k: int,
+                 alpha: float = UniformPrior.Geometric.alpha,
+                 beta: float = UniformPrior.Geometric.beta):
         """
-        :param alpha: Value for the α hyper-parameter of the prior Beta
-                      distribution. Number of experiments.
-        :param beta: Value for the β hyper-parameter of the prior Beta
-                     distribution.
         :param n: Number of experiments.
-        :param k: Number of trials up to and including first success.
+        :param k: Number of trials up to and including each success.
+        :param alpha: Value for the α hyper-parameter of the prior Beta
+                      distribution. Number of prior experiments.
+        :param beta: Value for the β hyper-parameter of the prior Beta
+                     distribution. Number of prior failures
+                     ( = total trials - successful trials).
         """
         self._alpha: float = alpha
         self._beta: float = beta
@@ -106,17 +110,23 @@ class BetaGeometricConjugate(
 
         ax_prior.set_title_text('prior').add_legend()
         ax_posterior.set_title_text('posterior').add_legend()
-        ax_prior_predictive.set_title_text('prior predictive').add_legend()
+        ax_prior_predictive.set_title_text('prior predictive')
+        ax_prior_predictive.set_face_color('#bbb')
         ax_posterior_predictive.set_title_text(
             'posterior predictive'
-        ).add_legend()
+        )
+        ax_posterior_predictive.set_face_color('#bbb')
         # plot data
         observations = Series(data=[0] * (self._k - 1) + [1])
+        i_success = choice(a=range(self._k - 1),
+                           size=self._n - 1, replace=False)
+        observations.iloc[i_success] = 1
         observations.index = range(1, self._k + 1)
         observations.plot.bar(ax=ax_data.axes, **kwargs)
         ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
         # plot likelihood
         self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood.axes)
+        ax_likelihood.set_x_lim(0.5, None)
         ax_likelihood.set_title_text('likelihood')
         ax_likelihood.add_legend()
         return ff.figure

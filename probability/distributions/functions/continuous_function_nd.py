@@ -1,13 +1,14 @@
+from typing import overload, Iterable, Union, Optional
+
 from matplotlib.axes import Axes
 from matplotlib.tri import UniformTriRefiner, Triangulation
+from mpl_format.axes.axis_utils import new_axes
 from numpy import array, clip, dstack, meshgrid, ndarray
 from numpy.linalg import norm
 from numpy.ma import clip
-from pandas import Series, MultiIndex
+from pandas import Series, MultiIndex, DataFrame
 from scipy.stats import rv_continuous
-from typing import overload, Iterable, Union, Optional
-
-from mpl_format.axes.axis_utils import new_axes
+from seaborn import distplot
 
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableMixin
@@ -67,12 +68,34 @@ class ContinuousFunctionNd(object):
                 ), data=self._method(x), name=f'{self._name}({self._parent})'
             )
 
+    def plot(self,
+             ax: Optional[Axes] = None,
+             **kwargs) -> Axes:
+        """
+        Plot the marginal distribution of each component.
+
+        :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for plot method.
+        """
+        samples: DataFrame = self._parent.rvs(1_000_000)
+        for name in samples.columns:
+            distplot(a=samples[name], ax=ax, label=name,
+                     kde=True, hist=False, rug=False,
+                     **kwargs)
+        ax.legend()
+        return ax
+
     def plot_2d(self,
-                x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],
+                x1: Union[Iterable, ndarray],
+                x2: Union[Iterable, ndarray],
                 color_map: str = 'viridis', ax: Optional[Axes] = None,
                 **kwargs) -> Axes:
         """
         Plot a 2-dimensional function as a grid heat-map.
+
+        N.B. don't use for distributions where calculating the function for the
+        full range of x1 and x2 values would cause an error e.g. for a Dirichlet
+        where x1 + x2 must equal 1.
 
         :param x1: Range of values of x1 to plot p(x1, x2) over.
         :param x2: Range of values of x2 to plot p(x1, x2) over.
@@ -103,7 +126,6 @@ class ContinuousFunctionNd(object):
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for tricontourf method.
         """
-
         corners = array([[0, 0], [1, 0], [0.5, 0.75 ** 0.5]])
         triangle = Triangulation(corners[:, 0], corners[:, 1])
         mid_points = [

@@ -6,7 +6,7 @@ from probability.distributions.conjugate.beta_geometric_conjugate import \
 
 def plot_example():
 
-    bg = BetaGeometricConjugate(alpha=10, beta=5, n=100, k=30)
+    bg = BetaGeometricConjugate(alpha=5, beta=10, n=5, k=30)
     bg.plot()
 
 

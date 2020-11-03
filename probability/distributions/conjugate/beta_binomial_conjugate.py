@@ -55,16 +55,18 @@ class BetaBinomialConjugate(
     * https://en.wikipedia.org/wiki/Beta-binomial_distribution
     * https://en.wikipedia.org/wiki/Conjugate_prior
     """
-    def __init__(self, alpha: float, beta: float, n: int, k: int):
+    def __init__(self, n: int, k: int,
+                 alpha: float = UniformPrior.Binomial.alpha,
+                 beta: float = UniformPrior.Binomial.beta):
         """
         Create a new beta-binomial distribution.
 
+        :param n: Observed number of trials.
+        :param k: Observed number of successes.
         :param alpha: Value for the α hyper-parameter of the prior Beta
                       distribution.
         :param beta: Value for the β hyper-parameter of the prior Beta
                       distribution.
-        :param n: Observed number of trials.
-        :param k: Observed number of successes.
         """
         self._alpha: float = alpha
         self._beta: float = beta
