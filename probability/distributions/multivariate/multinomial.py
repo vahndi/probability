@@ -1,10 +1,14 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Iterable, Optional
 
+from matplotlib.axes import Axes
+from numpy.core.records import ndarray
 from pandas import Series
 from scipy.stats import rv_discrete, multinomial
 
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.discrete import Binomial
+from probability.distributions.functions.discrete_function_nd import \
+    DiscreteFunctionNd
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.rv_mixins import EntropyMixin, \
@@ -17,6 +21,7 @@ class Multinomial(
     RVSNdMixin,
     PMFNdMixin,
     EntropyMixin,
+    DiscreteFunctionNd,
     CalculableMixin,
     object
 ):
@@ -80,9 +85,22 @@ class Multinomial(
         self._p = value
         self._reset_distribution()
 
+    def plot(self, k: Union[Iterable[Iterable], ndarray],
+             color: str = 'C0', ax: Optional[Axes] = None,
+             **kwargs) -> Axes:
+        """
+        Plot the function.
+
+        :param k: Range of values of x to plot p(x) over.
+        :param color: Optional color for the series.
+        :param ax: Optional matplotlib axes to plot on.
+        :param kwargs: Additional arguments for bar plot.
+        """
+        self.pmf().plot(k=k, color=color, ax=ax, **kwargs)
+
     def __str__(self):
 
-        p = ', '.join([f'{k}={v}' for k, v in self._p.items()])
+        p = ', '.join([f'{k}={v: 0.2f}' for k, v in self._p.items()])
         return f'Multinomial({p})'
 
     def __repr__(self):

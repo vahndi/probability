@@ -3,8 +3,8 @@ from unittest.case import TestCase
 from pandas import DataFrame, Series
 
 from probability.distributions import Dirichlet
-from probability.distributions.conjugate._dirichlet_multinomial_conjugate import \
-    _DirichletMultinomialConjugate
+from probability.distributions.conjugate.dirichlet_multinomial_conjugate import \
+    DirichletMultinomialConjugate
 
 
 class TestDirichletMultinomialConjugate(TestCase):
@@ -19,10 +19,14 @@ class TestDirichletMultinomialConjugate(TestCase):
             'f': [2, 2, 2, 3, 3, 3, 2, 2, 2, 3, 3, 3, 2, 2, 2, 3]
         })
 
+    def test_init_series_series(self):
+
+        pass
+
     def test_infer_posterior(self):
 
         expected = Dirichlet(alpha={'a': 5, 'b': 3, 'c': 2})
-        actual = _DirichletMultinomialConjugate.infer_posterior(self.series)
+        actual = DirichletMultinomialConjugate.infer_posterior(self.series)
         self.assertEqual(expected, actual)
 
     def test_infer_posteriors(self):
@@ -40,7 +44,7 @@ class TestDirichletMultinomialConjugate(TestCase):
             ],
             columns=['a', 'b', 'prob_var', 'Dirichlet']
         )
-        actual = _DirichletMultinomialConjugate.infer_posteriors(
+        actual = DirichletMultinomialConjugate.infer_posteriors(
             data=self.multinomial_data,
             prob_vars=['e', 'f'],
             cond_vars=['a', 'b']

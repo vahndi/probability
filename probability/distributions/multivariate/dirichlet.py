@@ -10,6 +10,8 @@ from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.continuous import Beta
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.dimension_mixins import NdMixin
+from probability.distributions.mixins.plottable_mixin import \
+    ContinuousPlottableNdMixin
 from probability.distributions.mixins.rv_mixins import RVSNdMixin, PDFNdMixin, \
     EntropyMixin, MeanNdMixin, VarNdMixin
 
@@ -21,6 +23,7 @@ class Dirichlet(
     EntropyMixin,
     MeanNdMixin,
     VarNdMixin,
+    ContinuousPlottableNdMixin,
     CalculableMixin,
     object
 ):
@@ -90,11 +93,11 @@ class Dirichlet(
     def __eq__(self, other: 'Dirichlet'):
 
         return (
-                set(self._alpha.keys()) == set(other._alpha.keys()) and
-                all(
-                    abs(self._alpha[k] - other._alpha[k]) < 1e-10
-                    for k in self._alpha.keys()
-                )
+            set(self._alpha.keys()) == set(other._alpha.keys()) and
+            all(
+                abs(self._alpha[k] - other._alpha[k]) < 1e-10
+                for k in self._alpha.keys()
+            )
         )
 
     def plot(
@@ -114,16 +117,7 @@ class Dirichlet(
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
-        if colors is None:
-            colors = [f'C{i}' for i in range(len(self._alpha))]
-        if len(colors) != len(self._alpha):
-            raise ValueError(f'Pass 0 colors or {len(self._alpha)}.')
-        ax = ax or new_axes()
-        for k, color in zip(self._alpha.keys(), colors):
-            data = self[k].pdf().at(x)
-            data.plot(kind=kind, color=color, ax=ax, label=f'{k}', **kwargs)
-        ax.legend()
-        ax.set_xlabel('x')
-        ax.set_ylabel('PDF')
+        return self.pdf().plot(
+            x=x, kind=kind, colors=colors, ax=ax, **kwargs
+        )
 
-        return ax

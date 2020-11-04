@@ -1,15 +1,21 @@
 from itertools import product
 from typing import Union, List, Optional
 
+from matplotlib.figure import Figure
+from mpl_format.figures import FigureFormatter
 from pandas import Series, DataFrame
 from pandas.core.dtypes.common import is_categorical_dtype
 
 from probability.custom_types.external_custom_types import Array1d, FloatArray1d
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.multivariate import Dirichlet, Multinomial
+from probability.supports import SUPPORT_DIRICHLET
 
 
-class _DirichletMultinomialConjugate(ConjugateMixin, object):
+class DirichletMultinomialConjugate(
+    ConjugateMixin,
+    object
+):
     """
     Class for calculating Bayesian probabilities using the dirichlet-multinomial
     distribution.
@@ -34,7 +40,7 @@ class _DirichletMultinomialConjugate(ConjugateMixin, object):
       observations of the different values of k.
     * `x` is the vector of counts of each observed value of k in 1..K.
     * `x = [x1, ..., xK]`
-    * `x1, ...xK >= 0`
+    * `x1, ..., xK >= 0`
     * n = sum(x)
 
     Model parameters
@@ -50,33 +56,30 @@ class _DirichletMultinomialConjugate(ConjugateMixin, object):
     * https://en.wikipedia.org/wiki/Conjugate_prior
     """
     def __init__(self,
-                 alpha: Union[FloatArray1d, dict],
-                 n: int,
+                 alpha: Union[FloatArray1d, dict, float],
                  x: Union[FloatArray1d, dict]):
         """
         Create a new dirichlet-multinomial distribution.
 
         :param alpha: Series mapping category names to prior count beliefs.
-        :param n: Number of trials.
+                      If float, then assumes same prior count to each dimension.
         :param x: Series mapping category names to observed counts.
         """
-        if type(alpha) != type(x):
-            raise TypeError('alpha and x should the type of array')
         if len(alpha) != len(x):
             raise ValueError('alpha and x should be the same length')
-        if not isinstance(alpha, Series):
-            alpha = Series(
-                data=alpha,
-                index=[f'α{k}' for k in range(1, len(alpha) + 1)]
-            )
+        if not isinstance(x, Series):
             x = Series(
                 data=x,
                 index=[f'x{k}' for k in range(1, len(x) + 1)]
             )
+            alpha = Series(
+                data=alpha,
+                index=[f'α{k}' for k in range(1, len(x) + 1)]
+            )
 
         self._alpha = alpha
         self._x = x
-        self._n = n
+        self._n = self._x.sum()
         self._K = len(x)
 
     @property
@@ -113,6 +116,19 @@ class _DirichletMultinomialConjugate(ConjugateMixin, object):
             )
         self._x = value
 
+    @property
+    def K(self) -> int:
+        """
+        Number of possible outcomes of any given trial.
+        """
+        return self._K
+
+    def n(self) -> int:
+        """
+        Number of trials.
+        """
+        return self._n
+
     def prior(self, **kwargs) -> Dirichlet:
 
         return Dirichlet(
@@ -121,7 +137,7 @@ class _DirichletMultinomialConjugate(ConjugateMixin, object):
 
     def likelihood(self, **kwargs) -> Multinomial:
 
-        return Multinomial(n=self._n, p=self._x)
+        return Multinomial(n=self._n, p=self._x / self._n)
 
     def posterior(self, **kwargs) -> Dirichlet:
 
@@ -131,6 +147,45 @@ class _DirichletMultinomialConjugate(ConjugateMixin, object):
                 for k in range(len(self._alpha))
             })
         )
+
+    def plot(self, **kwargs) -> Figure:
+        """
+        Plot a grid of the different components of the Compound Distribution.
+
+        :param kwargs: kwargs for plot methods
+        """
+        ff = FigureFormatter(n_rows=2, n_cols=3)
+        (
+            ax_prior, ax_data, ax_posterior,
+            ax_prior_predictive, ax_likelihood, ax_posterior_predictive
+        ) = ff.axes.flat
+
+        self.prior().plot(x=SUPPORT_DIRICHLET, ax=ax_prior.axes,
+                          **kwargs)
+        self.posterior().plot(x=SUPPORT_DIRICHLET, ax=ax_posterior.axes,
+                              **kwargs)
+
+        ax_prior.set_title_text('prior').add_legend()
+        ax_posterior.set_title_text('posterior').add_legend()
+        ax_prior_predictive.set_title_text('prior predictive')
+        ax_prior_predictive.set_face_color('#bbb')
+        ax_posterior_predictive.set_title_text(
+            'posterior predictive'
+        )
+        ax_posterior_predictive.set_face_color('#bbb')
+        # plot data
+        self._x.plot.bar(ax=ax_data.axes,
+                         color=[f'C{i}' for i in range(len(self._x))])
+        ax_data.set_text(title='data', x_label='$x_k$',
+                         y_label=r'$\vert x_k \vert$')
+        # plot likelihood
+        likelihood = self.likelihood()
+        self.likelihood().plot(k=likelihood.permutations(),
+                               ax=ax_likelihood.axes)
+        ax_likelihood.set_x_lim(0.5, None)
+        ax_likelihood.set_title_text('likelihood')
+        ax_likelihood.add_legend()
+        return ff.figure
 
     @staticmethod
     def infer_posterior(data: Series) -> Dirichlet:

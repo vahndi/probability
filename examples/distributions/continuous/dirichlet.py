@@ -7,6 +7,13 @@ from probability.distributions import Dirichlet
 x = linspace(0, 1, 101)
 
 
+def plot_distribution():
+
+    ax = new_axes(width=10, height=10)
+    Dirichlet(alpha=[1, 2, 3]).plot(x=x, ax=ax)
+    plt.show()
+
+
 def plot_pdf_simplex():
 
     ax = new_axes(width=10, height=10)
@@ -14,14 +21,15 @@ def plot_pdf_simplex():
     plt.show()
 
 
-def plot_pdf_margins():
+def plot_pdf():
 
     ax = new_axes(width=10, height=10)
-    Dirichlet(alpha=[1, 2, 3]).pdf().plot(ax=ax)
+    Dirichlet(alpha=[1, 2, 3]).pdf().plot(x=x, ax=ax)
     plt.show()
 
 
 if __name__ == '__main__':
 
-    # plot_pdf_simplex()
-    plot_pdf_margins()
+    plot_distribution()
+    plot_pdf_simplex()
+    plot_pdf()

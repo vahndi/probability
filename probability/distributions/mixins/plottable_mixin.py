@@ -1,3 +1,6 @@
+from typing import List
+
+
 class PlottableMixin(object):
 
     x_label: str
@@ -44,3 +47,14 @@ class ContinuousPlottableMixin(PlottableMixin):
 
     x_label: str = 'x'
     y_label: str = '$P(X = x)$'
+
+
+class ContinuousPlottableNdMixin(PlottableMixin):
+
+    names: List[str]
+    x_label: str = 'x'
+    y_label: str = '$P(X = x)$'
+
+    def __getitem__(self, item) -> ContinuousPlottableMixin:
+
+        raise NotImplementedError

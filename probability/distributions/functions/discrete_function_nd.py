@@ -1,11 +1,11 @@
 from typing import overload, Iterable, Union, Optional
 
 from matplotlib.axes import Axes
-from numpy import array, ndarray
-from pandas import Series, MultiIndex
-from scipy.stats import rv_discrete
-
 from mpl_format.axes.axis_utils import new_axes
+from numpy import array, ndarray
+from pandas import Series, MultiIndex, concat
+from scipy.stats import rv_discrete
+from seaborn import lineplot
 
 
 class DiscreteFunctionNd(object):
@@ -28,56 +28,83 @@ class DiscreteFunctionNd(object):
         self._parent: object = parent
 
     @overload
-    def at(self, x: Iterable[int]) -> float:
+    def at(self, k: Iterable[int]) -> float:
         pass
 
     @overload
-    def at(self, x: Iterable[Iterable]) -> Series:
+    def at(self, k: Iterable[Iterable]) -> Series:
         pass
 
     @overload
-    def at(self, x: ndarray) -> Series:
+    def at(self, k: ndarray) -> Series:
         pass
 
-    def at(self, x):
+    def at(self, k):
         """
         Evaluate the function for each value of [x1, x2, ..., xk] given as x.
 
-        :param x: [x1, x2, ..., xk] or [[x11, x12, ..., x1k],
+        :param k: [x1, x2, ..., xk] or [[x11, x12, ..., x1k],
                                         [x21, x22, ..., x2k],
                                         ...]
         """
-        x = array(x)
-        if x.ndim == 1:
-            return self._method(x)
-        elif x.ndim == 2:
+        k = array(k)
+        if k.ndim == 1:
+            return self._method(k)
+        elif k.ndim == 2:
             return Series(
                 index=MultiIndex.from_arrays(
-                    arrays=x.T,
+                    arrays=k.T,
                     names=[f'x{num}' for num in range(1, self._num_dims + 1)]
-                ), data=self._method(x)
+                ), data=self._method(k)
             )
 
-    def plot(self, x: Union[Iterable[Iterable], ndarray],
-             color: str = 'C0', ax: Optional[Axes] = None,
+    def plot(self, k: Union[Iterable[Iterable], ndarray],
+             ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
-        Plot the function.
+        Plot the most probable values of the function.
 
-        :param x: Range of values of x to plot p(x) over.
-        :param color: Optional color for the series.
+        :param k: Range of values of x to plot p(x) over.
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for bar plot.
         """
-        x = array(x)
-        data = self.at(x)
-        if x.ndim != 2:
-            raise ValueError('x must have 2 dimensions: [num_points, K]')
+        k = array(k)
+        if k.ndim != 2:
+            raise ValueError('k must have 2 dimensions: [num_points, K]')
+        data = self.at(k)
+        # filter to "top" most likely
+        data = data.rename('p').reset_index()
+        new_data = []
+        for name in self._parent.names:
+            new_frame = data[[name, 'p']].rename(columns={name: 'x'})
+            new_frame['$x_k$'] = name
+            new_data.append(new_frame)
+        data = concat(new_data)
         ax = ax or new_axes()
-        if self._num_dims > 2:
-            data = data.sort_values(ascending=False)
-        data.plot.bar(color=color, label=str(self._parent), ax=ax, **kwargs)
-        ax.set_xlabel('x')
-        ax.set_ylabel(self._name)
+        lineplot(data=data, x='x', y='p', hue='$x_k$', ax=ax, **kwargs)
+        ax.set_xlabel('X')
+        ax.set_ylabel(f'{self._name}(X)')
+        ax.legend(loc='upper right')
+        return ax
+
+    def plot_top(self, top: int,
+                 ax: Optional[Axes] = None,
+                 **kwargs) -> Axes:
+        """
+        Plot the probability of the most likely values of the distribution.
+
+        :param top: The number of top values to plot probability for.
+        :param ax: Axes to plot on.
+        :param kwargs: Additional arguments to pass to bar plot method.
+        """
+        k = array(self._parent.permutations())
+        if k.ndim != 2:
+            raise ValueError('k must have 2 dimensions: [num_points, K]')
+        data = self.at(k)
+        data = data.sort_values(ascending=False).head(top)
+        ax = ax or new_axes()
+        data.plot.bar(label=str(self._parent), ax=ax, **kwargs)
+        ax.set_xlabel('K')
+        ax.set_ylabel(f'{self._name}(K)')
         ax.legend(loc='upper right')
         return ax

@@ -1,4 +1,4 @@
-from typing import overload, Iterable, Union, Optional
+from typing import overload, Iterable, Union, Optional, List
 
 from matplotlib.axes import Axes
 from matplotlib.tri import UniformTriRefiner, Triangulation
@@ -6,12 +6,11 @@ from mpl_format.axes.axis_utils import new_axes
 from numpy import array, clip, dstack, meshgrid, ndarray
 from numpy.linalg import norm
 from numpy.ma import clip
-from pandas import Series, MultiIndex, DataFrame
+from pandas import Series, MultiIndex
 from scipy.stats import rv_continuous
-from seaborn import distplot
 
 from probability.distributions.mixins.plottable_mixin import \
-    ContinuousPlottableMixin
+    ContinuousPlottableNdMixin
 
 
 class ContinuousFunctionNd(object):
@@ -21,7 +20,7 @@ class ContinuousFunctionNd(object):
                  method_name: str,
                  name: str,
                  num_dims: int,
-                 parent: ContinuousPlottableMixin):
+                 parent: ContinuousPlottableNdMixin):
         """
         :param distribution: The scipy distribution to calculate with.
         :param method_name: The name of the method to call on the distribution.
@@ -35,7 +34,7 @@ class ContinuousFunctionNd(object):
         self._method_name: str = method_name
         self._name: str = name
         self._method = getattr(distribution, method_name)
-        self._parent: ContinuousPlottableMixin = parent
+        self._parent: ContinuousPlottableNdMixin = parent
 
     @overload
     def at(self, x: Iterable[float]) -> float:
@@ -68,21 +67,37 @@ class ContinuousFunctionNd(object):
                 ), data=self._method(x), name=f'{self._name}({self._parent})'
             )
 
-    def plot(self,
-             ax: Optional[Axes] = None,
-             **kwargs) -> Axes:
+    def plot(
+            self,
+            x: Iterable,
+            kind: str = 'line',
+            colors: Optional[List[str]] = None,
+            ax: Optional[Axes] = None,
+            **kwargs
+    ) -> Axes:
         """
         Plot the marginal distribution of each component.
 
+        :param x: Range of values of x to plot p(x) over.
+        :param kind: Kind of plot e.g. 'bar', 'line'.
+        :param colors: Optional list of colors for each series.
         :param ax: Optional matplotlib axes to plot on.
-        :param kwargs: Additional arguments for plot method.
+        :param kwargs: Additional arguments for the matplotlib plot function.
         """
-        samples: DataFrame = self._parent.rvs(1_000_000)
-        for name in samples.columns:
-            distplot(a=samples[name], ax=ax, label=name,
-                     kde=True, hist=False, rug=False,
-                     **kwargs)
+        parent = self._parent
+        if colors is None:
+            colors = [f'C{i}' for i in range(len(parent.names))]
+        if len(colors) != len(parent.names):
+            raise ValueError(f'Pass 0 or {len(parent.names)} colors.')
+        ax = ax or new_axes()
+        for k, color in zip(parent.names, colors):
+            data = getattr(parent[k], self._method_name)().at(x)
+            data.plot(x=x, kind=kind, color=color,
+                      ax=ax, label=f'{k}', **kwargs)
         ax.legend()
+        ax.set_xlabel(parent.x_label)
+        ax.set_ylabel(f'{self._name}({parent.x_label})')
+
         return ax
 
     def plot_2d(self,
