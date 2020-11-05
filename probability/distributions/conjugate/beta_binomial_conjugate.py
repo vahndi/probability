@@ -284,8 +284,8 @@ class BetaBinomialConjugate(
 
         return (
             f'BetaBinomial('
-            f'α={self._alpha}, '
-            f'β={self._beta}, '
+            f'α={self._alpha: 0.2f}, '
+            f'β={self._beta: 0.2f}, '
             f'n={self._n}, k={self._k})'
         )
 

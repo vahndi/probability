@@ -242,8 +242,8 @@ class BetaGeometricConjugate(
     def __str__(self):
 
         return f'BetaGeometric(' \
-               f'α={self._alpha}, ' \
-               f'β={self._beta}, ' \
+               f'α={self._alpha: 0.2f}, ' \
+               f'β={self._beta: 0.2f}, ' \
                f'n={self._n}, ' \
                f'k={self._k}' \
                f')'

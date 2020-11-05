@@ -275,7 +275,7 @@ class DirichletMultinomialConjugate(
         x = ', '.join([f'{k}={v}' for k, v in self._x.items()])
         return (
             f'DirichletMultinomial('
-            f'α={alpha},'
+            f'α={alpha: 0.2f},'
             f'n={self._n}, '
             f'x={x})'
         )
