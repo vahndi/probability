@@ -42,7 +42,7 @@ class InvGamma(
 
     def __str__(self):
 
-        return f'InvGamma(α={self._alpha}, β={self._beta})'
+        return f'InvGamma(α={self._alpha: 0.2f}, β={self._beta: 0.2f})'
 
     def __repr__(self):
 

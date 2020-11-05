@@ -67,9 +67,9 @@ class Normal(
     def __str__(self):
 
         if self._parameterization == 'μσ':
-            return f'Normal(μ={self._mu}, σ={self._sigma})'
+            return f'Normal(μ={self._mu: 0.2f}, σ={self._sigma: 0.2f})'
         elif self._parameterization == 'μσ²':
-            return f'Normal(μ={self._mu}, σ²={self.sigma_sq})'
+            return f'Normal(μ={self._mu: 0.2f}, σ²={self.sigma_sq: 0.2f})'
 
     def __repr__(self):
 

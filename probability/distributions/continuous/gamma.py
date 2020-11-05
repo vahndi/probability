@@ -77,9 +77,9 @@ class Gamma(
     def __str__(self):
 
         if self._parameterization == 'αβ':
-            return f'Gamma(α={self._alpha}, β={self._beta})'
+            return f'Gamma(α={self._alpha: 0.2f}, β={self._beta: 0.2f})'
         elif self._parameterization == 'kθ':
-            return f'Gamma(k={self._alpha}, θ={1 / self._beta})'
+            return f'Gamma(k={self._alpha: 0.2f}, θ={1 / self._beta: 0.2f})'
 
     def __repr__(self):
 

@@ -1,4 +1,6 @@
 from probability.distributions.continuous.beta import Beta
+from probability.distributions.continuous.continuous_uniform import \
+    ContinuousUniform
 from probability.distributions.continuous.exponential import Exponential
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.inv_gamma import InvGamma

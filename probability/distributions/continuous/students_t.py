@@ -71,14 +71,14 @@ class StudentsT(
     def __str__(self):
         if self._parameterization == 'μσ':
             return f'StudentsT(' \
-                   f'$\\nu$={self._nu}, ' \
-                   f'μ={self._mu}, ' \
-                   f'σ={self._sigma})'
+                   f'$\\nu$={self._nu: 0.2f}, ' \
+                   f'μ={self._mu: 0.2f}, ' \
+                   f'σ={self._sigma: 0.2f})'
         elif self._parameterization == 'μσ²':
             return f'StudentsT(' \
-                   f'$\\nu$={self._nu}, ' \
-                   f'μ={self._mu}, ' \
-                   f'σ²={self.sigma_sq})'
+                   f'$\\nu$={self._nu: 0.2f}, ' \
+                   f'μ={self._mu: 0.2f}, ' \
+                   f'σ²={self.sigma_sq: 0.2f})'
 
     def __repr__(self):
 

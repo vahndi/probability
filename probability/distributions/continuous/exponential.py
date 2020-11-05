@@ -37,7 +37,7 @@ class Exponential(
 
     def __str__(self):
 
-        return f'Exponential(λ={self._lambda})'
+        return f'Exponential(λ={self._lambda: 0.2f})'
 
     def __repr__(self):
 

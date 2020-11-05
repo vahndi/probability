@@ -39,7 +39,7 @@ class Laplace(
         self._reset_distribution()
 
     def __str__(self):
-        return f'Laplace(μ={self._mu}, b={self._b})'
+        return f'Laplace(μ={self._mu: 0.2f}, b={self._b: 0.2f})'
 
     def __repr__(self):
         return f'Laplace(mu={self._mu}, b={self._b})'

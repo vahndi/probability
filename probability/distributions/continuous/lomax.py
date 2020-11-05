@@ -38,7 +38,7 @@ class Lomax(
 
     def __str__(self):
 
-        return f'Lomax(λ={self._lambda}, α={self._alpha})'
+        return f'Lomax(λ={self._lambda: 0.2f}, α={self._alpha: 0.2f})'
 
     def __repr__(self):
 

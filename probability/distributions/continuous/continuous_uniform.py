@@ -45,7 +45,7 @@ class ContinuousUniform(
 
     def __str__(self):
 
-        return f'ContinuousUniform(a={self._a}, b={self._b})'
+        return f'ContinuousUniform(a={self._a: 0.2f}, b={self._b: 0.2f})'
 
     def __repr__(self):
 
