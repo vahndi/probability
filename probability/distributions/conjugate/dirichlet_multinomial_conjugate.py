@@ -133,7 +133,7 @@ class DirichletMultinomialConjugate(
 
         return Dirichlet(
             alpha=self._alpha
-        )
+        ).with_y_label('$P(p_M=X|α_D)$').prepend_to_label('Prior: ')
 
     def likelihood(self, **kwargs) -> Multinomial:
 
@@ -146,7 +146,7 @@ class DirichletMultinomialConjugate(
                 self._alpha.index[k]: self._alpha.iloc[k] + self._x.iloc[k]
                 for k in range(len(self._alpha))
             })
-        )
+        ).with_y_label('$P(p_M=X|α_D+x_D)$').prepend_to_label('Posterior: ')
 
     def plot(self, **kwargs) -> Figure:
         """

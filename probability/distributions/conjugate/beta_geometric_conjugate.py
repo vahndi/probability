@@ -82,7 +82,7 @@ class BetaGeometricConjugate(
     def prior(self) -> Beta:
         return Beta(
             alpha=self._alpha, beta=self._beta
-        ).with_y_label('$P(p=x|α,β)$').prepend_to_label('Prior: ')
+        ).with_y_label('$P(p_G=x|α_B,β_B)$').prepend_to_label('Prior: ')
 
     def likelihood(self) -> Geometric:
         return Geometric(p=self._n / self._k)
@@ -91,7 +91,9 @@ class BetaGeometricConjugate(
         return Beta(
             alpha=self.alpha_prime,
             beta=self.beta_prime
-        ).with_y_label('$P(p=x|α+n,β+k-n)$').prepend_to_label('Posterior: ')
+        ).with_y_label(
+            '$P(p_G=x|α_B+n_B,β_B+k_B-n_B)$'
+        ).prepend_to_label('Posterior: ')
 
     def plot(self, **kwargs) -> Figure:
         """
