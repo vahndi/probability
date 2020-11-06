@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Iterable
 
 from matplotlib.figure import Figure
 from mpl_format.figures import FigureFormatter
@@ -70,16 +70,22 @@ class DirichletMultinomialConjugate(
         :param alpha: Series mapping category names to prior count beliefs.
                       If float, then assumes same prior count to each dimension.
         """
-        if len(alpha) != len(x):
-            raise ValueError('alpha and x should be the same length')
-        if not isinstance(x, Series):
+        if isinstance(alpha, Iterable) and isinstance(x, Iterable):
+            if len(alpha) != len(x):
+                raise ValueError('alpha and x should be the same length')
+        if isinstance(x, dict):
+            x = Series(x)
+        elif not isinstance(x, Series):
             x = Series(
                 data=x,
                 index=[f'x{k}' for k in range(1, len(x) + 1)]
             )
+        if isinstance(alpha, dict):
+            alpha = Series(alpha)
+        elif not isinstance(alpha, Series):
             alpha = Series(
                 data=alpha,
-                index=[f'α{k}' for k in range(1, len(x) + 1)]
+                index=x.index
             )
 
         self._alpha = alpha
