@@ -19,13 +19,9 @@ class TestDirichletMultinomialConjugate(TestCase):
             'f': [2, 2, 2, 3, 3, 3, 2, 2, 2, 3, 3, 3, 2, 2, 2, 3]
         })
 
-    def test_init_series_series(self):
-
-        pass
-
     def test_infer_posterior(self):
 
-        expected = Dirichlet(alpha={'a': 5, 'b': 3, 'c': 2})
+        expected = Dirichlet(alpha={'a': 5 + 1, 'b': 3 + 1, 'c': 2 + 1})
         actual = DirichletMultinomialConjugate.infer_posterior(self.series)
         self.assertEqual(expected, actual)
 
@@ -33,14 +29,14 @@ class TestDirichletMultinomialConjugate(TestCase):
 
         expected = DataFrame(
             data=[
-                (1, 1, 'e', Dirichlet({1: 2, 2: 1, 3: 1})),
-                (2, 1, 'e', Dirichlet({1: 1, 2: 2, 3: 1})),
-                (1, 2, 'e', Dirichlet({1: 1, 2: 1, 3: 2})),
-                (2, 2, 'e', Dirichlet({1: 2, 2: 1, 3: 1})),
-                (1, 1, 'f', Dirichlet({2: 3, 3: 1})),
-                (2, 1, 'f', Dirichlet({2: 2, 3: 2})),
-                (1, 2, 'f', Dirichlet({2: 1, 3: 3})),
-                (2, 2, 'f', Dirichlet({2: 3, 3: 1}))
+                (1, 1, 'e', Dirichlet({1: 3, 2: 2, 3: 2})),
+                (2, 1, 'e', Dirichlet({1: 2, 2: 3, 3: 2})),
+                (1, 2, 'e', Dirichlet({1: 2, 2: 2, 3: 3})),
+                (2, 2, 'e', Dirichlet({1: 3, 2: 2, 3: 2})),
+                (1, 1, 'f', Dirichlet({2: 4, 3: 2})),
+                (2, 1, 'f', Dirichlet({2: 3, 3: 3})),
+                (1, 2, 'f', Dirichlet({2: 2, 3: 4})),
+                (2, 2, 'f', Dirichlet({2: 4, 3: 2}))
             ],
             columns=['a', 'b', 'prob_var', 'Dirichlet']
         )
