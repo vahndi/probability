@@ -1,6 +1,7 @@
-from typing import Union
+from typing import Union, List, Optional
 
 from matplotlib.figure import Figure
+from pandas import Series, DataFrame
 
 from probability.custom_types.compound_types import RVMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -40,6 +41,47 @@ class ConjugateMixin(object):
         """
         raise NotImplementedError
 
+    @staticmethod
+    def infer_posterior(
+            data: Series
+    ) -> Union[RVContinuous1dMixin, RVDiscrete1dMixin]:
+        """
+        Return a new distribution of the posterior most likely to
+        generate the given data.
+
+        :param data: Series of observed values.
+        """
+        raise NotImplementedError
+
+    @staticmethod
+    def infer_posteriors(
+            data: DataFrame,
+            prob_vars: Union[str, List[str]],
+            cond_vars: Union[str, List[str]],
+            stats: Optional[Union[str, List[str]]] = None
+    ) -> DataFrame:
+        """
+        Return a DataFrame mapping probability and conditional variables to
+        Dirichlet distributions of posteriors most likely to generate the given
+        data.
+
+        :param data: DataFrame containing observed data.
+        :param prob_vars: Name(s) of likelihood variables whose posteriors to
+                          find probability of.
+        :param cond_vars: Names of discrete variables to condition on.
+                          Calculations will be done for the cartesian product
+                          of variable values
+                          e.g if cA = {1, 2} and cB = {3, 4} then
+                          cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
+        :param stats: Optional stats to append to the output e.g. 'alpha',
+                      'mean'.
+        :return: DataFrame with columns for each conditioning variable, a
+                 'prob_var' column indicating the probability variable, and a
+                 column named after the likelihood distribution containing the
+                 distribution.
+        """
+        raise NotImplementedError
+
 
 class PredictiveMixin(object):
     """
@@ -64,5 +106,3 @@ class PredictiveMixin(object):
         the data.
         """
         raise NotImplementedError
-
-

@@ -38,6 +38,10 @@ class UniformPrior(object):
         alpha = 1
         beta = 1
 
+    class Dirichlet(object):
+
+        alpha = 1
+
 
 class JeffreysPrior(object):
     """

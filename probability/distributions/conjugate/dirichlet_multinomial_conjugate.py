@@ -7,6 +7,7 @@ from pandas import Series, DataFrame
 from pandas.core.dtypes.common import is_categorical_dtype
 
 from probability.custom_types.external_custom_types import Array1d, FloatArray1d
+from probability.distributions import UniformPrior
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.multivariate import Dirichlet, Multinomial
 from probability.supports import SUPPORT_DIRICHLET
@@ -55,15 +56,19 @@ class DirichletMultinomialConjugate(
     * https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution
     * https://en.wikipedia.org/wiki/Conjugate_prior
     """
-    def __init__(self,
-                 alpha: Union[FloatArray1d, dict, float],
-                 x: Union[FloatArray1d, dict]):
+    def __init__(
+            self,
+            x: Union[FloatArray1d, dict],
+            alpha: Union[
+                 FloatArray1d, dict, float
+             ] = UniformPrior.Dirichlet.alpha
+    ):
         """
         Create a new dirichlet-multinomial distribution.
 
+        :param x: Series mapping category names to observed counts.
         :param alpha: Series mapping category names to prior count beliefs.
                       If float, then assumes same prior count to each dimension.
-        :param x: Series mapping category names to observed counts.
         """
         if len(alpha) != len(x):
             raise ValueError('alpha and x should be the same length')
@@ -82,6 +87,8 @@ class DirichletMultinomialConjugate(
         self._n = self._x.sum()
         self._K = len(x)
 
+    # region prior hyper-parameters
+
     @property
     def alpha(self) -> Series:
 
@@ -98,6 +105,19 @@ class DirichletMultinomialConjugate(
                 index=self._alpha.index
             )
         self._alpha = value
+
+    # endregion
+
+    # region posterior hyper-parameters
+
+    @property
+    def alpha_prime(self) -> Series:
+        return Series({
+            self._alpha.index[k]: self._alpha.iloc[k] + self._x.iloc[k]
+            for k in range(len(self._alpha))
+        })
+
+    # endregion
 
     @property
     def x(self) -> Series:
@@ -142,11 +162,10 @@ class DirichletMultinomialConjugate(
     def posterior(self, **kwargs) -> Dirichlet:
 
         return Dirichlet(
-            alpha=Series({
-                self._alpha.index[k]: self._alpha.iloc[k] + self._x.iloc[k]
-                for k in range(len(self._alpha))
-            })
-        ).with_y_label('$P(p_M=X|α_D+x_D)$').prepend_to_label('Posterior: ')
+            alpha=self.alpha_prime
+        ).with_y_label(
+            '$P(p_M=X|α_D+x_D)$'
+        ).prepend_to_label('Posterior: ')
 
     def plot(self, **kwargs) -> Figure:
         """
@@ -169,9 +188,7 @@ class DirichletMultinomialConjugate(
         ax_posterior.set_title_text('posterior').add_legend()
         ax_prior_predictive.set_title_text('prior predictive')
         ax_prior_predictive.set_face_color('#bbb')
-        ax_posterior_predictive.set_title_text(
-            'posterior predictive'
-        )
+        ax_posterior_predictive.set_title_text('posterior predictive')
         ax_posterior_predictive.set_face_color('#bbb')
         # plot data
         self._x.plot.bar(ax=ax_data.axes,
@@ -188,29 +205,39 @@ class DirichletMultinomialConjugate(
         return ff.figure
 
     @staticmethod
-    def infer_posterior(data: Series) -> Dirichlet:
+    def infer_posterior(
+            data: Series,
+            alpha: Union[
+                FloatArray1d, dict, float
+            ] = UniformPrior.Dirichlet.alpha
+    ) -> Dirichlet:
         """
         Return a new Dirichlet distribution of the posterior most likely to
         generate the given data.
 
         :param data: Series of categorical values.
+        :param alpha: Value(s) for the α hyper-parameter of the prior Dirichlet
+                      distribution.
         """
         if is_categorical_dtype(data):
             categories = data.cat.categories.to_list()
         else:
             categories = list(data.unique())
-        alpha = {
+        x = {
             category: (data == category).sum()
             for category in categories
         }
-        return Dirichlet(alpha=alpha)
+        return DirichletMultinomialConjugate(x=x, alpha=alpha).posterior()
 
     @staticmethod
     def infer_posteriors(
             data: DataFrame,
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
-            stats: Optional[Union[str, List[str]]] = None
+            stats: Optional[Union[str, List[str]]] = None,
+            alpha: Union[
+                FloatArray1d, dict, float
+            ] = UniformPrior.Dirichlet.alpha
     ) -> DataFrame:
         """
         Return a DataFrame mapping probability and conditional variables to
@@ -227,6 +254,8 @@ class DirichletMultinomialConjugate(
                           cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
         :param stats: Optional stats to append to the output e.g. 'alpha',
                       'mean'.
+        :param alpha: Value(s) for the α hyper-parameter of the prior Dirichlet
+                      distribution.
         :return: DataFrame with columns for each conditioning variable, a
                  'prob_var' column indicating the probability variable, and a
                  `Dirichlet` column containing the distribution.
@@ -248,9 +277,11 @@ class DirichletMultinomialConjugate(
                 cond_dict[cond_var] = cond_value
             for prob_var in prob_vars:
                 prob_dict = cond_dict.copy()
-                m_prob: int = cond_data[prob_var].value_counts()
+                m_prob: Series = cond_data[prob_var].value_counts()
                 prob_dict['prob_var'] = prob_var
-                prob_dict['Dirichlet'] = Dirichlet(alpha=m_prob)
+                prob_dict['Dirichlet'] = DirichletMultinomialConjugate(
+                    x=m_prob, alpha=alpha
+                ).posterior()
                 dirichlets.append(prob_dict)
 
         dirichlets_data = DataFrame(dirichlets)
@@ -271,11 +302,11 @@ class DirichletMultinomialConjugate(
 
     def __str__(self):
 
-        alpha = ', '.join([f'{k}={v}' for k, v in self._alpha.items()])
+        alpha = ', '.join([f'{k}={v: 0.2f}' for k, v in self._alpha.items()])
         x = ', '.join([f'{k}={v}' for k, v in self._x.items()])
         return (
             f'DirichletMultinomial('
-            f'α={alpha: 0.2f},'
+            f'α={alpha},'
             f'n={self._n}, '
             f'x={x})'
         )
