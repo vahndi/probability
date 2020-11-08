@@ -88,7 +88,9 @@ class BetaBinomialConjugate(
     def prior(self) -> Beta:
         return Beta(
             alpha=self._alpha, beta=self._beta
-        ).with_y_label('$P(α_{Bi}=x|α_{Be},β_{Be})$').prepend_to_label('Prior: ')
+        ).with_y_label(
+            '$P(α_{Bin}=x|α_{Beta},β_{Beta})$'
+        ).prepend_to_label('Prior: ')
 
     def likelihood(self) -> Binomial:
         return Binomial(
@@ -101,7 +103,9 @@ class BetaBinomialConjugate(
             alpha=self.alpha_prime,
             beta=self.beta_prime
         ).with_y_label(
-            '$P(α_{Bi}=x|α_{Be}+k_{Be},β_{Be}+n_{Be}-k_{Be})$'
+            '$P(α_{Bin}=x|'
+            'α_{Beta}+k_{Obs},'
+            'β_{Beta}+n_{Obs}-k_{Obs})$'
         ).prepend_to_label('Posterior: ')
 
     # region predictive
@@ -120,7 +124,12 @@ class BetaBinomialConjugate(
             n=n_,
             alpha=self._alpha,
             beta=self._beta
-        ).with_y_label(r'$P(\tilde{X}=k|\tilde{n},α,β)$')
+        ).with_y_label(
+            r'$P(\tilde{X}=k|'
+            r'\tilde{n},'
+            r'α_{Beta},'
+            r'β_{Beta})$'
+        )
 
     def posterior_predictive(self, n_: Optional[int] = None) -> BetaBinomial:
         """
@@ -136,7 +145,12 @@ class BetaBinomialConjugate(
             n=n_,
             alpha=self.alpha_prime,
             beta=self.beta_prime
-        ).with_y_label(r'$P(\tilde{X}=k|\tilde{n},α+k,β+n-k)$')
+        ).with_y_label(
+            r'$P(\tilde{X}=k|'
+            r'\tilde{n},'
+            r'α_{Beta}+k_{Obs},'
+            r'β_{Beta}+n_{Obs}-k_{Obs})$'
+        )
 
     # endregion
 

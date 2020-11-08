@@ -77,13 +77,8 @@ class ReferencePrior(object):
 
     class Binomial(object):
 
-        @property
-        def alpha(self) -> float:
-            return 0.5
-
-        @property
-        def beta(self) -> float:
-            return 0.5
+        alpha = 0.5
+        beta = 0.5
 
 
 class MDIPrior(object):
@@ -96,3 +91,23 @@ class MDIPrior(object):
     where p(x|θ) is the data density function.
     """
     pass
+
+
+class VaguePrior(object):
+
+    class Gamma(object):
+        """
+        https://math.stackexchange.com/a/456050
+        """
+        alpha = 0.001
+        beta = 0.001
+
+
+class ImproperPrior(object):
+
+    class Gamma(object):
+        """
+        https://math.stackexchange.com/a/456050
+        """
+        alpha = 0.0
+        beta = 0.0

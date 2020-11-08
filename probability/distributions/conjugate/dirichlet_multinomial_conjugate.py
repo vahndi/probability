@@ -159,7 +159,9 @@ class DirichletMultinomialConjugate(
 
         return Dirichlet(
             alpha=self._alpha
-        ).with_y_label('$P(p_M=X|α_D)$').prepend_to_label('Prior: ')
+        ).with_y_label(
+            '$P(p_{Mul}=X|α_{Dir})$'
+        ).prepend_to_label('Prior: ')
 
     def likelihood(self, **kwargs) -> Multinomial:
 
@@ -170,7 +172,8 @@ class DirichletMultinomialConjugate(
         return Dirichlet(
             alpha=self.alpha_prime
         ).with_y_label(
-            '$P(p_M=X|α_D+x_D)$'
+            '$P(p_{Mul}=X|'
+            'α_{Dir}+x_{Obs})$'
         ).prepend_to_label('Posterior: ')
 
     def plot(self, **kwargs) -> Figure:
