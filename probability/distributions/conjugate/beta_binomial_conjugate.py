@@ -136,9 +136,8 @@ class BetaBinomialConjugate(
         Return a BetaBinomial describing the expected distribution of future
         successes of n trials based on the posterior parameter estimates.
 
-        :param n_: Optional number of trials over which to calculate probability
-                  of success. Leave blank to use the same n as the observed
-                  number of trials.
+        :param n_: Number of trials over which to calculate probability
+                  of success.
         """
         return BetaBinomial(
             n=n_,
