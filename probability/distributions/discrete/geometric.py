@@ -34,7 +34,7 @@ class Geometric(
 
     def __str__(self):
 
-        return f'Geometric(p={self._p})'
+        return f'Geometric(p={self._p: 0.2f})'
 
     def __repr__(self):
 

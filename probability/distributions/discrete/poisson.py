@@ -37,7 +37,7 @@ class Poisson(
 
     def __str__(self):
 
-        return f'Poisson(λ={self._lambda})'
+        return f'Poisson(λ={self._lambda: 0.2f})'
 
     def __repr__(self):
 

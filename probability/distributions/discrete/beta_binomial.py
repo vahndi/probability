@@ -56,8 +56,8 @@ class BetaBinomial(
     def __str__(self):
         return f'BetaBinomial(' \
                f'n={self._n}, ' \
-               f'α={self._alpha}, ' \
-               f'β={self._beta})'
+               f'α={self._alpha: 0.2f}, ' \
+               f'β={self._beta: 0.2f})'
 
     def __repr__(self):
         return f'BetaBinomial(' \

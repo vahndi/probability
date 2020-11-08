@@ -39,7 +39,7 @@ class Binomial(
 
     def __str__(self):
 
-        return f'Binomial(n={self._n}, p={self._p})'
+        return f'Binomial(n={self._n}, p={self._p: 0.2f})'
 
     def __repr__(self):
 

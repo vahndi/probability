@@ -55,7 +55,7 @@ class NegativeBinomial(
 
     def __str__(self):
 
-        return f'NegativeBinomial(r={self._r}, p={self._p})'
+        return f'NegativeBinomial(r={self._r}, p={self._p: 0.2f})'
 
     def __repr__(self):
 
