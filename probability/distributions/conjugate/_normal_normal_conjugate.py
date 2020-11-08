@@ -7,7 +7,7 @@ from scipy.stats import norm
 from probability.custom_types.external_custom_types import Array1d
 from probability.distributions.continuous.normal import Normal
 from probability.distributions.mixins.conjugate import ConjugateMixin
-from probability.utils import none_are_none, all_are_none
+from probability.utils import none_are_none, all_are_none, num_format
 
 
 class _NormalNormalConjugate(ConjugateMixin, object):
@@ -138,16 +138,16 @@ class _NormalNormalConjugate(ConjugateMixin, object):
         if self._parameterization == 'μ₀σ₀²σ²':
             return (
                 f'NormalNormal('
-                f'μ₀={self._mu_0}, '
-                f'σ₀²={self._sigma_sq_0}, '
-                f'σ²={self._sigma_sq})'
+                f'μ₀={num_format(self._mu_0, 3)}, '
+                f'σ₀²={num_format(self._sigma_sq_0, 3)}, '
+                f'σ²={num_format(self._sigma_sq, 3)})'
             )
         elif self._parameterization == 'μ₀τ₀τ':
             return (
                 f'NormalNormal('
-                f'μ₀={self._mu_0}, '
-                f'τ₀={self.tau_0}, '
-                f'τ={self.tau})'
+                f'μ₀={num_format(self._mu_0, 3)}, '
+                f'τ₀={num_format(self.tau_0, 3)}, '
+                f'τ={num_format(self.tau, 3)})'
             )
 
     def __repr__(self):

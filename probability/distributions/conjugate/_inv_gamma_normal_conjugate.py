@@ -7,6 +7,7 @@ from probability.custom_types.external_custom_types import Array1d
 from probability.custom_types.compound_types import RVMixin
 from probability.distributions.continuous.inv_gamma import InvGamma
 from probability.distributions.mixins.conjugate import ConjugateMixin
+from probability.utils import num_format
 
 
 class _InvGammaNormalConjugate(ConjugateMixin, object):
@@ -95,9 +96,9 @@ class _InvGammaNormalConjugate(ConjugateMixin, object):
 
         return (
             f'InvGammaNormal('
-            f'α={self._alpha}, '
-            f'β={self._beta}, '
-            f'μ={self._mu}, '
+            f'α={num_format(self._alpha, 3)}, '
+            f'β={num_format(self._beta, 3)}, '
+            f'μ={num_format(self._mu, 3)}, '
             f'n={self.n})'
         )
 

@@ -4,7 +4,7 @@ from numpy import arange
 from scipy import randn
 from scipy.stats import norm
 
-from probability.distributions.conjugate.inv_gamma_normal_conjugate import \
+from probability.distributions.conjugate._inv_gamma_normal_conjugate import \
     _InvGammaNormalConjugate
 
 
