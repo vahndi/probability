@@ -131,7 +131,7 @@ class BetaBinomialConjugate(
             r'β_{Beta})$'
         )
 
-    def posterior_predictive(self, n_: Optional[int] = None) -> BetaBinomial:
+    def posterior_predictive(self, n_: int) -> BetaBinomial:
         """
         Return a BetaBinomial describing the expected distribution of future
         successes of n trials based on the posterior parameter estimates.
@@ -140,7 +140,6 @@ class BetaBinomialConjugate(
                   of success. Leave blank to use the same n as the observed
                   number of trials.
         """
-        n_ = n_ if n_ is not None else self._n
         return BetaBinomial(
             n=n_,
             alpha=self.alpha_prime,
