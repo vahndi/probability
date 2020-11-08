@@ -1,8 +1,12 @@
+from itertools import product
+from typing import Union, List, Optional
+
 from mpl_format.figures import FigureFormatter
 from numpy.ma import arange
-from pandas import Series
+from pandas import Series, DataFrame
 from scipy.stats import lomax
 
+from probability.distributions.conjugate.priors import VaguePrior
 from probability.distributions.continuous.exponential import Exponential
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.lomax import Lomax
@@ -45,15 +49,16 @@ class GammaExponentialConjugate(
     * https://en.wikipedia.org/wiki/Exponential_distribution
     * https://en.wikipedia.org/wiki/Conjugate_prior
     """
-
-    def __init__(self, alpha: float, beta: float, n: int, x_mean: float):
+    def __init__(self, n: int, x_mean: float,
+                 alpha: float = VaguePrior.Gamma.alpha,
+                 beta: float = VaguePrior.Gamma.beta):
         """
+        :param n: Number of observations.
+        :param x_mean: Average duration of, or time between, observations.
         :param alpha: Value for the α hyper-parameter of the prior Gamma
                       distribution (number of observations).
         :param beta: Value for the β hyper-parameter of the prior Gamma
                      distribution (sum of observations).
-        :param n: Number of observations.
-        :param x_mean: Average duration of, or time between, observations.
         """
         self._alpha: float = alpha
         self._beta: float = beta
@@ -75,6 +80,8 @@ class GammaExponentialConjugate(
         self._x_mean = value
         self._reset_distribution()
 
+    # region posterior hyper-parameters
+
     @property
     def alpha_prime(self) -> float:
         return self._alpha + self._n
@@ -83,10 +90,16 @@ class GammaExponentialConjugate(
     def beta_prime(self) -> float:
         return self._beta + self._n * self._x_mean
 
+    # endregion
+
     def prior(self) -> Gamma:
         return Gamma(
             alpha=self._alpha, beta=self._beta
-        ).with_y_label('$P(λ=x|α,β)$').prepend_to_label('Prior: ')
+        ).with_y_label(
+            '$P(λ_{Exp}=x|'
+            'α_{Gam},'
+            'β_{Gam})$'
+        ).prepend_to_label('Prior: ')
 
     def likelihood(self) -> Exponential:
         return Exponential(lambda_=1 / self._x_mean)
@@ -95,22 +108,132 @@ class GammaExponentialConjugate(
 
         return Gamma(
             alpha=self.alpha_prime, beta=self.beta_prime
-        ).with_y_label(r'$P(λ=x|α+n,β+n\bar{x})$').prepend_to_label(
+        ).with_y_label(
+            r'$P(λ_{Exp}=x|'
+            r'α_{Gam}+n_{Obs},'
+            r'β_{Gam}+n_{Obs}\bar{x}_{Obs})$'
+        ).prepend_to_label(
             'Posterior: '
         )
+
+    # region predictive
 
     def prior_predictive(self) -> Lomax:
 
         return Lomax(
             lambda_=self._beta, alpha=self._alpha
-        ).with_y_label(r'$P(\tilde{X}=x|α,β)$')
+        ).with_y_label(
+            r'$P(\tilde{X}=x|'
+            r'α_{Gam},'
+            r'β_{Gam})$'
+        )
 
     def posterior_predictive(self) -> Lomax:
 
         return Lomax(
             lambda_=self.beta_prime,
             alpha=self.alpha_prime
-        ).with_y_label(r'$P(\tilde{X}=x|α+n,β+n\bar{x})$')
+        ).with_y_label(
+            r'$P(\tilde{X}=x|'
+            r'α_{Gam}+n_{Obs},'
+            r'β_{Gam}+n_{Obs}\bar{x}_{Obs})$'
+        )
+
+    # endregion
+
+    @staticmethod
+    def infer_posterior(data: Series,
+                        alpha: float = VaguePrior.Gamma.alpha,
+                        beta: float = VaguePrior.Gamma.beta) -> Gamma:
+        """
+        Return a new Gamma distribution of the posterior most likely to
+        generate the given data.
+
+        :param data: Series of float values representing duration of,
+                     or between each observation.
+        :param alpha: Value for the α hyper-parameter of the prior Gamma
+                      distribution (number of observations).
+        :param beta: Value for the β hyper-parameter of the prior Gamma
+                     distribution (sum of observations).
+        """
+        n = len(data)
+        x_mean = data.mean()
+        return GammaExponentialConjugate(
+            n=n, x_mean=x_mean,
+            alpha=alpha, beta=beta
+        ).posterior()
+
+    @staticmethod
+    def infer_posteriors(
+            data: DataFrame,
+            prob_vars: Union[str, List[str]],
+            cond_vars: Union[str, List[str]],
+            stats: Optional[Union[str, dict, List[Union[str, dict]]]] = None,
+            alpha: float = VaguePrior.Gamma.alpha,
+            beta: float = VaguePrior.Gamma.beta
+    ) -> DataFrame:
+        """
+        Return a DataFrame mapping probability and conditional variables to Beta
+        distributions of posteriors most likely to generate the given data.
+
+        :param data: DataFrame containing observation data.
+        :param prob_vars: Name(s) of binary variables
+                          whose posteriors to find probability of.
+        :param cond_vars: Names of discrete variables to condition on.
+                          Calculations will be done for the cartesian product
+                          of variable values
+                          e.g if cA={1,2} and cB={3,4} then
+                          cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
+        :param stats: Optional stats to append to the output e.g. 'alpha',
+                      'median'. To pass arguments use a dict mapping stat
+                      name to iterable of args.
+        :param alpha: Value for the α hyper-parameter of each prior Gamma
+                      distribution (number of observations).
+        :param beta: Value for the β hyper-parameter of each prior Gamma
+                     distribution (sum of observations).
+        :return: DataFrame with columns for each conditioning variable,
+                 a 'prob_var' column indicating the probability variable,
+                 a `prob_val` column indicating the value of the probability
+                 variable, and a `Beta` column containing the distribution.
+        """
+        if isinstance(prob_vars, str):
+            prob_vars = [prob_vars]
+        if isinstance(cond_vars, str):
+            cond_vars = [cond_vars]
+        cond_products = product(
+            *[data[cond_var].unique() for cond_var in cond_vars]
+        )
+        if stats is not None:
+            if isinstance(stats, str) or isinstance(stats, dict):
+                stats = [stats]
+        else:
+            stats = []
+        gammas = []
+        # iterate over conditions
+        for cond_values in cond_products:
+            cond_data = data
+            cond_dict = {}
+            for cond_var, cond_value in zip(cond_vars, cond_values):
+                cond_data = cond_data.loc[cond_data[cond_var] == cond_value]
+                cond_dict[cond_var] = cond_value
+            n_cond: int = len(cond_data)
+            for prob_var in prob_vars:
+                prob_dict = cond_dict.copy()
+                x_prob: float = cond_data[prob_var].mean()
+                prob_dict['prob_var'] = prob_var
+                posterior = GammaExponentialConjugate(
+                    n=n_cond, x_mean=x_prob,
+                    alpha=alpha, beta=beta
+                ).posterior()
+                prob_dict['Gamma'] = posterior
+                for stat in stats:
+                    prob_dict = {**prob_dict,
+                                 ** posterior.stat(stat, True)}
+                gammas.append(prob_dict)
+
+        betas_data = DataFrame(gammas)
+
+        return betas_data
 
     def plot(self, **kwargs):
         """
@@ -178,18 +301,18 @@ class GammaExponentialConjugate(
 
         return (
             f'GammaExponential('
-            f'α={self._alpha}, '
-            f'β={self._beta}, '
             f'n={self._n}, '
             f'x̄={self._x_mean})'
+            f'α={self._alpha: 0.2f}, '
+            f'β={self._beta: 0.2f}, '
         )
 
     def __repr__(self):
 
         return (
             f'GammaExponential('
-            f'alpha={self._alpha}, '
-            f'beta={self._beta}, '
             f'n={self._n}, '
             f'x_mean={self._x_mean})'
+            f'alpha={self._alpha}, '
+            f'beta={self._beta}, '
         )

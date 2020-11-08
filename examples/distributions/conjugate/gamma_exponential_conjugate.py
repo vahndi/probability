@@ -6,7 +6,7 @@ from probability.distributions.conjugate.gamma_exponential_conjugate import \
 
 def plot_example():
 
-    ge = GammaExponentialConjugate(alpha=10, beta=5, n=100, x_mean=0.3)
+    ge = GammaExponentialConjugate(x_mean=0.3, n=100, alpha=10, beta=5)
     ge.plot()
     plt.show()
 
