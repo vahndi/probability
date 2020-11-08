@@ -87,8 +87,19 @@ def plot_example():
     plt.show()
 
 
+def plot_comparison():
+
+    bb_10 = BetaBinomialConjugate(n=10, k=7)
+    bb_100 = BetaBinomialConjugate(n=100, k=70)
+    ff = FigureFormatter(n_rows=1, n_cols=2)
+    bb_10.posterior_predictive(n_=100).plot(k=range(101), ax=ff[0].axes)
+    bb_100.posterior_predictive(n_=100).plot(k=range(101), ax=ff[1].axes)
+    ff.show()
+
+
 if __name__ == '__main__':
 
-    plot_ml_app()
-    plot_examples()
-    plot_example()
+    # plot_ml_app()
+    # plot_examples()
+    # plot_example()
+    plot_comparison()
