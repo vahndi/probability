@@ -5,6 +5,7 @@ from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.utils import num_format
 
 
 class Gamma(
@@ -77,9 +78,17 @@ class Gamma(
     def __str__(self):
 
         if self._parameterization == 'αβ':
-            return f'Gamma(α={self._alpha: 0.2f}, β={self._beta: 0.2f})'
+            return (
+                f'Gamma('
+                f'α={num_format(self._alpha, 3)}, '
+                f'β={num_format(self._beta, 3)})'
+            )
         elif self._parameterization == 'kθ':
-            return f'Gamma(k={self._alpha: 0.2f}, θ={1 / self._beta: 0.2f})'
+            return (
+                f'Gamma('
+                f'k={num_format(self._alpha, 3)}, '
+                f'θ={num_format(1 / self._beta, 3)})'
+            )
 
     def __repr__(self):
 

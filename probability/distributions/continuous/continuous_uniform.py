@@ -5,6 +5,7 @@ from probability.distributions.mixins.attributes import AFloatDMixin, \
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.utils import num_format
 
 
 class ContinuousUniform(
@@ -45,7 +46,11 @@ class ContinuousUniform(
 
     def __str__(self):
 
-        return f'ContinuousUniform(a={self._a: 0.2f}, b={self._b: 0.2f})'
+        return (
+            f'ContinuousUniform('
+            f'a={num_format(self._a, 3)}, '
+            f'b={num_format(self._b, 3)})'
+        )
 
     def __repr__(self):
 

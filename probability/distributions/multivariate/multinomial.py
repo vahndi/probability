@@ -13,7 +13,7 @@ from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.rv_mixins import EntropyMixin, \
     RVSNdMixin, PMFNdMixin
-from probability.utils import k_tuples_summing_to_n
+from probability.utils import k_tuples_summing_to_n, num_format
 
 
 class Multinomial(
@@ -100,7 +100,8 @@ class Multinomial(
 
     def __str__(self):
 
-        p = ', '.join([f'{k}={v: 0.2f}' for k, v in self._p.items()])
+        p = ', '.join([f'{k}={num_format(v, 3)}'
+                       for k, v in self._p.items()])
         return f'Multinomial({p})'
 
     def __repr__(self):

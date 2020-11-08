@@ -4,6 +4,7 @@ from probability.distributions.mixins.attributes import LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.utils import num_format
 
 
 class Exponential(
@@ -37,7 +38,7 @@ class Exponential(
 
     def __str__(self):
 
-        return f'Exponential(λ={self._lambda: 0.2f})'
+        return f'Exponential(λ={num_format(self._lambda, 3)})'
 
     def __repr__(self):
 

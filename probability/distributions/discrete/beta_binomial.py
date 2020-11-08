@@ -5,6 +5,7 @@ from probability.distributions.mixins.attributes import NIntDMixin, \
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
+from probability.utils import num_format
 
 
 class BetaBinomial(
@@ -56,8 +57,8 @@ class BetaBinomial(
     def __str__(self):
         return f'BetaBinomial(' \
                f'n={self._n}, ' \
-               f'α={self._alpha: 0.2f}, ' \
-               f'β={self._beta: 0.2f})'
+               f'α={num_format(self._alpha, 3)}, ' \
+               f'β={num_format(self._beta, 3)})'
 
     def __repr__(self):
         return f'BetaBinomial(' \

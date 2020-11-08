@@ -14,6 +14,7 @@ from probability.distributions.mixins.conjugate import ConjugateMixin, \
     PredictiveMixin
 from probability.distributions.mixins.attributes import AlphaFloatMixin, \
     BetaFloatMixin, NIntMixin
+from probability.utils import num_format
 
 
 class GammaExponentialConjugate(
@@ -303,8 +304,8 @@ class GammaExponentialConjugate(
             f'GammaExponential('
             f'n={self._n}, '
             f'x̄={self._x_mean})'
-            f'α={self._alpha: 0.2f}, '
-            f'β={self._beta: 0.2f}, '
+            f'α={num_format(self._alpha, 3)}, '
+            f'β={num_format(self._beta, 3)}, '
         )
 
     def __repr__(self):

@@ -13,7 +13,7 @@ from probability.distributions.mixins.attributes import AlphaFloatMixin, \
     BetaFloatMixin, NIntMixin, KIntMixin
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.supports import SUPPORT_BETA
-from probability.utils import is_binary
+from probability.utils import is_binary, num_format
 
 
 class BetaGeometricConjugate(
@@ -235,7 +235,7 @@ class BetaGeometricConjugate(
                     alpha=alpha, beta=beta,
                     data=cond_data[prob_var]
                 )
-                prob_dict['Geometric'] = posterior
+                prob_dict['Beta'] = posterior
                 for stat in stats:
                     prob_dict = {**prob_dict,
                                  ** posterior.stat(stat, True)}
@@ -248,8 +248,8 @@ class BetaGeometricConjugate(
     def __str__(self):
 
         return f'BetaGeometric(' \
-               f'α={self._alpha: 0.2f}, ' \
-               f'β={self._beta: 0.2f}, ' \
+               f'α={num_format(self._alpha, 3)}, ' \
+               f'β={num_format(self._beta, 3)}, ' \
                f'n={self._n}, ' \
                f'k={self._k}' \
                f')'

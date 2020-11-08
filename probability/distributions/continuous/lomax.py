@@ -5,6 +5,7 @@ from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.utils import num_format
 
 
 class Lomax(
@@ -38,7 +39,11 @@ class Lomax(
 
     def __str__(self):
 
-        return f'Lomax(λ={self._lambda: 0.2f}, α={self._alpha: 0.2f})'
+        return (
+            f'Lomax('
+            f'λ={num_format(self._lambda, 3)}, '
+            f'α={num_format(self._alpha, 3)})'
+        )
 
     def __repr__(self):
 

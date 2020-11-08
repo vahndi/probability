@@ -6,11 +6,13 @@ from numpy.ma import arange
 from pandas import Series, DataFrame
 
 from probability.distributions import Poisson, NegativeBinomial
+from probability.distributions.conjugate.priors import VaguePrior
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
     PredictiveMixin
 from probability.distributions.mixins.attributes import AlphaFloatMixin, \
     BetaFloatMixin, NIntMixin, KIntMixin
+from probability.utils import num_format
 
 
 class GammaPoissonConjugate(
@@ -47,19 +49,23 @@ class GammaPoissonConjugate(
     * https://en.wikipedia.org/wiki/Conjugate_prior
     """
 
-    def __init__(self, alpha: float, beta: float, n: int, k: int):
+    def __init__(self, n: int, k: int,
+                 alpha: float = VaguePrior.Gamma.alpha,
+                 beta: float = VaguePrior.Gamma.beta):
         """
+        :param n: Number of intervals.
+        :param k: Number of occurrences.
         :param alpha: Value for the α hyper-parameter of the prior Gamma
                       distribution (number of occurrences).
         :param beta: Value for the β hyper-parameter of the prior Gamma
                      distribution (number of intervals).
-        :param n: Number of intervals.
-        :param k: Number of occurrences.
         """
         self._alpha: float = alpha
         self._beta: float = beta
         self._n: int = n
         self._k: k = k
+
+    # region posterior hyper-parameters
 
     @property
     def alpha_prime(self) -> float:
@@ -69,10 +75,16 @@ class GammaPoissonConjugate(
     def beta_prime(self) -> float:
         return self._beta + self._n
 
+    # endregion
+
     def prior(self) -> Gamma:
         return Gamma(
             alpha=self._alpha, beta=self._beta
-        ).with_y_label('$P(λ=x|α,β)$').prepend_to_label('Prior: ')
+        ).with_y_label(
+            '$P(λ_{Poi}=x|'
+            'α_{Gam},'
+            'β_{Gam})$'
+        ).prepend_to_label('Prior: ')
 
     def likelihood(self) -> Poisson:
         return Poisson(lambda_=self._k / self._n)
@@ -81,23 +93,39 @@ class GammaPoissonConjugate(
 
         return Gamma(
             alpha=self.alpha_prime, beta=self.beta_prime
-        ).with_y_label(r'$P(λ=x|α+k,β+n)$').prepend_to_label(
+        ).with_y_label(
+            r'$P(λ_{Poi}=x|'
+            r'α_{Gam}+k_{Obs},'
+            r'β_{Gam}+n_{Obs})$'
+        ).prepend_to_label(
             'Posterior: '
         )
+
+    # region predictive
 
     def prior_predictive(self) -> NegativeBinomial:
 
         return NegativeBinomial(
             r=self._alpha,
             p=1 / (1 + self._beta)
-        ).with_y_label(r'$P(\tilde{X}=x|α,β)$')
+        ).with_y_label(
+            r'$P(\tilde{X}=x|'
+            r'α_{Gam},'
+            r'β_{Gam})$'
+        )
 
     def posterior_predictive(self) -> NegativeBinomial:
 
         return NegativeBinomial(
             r=self.alpha_prime,
             p=1 / (1 + self.beta_prime)
-        ).with_y_label(r'$P(\tilde{X}=x|α+k,β+n)$')
+        ).with_y_label(
+            r'$P(\tilde{X}=x|'
+            r'α_{Gam}+k_{Obs},'
+            r'β_{Gam}+n_{Obs})$'
+        )
+
+    # endregion
 
     def plot(self, **kwargs):
         """
@@ -156,23 +184,33 @@ class GammaPoissonConjugate(
         return ff.figure
 
     @staticmethod
-    def infer_posterior(data: Series) -> Gamma:
+    def infer_posterior(data: Series,
+                        alpha: float = VaguePrior.Gamma.alpha,
+                        beta: float = VaguePrior.Gamma.beta) -> Gamma:
         """
         Return a new Gamma distribution of the posterior most likely to generate
         the given data.
 
         :param data: Series of integers representing the number of occurrences
                      per interval.
+        :param alpha: Value for the α hyper-parameter of the prior Gamma
+                      distribution (number of occurrences).
+        :param beta: Value for the β hyper-parameter of the prior Gamma
+                     distribution (number of intervals).
         """
-        alpha: int = data.sum()
-        beta: int = len(data)
-        return Gamma(alpha=alpha, beta=beta)
+        k: int = data.sum()
+        n: int = len(data)
+        return GammaPoissonConjugate(
+            n=n, k=k, alpha=alpha, beta=beta
+        ).posterior()
 
     @staticmethod
     def infer_posteriors(
             data: DataFrame,
             prob_vars: Union[str, List[str]],
             cond_vars: Union[str, List[str]],
+            alpha: float = VaguePrior.Gamma.alpha,
+            beta: float = VaguePrior.Gamma.beta,
             stats: Optional[Union[str, dict, List[Union[str, dict]]]] = None
     ) -> DataFrame:
         """
@@ -187,6 +225,10 @@ class GammaPoissonConjugate(
                           of variable values
                           e.g if cA={1,2} and cB={3,4} then
                           cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
+        :param alpha: Value for the α hyper-parameter of each prior Gamma
+                      distribution (number of occurrences).
+        :param beta: Value for the β hyper-parameter of each prior Gamma
+                     distribution (number of intervals).
         :param stats: Optional stats to append to the output e.g. 'alpha',
                       'median'. To pass arguments use a dict mapping stat
                       name to iterable of args.
@@ -219,7 +261,8 @@ class GammaPoissonConjugate(
                 prob_dict = cond_dict.copy()
                 prob_dict['prob_var'] = prob_var
                 gamma = GammaPoissonConjugate.infer_posterior(
-                    cond_data[prob_var]
+                    data=cond_data[prob_var],
+                    alpha=alpha, beta=beta
                 )
                 prob_dict['Gamma'] = gamma
                 for stat in stats:
@@ -234,8 +277,8 @@ class GammaPoissonConjugate(
 
         return (
             f'GammaExponential('
-            f'α={self._alpha}, '
-            f'β={self._beta}, '
+            f'α={num_format(self._alpha, 3)}, '
+            f'β={num_format(self._beta, 3)}, '
             f'n={self._n}, '
             f'k={self._k})'
         )

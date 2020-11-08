@@ -4,6 +4,7 @@ from probability.distributions.mixins.attributes import NIntDMixin, PFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
+from probability.utils import num_format
 
 
 class Binomial(
@@ -39,7 +40,11 @@ class Binomial(
 
     def __str__(self):
 
-        return f'Binomial(n={self._n}, p={self._p: 0.2f})'
+        return (
+            f'Binomial('
+            f'n={num_format(self._n, 3)}, '
+            f'p={num_format(self._p, 3)})'
+        )
 
     def __repr__(self):
 

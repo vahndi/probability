@@ -49,7 +49,7 @@ class TestBetaGeometricConjugate(TestCase):
                 (1, 2, 'd', 1, g__2_2),
                 (2, 2, 'd', 1, g__2_3)
             ],
-            columns=['a', 'b', 'prob_var', 'prob_val', 'Geometric']
+            columns=['a', 'b', 'prob_var', 'prob_val', 'Beta']
         )
         actual = BetaGeometricConjugate.infer_posteriors(
             data=self.geometric_data,
@@ -57,11 +57,11 @@ class TestBetaGeometricConjugate(TestCase):
             cond_vars=['a', 'b']
         )
         for _, row in expected.iterrows():
-            actual_geom = actual.loc[
+            actual_beta = actual.loc[
                 (actual['a'] == row['a']) &
                 (actual['b'] == row['b']) &
                 (actual['prob_var'] == row['prob_var']) &
                 (actual['prob_val'] == row['prob_val']),
-                'Geometric'
+                'Beta'
             ].iloc[0]
-            self.assertTrue(row['Geometric'] == actual_geom)
+            self.assertTrue(row['Beta'] == actual_beta)

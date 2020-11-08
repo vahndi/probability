@@ -4,6 +4,7 @@ from probability.distributions.mixins.attributes import MuFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.utils import num_format
 
 
 class Laplace(
@@ -39,7 +40,11 @@ class Laplace(
         self._reset_distribution()
 
     def __str__(self):
-        return f'Laplace(μ={self._mu: 0.2f}, b={self._b: 0.2f})'
+        return (
+            f'Laplace('
+            f'μ={num_format(self._mu, 3)}, '
+            f'b={num_format(self._b, 3)})'
+        )
 
     def __repr__(self):
         return f'Laplace(mu={self._mu}, b={self._b})'

@@ -9,6 +9,7 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 from probability.distributions.special import prob_bb_greater_exact
+from probability.utils import num_format
 
 
 class Beta(
@@ -46,7 +47,9 @@ class Beta(
 
     def __str__(self):
 
-        return f'Beta(α={self._alpha: 0.2f}, β={self._beta: 0.2f})'
+        return f'Beta(' \
+               f'α={num_format(self._alpha, 3)}, ' \
+               f'β={num_format(self._beta, 3)})'
 
     def __repr__(self):
 

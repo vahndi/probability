@@ -7,6 +7,7 @@ from probability.distributions.mixins.attributes import MuFloatDMixin, \
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.utils import num_format
 
 
 class StudentsT(
@@ -71,14 +72,14 @@ class StudentsT(
     def __str__(self):
         if self._parameterization == 'μσ':
             return f'StudentsT(' \
-                   f'$\\nu$={self._nu: 0.2f}, ' \
-                   f'μ={self._mu: 0.2f}, ' \
-                   f'σ={self._sigma: 0.2f})'
+                   f'$\\nu$={num_format(self._nu, 3)}, ' \
+                   f'μ={num_format(self._mu, 3)}, ' \
+                   f'σ={num_format(self._sigma, 3)})'
         elif self._parameterization == 'μσ²':
             return f'StudentsT(' \
-                   f'$\\nu$={self._nu: 0.2f}, ' \
-                   f'μ={self._mu: 0.2f}, ' \
-                   f'σ²={self.sigma_sq: 0.2f})'
+                   f'$\\nu$={num_format(self._nu, 3)}, ' \
+                   f'μ={num_format(self._mu, 3)}, ' \
+                   f'σ²={num_format(self.sigma_sq, 3)})'
 
     def __repr__(self):
 

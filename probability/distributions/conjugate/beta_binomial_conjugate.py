@@ -14,7 +14,7 @@ from probability.distributions.mixins.attributes import AlphaFloatMixin, \
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
     PredictiveMixin
 from probability.supports import SUPPORT_BETA
-from probability.utils import is_binary
+from probability.utils import is_binary, num_format
 
 
 class BetaBinomialConjugate(
@@ -296,8 +296,8 @@ class BetaBinomialConjugate(
 
         return (
             f'BetaBinomial('
-            f'α={self._alpha: 0.2f}, '
-            f'β={self._beta: 0.2f}, '
+            f'α={num_format(self._alpha, 3)}, '
+            f'β={num_format(self._beta, 3)}, '
             f'n={self._n}, k={self._k})'
         )
 

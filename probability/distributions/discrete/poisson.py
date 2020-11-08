@@ -4,6 +4,7 @@ from probability.distributions.mixins.attributes import LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
+from probability.utils import num_format
 
 
 class Poisson(
@@ -24,7 +25,7 @@ class Poisson(
     """
     def __init__(self, lambda_: float):
         """
-        Create a new poisson distribution.
+        Create a new Poisson distribution.
 
         :param lambda_: Average rate at which events occur.
         """
@@ -37,7 +38,7 @@ class Poisson(
 
     def __str__(self):
 
-        return f'Poisson(λ={self._lambda: 0.2f})'
+        return f'Poisson(λ={num_format(self._lambda, 3)})'
 
     def __repr__(self):
 

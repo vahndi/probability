@@ -41,3 +41,11 @@ def is_binary(data: Series) -> bool:
     return (
         set(data.unique()).issubset({0, 1})
     )
+
+
+def num_format(number: float, max_dp: int) -> str:
+
+    for ndp in range(max_dp):
+        if round(number, ndp) == number:
+            return f'{number:0.{ndp}f}'
+    return f'{number:0.{max_dp}f}'

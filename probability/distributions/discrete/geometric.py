@@ -4,6 +4,7 @@ from probability.distributions.mixins.attributes import PFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
+from probability.utils import num_format
 
 
 class Geometric(
@@ -34,7 +35,7 @@ class Geometric(
 
     def __str__(self):
 
-        return f'Geometric(p={self._p: 0.2f})'
+        return f'Geometric(p={num_format(self._p, 3)})'
 
     def __repr__(self):
 

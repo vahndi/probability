@@ -8,7 +8,7 @@ from probability.distributions.mixins.attributes import MuFloatDMixin, \
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
-from probability.utils import any_are_not_none, any_are_none
+from probability.utils import any_are_not_none, any_are_none, num_format
 
 
 class Normal(
@@ -67,9 +67,17 @@ class Normal(
     def __str__(self):
 
         if self._parameterization == 'μσ':
-            return f'Normal(μ={self._mu: 0.2f}, σ={self._sigma: 0.2f})'
+            return (
+                f'Normal('
+                f'μ={num_format(self._mu, 3)}, '
+                f'σ={num_format(self._sigma, 3)})'
+            )
         elif self._parameterization == 'μσ²':
-            return f'Normal(μ={self._mu: 0.2f}, σ²={self.sigma_sq: 0.2f})'
+            return (
+                f'Normal('
+                f'μ={num_format(self._mu, 3)}, '
+                f'σ²={num_format(self.sigma_sq, 3)})'
+            )
 
     def __repr__(self):
 

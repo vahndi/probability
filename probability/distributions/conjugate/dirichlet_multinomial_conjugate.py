@@ -11,6 +11,7 @@ from probability.distributions import UniformPrior
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.multivariate import Dirichlet, Multinomial
 from probability.supports import SUPPORT_DIRICHLET
+from probability.utils import num_format
 
 
 class DirichletMultinomialConjugate(
@@ -311,7 +312,8 @@ class DirichletMultinomialConjugate(
 
     def __str__(self):
 
-        alpha = ', '.join([f'{k}={v: 0.2f}' for k, v in self._alpha.items()])
+        alpha = ', '.join([f'{k}={num_format(v, 3)}'
+                           for k, v in self._alpha.items()])
         x = ', '.join([f'{k}={v}' for k, v in self._x.items()])
         return (
             f'DirichletMultinomial('
