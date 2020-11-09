@@ -295,7 +295,7 @@ class BetaBinomialConjugate(
     def __str__(self):
 
         return (
-            f'BetaBinomial('
+            f'BetaBinomialConjugate('
             f'α={num_format(self._alpha, 3)}, '
             f'β={num_format(self._beta, 3)}, '
             f'n={self._n}, k={self._k})'
@@ -304,7 +304,7 @@ class BetaBinomialConjugate(
     def __repr__(self):
 
         return (
-            f'BetaBinomial('
+            f'BetaBinomialConjugate('
             f'alpha={self._alpha}, '
             f'beta={self._beta}, '
             f'n={self._n}, '

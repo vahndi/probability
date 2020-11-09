@@ -316,7 +316,7 @@ class DirichletMultinomialConjugate(
                            for k, v in self._alpha.items()])
         x = ', '.join([f'{k}={v}' for k, v in self._x.items()])
         return (
-            f'DirichletMultinomial('
+            f'DirichletMultinomialConjugate('
             f'α={alpha},'
             f'n={self._n}, '
             f'x={x})'
@@ -327,7 +327,7 @@ class DirichletMultinomialConjugate(
         alpha = ', '.join([f'{k}={v}' for k, v in self._alpha.items()])
         x = ', '.join([f'{k}={v}' for k, v in self._x.items()])
         return (
-            f'DirichletMultinomial('
+            f'DirichletMultinomialConjugate('
             f'alpha={alpha},'
             f'n={self._n}, '
             f'x={x})'
