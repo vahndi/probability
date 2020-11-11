@@ -86,6 +86,10 @@ class BetaBinomialConjugate(
     # endregion
 
     def prior(self) -> Beta:
+        """
+        Return a Beta distribution reflecting the prior belief about the
+        distribution of the parameter p, before seeing any data.
+        """
         return Beta(
             alpha=self._alpha, beta=self._beta
         ).with_y_label(
@@ -93,12 +97,21 @@ class BetaBinomialConjugate(
         ).prepend_to_label('Prior: ')
 
     def likelihood(self) -> Binomial:
+        """
+        Return a distribution reflecting the likelihood of observing
+        the data, under a Binomial model, independent of the prior belief about
+        the distribution of parameter p.
+        """
         return Binomial(
             n=self._n,
             p=self._k / self._n
         )
 
     def posterior(self) -> Beta:
+        """
+        Return a Beta distribution reflecting the posterior belief about the
+        distribution of the parameter p, after observing the data.
+        """
         return Beta(
             alpha=self.alpha_prime,
             beta=self.beta_prime

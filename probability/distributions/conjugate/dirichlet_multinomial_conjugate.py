@@ -157,7 +157,10 @@ class DirichletMultinomialConjugate(
         return self._n
 
     def prior(self, **kwargs) -> Dirichlet:
-
+        """
+        Return a Dirichlet distribution reflecting the prior belief about the
+        distribution of the parameter p, before seeing any data.
+        """
         return Dirichlet(
             alpha=self._alpha
         ).with_y_label(
@@ -165,11 +168,18 @@ class DirichletMultinomialConjugate(
         ).prepend_to_label('Prior: ')
 
     def likelihood(self, **kwargs) -> Multinomial:
-
+        """
+        Return a distribution reflecting the likelihood of observing
+        the data, under a Multinomial model, independent of the prior belief
+        about the distribution of parameter p.
+        """
         return Multinomial(n=self._n, p=self._x / self._n)
 
     def posterior(self, **kwargs) -> Dirichlet:
-
+        """
+        Return a Dirichlet distribution reflecting the posterior belief about
+        the distribution of the parameter p, after observing the data.
+        """
         return Dirichlet(
             alpha=self.alpha_prime
         ).with_y_label(

@@ -78,6 +78,10 @@ class GammaPoissonConjugate(
     # endregion
 
     def prior(self) -> Gamma:
+        """
+        Return a Gamma distribution reflecting the prior belief about the
+        distribution of the parameter λ, before seeing any data.
+        """
         return Gamma(
             alpha=self._alpha, beta=self._beta
         ).with_y_label(
@@ -87,10 +91,18 @@ class GammaPoissonConjugate(
         ).prepend_to_label('Prior: ')
 
     def likelihood(self) -> Poisson:
+        """
+        Return a distribution reflecting the likelihood of observing
+        the data, under a Poisson model, independent of the prior belief
+        about the distribution of parameter λ.
+        """
         return Poisson(lambda_=self._k / self._n)
 
     def posterior(self) -> Gamma:
-
+        """
+        Return a Gamma distribution reflecting the posterior belief about the
+        distribution of the parameter λ, after observing the data.
+        """
         return Gamma(
             alpha=self.alpha_prime, beta=self.beta_prime
         ).with_y_label(

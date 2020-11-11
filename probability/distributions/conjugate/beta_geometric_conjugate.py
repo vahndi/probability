@@ -80,6 +80,10 @@ class BetaGeometricConjugate(
     # endregion
 
     def prior(self) -> Beta:
+        """
+        Return a Beta distribution reflecting the prior belief about the
+        distribution of the parameter p, before seeing any data.
+        """
         return Beta(
             alpha=self._alpha, beta=self._beta
         ).with_y_label(
@@ -89,9 +93,18 @@ class BetaGeometricConjugate(
         ).prepend_to_label('Prior: ')
 
     def likelihood(self) -> Geometric:
+        """
+        Return a distribution reflecting the likelihood of observing
+        the data, under a Geometric model, independent of the prior belief about
+        the distribution of parameter p.
+        """
         return Geometric(p=self._n / self._k)
 
     def posterior(self) -> Beta:
+        """
+        Return a Beta distribution reflecting the posterior belief about the
+        distribution of the parameter p, after observing the data.
+        """
         return Beta(
             alpha=self.alpha_prime,
             beta=self.beta_prime

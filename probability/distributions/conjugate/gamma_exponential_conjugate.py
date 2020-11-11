@@ -94,6 +94,10 @@ class GammaExponentialConjugate(
     # endregion
 
     def prior(self) -> Gamma:
+        """
+        Return a Gamma distribution reflecting the prior belief about the
+        distribution of the parameter λ, before seeing any data.
+        """
         return Gamma(
             alpha=self._alpha, beta=self._beta
         ).with_y_label(
@@ -103,10 +107,18 @@ class GammaExponentialConjugate(
         ).prepend_to_label('Prior: ')
 
     def likelihood(self) -> Exponential:
+        """
+        Return a distribution reflecting the likelihood of observing
+        the data, under an Exponential model, independent of the prior belief
+        about the distribution of parameter λ.
+        """
         return Exponential(lambda_=1 / self._x_mean)
 
     def posterior(self) -> Gamma:
-
+        """
+        Return a Gamma distribution reflecting the posterior belief about the
+        distribution of the parameter λ, after observing the data.
+        """
         return Gamma(
             alpha=self.alpha_prime, beta=self.beta_prime
         ).with_y_label(
