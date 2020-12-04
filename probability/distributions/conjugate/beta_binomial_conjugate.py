@@ -68,10 +68,10 @@ class BetaBinomialConjugate(
         :param beta: Value for the β hyper-parameter of the prior Beta
                       distribution.
         """
-        self._alpha: float = alpha
-        self._beta: float = beta
         self._n: int = n
         self._k: int = k
+        self._alpha: float = alpha
+        self._beta: float = beta
 
     # region posterior hyper-parameters
 

@@ -99,7 +99,7 @@ def plot_comparison():
 
 if __name__ == '__main__':
 
-    # plot_ml_app()
-    # plot_examples()
-    # plot_example()
+    plot_ml_app()
+    plot_examples()
+    plot_example()
     plot_comparison()

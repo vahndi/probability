@@ -62,10 +62,10 @@ class BetaGeometricConjugate(
                      distribution. Number of prior failures
                      ( = total trials - successful trials).
         """
-        self._alpha: float = alpha
-        self._beta: float = beta
         self._n: int = n
         self._k: int = k
+        self._alpha: float = alpha
+        self._beta: float = beta
 
     # region posterior hyper-parameters
 

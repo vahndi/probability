@@ -4,7 +4,6 @@ from typing import Union, List, Optional
 from mpl_format.figures import FigureFormatter
 from numpy.ma import arange
 from pandas import Series, DataFrame
-from scipy.stats import lomax
 
 from probability.distributions.conjugate.priors import VaguePrior
 from probability.distributions.continuous.exponential import Exponential
@@ -61,16 +60,10 @@ class GammaExponentialConjugate(
         :param beta: Value for the β hyper-parameter of the prior Gamma
                      distribution (sum of observations).
         """
-        self._alpha: float = alpha
-        self._beta: float = beta
         self._n: int = n
         self._x_mean: float = x_mean
-        self._reset_distribution()
-
-    def _reset_distribution(self):
-
-        self._distribution = lomax(c=self.alpha_prime,
-                                   scale=self.beta_prime)
+        self._alpha: float = alpha
+        self._beta: float = beta
 
     @property
     def x_mean(self) -> float:
@@ -79,7 +72,6 @@ class GammaExponentialConjugate(
     @x_mean.setter
     def x_mean(self, value: float):
         self._x_mean = value
-        self._reset_distribution()
 
     # region posterior hyper-parameters
 
@@ -244,9 +236,9 @@ class GammaExponentialConjugate(
                                  ** posterior.stat(stat, True)}
                 gammas.append(prob_dict)
 
-        betas_data = DataFrame(gammas)
+        gammas_data = DataFrame(gammas)
 
-        return betas_data
+        return gammas_data
 
     def plot(self, **kwargs):
         """

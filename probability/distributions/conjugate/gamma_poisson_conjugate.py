@@ -60,10 +60,10 @@ class GammaPoissonConjugate(
         :param beta: Value for the β hyper-parameter of the prior Gamma
                      distribution (number of intervals).
         """
-        self._alpha: float = alpha
-        self._beta: float = beta
         self._n: int = n
         self._k: k = k
+        self._alpha: float = alpha
+        self._beta: float = beta
 
     # region posterior hyper-parameters
 

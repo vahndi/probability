@@ -1,6 +1,6 @@
 from matplotlib.axes import Axes
 from scipy.stats import rv_continuous
-from typing import Iterable
+from typing import Iterable, Optional
 
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableMixin
@@ -21,7 +21,10 @@ class RVContinuous1dMixin(
     _distribution: rv_continuous
     _num_samples: int = 1000000
 
-    def plot(self, x: Iterable, kind: str = 'line', color: str = 'C0',
+    def plot(self,
+             x: Optional[Iterable] = None,
+             kind: str = 'line',
+             color: str = 'C0',
              ax: Axes = None, **kwargs) -> Axes:
         """
         Plot the PDF of the distribution.

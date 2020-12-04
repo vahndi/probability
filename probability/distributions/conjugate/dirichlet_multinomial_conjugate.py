@@ -89,10 +89,10 @@ class DirichletMultinomialConjugate(
                 index=x.index
             )
 
-        self._alpha = alpha
         self._x = x
         self._n = self._x.sum()
         self._K = len(x)
+        self._alpha = alpha
 
     # region prior hyper-parameters
 

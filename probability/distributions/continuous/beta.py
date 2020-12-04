@@ -5,6 +5,7 @@ from scipy.stats import beta as beta_dist, rv_continuous
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.domains import FixedDomainMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
@@ -17,6 +18,7 @@ class Beta(
     AlphaFloatDMixin,
     BetaFloatDMixin,
     CalculableMixin,
+    FixedDomainMixin,
     object
 ):
     """
@@ -31,6 +33,9 @@ class Beta(
 
     https://en.wikipedia.org/wiki/Beta_distribution
     """
+    lower_bound = 0
+    upper_bound = 1
+
     def __init__(self, alpha: float, beta: float):
         """
         Create a new beta distribution.
@@ -69,7 +74,7 @@ class Beta(
 
     def __lt__(self, other: Union['Beta', float]) -> float:
 
-        return other < self
+        return other > self
 
     def __eq__(self, other: Union['Beta', float]) -> bool:
 

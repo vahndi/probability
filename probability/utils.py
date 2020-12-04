@@ -36,6 +36,11 @@ def any_are_none(*args) -> bool:
     return any([arg is None for arg in args])
 
 
+def one_is_none(*args) -> bool:
+
+    return sum([arg is None for arg in args]) == 1
+
+
 def is_binary(data: Series) -> bool:
 
     return (

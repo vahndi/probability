@@ -5,13 +5,18 @@ channels:
   - defaults
 dependencies:
   - _pytorch_select=0.1=cpu_0
+  - appnope=0.1.0=py36h79c6626_1002
+  - backports=1.0=py_2
+  - backports.functools_lru_cache=1.6.1=py_0
   - blas=1.0=mkl
-  - ca-certificates=2020.6.20=hecda079_0
-  - certifi=2020.6.20=py36h9f0ad1d_0
+  - ca-certificates=2020.11.8=h033912b_0
+  - certifi=2020.6.20=py36h2432673_2
   - cffi=1.14.0=py36h356ff06_0
   - cycler=0.10.0=py_2
   - decorator=4.4.2=py_0
   - freetype=2.10.2=h8da9a1a_0
+  - ipython=5.8.0=py36_1
+  - ipython_genutils=0.2.0=py_1
   - joblib=0.15.1=py_0
   - kiwisolver=1.2.0=py36h863e41a_0
   - libblas=3.8.0=14_mkl
@@ -37,9 +42,14 @@ dependencies:
   - openssl=1.1.1h=haf1e3a3_0
   - pandas=1.0.4=py36hcc1bba6_0
   - patsy=0.5.1=py_0
-  - pgmpy=0.1.10=py36_0
+  - pexpect=4.8.0=pyh9f0ad1d_2
+  - pgmpy=0.1.11=py36_0
+  - pickleshare=0.7.5=py_1003
   - pip=20.1.1=py_1
+  - prompt_toolkit=1.0.15=py_1
+  - ptyprocess=0.6.0=py_1001
   - pycparser=2.20=py_0
+  - pygments=2.7.2=py_0
   - pyparsing=2.4.7=pyh9f0ad1d_0
   - python=3.6.10=h4334963_1011_cpython
   - python-dateutil=2.8.1=py_0
@@ -49,12 +59,15 @@ dependencies:
   - readline=8.0=hcfe32e1_0
   - scipy=1.4.1=py36h1dac7e4_3
   - setuptools=47.1.1=py36h9f0ad1d_0
+  - simplegeneric=0.8.1=py_1
   - six=1.15.0=pyh9f0ad1d_0
   - sqlite=3.30.1=h93121df_0
   - statsmodels=0.11.1=py36h37b9a7d_1
   - tk=8.6.10=hbbe82c9_0
   - tornado=6.0.4=py36h37b9a7d_1
   - tqdm=4.46.1=pyh9f0ad1d_0
+  - traitlets=4.3.3=py36h9f0ad1d_1
+  - wcwidth=0.2.5=pyh9f0ad1d_2
   - wheel=0.34.2=py_1
   - xlrd=1.2.0=py_0
   - xz=5.2.5=h0b31af3_0
@@ -62,6 +75,7 @@ dependencies:
   - pip:
     - compound-types==0.0.3
     - mpl-format==0.277
+    - scikit-learn==0.23.2
     - seaborn==0.10.1
+    - threadpoolctl==2.1.0
 prefix: /Users/vahndi.minah/anaconda3/envs/probability_env
-
