@@ -1,3 +1,5 @@
+from typing import Union
+
 from scipy.stats import geom, rv_discrete
 
 from probability.distributions.mixins.attributes import PFloatDMixin
@@ -40,3 +42,10 @@ class Geometric(
     def __repr__(self):
 
         return f'Geometric(p={self._p})'
+
+    def __eq__(self, other: Union['Geometric', int, float]):
+
+        if type(other) in (int, float):
+            return self.pmf().at(other)
+        else:
+            return abs(self._p - other._p) < 1e-10

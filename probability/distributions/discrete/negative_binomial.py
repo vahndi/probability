@@ -1,3 +1,5 @@
+from typing import Union
+
 from scipy.stats import rv_discrete, nbinom
 
 from probability.distributions.mixins.attributes import PFloatDMixin
@@ -65,3 +67,13 @@ class NegativeBinomial(
     def __repr__(self):
 
         return f'NegativeBinomial(r={self._r}, p={self._p})'
+
+    def __eq__(self, other: Union['NegativeBinomial', int, float]):
+
+        if type(other) in (int, float):
+            return self.pmf().at(other)
+        else:
+            return (
+                self._r == other._r and
+                abs(self._p - other._p) < 1e-10
+            )

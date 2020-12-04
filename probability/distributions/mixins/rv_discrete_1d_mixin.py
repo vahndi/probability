@@ -1,6 +1,6 @@
 from matplotlib.axes import Axes
 from scipy.stats import rv_discrete
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 
 from probability.distributions.mixins.plottable_mixin import \
     DiscretePlottableMixin
@@ -33,3 +33,29 @@ class RVDiscrete1dMixin(
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
         return self.pmf().plot(k=k, kind=kind, color=color, ax=ax, **kwargs)
+
+    def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
+
+        if type(other) in (int, float):
+            return self.cdf().at(other)
+        elif isinstance(other, RVS1dMixin):
+            return super(self).__lt__(other)
+        else:
+            raise TypeError('other must be of type int, float or Rvs1dMixin')
+
+    def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+
+        return self.__le__(other - 1)
+
+    def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
+
+        if type(other) in (int, float):
+            return 1 - self.__le__(other - 1)
+        elif isinstance(other, RVS1dMixin):
+            return super(self).__ge__(other)
+        else:
+            raise TypeError('other must be of type int, float or Rvs1dMixin')
+
+    def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+
+        return self.__ge__(other + 1)

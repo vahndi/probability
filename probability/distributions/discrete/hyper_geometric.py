@@ -1,3 +1,5 @@
+from typing import Union
+
 from scipy.stats import rv_discrete, hypergeom
 
 from probability.distributions.mixins.attributes import NIntDMixin, \
@@ -53,10 +55,13 @@ class HyperGeometric(
 
         return f'HyperGeometric(N={self._N}, K={self._K}, n={self._n})'
 
-    def __eq__(self, other: 'HyperGeometric'):
+    def __eq__(self, other: Union['HyperGeometric', int, float]):
 
-        return (
-            self._N == other._N and
-            self._K == other._K and
-            self._n == other._n
-        )
+        if type(other) in (int, float):
+            return self.pmf().at(other)
+        else:
+            return (
+                self._N == other._N and
+                self._K == other._K and
+                self._n == other._n
+            )

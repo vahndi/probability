@@ -33,43 +33,19 @@ class RVS1dMixin(object):
         samples.name = str(self)
         return samples
 
-    def prob_greater_than(self, other: 'RVS1dMixin',
-                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-
-        return (self.rvs(num_samples) > other.rvs(num_samples)).mean()
-
     def prob_less_than(self, other: 'RVS1dMixin',
                        num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         return (self.rvs(num_samples) < other.rvs(num_samples)).mean()
 
-    def __gt__(self, other: Union['RVS1dMixin', float]) -> float:
+    def prob_greater_than(self, other: 'RVS1dMixin',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
-        if isinstance(other, float):
-            return (self.rvs(NUM_SAMPLES_COMPARISON) > other).mean()
-        elif isinstance(other, RVS1dMixin):
-            return (
-                self.rvs(NUM_SAMPLES_COMPARISON) >
-                other.rvs(NUM_SAMPLES_COMPARISON)
-            ).mean()
-        else:
-            raise TypeError('other must be of type float or Rvs1dMixin')
+        return (self.rvs(num_samples) > other.rvs(num_samples)).mean()
 
-    def __ge__(self, other: Union['RVS1dMixin', float]) -> float:
+    def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if isinstance(other, float):
-            return (self.rvs(NUM_SAMPLES_COMPARISON) >= other).mean()
-        elif isinstance(other, RVS1dMixin):
-            return (
-                self.rvs(NUM_SAMPLES_COMPARISON) >=
-                other.rvs(NUM_SAMPLES_COMPARISON)
-            ).mean()
-        else:
-            raise TypeError('other must be of type float or Rvs1dMixin')
-
-    def __lt__(self, other: Union['RVS1dMixin', float]) -> float:
-
-        if isinstance(other, float):
+        if type(other) in (int, float):
             return (self.rvs(NUM_SAMPLES_COMPARISON) < other).mean()
         elif isinstance(other, RVS1dMixin):
             return (
@@ -79,13 +55,37 @@ class RVS1dMixin(object):
         else:
             raise TypeError('other must be of type float or Rvs1dMixin')
 
-    def __le__(self, other: Union['RVS1dMixin', float]) -> float:
+    def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if isinstance(other, float):
+        if type(other) in (int, float):
             return (self.rvs(NUM_SAMPLES_COMPARISON) <= other).mean()
         elif isinstance(other, RVS1dMixin):
             return (
                 self.rvs(NUM_SAMPLES_COMPARISON) <=
+                other.rvs(NUM_SAMPLES_COMPARISON)
+            ).mean()
+        else:
+            raise TypeError('other must be of type float or Rvs1dMixin')
+
+    def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+
+        if type(other) in (int, float):
+            return (self.rvs(NUM_SAMPLES_COMPARISON) > other).mean()
+        elif isinstance(other, RVS1dMixin):
+            return (
+                self.rvs(NUM_SAMPLES_COMPARISON) >
+                other.rvs(NUM_SAMPLES_COMPARISON)
+            ).mean()
+        else:
+            raise TypeError('other must be of type float or Rvs1dMixin')
+
+    def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
+
+        if type(other) in (int, float):
+            return (self.rvs(NUM_SAMPLES_COMPARISON) >= other).mean()
+        elif isinstance(other, RVS1dMixin):
+            return (
+                self.rvs(NUM_SAMPLES_COMPARISON) >=
                 other.rvs(NUM_SAMPLES_COMPARISON)
             ).mean()
         else:

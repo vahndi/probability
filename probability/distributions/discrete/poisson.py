@@ -1,3 +1,5 @@
+from typing import Union
+
 from scipy.stats import poisson, rv_discrete
 
 from probability.distributions.mixins.attributes import LambdaFloatDMixin
@@ -43,3 +45,10 @@ class Poisson(
     def __repr__(self):
 
         return f'Poisson(lambda_={self._lambda})'
+
+    def __eq__(self, other: Union['Poisson', int, float]):
+
+        if type(other) in (int, float):
+            return self.pmf().at(other)
+        else:
+            return abs(self._lambda - other._lambda) < 1e-10

@@ -1,3 +1,5 @@
+from typing import Union
+
 from scipy.stats import binom, rv_discrete
 
 from probability.distributions.mixins.attributes import NIntDMixin, PFloatDMixin
@@ -50,9 +52,12 @@ class Binomial(
 
         return f'Binomial(n={self._n}, p={self._p})'
 
-    def __eq__(self, other: 'Binomial'):
+    def __eq__(self, other: Union['Binomial', int, float]):
 
-        return (
-            self._n == other._n and
-            abs(self._p - other._p) < 1e-10
-        )
+        if type(other) in (int, float):
+            return self.pmf().at(other)
+        else:
+            return (
+                self._n == other._n and
+                abs(self._p - other._p) < 1e-10
+            )

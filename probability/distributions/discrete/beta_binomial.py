@@ -1,3 +1,5 @@
+from typing import Union
+
 from scipy.stats import betabinom, rv_discrete
 
 from probability.distributions.mixins.attributes import NIntDMixin, \
@@ -66,9 +68,13 @@ class BetaBinomial(
                f'alpha={self._alpha}, ' \
                f'beta={self._beta})'
 
-    def __eq__(self, other: 'BetaBinomial'):
-        return (
-            self._n == other._n and
-            abs(self._alpha - other._alpha) < 1e-10 and
-            abs(self._beta - other._beta) < 1e-10
-        )
+    def __eq__(self, other: Union['BetaBinomial', int, float]):
+
+        if type(other) in (int, float):
+            return self.pmf().at(other)
+        else:
+            return (
+                self._n == other._n and
+                abs(self._alpha - other._alpha) < 1e-10 and
+                abs(self._beta - other._beta) < 1e-10
+            )
