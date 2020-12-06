@@ -3,6 +3,5 @@ mpl-format
 numba
 numpy
 pandas
-pgmpy
 scipy
 seaborn

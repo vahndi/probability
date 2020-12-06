@@ -255,3 +255,90 @@ class TestDiscrete(TestCase):
         )
         actual = xor.given(A=0).data
         self.assertTrue(expected.equals(actual))
+
+    def test_mode_categorical(self):
+
+        counts = Series({
+            'a': 1, 'c': 2, 'e': 3
+        })
+        discrete = Discrete.from_counts(counts, variables='x')
+        self.assertEqual('e', discrete.mode())
+
+    def test_mode_numeric(self):
+
+        discrete = Discrete.from_probs(
+            data={0: 0.7, 1000: 0.2, 2000: 0.1},
+            variables='a'
+        )
+        self.assertEqual(0, discrete.mode())
+
+    def test_mode_multi_categorical(self):
+
+        counts = Series({
+            ('a', 'b'): 1,
+            ('c', 'd'): 2,
+            ('e', 'f'): 3
+        })
+        discrete = Discrete.from_counts(counts, variables=['ace', 'bdf'])
+        self.assertEqual(('e', 'f'), discrete.mode())
+
+    def test_mean_numeric(self):
+
+        discrete = Discrete.from_probs(
+            data={0: 0.7, 1000: 0.2, 2000: 0.1},
+            variables='a'
+        )
+        self.assertAlmostEqual(
+            0 * 0.7 + 1000 * 0.2 + 2000 * 0.1,
+            discrete.mean()
+        )
+
+    def test_mean_categorical(self):
+
+        counts = Series({
+            'a': 1, 'c': 2, 'e': 3
+        })
+        discrete = Discrete.from_counts(counts, variables='x')
+        self.assertRaises(TypeError, discrete.mean)
+
+    def test_min_numeric(self):
+
+        discrete = Discrete.from_probs(
+            data={0: 0.7, 1000: 0.2, 2000: 0.1},
+            variables='a'
+        )
+        self.assertAlmostEqual(0, discrete.min())
+        discrete_2 = Discrete.from_probs(
+            data={0: 0.0, 1000: 0.2, 2000: 0.8},
+            variables='a'
+        )
+        self.assertAlmostEqual(1000, discrete_2.min())
+
+    def test_min_categorical(self):
+
+        discrete = Discrete.from_probs(
+            data={'a': 0.7, 'b': 0.2, 'c': 0.1},
+            variables='x'
+        )
+        self.assertRaises(TypeError, discrete.min)
+
+    def test_max_numeric(self):
+
+        discrete = Discrete.from_probs(
+            data={0: 0.7, 1000: 0.2, 2000: 0.1},
+            variables='a'
+        )
+        self.assertAlmostEqual(2000, discrete.max())
+        discrete_2 = Discrete.from_probs(
+            data={0: 0.7, 1000: 0.3, 2000: 0},
+            variables='a'
+        )
+        self.assertAlmostEqual(1000, discrete_2.max())
+
+    def test_max_categorical(self):
+
+        discrete = Discrete.from_probs(
+            data={'a': 0.7, 'b': 0.2, 'c': 0.1},
+            variables='x'
+        )
+        self.assertRaises(TypeError, discrete.max)

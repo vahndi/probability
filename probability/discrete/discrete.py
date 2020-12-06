@@ -2,6 +2,7 @@ from itertools import product
 from typing import Union, List, Dict, overload, Optional
 
 from pandas import Series, DataFrame, MultiIndex, merge
+from pandas.core.dtypes.inference import is_number
 
 from probability.discrete.conditional import Conditional
 from probability.discrete.mixins import StatesMixin
@@ -37,6 +38,13 @@ class Discrete(
             states = {self._variables[0]: states}
         self._states: Dict[str, list] = states
         self._data.name = f'p({",".join(self._variables)})'
+        if (
+                not isinstance(self._data.index, MultiIndex) and
+                all(is_number(x) for x in self._data.index)
+        ):
+            self._is_1d_numeric = True
+        else:
+            self._is_1d_numeric = False
 
     @property
     def variables(self) -> List[str]:
@@ -293,6 +301,57 @@ class Discrete(
         return Discrete(
             data=data, variables=variables, states=states
         )
+
+    def mean(self):
+        """
+        Return the expected value of the distribution.
+
+        N.B. only works for unidimensional distributions where the variable
+        values are numeric.
+        """
+        if self._is_1d_numeric:
+            return (
+                    Series(
+                        index=self.data.index,
+                        data=self.data.index
+                    ) * self.data
+            ).sum()
+        else:
+            raise TypeError(
+                "Can't calculate the mean for a non-numeric distribution"
+            )
+
+    def mode(self):
+        """
+        Return the most likely value(s) of the distribution.
+        """
+        return self.data.index[self.data.argmax()]
+
+    def min(self):
+        """
+        Return the lowest possible (non-zero probability)
+        value of the distribution.
+        """
+        if self._is_1d_numeric:
+            data = self.data.loc[self.data > 0]
+            return data.index.min()
+        else:
+            raise TypeError(
+                "Can't calculate the mean for a non-numeric distribution"
+            )
+
+    def max(self):
+        """
+        Return the highest possible (non-zero probability)
+        value of the distribution.
+        """
+        if self._is_1d_numeric:
+            data = self.data.loc[self.data > 0]
+            return data.index.max()
+        else:
+            raise TypeError(
+                "Can't calculate the mean for a non-numeric distribution"
+            )
 
     def __mul__(
             self, other: Union[Conditional, 'Discrete']
