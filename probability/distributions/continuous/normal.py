@@ -55,6 +55,10 @@ class Normal(
     def _reset_distribution(self):
         self._distribution: rv_continuous = norm(self._mu, self._sigma)
 
+    @staticmethod
+    def StandardNormal():
+        return Normal(mu=0, sigma=1)
+
     @property
     def sigma_sq(self) -> float:
         return self._sigma ** 2
