@@ -41,7 +41,7 @@ class BetaBinomialConjugate(
     Posterior Hyper-parameters
     --------------------------
     * `n` is the number of trials.
-    * `m` is the number of successes over `n` trials.
+    * `k` is the number of successes over `k` trials.
 
     Model parameters
     ----------------

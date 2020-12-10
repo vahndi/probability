@@ -42,7 +42,7 @@ class RVContinuous1dMixin(
         if type(other) in (int, float):
             return self.cdf().at(other)
         elif isinstance(other, RVS1dMixin):
-            return super(self).__le__(other)
+            return super(RVContinuous1dMixin, self).__le__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
@@ -55,7 +55,7 @@ class RVContinuous1dMixin(
         if type(other) in (int, float):
             return 1 - self.__le__(other)
         elif isinstance(other, RVS1dMixin):
-            return super(self).__ge__(other)
+            return super(RVContinuous1dMixin, self).__ge__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
