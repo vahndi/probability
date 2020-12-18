@@ -52,3 +52,10 @@ class InvGamma(
     def __repr__(self):
 
         return f'InvGamma(alpha={self._alpha}, beta={self._beta})'
+
+    def __eq__(self, other: 'InvGamma') -> bool:
+
+        return (
+            abs(self._alpha - other._alpha) < 1e-10 and
+            abs(self._beta - other._beta) < 1e-10
+        )

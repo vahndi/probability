@@ -93,3 +93,11 @@ class StudentsT(
                    f'nu={self._nu}, ' \
                    f'mu={self._mu}, ' \
                    f'sigma_sq={self.sigma_sq})'
+
+    def __eq__(self, other: 'StudentsT') -> bool:
+
+        return (
+            abs(self._mu - other._mu) < 1e-10 and
+            abs(self._nu - other._nu) < 1e-10 and
+            abs(self._sigma - other._sigma) < 1e-10
+        )

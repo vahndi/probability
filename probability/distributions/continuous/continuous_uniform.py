@@ -55,3 +55,10 @@ class ContinuousUniform(
     def __repr__(self):
 
         return f'ContinuousUniform(a={self._a}, b={self._b})'
+
+    def __eq__(self, other: 'ContinuousUniform') -> bool:
+
+        return (
+            abs(self._a - other._a) < 1e-10 and
+            abs(self._b - other._b) < 1e-10
+        )

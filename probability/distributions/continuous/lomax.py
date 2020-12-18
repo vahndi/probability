@@ -48,3 +48,10 @@ class Lomax(
     def __repr__(self):
 
         return f'Lomax(lambda_={self._lambda}, alpha={self._alpha})'
+
+    def __eq__(self, other: 'Lomax') -> bool:
+
+        return (
+            abs(self._alpha - other._alpha) < 1e-10 and
+            abs(self._lambda - other._lambda) < 1e-10
+        )

@@ -96,3 +96,10 @@ class Gamma(
             return f'Gamma(alpha={self._alpha}, beta={self._beta})'
         elif self._parameterization == 'kθ':
             return f'Gamma(k={self._alpha}, theta={1 / self._beta})'
+
+    def __eq__(self, other: 'Gamma') -> bool:
+
+        return (
+            abs(self._alpha - other._alpha) < 1e-10 and
+            abs(self._beta - other._beta) < 1e-10
+        )

@@ -89,3 +89,10 @@ class Normal(
             return f'Normal(mu={self._mu}, sigma={self._sigma})'
         elif self._parameterization == 'μσ²':
             return f'Normal(mu={self._mu}, sigma_sq={self.sigma_sq})'
+
+    def __eq__(self, other: 'Normal') -> bool:
+
+        return (
+            abs(self._mu - other._mu) < 1e-10 and
+            abs(self._sigma - other._sigma) < 1e-10
+        )

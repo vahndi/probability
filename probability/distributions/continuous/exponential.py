@@ -43,3 +43,7 @@ class Exponential(
     def __repr__(self):
 
         return f'Exponential(lambda_={self._lambda})'
+
+    def __eq__(self, other: 'Exponential') -> bool:
+
+        return abs(self._lambda - other._lambda) < 1e-10

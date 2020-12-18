@@ -48,3 +48,10 @@ class Laplace(
 
     def __repr__(self):
         return f'Laplace(mu={self._mu}, b={self._b})'
+
+    def __eq__(self, other: 'Laplace') -> bool:
+
+        return (
+            abs(self._mu - other._mu) < 1e-10 and
+            abs(self._b - other._b) < 1e-10
+        )
