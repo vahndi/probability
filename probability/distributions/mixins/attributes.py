@@ -20,7 +20,7 @@ class AFloatDMixin(object):
         return self._a
 
     @a.setter
-    def alpha(self, value: float):
+    def a(self, value: float):
         self._a = value
         self._reset_distribution()
 
@@ -63,7 +63,7 @@ class BFloatDMixin(object):
         return self._b
 
     @b.setter
-    def alpha(self, value: float):
+    def b(self, value: float):
         self._b = value
         self._reset_distribution()
 
@@ -93,6 +93,21 @@ class BetaFloatDMixin(object):
     @beta.setter
     def beta(self, value: float):
         self._beta = value
+        self._reset_distribution()
+
+
+class CFloatDMixin(object):
+
+    _c: float
+    _reset_distribution: Callable
+
+    @property
+    def c(self) -> float:
+        return self._c
+
+    @c.setter
+    def c(self, value: float):
+        self._c = value
         self._reset_distribution()
 
 

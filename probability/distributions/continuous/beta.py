@@ -76,7 +76,7 @@ class Beta(
 
         return other > self
 
-    def __eq__(self, other: Union['Beta', float]) -> bool:
+    def __eq__(self, other: 'Beta') -> bool:
 
         return (
             abs(self._alpha - other._alpha) < 1e-10 and
