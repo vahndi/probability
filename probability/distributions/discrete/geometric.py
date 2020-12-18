@@ -35,6 +35,10 @@ class Geometric(
 
         self._distribution: rv_discrete = geom(self._p)
 
+    def mode(self) -> int:
+
+        return 1
+
     def __str__(self):
 
         return f'Geometric(p={num_format(self._p, 3)})'

@@ -38,6 +38,10 @@ class Poisson(
 
         self._distribution: rv_discrete = poisson(self._lambda)
 
+    def mode(self) -> int:
+
+        return int(self._lambda)
+
     def __str__(self):
 
         return f'Poisson(λ={num_format(self._lambda, 3)})'

@@ -56,6 +56,13 @@ class NegativeBinomial(
         self._r = value
         self._reset_distribution()
 
+    def mode(self) -> int:
+
+        if self._r <= 1:
+            return 0
+        else:
+            return int(self._p * (self._r - 1) / (1 - self._p))
+
     def __str__(self):
 
         return (

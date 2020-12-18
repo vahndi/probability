@@ -47,6 +47,10 @@ class HyperGeometric(
             self._N, self._K, self._n
         )
 
+    def mode(self) -> int:
+
+        return int((self._n + 1) * (self._K + 1) / (self._N + 2))
+
     def __str__(self):
 
         return f'HyperGeometric(N={self._N}, K={self._K}, n={self._n})'

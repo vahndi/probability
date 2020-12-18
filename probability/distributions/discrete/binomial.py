@@ -40,6 +40,10 @@ class Binomial(
 
         self._distribution: rv_discrete = binom(self._n, self._p)
 
+    def mode(self) -> int:
+
+        return int(self._n * self._p)
+
     def __str__(self):
 
         return (
