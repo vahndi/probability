@@ -69,6 +69,10 @@ class StudentsT(
         self._sigma = sqrt(value)
         self._reset_distribution()
 
+    def mode(self) -> float:
+
+        return 0.0
+
     def __str__(self):
         if self._parameterization == 'μσ':
             return f'StudentsT(' \

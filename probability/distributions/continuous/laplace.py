@@ -39,6 +39,10 @@ class Laplace(
         self._b = value
         self._reset_distribution()
 
+    def mode(self) -> float:
+
+        return self._mu
+
     def __str__(self):
         return (
             f'Laplace('

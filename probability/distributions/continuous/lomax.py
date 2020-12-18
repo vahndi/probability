@@ -37,6 +37,9 @@ class Lomax(
             c=self._alpha, scale=self._lambda
         )
 
+    def mode(self) -> float:
+        return 0.0
+
     def __str__(self):
 
         return (

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from scipy.stats import invgamma, rv_continuous
 
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
@@ -40,6 +42,10 @@ class InvGamma(
         self._distribution: rv_continuous = invgamma(
             a=self._alpha, scale=self._beta
         )
+
+    def mode(self) -> float:
+
+        return self.beta / (self.alpha + 1)
 
     def __str__(self):
 

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Tuple, Optional
 
 from scipy.stats import beta as beta_dist, rv_continuous
 
@@ -49,6 +49,23 @@ class Beta(
 
     def _reset_distribution(self):
         self._distribution: rv_continuous = beta_dist(self._alpha, self._beta)
+
+    def mode(self) -> Optional[Union[float, Tuple[float, float]]]:
+
+        alpha = self.alpha
+        beta = self.beta
+        if alpha == 1 and beta == 1:
+            return None
+        elif alpha < 1 and beta < 1:
+            return 0, 1
+        elif alpha > 1 and beta > 1:
+            return (alpha - 1) / (alpha + beta - 2)
+        elif alpha <= 1 and beta > 1:
+            return 0
+        elif alpha > 1 and beta <= 1:
+            return 1
+        else:
+            raise ValueError("Can't calculate mode for this distribution.")
 
     def __str__(self):
 

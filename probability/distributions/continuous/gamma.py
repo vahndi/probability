@@ -1,3 +1,5 @@
+from typing import Optional
+
 from scipy.stats import rv_continuous, gamma
 
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
@@ -74,6 +76,12 @@ class Gamma(
     def theta(self, value: float):
         self._beta = 1 / value
         self._reset_distribution()
+
+    def mode(self) -> float:
+        if self.alpha >= 1:
+            return (self.alpha - 1) / self.beta
+        else:
+            raise ValueError("Can't calculate mode for this distribution.")
 
     def __str__(self):
 

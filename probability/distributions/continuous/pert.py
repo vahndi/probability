@@ -68,6 +68,10 @@ class PERT(
             loc=self._a, scale=self._c - self._a
         )
 
+    def mode(self) -> float:
+
+        return self._b
+
     def __str__(self):
 
         return f'PERT(' \

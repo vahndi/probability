@@ -68,6 +68,10 @@ class Normal(
         self._sigma = sqrt(value)
         self._reset_distribution()
 
+    def mode(self) -> float:
+
+        return self._mu
+
     def __str__(self):
 
         if self._parameterization == 'μσ':
