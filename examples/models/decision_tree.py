@@ -98,4 +98,3 @@ if __name__ == '__main__':
     tree.solve()
     draw_tree(tree)
     costs = tree.amounts()
-
