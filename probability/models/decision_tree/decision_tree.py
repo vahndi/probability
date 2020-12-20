@@ -114,13 +114,27 @@ class DecisionTree(object):
             nodes = [node for node in nodes if node.depth == depth]
         return nodes
 
-    def node(self, name: str):
+    def node(self, name: str, depth: Optional[int] = None):
         """
         Return the node with the given name.
+
         :param name: The name of the node.
+        :param depth: Optional depth filter in case node names are only unique
+                      by depth.
         """
-        return [node for node in self._graph.nodes()
-                if node.name == name][0]
+        nodes = list([node for node in self._graph.nodes()
+                      if node.name == name])
+        if depth is not None:
+            nodes = [node for node in nodes if node.depth == depth]
+        if len(nodes) == 1:
+            return nodes[0]
+        else:
+            if depth is None:
+                raise ValueError(f'{len(nodes)} matching nodes named {name}')
+            else:
+                raise ValueError(
+                    f'{len(nodes)} matching nodes named {name} at depth {depth}'
+                )
 
     def node_amounts(self) -> dict:
         """
