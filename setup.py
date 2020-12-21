@@ -4,7 +4,7 @@ from setuptools import find_packages
 setup(
   name='probability',
   packages=find_packages(),
-  version='0.0.147',
+  version='0.0.148',
   license='MIT',
   description='Probability in Python 3',
   author='Vahndi Minah',
@@ -13,6 +13,7 @@ setup(
   install_requires=[
         'matplotlib',
         'mpl-format',
+        'networkx',
         'numba',
         'numpy',
         'pandas',

@@ -25,6 +25,7 @@ class DecisionTree(object):
         self._num_amount_nodes = 0
         self._root_node: Optional[DecisionNode] = None
         self._max_depth: Optional[int] = max_depth
+        self._solved: bool = False
 
     @property
     def graph(self) -> DiGraph:
@@ -232,18 +233,21 @@ class DecisionTree(object):
             self._graph.add_edge(parent, decision_node)
         else:
             self._root_node = decision_node
+        self._solved = False
 
     def add_chance_node(self, chance_node: ChanceNode,
                         parent: DecisionNode):
 
         self._graph.add_node(chance_node)
         self._graph.add_edge(parent, chance_node)
+        self._solved = False
 
     def add_amount_node(self, amount_node: AmountNode,
                         parent: ChanceNode):
 
         self._graph.add_node(amount_node)
         self._graph.add_edge(parent, amount_node)
+        self._solved = False
 
     def solve(self, minimize: bool = True):
         """
@@ -292,7 +296,13 @@ class DecisionTree(object):
                     )
 
     def amounts(self) -> DataFrame:
-
+        """
+        Return the amounts in the solved DecisionTree.
+        """
+        if not self._solved:
+            raise PermissionError(
+                "Can't calculate amounts for an unsolved tree."
+            )
         results = []
         for amount_node in self.amount_nodes():
             path_to_node = list(all_simple_paths(
