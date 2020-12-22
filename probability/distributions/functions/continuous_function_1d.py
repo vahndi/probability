@@ -1,6 +1,8 @@
 from typing import Iterable, overload, Optional
 
 from matplotlib.axes import Axes
+from numpy import linspace
+
 from mpl_format.axes import AxesFormatter
 from pandas import Series
 from scipy.stats import rv_continuous
@@ -31,7 +33,7 @@ class ContinuousFunction1d(object):
     def at(self, x: Iterable) -> Series:
         pass
 
-    def at(self, x):
+    def at(self, x: Iterable):
         """
         Log of the probability density function of the given RV.
         """
@@ -41,7 +43,7 @@ class ContinuousFunction1d(object):
             return Series(index=x, data=self._method(x), name=self._name)
 
     def plot(self,
-             x: Iterable,
+             x: Optional[Iterable],
              kind: str = 'line',
              color: str = 'C0',
              mean: bool = False,
@@ -61,6 +63,16 @@ class ContinuousFunction1d(object):
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
+        if x is None:
+            if (
+                    hasattr(self._parent, 'lower_bound') and
+                    hasattr(self._parent, 'upper_bound')
+            ):
+                x = linspace(self._parent.lower_bound,
+                             self._parent.upper_bound, 1001)
+            else:
+                raise ValueError('Must pass x if distribution has no bounds.')
+
         data: Series = self.at(x)
         axf = AxesFormatter(axes=ax)
         ax = axf.axes

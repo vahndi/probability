@@ -83,6 +83,14 @@ class Gamma(
         else:
             raise ValueError("Can't calculate mode for this distribution.")
 
+    @property
+    def lower_bound(self) -> float:
+        return 0.0
+
+    @property
+    def upper_bound(self) -> float:
+        return self.isf().at(0.01)
+
     def __str__(self):
 
         if self._parameterization == 'αβ':

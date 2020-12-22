@@ -55,6 +55,14 @@ class Normal(
     def _reset_distribution(self):
         self._distribution: rv_continuous = norm(self._mu, self._sigma)
 
+    @property
+    def lower_bound(self) -> float:
+        return self.isf().at(0.99)
+
+    @property
+    def upper_bound(self) -> float:
+        return self.isf().at(0.01)
+
     @staticmethod
     def StandardNormal():
         return Normal(mu=0, sigma=1)

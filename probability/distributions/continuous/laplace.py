@@ -43,6 +43,14 @@ class Laplace(
 
         return self._mu
 
+    @property
+    def lower_bound(self) -> float:
+        return self.isf().at(0.99)
+
+    @property
+    def upper_bound(self) -> float:
+        return self.isf().at(0.01)
+
     def __str__(self):
         return (
             f'Laplace('

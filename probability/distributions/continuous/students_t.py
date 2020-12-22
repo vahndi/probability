@@ -51,6 +51,14 @@ class StudentsT(
         )
 
     @property
+    def lower_bound(self) -> float:
+        return self.isf().at(0.99)
+
+    @property
+    def upper_bound(self) -> float:
+        return self.isf().at(0.01)
+
+    @property
     def nu(self):
         return self._nu
 

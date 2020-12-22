@@ -47,6 +47,14 @@ class InvGamma(
 
         return self.beta / (self.alpha + 1)
 
+    @property
+    def lower_bound(self) -> float:
+        return 0.0
+
+    @property
+    def upper_bound(self) -> float:
+        return self.isf().at(0.01)
+
     def __str__(self):
 
         return (

@@ -72,6 +72,14 @@ class PERT(
 
         return self._b
 
+    @property
+    def lower_bound(self) -> float:
+        return self._a
+
+    @property
+    def upper_bound(self) -> float:
+        return self._c
+
     def __str__(self):
 
         return f'PERT(' \

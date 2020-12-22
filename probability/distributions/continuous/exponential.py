@@ -36,6 +36,14 @@ class Exponential(
 
         self._distribution: rv_continuous = expon(loc=0, scale=1 / self._lambda)
 
+    @property
+    def lower_bound(self) -> float:
+        return 0.0
+
+    @property
+    def upper_bound(self) -> float:
+        return self.isf().at(0.01)
+
     def mode(self) -> float:
         return 0.0
 

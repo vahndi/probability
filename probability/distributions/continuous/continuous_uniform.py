@@ -40,6 +40,14 @@ class ContinuousUniform(
         self._a = a
         self._b = b
 
+    @property
+    def lower_bound(self) -> float:
+        return self._a
+
+    @property
+    def upper_bound(self) -> float:
+        return self._b
+
     def _reset_distribution(self):
 
         self._distribution = uniform(loc=self._a, scale=self._b - self._a)
