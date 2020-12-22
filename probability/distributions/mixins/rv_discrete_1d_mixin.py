@@ -20,7 +20,7 @@ class RVDiscrete1dMixin(
     _distribution: rv_discrete
     _num_samples: int = 1000000
 
-    def plot(self, k: Iterable, kind: str = 'bar', color: str = 'C0',
+    def plot(self, k: Optional[Iterable] = None, kind: str = 'bar', color: str = 'C0',
              ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """

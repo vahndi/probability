@@ -44,6 +44,14 @@ class Binomial(
 
         return int(self._n * self._p)
 
+    @property
+    def lower_bound(self) -> int:
+        return 0
+
+    @property
+    def upper_bound(self) -> int:
+        return self._n
+
     def __str__(self):
 
         return (

@@ -40,7 +40,7 @@ class DiscreteFunction1d(object):
         elif isinstance(k, Iterable):
             return Series(index=k, data=self._method(k), name=self._name)
 
-    def plot(self, k: Iterable[int],
+    def plot(self, k: Optional[Iterable[int]],
              color: str = 'C0',
              kind: str = 'bar',
              mean: bool = False,
@@ -60,6 +60,16 @@ class DiscreteFunction1d(object):
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
+        if k is None:
+            if (
+                    hasattr(self._parent, 'lower_bound') and
+                    hasattr(self._parent, 'upper_bound')
+            ):
+                k = range(self._parent.lower_bound,
+                          self._parent.upper_bound + 1)
+            else:
+                raise ValueError('Must pass k if distribution has no bounds.')
+
         data: Series = self.at(k)
         axf = AxesFormatter(axes=ax)
         ax = axf.axes

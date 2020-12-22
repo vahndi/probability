@@ -51,6 +51,14 @@ class HyperGeometric(
 
         return int((self._n + 1) * (self._K + 1) / (self._N + 2))
 
+    @property
+    def lower_bound(self) -> int:
+        return 0
+
+    @property
+    def upper_bound(self) -> int:
+        return self._n
+
     def __str__(self):
 
         return f'HyperGeometric(N={self._N}, K={self._K}, n={self._n})'

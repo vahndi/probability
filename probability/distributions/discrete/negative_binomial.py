@@ -48,6 +48,14 @@ class NegativeBinomial(
         self._distribution: rv_discrete = nbinom(self._r, 1 - self._p)
 
     @property
+    def lower_bound(self) -> int:
+        return 1
+
+    @property
+    def upper_bound(self) -> int:
+        return int(self.isf().at(0.01))
+
+    @property
     def r(self) -> float:
         return self._r
 

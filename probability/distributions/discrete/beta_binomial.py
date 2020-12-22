@@ -56,6 +56,14 @@ class BetaBinomial(
             self._n, self._alpha, self._beta
         )
 
+    @property
+    def lower_bound(self) -> int:
+        return 0
+
+    @property
+    def upper_bound(self) -> int:
+        return self._n
+
     def __str__(self):
         return f'BetaBinomial(' \
                f'n={self._n}, ' \

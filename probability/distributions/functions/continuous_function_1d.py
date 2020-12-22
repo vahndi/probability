@@ -33,7 +33,7 @@ class ContinuousFunction1d(object):
     def at(self, x: Iterable) -> Series:
         pass
 
-    def at(self, x: Iterable):
+    def at(self, x):
         """
         Log of the probability density function of the given RV.
         """
