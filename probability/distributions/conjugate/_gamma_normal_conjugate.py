@@ -92,7 +92,7 @@ class _GammaNormalConjugate(ConjugateMixin, object):
     def __str__(self):
 
         return (
-            f'GammaNormal('
+            f'GammaNormalConjugate('
             f'α={num_format(self._alpha, 3)}, '
             f'β={num_format(self._beta, 3)}, '
             f'μ={num_format(self._mu, 3)}, '
@@ -101,7 +101,7 @@ class _GammaNormalConjugate(ConjugateMixin, object):
 
     def __repr__(self):
         return (
-            f'GammaNormal('
+            f'GammaNormalConjugate('
             f'alpha={self._alpha}, '
             f'beta={self._beta}, '
             f'mu={self._mu}, '
