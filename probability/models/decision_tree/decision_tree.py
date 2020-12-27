@@ -294,6 +294,7 @@ class DecisionTree(object):
                     parent.expected_amount += (
                         parent.p_failure * decision_node.expected_amount
                     )
+        self._solved = True
 
     def amounts(self) -> DataFrame:
         """
