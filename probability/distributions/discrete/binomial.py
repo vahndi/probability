@@ -64,7 +64,9 @@ class Binomial(
 
         return f'Binomial(n={self._n}, p={self._p})'
 
-    def __eq__(self, other: Union['Binomial', int, float]):
+    def __eq__(
+            self, other: Union['Binomial', int, float]
+    ) -> Union[bool, float]:
 
         if type(other) in (int, float):
             return self.pmf().at(other)
@@ -73,3 +75,12 @@ class Binomial(
                 self._n == other._n and
                 abs(self._p - other._p) < 1e-10
             )
+
+    def __ne__(
+            self, other: Union['Binomial', int, float]
+    ) -> Union[bool, float]:
+
+        if type(other) in (int, float):
+            return 1 - self.pmf().at(other)
+        else:
+            return not self.__eq__(other)

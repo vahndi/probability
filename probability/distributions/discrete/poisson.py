@@ -64,3 +64,12 @@ class Poisson(
             return self.pmf().at(other)
         else:
             return abs(self._lambda - other._lambda) < 1e-10
+
+    def __ne__(
+            self, other: Union['Poisson', int, float]
+    ) -> Union[bool, float]:
+
+        if type(other) in (int, float):
+            return 1 - self.pmf().at(other)
+        else:
+            return not self.__eq__(other)

@@ -77,3 +77,12 @@ class HyperGeometric(
                 self._K == other._K and
                 self._n == other._n
             )
+
+    def __ne__(
+            self, other: Union['HyperGeometric', int, float]
+    ) -> Union[bool, float]:
+
+        if type(other) in (int, float):
+            return 1 - self.pmf().at(other)
+        else:
+            return not self.__eq__(other)

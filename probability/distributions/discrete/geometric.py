@@ -61,3 +61,12 @@ class Geometric(
             return self.pmf().at(other)
         else:
             return abs(self._p - other._p) < 1e-10
+
+    def __ne__(
+            self, other: Union['Geometric', int, float]
+    ) -> Union[bool, float]:
+
+        if type(other) in (int, float):
+            return 1 - self.pmf().at(other)
+        else:
+            return not self.__eq__(other)

@@ -86,3 +86,12 @@ class BetaBinomial(
                 abs(self._alpha - other._alpha) < 1e-10 and
                 abs(self._beta - other._beta) < 1e-10
             )
+
+    def __ne__(
+            self, other: Union['BetaBinomial', int, float]
+    ) -> Union[bool, float]:
+
+        if type(other) in (int, float):
+            return 1 - self.pmf().at(other)
+        else:
+            return not self.__eq__(other)
