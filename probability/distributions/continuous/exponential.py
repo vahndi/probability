@@ -58,3 +58,7 @@ class Exponential(
     def __eq__(self, other: 'Exponential') -> bool:
 
         return abs(self._lambda - other._lambda) < 1e-10
+
+    def __ne__(self, other: 'Exponential') -> bool:
+
+        return not self.__eq__(other)

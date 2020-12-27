@@ -66,3 +66,7 @@ class Lomax(
             abs(self._alpha - other._alpha) < 1e-10 and
             abs(self._lambda - other._lambda) < 1e-10
         )
+
+    def __ne__(self, other: 'Lomax') -> bool:
+
+        return not self.__eq__(other)

@@ -70,3 +70,7 @@ class ContinuousUniform(
             abs(self._a - other._a) < 1e-10 and
             abs(self._b - other._b) < 1e-10
         )
+
+    def __ne__(self, other: 'ContinuousUniform') -> bool:
+
+        return not self.__eq__(other)

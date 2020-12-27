@@ -98,3 +98,7 @@ class PERT(
             abs(self._b - other._b) < 1e-10 and
             abs(self._c - other._c) < 1e-10
         )
+
+    def __ne__(self, other: 'PERT') -> bool:
+
+        return not self.__eq__(other)

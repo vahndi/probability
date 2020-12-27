@@ -113,3 +113,7 @@ class StudentsT(
             abs(self._nu - other._nu) < 1e-10 and
             abs(self._sigma - other._sigma) < 1e-10
         )
+
+    def __ne__(self, other: 'StudentsT') -> bool:
+
+        return not self.__eq__(other)

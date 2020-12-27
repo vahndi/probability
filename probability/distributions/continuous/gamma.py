@@ -119,3 +119,7 @@ class Gamma(
             abs(self._alpha - other._alpha) < 1e-10 and
             abs(self._beta - other._beta) < 1e-10
         )
+
+    def __ne__(self, other: 'Gamma') -> bool:
+
+        return not self.__eq__(other)

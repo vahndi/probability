@@ -67,3 +67,7 @@ class Laplace(
             abs(self._mu - other._mu) < 1e-10 and
             abs(self._b - other._b) < 1e-10
         )
+
+    def __ne__(self, other: 'Laplace') -> bool:
+
+        return not self.__eq__(other)

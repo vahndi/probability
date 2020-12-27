@@ -108,3 +108,7 @@ class Normal(
             abs(self._mu - other._mu) < 1e-10 and
             abs(self._sigma - other._sigma) < 1e-10
         )
+
+    def __ne__(self, other: 'Normal') -> bool:
+
+        return not self.__eq__(other)
