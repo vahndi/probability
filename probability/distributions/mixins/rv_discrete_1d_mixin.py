@@ -20,7 +20,9 @@ class RVDiscrete1dMixin(
     _distribution: rv_discrete
     _num_samples: int = 1000000
 
-    def plot(self, k: Optional[Iterable] = None, kind: str = 'bar', color: str = 'C0',
+    def plot(self, k: Optional[Iterable] = None,
+             kind: str = 'bar',
+             color: str = 'C0',
              ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
@@ -39,23 +41,33 @@ class RVDiscrete1dMixin(
         if type(other) in (int, float):
             return self.cdf().at(other)
         elif isinstance(other, RVS1dMixin):
-            return super(self).__lt__(other)
+            return super(RVDiscrete1dMixin, self).__le__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
     def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        return self.__le__(other - 1)
+        if type(other) in (int, float):
+            return self.cdf().at(other - 1)
+        elif isinstance(other, RVS1dMixin):
+            return super(RVDiscrete1dMixin, self).__lt__(other)
+        else:
+            raise TypeError('other must be of type int, float or Rvs1dMixin')
 
     def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
         if type(other) in (int, float):
-            return 1 - self.__le__(other - 1)
+            return 1 - self.cdf().at(other - 1)
         elif isinstance(other, RVS1dMixin):
-            return super(self).__ge__(other)
+            return super(RVDiscrete1dMixin, self).__ge__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
     def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        return self.__ge__(other + 1)
+        if type(other) in (int, float):
+            return 1 - self.cdf().at(other)
+        elif isinstance(other, RVS1dMixin):
+            return super(RVDiscrete1dMixin, self).__gt__(other)
+        else:
+            raise TypeError('other must be of type int, float or Rvs1dMixin')

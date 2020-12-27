@@ -30,3 +30,13 @@ class TestNormal(TestCase):
 
         self.assertEqual(self.n1 > 0, 0.5)
         self.assertEqual(self.n2 > 1, 0.5)
+
+    def test_normal__eq__normal(self):
+
+        self.assertTrue(self.n1 == self.n1)
+        self.assertFalse(self.n1 == self.n2)
+
+    def test_normal__ne__normal(self):
+
+        self.assertFalse(self.n1 != self.n1)
+        self.assertTrue(self.n1 != self.n2)
