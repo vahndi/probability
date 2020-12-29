@@ -8,6 +8,7 @@ from networkx import DiGraph, draw_networkx_nodes, draw_networkx_labels, \
 from pandas import DataFrame
 
 from probability.models.project_network.project_task import ProjectTask
+from probability.models.utils import distribute_about_center
 
 
 class ProjectNetwork(object):
@@ -48,12 +49,6 @@ class ProjectNetwork(object):
         """
         Calculate the layout for drawing the network.
         """
-        def get_y(index, number, max_number):
-
-            spacing = 1 / (max_number)
-            min_y = 0.5 - ((number - 1) * spacing) / 2
-            return min_y + index * spacing
-
         task_distances = {
             task: len(shortest_path(self._graph, self.task('START'), task)) - 1
             for task in self._graph.nodes()
@@ -73,8 +68,11 @@ class ProjectNetwork(object):
             distance_tasks = {k: v for k, v in task_distances.items()
                                  if v == distance}
             for t, (task, task_distance) in enumerate(distance_tasks.items()):
-                y[task] = get_y(t, num_at_distance[task_distance],
-                                max_num_at_distance)
+                y[task] = distribute_about_center(
+                    index=t,
+                    size=num_at_distance[task_distance],
+                    max_size=max_num_at_distance
+                )
         return {
             task: [x[task], y[task]]
             for task in task_distances.keys()

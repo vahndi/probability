@@ -9,6 +9,7 @@ from pandas import DataFrame
 
 from probability.models.decision_tree.nodes import DecisionNode, ChanceNode, \
     AmountNode
+from probability.models.utils import distribute_about_center
 
 
 class DecisionTree(object):
@@ -64,12 +65,19 @@ class DecisionTree(object):
             nodes[(ChanceNode, depth)] = self.chance_nodes(depth)
             nodes[(AmountNode, depth)] = self.amount_nodes(depth)
 
+        max_width = max(len(value) for value in nodes.values())
+
         layout = {}
         for node in self._graph.nodes():
             node_type = type(node)
             node_list = nodes[(node_type, node.depth)]
             x = (node.depth + x_add[node_type]) / (self._max_depth * 3)
-            y = (node_list.index(node) + y_add[node_type]) / len(node_list)
+            y = distribute_about_center(
+                index=node_list.index(node),
+                size=len(node_list),
+                max_loc=max_width - 1,
+                max_size=max_width
+            ) + y_add[node_type]
             layout[node] = [x, y]
         return layout
 

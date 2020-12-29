@@ -274,7 +274,8 @@ class ActionsGroup(object):
                         probability=chance_node.p_success,
                     )
                     tree.add_amount_node(success_node, parent=chance_node)
-                    # add failure node and chance -> failure edge
+                    # add failure node and chance -> failure edge if at max
+                    # depth and success of choice is not guaranteed
                     if depth < max_depth or choice.p_success() == 1:
                         continue
                     num_amounts += 1
