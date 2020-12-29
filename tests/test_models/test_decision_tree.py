@@ -50,7 +50,7 @@ class TestDecisionTree(TestCase):
         amounts = dt.amounts()
         return amounts
 
-    def test_build_tree(self):
+    def test_build_tree_from_actions_group(self):
 
         costs = self._get_amounts(max_depth=3)
         unique_expected_costs = sorted(costs['expected_amount_1'].unique())

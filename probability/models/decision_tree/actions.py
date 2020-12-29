@@ -233,6 +233,9 @@ class ActionsGroup(object):
 
         tree = DecisionTree(max_depth=3)
 
+        num_decisions = 0
+        num_amounts = 0
+
         depth = 1
         chance_nodes = [None]
         while depth <= max_depth:
@@ -244,8 +247,9 @@ class ActionsGroup(object):
                 ):
                     continue
                 # add decision node (and edge from chance node if there is one)
+                num_decisions += 1
                 decision_node = DecisionNode(
-                    name=f'D{tree.next_decision_number()}',
+                    name=f'D{num_decisions}',
                     depth=depth
                 )
                 tree.add_decision_node(decision_node, chance_node)
@@ -263,8 +267,9 @@ class ActionsGroup(object):
                     tree.add_chance_node(chance_node, parent=decision_node)
                     new_chance_nodes.append(chance_node)
                     # add success node and chance -> success edge
+                    num_amounts += 1
                     success_node = AmountNode(
-                        name=f'P{tree.next_amount_number()}',
+                        name=f'P{num_amounts}',
                         depth=depth,
                         probability=chance_node.p_success,
                     )
@@ -272,8 +277,9 @@ class ActionsGroup(object):
                     # add failure node and chance -> failure edge
                     if depth < max_depth or choice.p_success() == 1:
                         continue
+                    num_amounts += 1
                     failure_node = AmountNode(
-                        name=f'P{tree.next_amount_number()}',
+                        name=f'P{num_amounts}',
                         depth=depth,
                         probability=chance_node.p_failure,
                     )

@@ -14,6 +14,15 @@ from probability.models.decision_tree.nodes import DecisionNode, ChanceNode, \
 class DecisionTree(object):
     """
     A Probabilistic Decision Tree.
+
+    There are 3 types of nodes: DecisionNodes, ChanceNodes and AmountNodes.
+
+        * Each DecisionNode represents a Decision that needs to be made,
+          consisting of any number of different choices.
+        * Each ChanceNode represents a potential choice of a Decision, each with
+          a given probability of success.
+        * Each AmountNode represents either a Cost or a Reward if a choice is
+          successful.
     """
     def __init__(self, max_depth: Optional[int] = None):
         """
@@ -33,27 +42,6 @@ class DecisionTree(object):
         Return the wrapped networkx DiGraph object.
         """
         return self._graph
-
-    def next_decision_number(self) -> int:
-        """
-        Return the number for the next DecisionNode and increase counter by 1.
-        """
-        self._num_decision_nodes += 1
-        return self._num_decision_nodes
-
-    def next_chance_number(self) -> int:
-        """
-        Return the number for the next ChanceNode and increase counter by 1.
-        """
-        self._num_chance_nodes += 1
-        return self._num_chance_nodes
-
-    def next_amount_number(self) -> int:
-        """
-        Return the number for the next AmountNode and increase counter by 1.
-        """
-        self._num_amount_nodes += 1
-        return self._num_amount_nodes
 
     def _get_layout(self) -> dict:
         """
@@ -183,49 +171,15 @@ class DecisionTree(object):
     def children(self, node):
         return list(descendants_at_distance(self._graph, node, 1))
 
-    def draw(
-            self,
-            node_labels: Optional[str] = None,
-            ax: Optional[Axes] = None
-    ) -> Axes:
-        """
-        Draw the DecisionTree.
-
-        :param node_labels: One of {'name', 'amount', None}
-        :param ax: Optional matplotlib axes.
-        """
-        ax = ax or new_axes()
-        pos = self._get_layout()
-        for nodes, node_shape, node_color in zip(
-                (self.decision_nodes(),
-                 self.chance_nodes(),
-                 self.amount_nodes()),
-                ('s', 'o', 'H'),
-                ('r', 'b', 'g')
-        ):
-            draw_networkx_nodes(
-                G=self._graph, pos=pos, ax=ax,
-                nodelist=nodes,
-                node_shape=node_shape, node_color=node_color, alpha=0.5,
-            )
-            if node_labels is not None:
-                if node_labels == 'name':
-                    labels = self.node_names()
-                elif node_labels == 'amount':
-                    labels = self.node_amounts()
-                else:
-                    raise ValueError()
-                draw_networkx_labels(
-                    G=self._graph, pos=pos, ax=ax,
-                    labels=labels, font_size=10,
-                )
-        draw_networkx_edges(G=self._graph, pos=pos,
-                            ax=ax, edge_color='gray')
-        return ax
-
     def add_decision_node(self, decision_node: DecisionNode,
                           parent: Optional[ChanceNode] = None):
+        """
+        Add a new DecisionNode to the Tree.
 
+        :param decision_node: The DecisionNode to add.
+        :param parent: The parent ChanceNode that triggers the DecisionNode
+                       on failure. Leave as None if this is the first Decision.
+        """
         if parent is None and self._root_node is not None:
             raise ValueError('Must give parent if tree already has a root node')
         self._graph.add_node(decision_node)
@@ -237,14 +191,26 @@ class DecisionTree(object):
 
     def add_chance_node(self, chance_node: ChanceNode,
                         parent: DecisionNode):
+        """
+        Add a new ChanceNode to the Tree. The ChanceNode represents the
+        probability of
 
+        :param chance_node: The ChanceNode to add.
+        :param parent: The DecisionNode that this ChanceNode belongs to.
+        """
         self._graph.add_node(chance_node)
         self._graph.add_edge(parent, chance_node)
         self._solved = False
 
     def add_amount_node(self, amount_node: AmountNode,
                         parent: ChanceNode):
+        """
+        Add a new AmountNode to the Tree.
 
+        :param amount_node: The AmountNode to add.
+        :param parent: The ChanceNode associated with this AmountNode,
+                       if successful.
+        """
         self._graph.add_node(amount_node)
         self._graph.add_edge(parent, amount_node)
         self._solved = False
@@ -320,3 +286,43 @@ class DecisionTree(object):
                 result[f'expected_amount_{c + 1}'] = node.expected_amount
             results.append(result)
         return DataFrame(results)
+
+    def draw(
+            self,
+            node_labels: Optional[str] = None,
+            ax: Optional[Axes] = None
+    ) -> Axes:
+        """
+        Draw the DecisionTree.
+
+        :param node_labels: One of {'name', 'amount', None}
+        :param ax: Optional matplotlib axes.
+        """
+        ax = ax or new_axes()
+        pos = self._get_layout()
+        for nodes, node_shape, node_color in zip(
+                (self.decision_nodes(),
+                 self.chance_nodes(),
+                 self.amount_nodes()),
+                ('s', 'o', 'H'),
+                ('r', 'b', 'g')
+        ):
+            draw_networkx_nodes(
+                G=self._graph, pos=pos, ax=ax,
+                nodelist=nodes,
+                node_shape=node_shape, node_color=node_color, alpha=0.5,
+            )
+            if node_labels is not None:
+                if node_labels == 'name':
+                    labels = self.node_names()
+                elif node_labels == 'amount':
+                    labels = self.node_amounts()
+                else:
+                    raise ValueError()
+                draw_networkx_labels(
+                    G=self._graph, pos=pos, ax=ax,
+                    labels=labels, font_size=10,
+                )
+        draw_networkx_edges(G=self._graph, pos=pos,
+                            ax=ax, edge_color='gray')
+        return ax
