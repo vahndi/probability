@@ -231,7 +231,7 @@ class ActionsGroup(object):
 
     def make_tree(self, max_depth: int) -> DecisionTree:
 
-        tree = DecisionTree(max_depth=3)
+        tree = DecisionTree()
 
         num_decisions = 0
         num_amounts = 0

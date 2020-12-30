@@ -13,7 +13,7 @@ from probability.models.utils import distribute_about_center
 
 class ProjectNetwork(object):
     """
-    A ProjectNetwork to estimate the duration of several networked tasks.
+    A ProjectNetwork to estimate the duration of several dependent tasks.
     """
     def __init__(self):
         """

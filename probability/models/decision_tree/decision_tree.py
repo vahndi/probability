@@ -25,16 +25,12 @@ class DecisionTree(object):
         * Each AmountNode represents either a Cost or a Reward if a choice is
           successful.
     """
-    def __init__(self, max_depth: Optional[int] = None):
+    def __init__(self):
         """
         Create a new Probabilistic Decision Tree.
         """
         self._graph = DiGraph()
-        self._num_decision_nodes = 0
-        self._num_chance_nodes = 0
-        self._num_amount_nodes = 0
         self._root_node: Optional[DecisionNode] = None
-        self._max_depth: Optional[int] = max_depth
         self._solved: bool = False
 
     @property
@@ -43,6 +39,17 @@ class DecisionTree(object):
         Return the wrapped networkx DiGraph object.
         """
         return self._graph
+
+    @property
+    def max_depth(self) -> int:
+        """
+        Return the maximum depth of any DecisionNode in the Tree,
+        """
+        decision_nodes = self.decision_nodes()
+        if len(decision_nodes):
+            return max([node.depth for node in decision_nodes])
+        else:
+            return 0
 
     def _get_layout(self) -> dict:
         """
@@ -60,7 +67,7 @@ class DecisionTree(object):
         }
 
         nodes = {}
-        for depth in range(1, self._max_depth + 1):
+        for depth in range(1, self.max_depth + 1):
             nodes[(DecisionNode, depth)] = self.decision_nodes(depth)
             nodes[(ChanceNode, depth)] = self.chance_nodes(depth)
             nodes[(AmountNode, depth)] = self.amount_nodes(depth)
@@ -71,7 +78,7 @@ class DecisionTree(object):
         for node in self._graph.nodes():
             node_type = type(node)
             node_list = nodes[(node_type, node.depth)]
-            x = (node.depth + x_add[node_type]) / (self._max_depth * 3)
+            x = (node.depth + x_add[node_type]) / (self.max_depth * 3)
             y = distribute_about_center(
                 index=node_list.index(node),
                 size=len(node_list),
@@ -240,7 +247,7 @@ class DecisionTree(object):
         for amount_node in self.amount_nodes():
             path_to_node = list(all_simple_paths(
                 self._graph, self._root_node, amount_node
-            ))[0]
+            ))[0]  # path from first decision node to amount node
             total_amount = 0
             for node in path_to_node:
                 if isinstance(node, ChanceNode):
@@ -250,7 +257,7 @@ class DecisionTree(object):
 
         # 2) work backwards computing the expected cost at all nodes and
         #    choosing action at choice nodes where expected cost is lowest
-        for depth in range(self._max_depth, 0, -1):
+        for depth in range(self.max_depth, 0, -1):
             for amount_node in self.amount_nodes(depth):
                 # propagate expected payoff to parent chance node
                 parent = self.parent(amount_node)
