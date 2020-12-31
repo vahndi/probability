@@ -7,8 +7,8 @@ from networkx import DiGraph, draw_networkx_nodes, \
     descendants_at_distance, draw_networkx_labels
 from pandas import DataFrame
 
-from probability.models.decision_tree.nodes import DecisionNode, ChanceNode, \
-    AmountNode
+from probability.models.decision_tree.nodes import \
+    DecisionNode, ChanceNode, AmountNode
 from probability.models.utils import distribute_about_center
 
 
@@ -66,8 +66,9 @@ class DecisionTree(object):
             AmountNode: 2 / 3
         }
 
+        max_depth = self.max_depth
         nodes = {}
-        for depth in range(1, self.max_depth + 1):
+        for depth in range(1, max_depth + 1):
             nodes[(DecisionNode, depth)] = self.decision_nodes(depth)
             nodes[(ChanceNode, depth)] = self.chance_nodes(depth)
             nodes[(AmountNode, depth)] = self.amount_nodes(depth)
@@ -78,7 +79,7 @@ class DecisionTree(object):
         for node in self._graph.nodes():
             node_type = type(node)
             node_list = nodes[(node_type, node.depth)]
-            x = (node.depth + x_add[node_type]) / (self.max_depth * 3)
+            x = (node.depth + x_add[node_type]) / (max_depth * 3)
             y = distribute_about_center(
                 index=node_list.index(node),
                 size=len(node_list),
@@ -98,6 +99,14 @@ class DecisionTree(object):
             nodes = [node for node in nodes if node.depth == depth]
         return nodes
 
+    def decision_node(
+            self, name: str, depth: Optional[int] = None
+    ) -> DecisionNode:
+
+        decision_nodes = self.decision_nodes(depth=depth)
+        return [node for node in decision_nodes
+                if node.name == name][0]
+
     def chance_nodes(self, depth: Optional[int] = None) -> List[ChanceNode]:
         """
         Return a list of all ChanceNodes in the DecisionTree.
@@ -108,6 +117,15 @@ class DecisionTree(object):
             nodes = [node for node in nodes if node.depth == depth]
         return nodes
 
+    def chance_node(
+            self, name: str,
+            depth: Optional[int] = None
+    ) -> ChanceNode:
+
+        chance_nodes = self.chance_nodes(depth=depth)
+        return [node for node in chance_nodes
+                if node.name == name][0]
+
     def amount_nodes(self, depth: Optional[int] = None) -> List[AmountNode]:
         """
         Return a list of all AmountNodes in the DecisionTree.
@@ -117,6 +135,15 @@ class DecisionTree(object):
         if depth is not None:
             nodes = [node for node in nodes if node.depth == depth]
         return nodes
+
+    def amount_node(
+            self, name: str,
+            depth: Optional[int] = None
+    ) -> AmountNode:
+
+        amount_nodes = self.amount_nodes(depth=depth)
+        return [node for node in amount_nodes
+                if node.name == name][0]
 
     def node(self, name: str, depth: Optional[int] = None):
         """
@@ -140,7 +167,7 @@ class DecisionTree(object):
                     f'{len(nodes)} matching nodes named {name} at depth {depth}'
                 )
 
-    def node_amounts(self) -> dict:
+    def node_amounts_dict(self) -> dict:
         """
         Return a dict mapping Nodes to their amounts.
         """
@@ -149,7 +176,7 @@ class DecisionTree(object):
             for node in self._graph.nodes()
         }
 
-    def node_names(self) -> dict:
+    def node_names_dict(self) -> dict:
         """
         Return a dict mapping Nodes to their names.
         """
@@ -157,6 +184,12 @@ class DecisionTree(object):
             node: node.name
             for node in self._graph.nodes()
         }
+
+    def node_names(self) -> List[str]:
+        """
+        Return a list of all the Node names in the Tree.
+        """
+        return [node.name for node in self._graph.nodes()]
 
     @overload
     def parent(self, node: AmountNode) -> ChanceNode:
@@ -186,8 +219,10 @@ class DecisionTree(object):
     def children(self, node):
         return list(descendants_at_distance(self._graph, node, 1))
 
-    def add_decision_node(self, decision_node: DecisionNode,
-                          parent: Optional[ChanceNode] = None):
+    def add_decision_node(
+            self, decision_node: DecisionNode,
+            parent: Optional[ChanceNode] = None
+    ) -> DecisionNode:
         """
         Add a new DecisionNode to the Tree.
 
@@ -197,6 +232,10 @@ class DecisionTree(object):
         """
         if parent is None and self._root_node is not None:
             raise ValueError('Must give parent if tree already has a root node')
+        if decision_node.depth is None:
+            raise ValueError('DecisionNode must have depth assigned.')
+        if parent is not None and parent not in self._graph.nodes():
+            raise ValueError(f'ChanceNode {parent} is not in the Tree.')
         self._graph.add_node(decision_node)
         if parent is not None:
             self._graph.add_edge(parent, decision_node)
@@ -204,8 +243,36 @@ class DecisionTree(object):
             self._root_node = decision_node
         self._solved = False
 
-    def add_chance_node(self, chance_node: ChanceNode,
-                        parent: DecisionNode):
+        return decision_node
+
+    def add_decision(self, name: str, parent_name: Optional[str] = None):
+        """
+        Add a new Decision to the Tree.
+
+        :param name: The name of the Decision.
+        :param parent_name: The parent ChanceNode that triggers the DecisionNode
+                            on failure. Leave as None if this is the first
+                            Decision.
+        """
+        if name in self.node_names():
+            raise ValueError(f'{name} already exists in Tree')
+
+        parent: Optional[ChanceNode] = (
+            self.chance_node(parent_name) if parent_name is not None
+            else None
+        )
+        decision_node = DecisionNode(
+            name=name,
+            depth=(1 if parent_name is None
+                   else parent.depth + 1)
+        )
+        self.add_decision_node(decision_node=decision_node,
+                               parent=parent)
+
+    def add_chance_node(
+            self, chance_node: ChanceNode,
+            parent: DecisionNode
+    ) -> ChanceNode:
         """
         Add a new ChanceNode to the Tree. The ChanceNode represents the
         probability of
@@ -213,12 +280,72 @@ class DecisionTree(object):
         :param chance_node: The ChanceNode to add.
         :param parent: The DecisionNode that this ChanceNode belongs to.
         """
+        if chance_node.depth is None:
+            raise ValueError('ChanceNode must have depth assigned.')
+        if parent not in self._graph.nodes():
+            raise ValueError(f'DecisionNode {parent} is not in the Tree.')
         self._graph.add_node(chance_node)
         self._graph.add_edge(parent, chance_node)
         self._solved = False
+        return chance_node
 
-    def add_amount_node(self, amount_node: AmountNode,
-                        parent: ChanceNode):
+    def add_option(
+            self, name: str,
+            p_success: float,
+            amount: float,
+            parent_name: str,
+            final: bool = False
+    ):
+        """
+        Add a new option to a Decision with associated ChanceNode, success and
+        optional failure AmountNodes.
+
+        :param name: The name of the Chance.
+        :param p_success: The probability of the Chance succeeding.
+        :param amount: The cost of choosing the option.
+        :param parent_name: The parent DecisionNode that the option belongs to.
+        :param final: Set to True to add a failure as well as a success
+                      AmountNode.
+        """
+        node_names = self.node_names()
+        if name in node_names:
+            raise ValueError(f'{name} already exists in Tree')
+        if parent_name not in node_names:
+            raise ValueError(
+                f'DecisionNode named {parent_name} is not in the Tree.'
+            )
+        decision_node = self.decision_node(name=parent_name)
+        chance_node = self.add_chance_node(
+            chance_node=ChanceNode(
+                name=name,
+                p_success=p_success,
+                amount=amount,
+                depth=decision_node.depth
+            ),
+            parent=decision_node
+        )
+        self.add_amount_node(
+            amount_node=AmountNode(
+                name=f'{name}.success',
+                probability=p_success,
+                depth=decision_node.depth
+            ),
+            parent=chance_node
+        )
+        if final:
+            self.add_amount_node(
+                amount_node=AmountNode(
+                    name=f'{name}.failure',
+                    probability=1 - p_success,
+                    depth=decision_node.depth
+                ),
+                parent=chance_node
+            )
+
+    def add_amount_node(
+            self, amount_node: AmountNode,
+            parent: ChanceNode
+    ) -> AmountNode:
         """
         Add a new AmountNode to the Tree.
 
@@ -226,9 +353,14 @@ class DecisionTree(object):
         :param parent: The ChanceNode associated with this AmountNode,
                        if successful.
         """
+        if amount_node.depth is None:
+            raise ValueError('AmountNode must have depth assigned.')
+        if parent not in self._graph.nodes():
+            raise ValueError(f'ChanceNode {parent} is not in the Tree.')
         self._graph.add_node(amount_node)
         self._graph.add_edge(parent, amount_node)
         self._solved = False
+        return amount_node
 
     def solve(self, minimize: bool = True):
         """
@@ -277,9 +409,12 @@ class DecisionTree(object):
                     )
         self._solved = True
 
-    def amounts(self) -> DataFrame:
+    def amounts(self, require_success: bool = False) -> DataFrame:
         """
         Return the amounts in the solved DecisionTree.
+
+        :param require_success: Set to True to only calculate amounts where
+                                success is guaranteed.
         """
         if not self._solved:
             raise PermissionError(
@@ -292,7 +427,7 @@ class DecisionTree(object):
             ))[0]
             chance_nodes = [c for c in path_to_node
                             if isinstance(c, ChanceNode)]
-            if chance_nodes[-1].p_success != 1:
+            if chance_nodes[-1].p_success != 1 and require_success:
                 continue
             result = {}
             for c, node in enumerate(chance_nodes):
@@ -329,9 +464,9 @@ class DecisionTree(object):
             )
             if node_labels is not None:
                 if node_labels == 'name':
-                    labels = self.node_names()
+                    labels = self.node_names_dict()
                 elif node_labels == 'amount':
-                    labels = self.node_amounts()
+                    labels = self.node_amounts_dict()
                 else:
                     raise ValueError()
                 draw_networkx_labels(

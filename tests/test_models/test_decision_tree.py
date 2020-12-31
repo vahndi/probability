@@ -47,7 +47,7 @@ class TestDecisionTree(TestCase):
 
         dt = self.actions_group.make_tree(max_depth=max_depth)
         dt.solve()
-        amounts = dt.amounts()
+        amounts = dt.amounts(require_success=True)
         return amounts
 
     def test_build_tree_from_actions_group(self):
@@ -57,3 +57,4 @@ class TestDecisionTree(TestCase):
         expected = [64.0, 78.0, 86.0, 100.0, 108.0, 110.0, 150.0, 160.0]
         for exp, act in zip(expected, unique_expected_costs):
             self.assertAlmostEqual(exp, act)
+        self.assertEqual(len(costs), 28)

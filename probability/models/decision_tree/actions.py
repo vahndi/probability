@@ -260,9 +260,8 @@ class ActionsGroup(object):
                     chance_node = ChanceNode(
                         name=f'{choice}',
                         p_success=choice.p_success(),
-                        p_failure=1 - choice.p_success(),
-                        depth=depth,
                         amount=choice.cost(depth),
+                        depth=depth,
                     )
                     tree.add_chance_node(chance_node, parent=decision_node)
                     new_chance_nodes.append(chance_node)
@@ -270,8 +269,8 @@ class ActionsGroup(object):
                     num_amounts += 1
                     success_node = AmountNode(
                         name=f'P{num_amounts}',
-                        depth=depth,
                         probability=chance_node.p_success,
+                        depth=depth
                     )
                     tree.add_amount_node(success_node, parent=chance_node)
                     # add failure node and chance -> failure edge if at max
@@ -281,8 +280,8 @@ class ActionsGroup(object):
                     num_amounts += 1
                     failure_node = AmountNode(
                         name=f'P{num_amounts}',
-                        depth=depth,
                         probability=chance_node.p_failure,
+                        depth=depth,
                     )
                     tree.add_amount_node(failure_node, parent=chance_node)
 
