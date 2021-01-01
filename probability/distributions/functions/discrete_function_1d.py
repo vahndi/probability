@@ -123,9 +123,9 @@ class DiscreteFunction1d(object):
             ax.set_ylabel(self._parent.y_label)
         else:
             if self._method_name == 'pmf':
-                ax.set_ylabel('P(X = k)')
+                ax.set_ylabel('P(K = k)')
             elif self._method_name == 'cdf':
-                ax.set_ylabel('P(X ≤ k)')
+                ax.set_ylabel('P(K ≤ k)')
             else:
                 ax.set_ylabel(self._name)
 
