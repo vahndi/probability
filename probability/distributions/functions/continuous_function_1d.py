@@ -48,6 +48,7 @@ class ContinuousFunction1d(object):
              color: str = 'C0',
              mean: bool = False,
              median: bool = False,
+             mode: bool = False,
              std: bool = False,
              ax: Optional[Axes] = None,
              **kwargs) -> Axes:
@@ -59,6 +60,7 @@ class ContinuousFunction1d(object):
         :param color: Optional color for the series.
         :param mean: Whether to show marker and label for the mean.
         :param median: Whether to show marker and label for the median.
+        :param mode: Whether to show marker and label for the mode.
         :param std: Whether to show marker and label for the standard deviation.
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
@@ -100,6 +102,13 @@ class ContinuousFunction1d(object):
                             line_styles='-.', colors=color)
             axf.add_text(x=x_median, y=self._distribution.pdf(x_median),
                          text=f'median={x_median: 0.3f}', color=color,
+                         ha='center', va='bottom')
+        if mode:
+            x_mode = self._parent.mode()
+            axf.add_v_lines(x=x_mode, y_min=y_min, y_max=y_max,
+                            line_styles='-.', colors=color)
+            axf.add_text(x=x_mode, y=self._distribution.pdf(x_mode),
+                         text=f'mode={x_mode: 0.3f}', color=color,
                          ha='center', va='bottom')
         if std:
             x_std = self._distribution.std()
