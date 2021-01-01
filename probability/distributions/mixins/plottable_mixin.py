@@ -40,7 +40,7 @@ class PlottableMixin(object):
 class DiscretePlottableMixin(PlottableMixin):
 
     x_label: str = 'k'
-    y_label: str = '$P(X = k)$'
+    y_label: str = '$P(K = k)$'
 
 
 class ContinuousPlottableMixin(PlottableMixin):
