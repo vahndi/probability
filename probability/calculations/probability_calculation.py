@@ -25,7 +25,7 @@ def forward_binary_operation(
         input_2.set_context(item_1.context)
     else:
         context = CalculationContext()
-        if isinstance(item_2, float):
+        if isinstance(item_2, float) or isinstance(item_2, int):
             input_2 = ValueCalculation(calc_input=item_2, context=context)
         elif isinstance(item_2, RVS1dMixin) or isinstance(item_2, RVSNdMixin):
             input_2 = SampleCalculation(calc_input=item_2, context=context)
@@ -42,7 +42,7 @@ def forward_binary_operation(
             })
         else:
             raise TypeError(
-                'value_2 must be type Rvs1dMixin, RvsNdMixin float, '
+                'value_2 must be type Rvs1dMixin, RvsNdMixin, int, float, '
                 'Series or DataFrame'
             )
 
@@ -67,7 +67,7 @@ def reverse_binary_operation(
         input_1.set_context(item_1.context)
     else:
         context = CalculationContext()
-        if isinstance(item_2, float):
+        if isinstance(item_2, float) or isinstance(item_2, int):
             input_1 = ValueCalculation(calc_input=item_2, context=context)
         elif isinstance(item_2, RVS1dMixin) or isinstance(item_2, RVSNdMixin):
             input_1 = SampleCalculation(calc_input=item_2, context=context)
@@ -84,7 +84,7 @@ def reverse_binary_operation(
             })
         else:
             raise TypeError(
-                'item_2 must be type Rvs1dMixin, RvsNdMixin float, '
+                'item_2 must be type Rvs1dMixin, RvsNdMixin, int, float, '
                 'Series or DataFrame'
             )
 
