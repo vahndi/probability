@@ -2,6 +2,7 @@ from typing import Tuple, Optional, Union, Iterable, List
 
 from numpy import ndarray
 from pandas import DataFrame, Series
+from scipy.optimize import fmin
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.stats._distn_infrastructure import rv_generic
 
@@ -486,6 +487,32 @@ class PPFContinuous1dMixin(object):
             method_name='ppf', name='PPF',
             parent=self
         )
+
+    def hdi(self, credible_mass: float) -> Tuple[float, float]:
+        """
+        Return the Highest Density Interval for a given probability mass.
+
+        :param credible_mass: The credible probability mass, from 0 to 1.
+        """
+        # initial guess for low_tail_prob
+        non_credible_mass = 1.0 - credible_mass
+
+        def interval_width(p_low_tail: float):
+            return (
+                self._distribution.ppf(credible_mass + p_low_tail) -
+                self._distribution.ppf(p_low_tail)
+            )
+
+        # find low tail probability that minimizes interval width
+        p_hdi_low_tail = fmin(interval_width, non_credible_mass,
+                              ftol=1e-8, disp=False)[0]
+
+        # return interval as array([low, high])
+        low_high = self._distribution.ppf([
+            p_hdi_low_tail,
+            credible_mass + p_hdi_low_tail
+        ])
+        return low_high[0], low_high[1]
 
 
 class PPFDiscrete1dMixin(object):
