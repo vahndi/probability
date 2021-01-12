@@ -2,6 +2,7 @@ from typing import Union, Tuple, Optional
 
 from scipy.stats import beta as beta_dist, rv_continuous
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -64,6 +65,28 @@ class Beta(
             return 1
         else:
             raise ValueError("Can't calculate mode for this distribution.")
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            alpha: Optional[float] = None,
+            beta: Optional[float] = None) -> 'Beta':
+        """
+        Fit a Beta distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param alpha: Optional fixed value for alpha.
+        :param beta: Optional fixed value for beta.
+        """
+        kwargs = {}
+        for arg, kw in zip(
+            (alpha, beta),
+            ('fa', 'fb')
+        ):
+            if arg is not None:
+                kwargs[kw] = arg
+        alpha, beta, loc, scale = beta_dist.fit(data=data, floc=0, fscale=1,
+                                                **kwargs)
+        return Beta(alpha=alpha, beta=beta)
 
     def __str__(self):
 

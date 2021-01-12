@@ -3,6 +3,7 @@ from typing import overload, Optional
 
 from scipy.stats import norm, rv_continuous
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import MuFloatDMixin, \
     SigmaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -79,6 +80,27 @@ class Normal(
     def mode(self) -> float:
 
         return self._mu
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            mu: Optional[float] = None,
+            sigma: Optional[float] = None) -> 'Normal':
+        """
+        Fit a Normal distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param mu: Optional fixed value for mu.
+        :param sigma: Optional fixed value for sigma.
+        """
+        kwargs = {}
+        for arg, kw in zip(
+            (mu, sigma),
+            ('floc', 'fscale')
+        ):
+            if arg is not None:
+                kwargs[kw] = arg
+        loc, scale = norm.fit(data=data, **kwargs)
+        return Normal(mu=loc, sigma=scale)
 
     def __str__(self):
 

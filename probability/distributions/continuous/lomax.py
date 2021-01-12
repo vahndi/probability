@@ -1,5 +1,8 @@
+from typing import Optional
+
 from scipy.stats import lomax, rv_continuous
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -46,7 +49,28 @@ class Lomax(
 
     @property
     def upper_bound(self) -> float:
-        return self.isf().at(0.01)
+        return self.ppf().at(0.99)
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            lambda_: Optional[float] = None,
+            alpha: Optional[float] = None):
+        """
+        Fit a Lomax distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param lambda_: Optional fixed value for lambda_.
+        :param alpha: Optional fixed value for alpha.
+        """
+        kwargs = {}
+        for arg, kw in zip(
+            (lambda_, alpha),
+            ('fscale', 'fc')
+        ):
+            if arg is not None:
+                kwargs[kw] = arg
+        c, loc, scale = lomax.fit(data=data, **kwargs)
+        return Lomax(lambda_=scale, alpha=c)
 
     def __str__(self):
 

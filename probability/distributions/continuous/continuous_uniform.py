@@ -1,5 +1,8 @@
+from typing import Optional
+
 from scipy.stats import uniform
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AFloatDMixin, \
     BFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -39,6 +42,7 @@ class ContinuousUniform(
         """
         self._a = a
         self._b = b
+        self._reset_distribution()
 
     @property
     def lower_bound(self) -> float:
@@ -51,6 +55,27 @@ class ContinuousUniform(
     def _reset_distribution(self):
 
         self._distribution = uniform(loc=self._a, scale=self._b - self._a)
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            a: Optional[float] = None,
+            b: Optional[float] = None) -> 'ContinuousUniform':
+        """
+        Fit a ContinuousUniform distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param a: Optional fixed value for lower bound a.
+        :param b: Optional fixed value for upper bound b.
+        """
+        kwargs = {}
+        for arg, kw in zip(
+            (a, b),
+            ('fa', 'fb')
+        ):
+            if arg is not None:
+                kwargs[kw] = arg
+        loc, scale = uniform.fit(data=data, **kwargs)
+        return ContinuousUniform(a=loc, b=loc + scale)
 
     def __str__(self):
 

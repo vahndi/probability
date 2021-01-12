@@ -1,5 +1,6 @@
 from scipy.stats import expon, rv_continuous
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -34,7 +35,9 @@ class Exponential(
 
     def _reset_distribution(self):
 
-        self._distribution: rv_continuous = expon(loc=0, scale=1 / self._lambda)
+        self._distribution: rv_continuous = expon(
+            loc=0, scale=1 / self._lambda
+        )
 
     @property
     def lower_bound(self) -> float:
@@ -42,10 +45,20 @@ class Exponential(
 
     @property
     def upper_bound(self) -> float:
-        return self.isf().at(0.01)
+        return self.ppf().at(0.99)
 
     def mode(self) -> float:
         return 0.0
+
+    @staticmethod
+    def fit(data: FloatIterable) -> 'Exponential':
+        """
+        Fit an Exponential distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        """
+        loc, scale = expon.fit(data=data, floc=0)
+        return Exponential(lambda_=1 / scale)
 
     def __str__(self):
 

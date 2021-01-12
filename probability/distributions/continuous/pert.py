@@ -1,5 +1,8 @@
+from typing import Optional
+
 from scipy.stats import beta as beta_dist, rv_continuous
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AFloatDMixin, \
     BFloatDMixin, CFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -79,6 +82,33 @@ class PERT(
     @property
     def upper_bound(self) -> float:
         return self._c
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            a: Optional[float] = None,
+            b: Optional[float] = None,
+            c: Optional[float] = None) -> 'PERT':
+        """
+        Fit a PERT distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param a: Optional fixed value for a.
+        :param b: Optional fixed value for b.
+        :param c: Optional fixed value for c.
+        """
+        kwargs = {}
+        if a is not None:
+            kwargs['floc'] = a
+        if a is not None and c is not None:
+            kwargs['fscale'] = c - a
+        alpha, beta, loc, scale = beta_dist.fit(data=data, **kwargs)
+        a = a if a is not None else loc
+        c = c if c is not None else loc + scale
+        if b is None:
+            b_est_1 = a + (alpha * (c - a) - 1) / 4
+            b_est_2 = c - (beta * (c - a) - 1) / 4
+            b = (b_est_1 + b_est_2) / 2
+        return PERT(a=a, b=b, c=c)
 
     def __str__(self):
 

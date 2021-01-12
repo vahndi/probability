@@ -1,5 +1,8 @@
+from typing import Optional
+
 from scipy.stats import laplace, rv_continuous
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import MuFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -28,7 +31,9 @@ class Laplace(
         self._reset_distribution()
 
     def _reset_distribution(self):
-        self._distribution: rv_continuous = laplace(self._mu, self._b)
+        self._distribution: rv_continuous = laplace(
+            loc=self._mu, scale=self._b
+        )
 
     @property
     def b(self) -> float:
@@ -40,16 +45,36 @@ class Laplace(
         self._reset_distribution()
 
     def mode(self) -> float:
-
         return self._mu
 
     @property
     def lower_bound(self) -> float:
-        return self.isf().at(0.99)
+        return self.ppf().at(0.005)
 
     @property
     def upper_bound(self) -> float:
-        return self.isf().at(0.01)
+        return self.ppf().at(0.995)
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            mu: Optional[float] = None,
+            b: Optional[float] = None) -> 'Laplace':
+        """
+        Fit a Beta distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param mu: Optional fixed value for mu.
+        :param b: Optional fixed value for b.
+        """
+        kwargs = {}
+        for arg, kw in zip(
+            (mu, b),
+            ('floc', 'fscale')
+        ):
+            if arg is not None:
+                kwargs[kw] = arg
+        loc, scale = laplace.fit(data=data, **kwargs)
+        return Laplace(mu=loc, b=scale)
 
     def __str__(self):
         return (

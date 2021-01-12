@@ -5,7 +5,7 @@ from scipy.stats import t, rv_continuous
 
 from probability.custom_types.external_custom_types import Array1d
 from probability.custom_types.compound_types import RVMixin
-from probability.distributions.continuous.inv_gamma import InvGamma
+from probability.distributions.continuous.inverse_gamma import InverseGamma
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.utils import num_format
 
@@ -77,18 +77,18 @@ class _InvGammaNormalConjugate(ConjugateMixin, object):
         self._mu = value
         self._reset_distribution()
 
-    def prior(self) -> InvGamma:
+    def prior(self) -> InverseGamma:
 
-        return InvGamma(
+        return InverseGamma(
             alpha=self._alpha, beta=self._beta
         ).with_x_label('σ²').prepend_to_label('Prior: ')
 
     def likelihood(self, **kwargs) -> RVMixin:
         pass
 
-    def posterior(self) -> InvGamma:
+    def posterior(self) -> InverseGamma:
 
-        return InvGamma(
+        return InverseGamma(
             alpha=self.alpha_prime, beta=self.beta_prime
         ).with_x_label('σ²').prepend_to_label('Posterior: ')
 

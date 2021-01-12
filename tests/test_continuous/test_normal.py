@@ -40,3 +40,14 @@ class TestNormal(TestCase):
 
         self.assertFalse(self.n1 != self.n1)
         self.assertTrue(self.n1 != self.n2)
+
+    def test_fit(self):
+
+        for mu, sigma_sq in zip(
+                (0, 0, 0, -2),
+                (0.2, 1.0, 5.0, 0.5)
+        ):
+            normal_orig = Normal(mu=mu, sigma_sq=sigma_sq)
+            normal_fit = Normal.fit(normal_orig.rvs(100_000))
+            self.assertAlmostEqual(normal_orig.mu, normal_fit.mu, 1)
+            self.assertAlmostEqual(normal_orig.sigma_sq, normal_fit.sigma_sq, 1)

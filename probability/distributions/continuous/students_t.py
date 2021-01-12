@@ -2,6 +2,7 @@ from math import sqrt
 
 from scipy.stats import t, rv_continuous
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import MuFloatDMixin, \
     SigmaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -80,6 +81,29 @@ class StudentsT(
     def mode(self) -> float:
 
         return 0.0
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            nu: float = None,
+            mu: float = 0,
+            sigma: float = 1) -> 'StudentsT':
+        """
+        Fit a Students-T distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param nu: Optional fixed value for degrees of freedom.
+        :param mu: Optional fixed value for mean. Default is 0.
+        :param sigma: Optional fixed value for standard deviation. Default is 1
+        """
+        kwargs = {}
+        for arg, kw in zip(
+            (nu, mu, sigma),
+            ('fdf', 'floc', 'fscale')
+        ):
+            if arg is not None:
+                kwargs[kw] = arg
+        nu, mu, sigma = t.fit(data=data, **kwargs)
+        return StudentsT(nu=nu, mu=mu, sigma=sigma)
 
     def __str__(self):
         if self._parameterization == 'μσ':

@@ -2,6 +2,7 @@ from typing import Optional
 
 from scipy.stats import rv_continuous, gamma
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -36,7 +37,8 @@ class Gamma(
 
     _parameterization: str
 
-    def __init__(self, alpha: float, beta: float, parameterization: str = 'αβ'):
+    def __init__(self, alpha: float, beta: float,
+                 parameterization: str = 'αβ'):
 
         assert parameterization in ('αβ', 'kθ')
         self._alpha: float = alpha
@@ -52,12 +54,14 @@ class Gamma(
     @staticmethod
     def from_alpha_beta(alpha: float, beta: float) -> 'Gamma':
 
-        return Gamma(alpha=alpha, beta=beta, parameterization='αβ')
+        return Gamma(alpha=alpha, beta=beta,
+                     parameterization='αβ')
 
     @staticmethod
     def from_k_theta(k: float, theta: float) -> 'Gamma':
 
-        return Gamma(alpha=k, beta=1 / theta, parameterization='kθ')
+        return Gamma(alpha=k, beta=1 / theta,
+                     parameterization='kθ')
 
     @property
     def k(self) -> float:
@@ -89,7 +93,26 @@ class Gamma(
 
     @property
     def upper_bound(self) -> float:
-        return self.isf().at(0.01)
+        return self.ppf().at(0.99)
+
+    @staticmethod
+    def fit(data: FloatIterable,
+            alpha: Optional[float] = None,
+            beta: Optional[float] = None) -> 'Gamma':
+        """
+        Fit a Gamma distribution to the data.
+
+        :param data: Iterable of data to fit to.
+        :param alpha: Optional fixed value for alpha.
+        :param beta: Optional fixed value for beta.
+        """
+        kwargs = {}
+        if alpha is not None:
+            kwargs['fa'] = alpha
+        if beta is not None:
+            kwargs['fscale'] = 1 / beta
+        alpha, loc, scale = gamma.fit(data=data, floc=0, **kwargs)
+        return Gamma(alpha=alpha, beta=1 / scale)
 
     def __str__(self):
 
