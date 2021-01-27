@@ -19,6 +19,6 @@ def distribute_about_center(index: int, size: int,
     """
     if max_size is None:
         max_size = size
-    spacing = max_loc / (max_size - 1)
+    spacing = max_loc / (max_size - 1 if max_size > 1 else 1)
     min_loc = (max_loc / 2) - ((size - 1) * spacing) / 2
     return min_loc + index * spacing
