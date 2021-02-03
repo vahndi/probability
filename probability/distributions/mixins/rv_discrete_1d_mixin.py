@@ -2,6 +2,7 @@ from matplotlib.axes import Axes
 from scipy.stats import rv_discrete
 from typing import Iterable, Optional, Union
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.plottable_mixin import \
     DiscretePlottableMixin
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
@@ -19,6 +20,26 @@ class RVDiscrete1dMixin(
 
     _distribution: rv_discrete
     _num_samples: int = 1000000
+
+    @staticmethod
+    def fit(data: FloatIterable, **kwargs) -> 'RVDiscrete1dMixin':
+        """
+        Fit a  distribution to the data from a single experiment
+        (each experiment represents a series of trials).
+
+        :param data: Iterable of data to fit to.
+        """
+        raise NotImplementedError
+
+    @staticmethod
+    def fits(data: FloatIterable, **kwargs) -> 'RVDiscrete1dMixin':
+        """
+        Fit a Binomial distribution to the distribution of results of a series
+        of experiments.
+
+        :param data: Iterable of data to fit to.
+        """
+        raise NotImplementedError
 
     def plot(self, k: Optional[Iterable] = None,
              kind: str = 'bar',

@@ -2,6 +2,7 @@ from typing import Union
 
 from scipy.stats import geom, rv_discrete
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import PFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
@@ -41,11 +42,42 @@ class Geometric(
 
     @property
     def upper_bound(self) -> int:
-        return int(self.isf().at(0.01))
+        return int(self.ppf().at(0.99))
 
     def mode(self) -> int:
 
         return 1
+
+    @staticmethod
+    def fit(data: FloatIterable) -> 'Geometric':
+        """
+        Fit a Geometric distribution to the data of one or more experiments
+        using the maximum likelihood estimate for p.
+
+        :param data: Iterable of data to fit to. Each result represents the
+                     result of a single trial, and should be 0 or 1.
+        """
+        n = sum(data)  # number of experiments
+        k = len(data)  # number of trials
+        p = n / k
+        return Geometric(p=p)
+
+    @staticmethod
+    def fits(data: FloatIterable) -> 'Geometric':
+        """
+        Fit a Geometric distribution to the distribution of results of a
+        series of experiments using the method of moments.
+
+        https://en.wikipedia.org/wiki/Geometric_distribution#Parameter_estimation
+
+        :param data: Iterable of results to fit to. Each value represents the
+                     number of trials in an experiment to get 1 success, and
+                     should be at least 1.
+        """
+        n = len(data)  # number of experiments
+        k = sum(data)  # number of trials
+        p = n / k
+        return Geometric(p=p)
 
     def __str__(self):
 

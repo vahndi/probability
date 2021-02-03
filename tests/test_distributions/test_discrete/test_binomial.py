@@ -49,3 +49,13 @@ class TestBinomial(TestCase):
 
         self.assertFalse(self.b1 != self.b1)
         self.assertTrue(self.b1 != self.b2)
+
+    def test_fits(self):
+
+        for n, p in zip(
+                (20, 20, 40),
+                (0.5, 0.7, 0.5)
+        ):
+            binom_orig = Binomial(n=n, p=p)
+            binom_fit = Binomial.fits(binom_orig.rvs(100_000), n=n)
+            self.assertAlmostEqual(binom_orig.p, binom_fit.p, 1)

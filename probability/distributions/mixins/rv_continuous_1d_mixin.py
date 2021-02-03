@@ -2,6 +2,7 @@ from matplotlib.axes import Axes
 from scipy.stats import rv_continuous
 from typing import Iterable, Optional, Union
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableMixin
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
@@ -20,6 +21,15 @@ class RVContinuous1dMixin(
 
     _distribution: rv_continuous
     _num_samples: int = 1000000
+
+    @staticmethod
+    def fit(data: FloatIterable) -> 'RVContinuous1dMixin':
+        """
+        Fit a  distribution to the data from a single experiment.
+
+        :param data: Iterable of data to fit to.
+        """
+        raise NotImplementedError
 
     def plot(self,
              x: Optional[Iterable] = None,

@@ -1,7 +1,9 @@
 from typing import Union
 
+from numpy import power, sum
 from scipy.stats import betabinom, rv_discrete
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import NIntDMixin, \
     AlphaFloatDMixin, BetaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -38,6 +40,7 @@ class BetaBinomial(
 
     https://en.wikipedia.org/wiki/Beta-binomial_distribution
     """
+
     def __init__(self, n: int, alpha: float, beta: float):
         """
         Create a new beta-binomial distribution.
@@ -53,7 +56,7 @@ class BetaBinomial(
 
     def _reset_distribution(self):
         self._distribution: rv_discrete = betabinom(
-            self._n, self._alpha, self._beta
+            n=self._n, a=self._alpha, b=self._beta
         )
 
     @property
@@ -63,6 +66,30 @@ class BetaBinomial(
     @property
     def upper_bound(self) -> int:
         return self._n
+
+    @staticmethod
+    def fit(data: FloatIterable):
+        raise NotImplementedError
+
+    @staticmethod
+    def fits(data: FloatIterable, n: int) -> 'BetaBinomial':
+        """
+        Fit a BetaBinomial distribution to the distribution of results of a
+        series of N experiments, each having n trials, using the method of
+        moments.
+
+        https://en.wikipedia.org/wiki/Beta-binomial_distribution#Method_of_moments
+
+        :param data: Number of successes in each trial.
+        :param n: Number of trials per experiment.
+        """
+        N = len(data)
+        m1 = sum(data) / N
+        m2 = sum(power(data, 2)) / N
+        denominator = n * ((m2 / m1) - m1 - 1) + m1
+        alpha = (n * m1 - m2) / denominator
+        beta = (n - m1) * (n - m2 / m1) / denominator
+        return BetaBinomial(n=n, alpha=alpha, beta=beta)
 
     def __str__(self):
         return f'BetaBinomial(' \
