@@ -32,9 +32,6 @@ class Beta(
 
     https://en.wikipedia.org/wiki/Beta_distribution
     """
-    lower_bound = 0
-    upper_bound = 1
-
     def __init__(self, alpha: float, beta: float):
         """
         Create a new beta distribution.
@@ -48,6 +45,14 @@ class Beta(
 
     def _reset_distribution(self):
         self._distribution: rv_continuous = beta_dist(self._alpha, self._beta)
+
+    @property
+    def lower_bound(self) -> float:
+        return 0.0
+
+    @property
+    def upper_bound(self) -> float:
+        return 1.0
 
     def mode(self) -> Optional[Union[float, Tuple[float, float]]]:
 
@@ -84,8 +89,9 @@ class Beta(
         ):
             if arg is not None:
                 kwargs[kw] = arg
-        alpha, beta, loc, scale = beta_dist.fit(data=data, floc=0, fscale=1,
-                                                **kwargs)
+        alpha, beta, loc, scale = beta_dist.fit(
+            data=data, floc=0, fscale=1, **kwargs
+        )
         return Beta(alpha=alpha, beta=beta)
 
     def __str__(self):
