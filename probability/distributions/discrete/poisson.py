@@ -2,6 +2,7 @@ from typing import Union
 
 from scipy.stats import poisson, rv_discrete
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
@@ -44,11 +45,41 @@ class Poisson(
 
     @property
     def upper_bound(self) -> int:
-        return int(self.isf().at(0.01))
+        return int(self.ppf().at(0.99))
 
     def mode(self) -> int:
 
         return int(self._lambda)
+
+    @staticmethod
+    def fit(data: FloatIterable) -> 'Poisson':
+        """
+        Fit a Poisson distribution to the data using the method of moments.
+
+        https://en.wikipedia.org/wiki/Poisson_distribution#Parameter_estimation
+
+        :param data: Iterable of data to fit to. Each result represents the
+                     result of a single trial e.g. the number of events per
+                     minute.
+        """
+        n = len(data)
+        lambda_ = sum(data) / n
+        return Poisson(lambda_=lambda_)
+
+    @staticmethod
+    def fits(data: FloatIterable) -> 'Poisson':
+        """
+        Fit a Poisson distribution to the data using the method of moments.
+
+        https://en.wikipedia.org/wiki/Poisson_distribution#Parameter_estimation
+
+        :param data: Iterable of data to fit to. Each result represents the
+                     result of a single experiment i.e. the number of events
+                     in a given period.
+        """
+        n = len(data)
+        lambda_ = sum(data) / n
+        return Poisson(lambda_=lambda_)
 
     def __str__(self):
 

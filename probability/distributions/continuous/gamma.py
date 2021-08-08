@@ -39,7 +39,16 @@ class Gamma(
 
     def __init__(self, alpha: float, beta: float,
                  parameterization: str = 'αβ'):
+        """
+        Create a new gamma distribution.
 
+        :param alpha: Shape parameter: Interpretation can be number of events
+                      that we are waiting on to happen. When alpha = 1 we get
+                      the exponential distribution.
+        :param beta: Rate parameter: Interpretation can be the rate at which
+                     events happen.
+        :param parameterization: One of ['αβ', 'kθ']
+        """
         assert parameterization in ('αβ', 'kθ')
         self._alpha: float = alpha
         self._beta: float = beta

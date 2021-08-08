@@ -41,11 +41,11 @@ class NegativeBinomial(
 
     def _reset_distribution(self):
         """
-        https://stackoverflow.com/questions/40846992/
-        alternative-parametrization-of-the-negative-binomial-in-scipy
-        #comment109394209_47406400
+        https://stackoverflow.com/questions/40846992/alternative-parametrization-of-the-negative-binomial-in-scipy#comment109394209_47406400
         """
-        self._distribution: rv_discrete = nbinom(self._r, 1 - self._p)
+        self._distribution: rv_discrete = nbinom(
+            self._r, 1 - self._p
+        )
 
     @property
     def lower_bound(self) -> int:
@@ -53,7 +53,7 @@ class NegativeBinomial(
 
     @property
     def upper_bound(self) -> int:
-        return int(self.isf().at(0.01))
+        return int(self.ppf().at(0.99))
 
     @property
     def r(self) -> float:

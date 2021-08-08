@@ -2,6 +2,7 @@ from typing import Union
 
 from scipy.stats import rv_discrete, hypergeom
 
+from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import NIntDMixin, \
     BigNIntDMixin, BigKIntDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -50,6 +51,25 @@ class HyperGeometric(
     def mode(self) -> int:
 
         return int((self._n + 1) * (self._K + 1) / (self._N + 2))
+
+    @staticmethod
+    def fit(data: FloatIterable, N: int, K: int) -> 'HyperGeometric':
+        """
+        Fit a HyperGeometric distribution to the data of one or more experiments
+        using the maximum likelihood estimate for p.
+
+        :param data: Iterable of data to fit to. Each result represents the
+                     result of a single trial, and should be 0 or 1.
+        :param N: Population size.
+        :param K: Number of objects with a given feature.
+        """
+        n = len(data)
+        return HyperGeometric(N=N, K=K, n=n)
+
+    @staticmethod
+    def fits(data: FloatIterable, **kwargs):
+
+        raise NotImplementedError
 
     @property
     def lower_bound(self) -> int:
