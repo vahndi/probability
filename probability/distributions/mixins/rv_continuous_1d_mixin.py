@@ -17,6 +17,7 @@ from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
     Var1dMixin, Interval1dMixin, Support1dMixin, PDF1dMixin, \
     CDFContinuous1dMixin, SFContinuous1dMixin, PPFContinuous1dMixin, \
     ISFContinuous1dMixin, StatMixin
+from probability.distributions.mixins.rv_series import RVContinuousSeries
 
 
 class RVContinuous1dMixin(
@@ -26,8 +27,7 @@ class RVContinuous1dMixin(
     ISFContinuous1dMixin, ContinuousPlottableMixin, StatMixin, object
 ):
 
-    _distribution: rv_continuous
-    _num_samples: int = 1000000
+    _distribution: Union[rv_continuous, RVContinuousSeries]
 
     @property
     def lower_bound(self) -> float:

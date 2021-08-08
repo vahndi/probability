@@ -14,8 +14,10 @@ from probability.distributions.functions.discrete_function_1d import \
     DiscreteFunction1d
 from probability.distributions.functions.discrete_function_nd import \
     DiscreteFunctionNd
+from probability.distributions.mixins.rv_series import RVSeries, \
+    RVContinuousSeries
 
-NUM_SAMPLES_COMPARISON = 100000
+NUM_SAMPLES_COMPARISON = 100_000
 
 
 class RVS1dMixin(object):
@@ -138,7 +140,7 @@ class RVSNdMixin(object):
 
 class Moment1dMixin(object):
 
-    _distribution: rv_generic
+    _distribution: Union[rv_generic, RVSeries]
 
     def moment(self, n: int) -> float:
         """
@@ -160,7 +162,7 @@ class EntropyMixin(object):
 
 class Median1dMixin(object):
 
-    _distribution: rv_generic
+    _distribution: Union[rv_generic, RVSeries]
 
     def median(self) -> float:
         """
@@ -171,7 +173,7 @@ class Median1dMixin(object):
 
 class Mean1dMixin(object):
 
-    _distribution: rv_generic
+    _distribution: Union[rv_generic, RVSeries]
 
     def mean(self) -> float:
         """
@@ -191,7 +193,7 @@ class MeanNdMixin(object):
 
 class StD1dMixin(object):
 
-    _distribution: rv_generic
+    _distribution: Union[rv_generic, RVSeries]
 
     def std(self) -> float:
         """
@@ -202,7 +204,7 @@ class StD1dMixin(object):
 
 class Var1dMixin(object):
 
-    _distribution: rv_generic
+    _distribution: Union[rv_generic, RVSeries]
 
     def var(self) -> float:
         """
@@ -222,7 +224,7 @@ class VarNdMixin(object):
 
 class Interval1dMixin(object):
 
-    _distribution: rv_generic
+    _distribution: Union[rv_generic, RVSeries]
 
     def interval(self, percent: float) -> Tuple[float, float]:
         """
@@ -234,7 +236,7 @@ class Interval1dMixin(object):
 
 class Support1dMixin(object):
 
-    _distribution: rv_generic
+    _distribution: Union[rv_generic, RVSeries]
 
     def support(self):
         """
@@ -245,7 +247,7 @@ class Support1dMixin(object):
 
 class PDF1dMixin(object):
 
-    _distribution: rv_continuous
+    _distribution: Union[rv_continuous, RVContinuousSeries]
 
     def pdf(self) -> ContinuousFunction1d:
         """

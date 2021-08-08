@@ -1,4 +1,5 @@
 from probability.distributions.continuous.beta import Beta
+from probability.distributions.continuous.continuous_data import ContinuousData
 from probability.distributions.continuous.continuous_uniform import \
     ContinuousUniform
 from probability.distributions.continuous.exponential import Exponential

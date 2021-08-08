@@ -19,7 +19,6 @@ class RVDiscrete1dMixin(
 ):
 
     _distribution: rv_discrete
-    _num_samples: int = 1000000
 
     @staticmethod
     def fit(data: FloatIterable, **kwargs) -> 'RVDiscrete1dMixin':

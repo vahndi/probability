@@ -1,4 +1,4 @@
-from typing import Iterable, overload, Optional
+from typing import Iterable, overload, Optional, Union
 
 from matplotlib.axes import Axes
 from numpy import linspace
@@ -9,12 +9,13 @@ from scipy.stats import rv_continuous
 
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableMixin
+from probability.distributions.mixins.rv_series import RVContinuousSeries
 
 
 class ContinuousFunction1d(object):
 
     def __init__(self,
-                 distribution: rv_continuous,
+                 distribution: Union[rv_continuous, RVContinuousSeries],
                  method_name: str,
                  name: str,
                  parent: ContinuousPlottableMixin):
