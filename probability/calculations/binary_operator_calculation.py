@@ -13,13 +13,24 @@ from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 class BinaryOperatorCalculation(
     ProbabilityCalculation
 ):
+    """
+    A ProbabilityCalculation that combines 2 inputs with a BinaryOperator.
+    """
+    def __init__(
+            self,
+            calc_input_1: ProbabilityCalculationMixin,
+            calc_input_2: ProbabilityCalculationMixin,
+            operator: Type[BinaryOperator],
+            context: CalculationContext
+    ):
+        """
+        Create a new BinaryOperatorCalculation.
 
-    def __init__(self,
-                 calc_input_1: ProbabilityCalculationMixin,
-                 calc_input_2: ProbabilityCalculationMixin,
-                 operator: Type[BinaryOperator],
-                 context: CalculationContext):
-
+        :param calc_input_1: The first Input.
+        :param calc_input_2: The second Input.
+        :param operator: The Binary Operator to apply.
+        :param context: The CalculationContext.
+        """
         self.calc_input_1: ProbabilityCalculationMixin = calc_input_1
         self.calc_input_2: ProbabilityCalculationMixin = calc_input_2
         self.operator: Type[BinaryOperator] = operator
@@ -28,13 +39,20 @@ class BinaryOperatorCalculation(
 
     @property
     def input_calcs(self) -> List[ProbabilityCalculationMixin]:
-
+        """
+        Return the Calculation Inputs as a list.
+        """
         return [self.calc_input_1, self.calc_input_2]
 
     def output(
-            self, num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
+            self,
+            num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> CalculationValue:
+        """
+        Calculate the sampled output of the Calculation.
 
+        :param num_samples: Number of samples to draw.
+        """
         if self.context.has_object_named(self.name):
             return self.context[self.name]
         else:
@@ -70,7 +88,9 @@ class BinaryOperatorCalculation(
 
     @property
     def name(self) -> str:
-
+        """
+        Return the name of the Calculation.
+        """
         if not isinstance(self.calc_input_1, SimpleCalculation):
             name_1 = f'({self.calc_input_1.name})'
         else:

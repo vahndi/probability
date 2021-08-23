@@ -6,34 +6,44 @@ from probability.calculations.mixins import OperatorMixin
 from probability.custom_types.calculation_types import CalculationValue
 
 
-class BinaryOperator(OperatorMixin):
-
+class BinaryOperator(OperatorMixin, object):
+    """
+    An Operator that produces an output from 2 inputs
+    e.g. Add, Multiply, Subtract, Divide.
+    """
     symbol: str
     operator: Callable[[Any, Any], Any]
     pandas_op_name: str
 
     @classmethod
     def get_name(cls, name_1: str, name_2: str):
+        """
+        Return the name of the Operator applied to 2 inputs.
 
+        :param name_1: Name of the first input.
+        :param name_2: Name of the second input.
+        """
         return f'{name_1} {cls.symbol} {name_2}'
 
     @staticmethod
     def get_parens(
-            value_1_calc: bool, value_2_calc: bool
+            value_1_calc: bool,
+            value_2_calc: bool
     ) -> Tuple[str, str, str, str]:
+        """
 
+        :param value_1_calc:
+        :param value_2_calc:
+        :return:
+        """
         if value_1_calc:
-            l1 = '('
-            r1 = ')'
+            l1, r1 = '(', ')'
         else:
-            l1 = ''
-            r1 = ''
+            l1, r1 = '', ''
         if value_2_calc:
-            l2 = '('
-            r2 = ')'
+            l2, r2 = '(', ')'
         else:
-            l2 = ''
-            r2 = ''
+            l2, r2 = '', ''
 
         return l1, r1, l2, r2
 
