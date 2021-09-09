@@ -10,7 +10,53 @@ class TestDiscrete(TestCase):
 
     def setUp(self) -> None:
 
-        pass
+        self.education = Discrete.from_counts(
+            data={
+                ('Male', 'Never finished high school'): 112,
+                ('Male', 'High school'): 231,
+                ('Male', 'College'): 595,
+                ('Male', 'Graduate school'): 242,
+                ('Female', 'Never finished high school'): 136,
+                ('Female', 'High school'): 189,
+                ('Female', 'College'): 763,
+                ('Female', 'Graduate school'): 172,
+            },
+            variables=['gender', 'highest_education']
+        )
+        self.education__total = 112 + 231 + 595 + 242 + 136 + 189 + 763 + 172
+        self.total__high_school = 231 + 189
+
+    def test_p(self):
+        self.assertAlmostEqual(
+            self.total__high_school / self.education__total,
+            self.education.p(highest_education='High school'),
+            5
+        )
+
+    def test_p_or(self):
+        total__high_school__or__female = 231 + 136 + 189 + 763 + 172
+        self.assertAlmostEqual(
+            total__high_school__or__female / self.education__total,
+            self.education.p_or(highest_education='High school',
+                                gender='Female'),
+            5
+        )
+
+    def test_p_given(self):
+
+        total__female = 136 + 189 + 763 + 172
+        self.assertAlmostEqual(
+            189 / total__female,
+            self.education.given(gender='Female').p(
+                highest_education='High school'),
+            5
+        )
+        self.assertAlmostEqual(
+            189 / self.total__high_school,
+            self.education.given(highest_education='High school').p(
+                gender='Female'),
+            5
+        )
 
     def test_from_counts__1_var__vars_on_index(self):
 

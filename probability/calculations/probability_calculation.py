@@ -137,7 +137,7 @@ class ProbabilityCalculation(
 
     def __add__(self, other):
         """
-        Add the Distribution by a float, distribution,
+        Add the Distribution to a float, distribution,
         ProbabilityCalculation, Series or DataFrame.
 
         :param other: The multiplier. N.B. if it is a Series or a DataFrame,

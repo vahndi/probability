@@ -86,9 +86,11 @@ class RVSeries(object):
 
 class RVContinuousSeries(RVSeries):
 
-    # TODO: CDFContinuous1dMixin._distribution.cdf
-    # TODO: SFContinuous1dMixin._distribution.sf
     # TODO: PPFContinuous1dMixin._distribution.ppf
+    # use Series.quantile
+    # TODO: CDFContinuous1dMixin._distribution.cdf
+    # https://stackoverflow.com/questions/25577352/plotting-cdf-of-a-pandas-series-in-python
+    # TODO: SFContinuous1dMixin._distribution.sf
     # TODO: ISFContinuous1dMixin._distribution.isf
 
     @property

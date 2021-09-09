@@ -6,7 +6,8 @@ from pandas.core.dtypes.inference import is_number
 
 from probability.discrete.conditional import Conditional
 from probability.discrete.mixins import StatesMixin
-from probability.discrete.prob_utils import p, given, valid_name_comparator
+from probability.discrete.prob_utils import p, given, valid_name_comparator, \
+    p_or
 
 
 class Discrete(
@@ -72,6 +73,8 @@ class Discrete(
         """
         if isinstance(data, dict):
             data = Series(data)
+        if not isinstance(data, Series):
+            raise TypeError('data must be dict or Series')
 
         # assign variables
         if not isinstance(data.index, MultiIndex):
@@ -183,10 +186,11 @@ class Discrete(
             states: Optional[Union[list, Dict[str, list]]] = None
     ) -> 'Discrete':
         """
-        Return a new joint distribution from counts of random variable values.
+        Return a new joint distribution from probabilities of random variable
+        values.
 
         :param data: Series mapping values of random variables to the
-                       number of observations. Index column(s) should be named
+                       probability of occurence. Index column(s) should be named
                        after the variables.
         :param variables: Optional variable name or list of variable names.
                           Required if Series index columns are not named.
@@ -217,8 +221,24 @@ class Discrete(
         return self._data
 
     def p(self, **kwargs):
+        """
+        Return the probability that ALL of the conditions hold.
 
+        :param kwargs: Names and values of variables to find probability of
+                       e.g. `C=1`, `D__le=1`.
+                       Valid filters are __{eq, ne, lt, gt, le, ge, in, not_in}
+        """
         return p(self._data, **kwargs)
+
+    def p_or(self, **kwargs) -> float:
+        """
+        Return the probability that ANY of the conditions hold.
+
+        :param kwargs: Names and values of variables to find probability of
+                       e.g. `C=1`, `D__le=1`.
+                       Valid filters are __{eq, ne, lt, gt, le, ge, in, not_in}
+        """
+        return p_or(self._data, **kwargs)
 
     def given(self, **given_conditions) -> 'Discrete':
         """
@@ -248,7 +268,7 @@ class Discrete(
 
     def conditional(self, *conditionals) -> Conditional:
         """
-        Return a Conditional table  the distribution on the conditional
+        Return a Conditional table of the distribution on the conditional
         variables.
 
         :param conditionals: Names of variables to condition over each value of.
@@ -439,3 +459,4 @@ class Discrete(
     def __repr__(self):
 
         return f'p({",".join(self._variables)})'
+

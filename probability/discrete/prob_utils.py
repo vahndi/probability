@@ -1,11 +1,11 @@
-from typing import Any, Tuple, List
+from typing import Any, Tuple, List, Hashable
 
 from pandas import Series, DataFrame
 
 
 def _filter_distribution(
         distribution: DataFrame,
-        distribution_name: str,
+        distribution_name: Hashable,
         name_comparator: str, value: Any
 ) -> Tuple[DataFrame, str]:
     """
@@ -64,7 +64,7 @@ def _filter_distribution(
 
 def p(distribution: Series, **joint_vars_vals) -> float:
     """
-    Calculate the probability of the values of the joint values given.
+    Calculate the probability of ALL of the values of the joint values given.
 
     :param distribution: Distribution data to calculate probability from.
     :param joint_vars_vals: Names and values of variables to find probability of
@@ -74,11 +74,32 @@ def p(distribution: Series, **joint_vars_vals) -> float:
     data = distribution.copy().reset_index()
     for joint_var, joint_val in joint_vars_vals.items():
         # filter individual probabilities to specified values e.g. P(A,B,C,D=d1)
-        data, var_name = _filter_distribution(
+        data, _ = _filter_distribution(
             data, dist_name, joint_var, joint_val
         )
     # calculate probability
     return data[dist_name].sum()
+
+
+def p_or(distribution: Series, **joint_vars_vals) -> float:
+    """
+    Calculate the probability of ANY of the joint values given.
+
+    :param distribution: Distribution data to calculate probability from.
+    :param joint_vars_vals: Names and values of variables to find probability of
+                            e.g. `C=1`, `D__le=1`.
+    """
+    dist_name = distribution.name
+    data = distribution.copy().reset_index()
+    or_ix = set()
+    for joint_var, joint_val in joint_vars_vals.items():
+        # filter individual probabilities to specified values e.g. P(A,B,C,D=d1)
+        filtered, _ = _filter_distribution(
+            data, dist_name, joint_var, joint_val
+        )
+        or_ix.update(filtered.index)
+    # calculate probability
+    return data.loc[or_ix, dist_name].sum()
 
 
 def given(distribution: Series, **givens) -> Series:
