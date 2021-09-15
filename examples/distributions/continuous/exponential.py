@@ -10,7 +10,8 @@ x = arange(0, 5.01, 0.05)
 
 def plot_wikipedia_pdfs():
     """
-    https://en.wikipedia.org/wiki/Exponential_distribution#/media/File:Exponential_probability_density.svg
+    https://en.wikipedia.org/wiki/Exponential_distribution#/media/
+    File:Exponential_probability_density.svg
     """
     ax = new_axes()
     Exponential(lambda_=0.5).plot(x=x, color='orange', ax=ax)
@@ -23,7 +24,8 @@ def plot_wikipedia_pdfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Exponential_distribution#/media/File:Exponential_cdf.svg
+    https://en.wikipedia.org/wiki/Exponential_distribution#/media/
+    File:Exponential_cdf.svg
     """
     ax = new_axes()
     Exponential(lambda_=0.5).cdf().plot(x=x, color='orange', ax=ax)

@@ -8,7 +8,8 @@ k = list(range(1, 61))
 
 def plot_wikipedia_pmfs():
     """
-    https://en.wikipedia.org/wiki/Hypergeometric_distribution#/media/File:HypergeometricPDF.png
+    https://en.wikipedia.org/wiki/Hypergeometric_distribution#/media/
+    File:HypergeometricPDF.png
     """
     axf = AxesFormatter(width=12, height=9)
     HyperGeometric(N=500, K=50, n=100).plot(
@@ -32,7 +33,8 @@ def plot_wikipedia_pmfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Hypergeometric_distribution#/media/File:HypergeometricCDF.png
+    https://en.wikipedia.org/wiki/Hypergeometric_distribution#/media/
+    File:HypergeometricCDF.png
     """
     axf = AxesFormatter(width=12, height=9)
     HyperGeometric(N=500, K=50, n=100).cdf().plot(

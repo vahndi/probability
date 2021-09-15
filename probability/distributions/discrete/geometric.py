@@ -68,7 +68,8 @@ class Geometric(
         Fit a Geometric distribution to the distribution of results of a
         series of experiments using the method of moments.
 
-        https://en.wikipedia.org/wiki/Geometric_distribution#Parameter_estimation
+        https://en.wikipedia.org/wiki/Geometric_distribution
+        #Parameter_estimation
 
         :param data: Iterable of results to fit to. Each value represents the
                      number of trials in an experiment to get 1 success, and

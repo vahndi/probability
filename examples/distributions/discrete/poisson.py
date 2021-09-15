@@ -11,7 +11,8 @@ k_ml_app = list(range(30))
 
 def plot_wikipedia_pmfs():
     """
-    https://en.wikipedia.org/wiki/Poisson_distribution#/media/File:Poisson_pmf.svg
+    https://en.wikipedia.org/wiki/Poisson_distribution#/media/
+    File:Poisson_pmf.svg
     """
     ax = new_axes(width=10, height=10)
     Poisson(lambda_=1).plot(k=k_wikipedia, kind='line',
@@ -28,7 +29,8 @@ def plot_wikipedia_pmfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Poisson_distribution#/media/File:Poisson_pmf.svg
+    https://en.wikipedia.org/wiki/Poisson_distribution#/media/
+    File:Poisson_pmf.svg
     """
     ax = new_axes(width=10, height=10)
     Poisson(lambda_=1).cdf().plot(k=k_wikipedia, color='gray',

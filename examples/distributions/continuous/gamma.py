@@ -13,7 +13,8 @@ x = arange(0, 20.1, 0.1)
 
 def plot_wikipedia_pdfs():
     """
-    https://en.wikipedia.org/wiki/Gamma_distribution#/media/File:Gamma_distribution_pdf.svg
+    https://en.wikipedia.org/wiki/Gamma_distribution#/media/
+    File:Gamma_distribution_pdf.svg
     """
     ax = new_axes()
     Gamma.from_k_theta(k=1, theta=2).plot(x=x, color='red', ax=ax)
@@ -30,7 +31,8 @@ def plot_wikipedia_pdfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Gamma_distribution#/media/File:Gamma_distribution_cdf.svg
+    https://en.wikipedia.org/wiki/Gamma_distribution#/media/
+    File:Gamma_distribution_cdf.svg
     """
     ax = new_axes()
     Gamma.from_k_theta(k=1, theta=2).cdf().plot(x=x, color='red', ax=ax)

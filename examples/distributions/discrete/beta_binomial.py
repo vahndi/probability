@@ -10,7 +10,8 @@ colors_wiki = ['black', 'red', 'green', 'blue']
 
 def plot_wikipedia_pmfs():
     """
-    https://en.wikipedia.org/wiki/Beta-binomial_distribution#/media/File:Beta-binomial_distribution_pmf.png
+    https://en.wikipedia.org/wiki/Beta-binomial_distribution#/media/
+    File:Beta-binomial_distribution_pmf.png
     """
     axf = AxesFormatter(width=12, height=9)
     for alpha, beta, color in zip(alpha_wiki, beta_wiki, colors_wiki):
@@ -38,7 +39,8 @@ def plot_wikipedia_cdfs():
 
 def plot_scipy_pmf():
     """
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.betabinom.html#scipy.stats.betabinom
+    https://docs.scipy.org/doc/scipy/reference/generated/
+    scipy.stats.betabinom.html#scipy.stats.betabinom
     """
     bb = BetaBinomial(n=5, alpha=2.3, beta=0.63)
     axf = AxesFormatter()

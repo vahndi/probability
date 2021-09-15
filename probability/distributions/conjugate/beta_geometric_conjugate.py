@@ -163,7 +163,8 @@ class BetaGeometricConjugate(
         Assumes that each experiment was completed such that the number of
         # successes observed equals the number of experiments.
 
-        https://en.wikipedia.org/wiki/Geometric_distribution#Statistical_inference
+        https://en.wikipedia.org/wiki/Geometric_distribution
+        #Statistical_inference
 
         :param data: Series of `1`s and `0`s or `True`s and `False`s
                      The data represents a series of experiments where each

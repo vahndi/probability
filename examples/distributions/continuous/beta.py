@@ -11,7 +11,8 @@ x = linspace(0, 1, 101)
 
 def plot_wikipedia_pdfs():
     """
-    https://en.wikipedia.org/wiki/Beta_distribution#/media/File:Beta_distribution_pdf.svg
+    https://en.wikipedia.org/wiki/Beta_distribution#/media/
+    File:Beta_distribution_pdf.svg
     """
     ax = new_axes(width=10, height=10)
     Beta(0.5, 0.5).pdf().plot(x=x, color='red', mean=True, std=True, ax=ax)
@@ -27,7 +28,8 @@ def plot_wikipedia_pdfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Beta_distribution#/media/File:Beta_distribution_cdf.svg
+    https://en.wikipedia.org/wiki/Beta_distribution#/media/
+    File:Beta_distribution_cdf.svg
     """
     ax = new_axes(width=10, height=10)
     Beta(0.5, 0.5).cdf().plot(x=x, color='red', ax=ax)

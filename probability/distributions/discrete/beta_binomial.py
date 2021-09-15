@@ -78,7 +78,8 @@ class BetaBinomial(
         series of N experiments, each having n trials, using the method of
         moments.
 
-        https://en.wikipedia.org/wiki/Beta-binomial_distribution#Method_of_moments
+        https://en.wikipedia.org/wiki/Beta-binomial_distribution
+        #Method_of_moments
 
         :param data: Number of successes in each trial.
         :param n: Number of trials per experiment.

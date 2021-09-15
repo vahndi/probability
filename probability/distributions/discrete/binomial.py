@@ -59,7 +59,8 @@ class Binomial(
         Fit a Binomial distribution to the data from a single experiment using
         the maximum likelihood estimate for p.
 
-        https://en.wikipedia.org/wiki/Binomial_distribution#Estimation_of_parameters
+        https://en.wikipedia.org/wiki/Binomial_distribution
+        #Estimation_of_parameters
 
         :param data: Iterable of data of to fit to. Each value should be 0 or 1.
         """

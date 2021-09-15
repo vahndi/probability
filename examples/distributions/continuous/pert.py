@@ -10,7 +10,8 @@ x = linspace(0, 100, 1001)
 
 def plot_wikipedia_pdfs():
     """
-    https://en.wikipedia.org/wiki/PERT_distribution#/media/File:PERT_pdf_examples.jpg
+    https://en.wikipedia.org/wiki/PERT_distribution#/media/
+    File:PERT_pdf_examples.jpg
     """
     ax = new_axes(width=10, height=10)
     PERT(0, 10, 100).pdf().plot(x=x, color='blue', ax=ax)
@@ -24,7 +25,8 @@ def plot_wikipedia_pdfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/PERT_distribution#/media/File:PERT_cdf_examples.jpg
+    https://en.wikipedia.org/wiki/PERT_distribution#/media/
+    File:PERT_cdf_examples.jpg
     """
     ax = new_axes(width=10, height=10)
     PERT(0, 10, 100).cdf().plot(x=x, color='blue', ax=ax)

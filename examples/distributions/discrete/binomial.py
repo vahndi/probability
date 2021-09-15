@@ -11,7 +11,8 @@ k_ml_app = list(range(11))
 
 def plot_wikipedia_pmfs():
     """
-    https://en.wikipedia.org/wiki/Binomial_distribution#/media/File:Binomial_distribution_pmf.svg
+    https://en.wikipedia.org/wiki/Binomial_distribution#/media/
+    File:Binomial_distribution_pmf.svg
     """
     ax = new_axes()
     Binomial(n=20, p=0.5).plot(
@@ -32,7 +33,8 @@ def plot_wikipedia_pmfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Binomial_distribution#/media/File:Binomial_distribution_cdf.svg
+    https://en.wikipedia.org/wiki/Binomial_distribution#/media/
+    File:Binomial_distribution_cdf.svg
     """
     ax = new_axes()
     Binomial(n=20, p=0.5).cdf().plot(

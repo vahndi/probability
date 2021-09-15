@@ -9,7 +9,8 @@ x = arange(-10, 10.1, 0.1)
 
 def plot_wikipedia_pdfs():
     """
-    https://en.wikipedia.org/wiki/Laplace_distribution#/media/File:Laplace_pdf_mod.svg
+    https://en.wikipedia.org/wiki/Laplace_distribution#/media/
+    File:Laplace_pdf_mod.svg
     """
     ax = new_axes()
     Laplace(mu=0, b=1).plot(x=x, color='red', ax=ax)
@@ -22,7 +23,8 @@ def plot_wikipedia_pdfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Laplace_distribution#/media/File:Laplace_cdf_mod.svg
+    https://en.wikipedia.org/wiki/Laplace_distribution#/media/
+    File:Laplace_cdf_mod.svg
     """
     ax = new_axes()
     Laplace(mu=0, b=1).cdf().plot(x=x, color='red', ax=ax)

@@ -11,7 +11,8 @@ x_wikipedia_2 = arange(-4, 4.01, 0.05)
 
 def plot_wikipedia_pdfs():
     """
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:Student_t_pdf.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:Student_t_pdf.svg
     """
     ax = new_axes()
     StudentsT(nu=1).plot(x=x_wikipedia_1, color='orange', ax=ax)
@@ -24,7 +25,8 @@ def plot_wikipedia_pdfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:Student_t_cdf.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:Student_t_cdf.svg
     """
     ax = new_axes()
     StudentsT(nu=1).cdf().plot(x=x_wikipedia_1, color='orange', ax=ax)
@@ -37,12 +39,18 @@ def plot_wikipedia_cdfs():
 
 def plot_wikipedia_pdfs_vs_normal():
     """
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:T_distribution_1df_enhanced.svg
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:T_distribution_2df_enhanced.svg
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:T_distribution_3df_enhanced.svg
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:T_distribution_5df_enhanced.svg
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:T_distribution_10df_enhanced.svg
-    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/File:T_distribution_30df_enhanced.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:T_distribution_1df_enhanced.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:T_distribution_2df_enhanced.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:T_distribution_3df_enhanced.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:T_distribution_5df_enhanced.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:T_distribution_10df_enhanced.svg
+    https://en.wikipedia.org/wiki/Student%27s_t-distribution#/media/
+    File:T_distribution_30df_enhanced.svg
     """
     _, axes = plt.subplots(nrows=2, ncols=3, figsize=(16, 9))
     normal = Normal(mu=0, sigma=1)

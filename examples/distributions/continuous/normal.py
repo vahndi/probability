@@ -9,7 +9,8 @@ x = arange(-5, 5.05, 0.05)
 
 def plot_wikipedia_pdfs():
     """
-    https://en.wikipedia.org/wiki/Normal_distribution#/media/File:Normal_Distribution_PDF.svg
+    https://en.wikipedia.org/wiki/Normal_distribution#/media/
+    File:Normal_Distribution_PDF.svg
     """
     ax = new_axes()
     Normal(mu=0, sigma_sq=0.2).plot(x=x, color='blue', ax=ax)
@@ -22,7 +23,8 @@ def plot_wikipedia_pdfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Normal_distribution#/media/File:Normal_Distribution_CDF.svg
+    https://en.wikipedia.org/wiki/Normal_distribution#/media/
+    File:Normal_Distribution_CDF.svg
     """
     ax = new_axes()
     Normal(mu=0, sigma_sq=0.2).cdf().plot(x=x, color='blue', ax=ax)

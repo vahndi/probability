@@ -8,7 +8,8 @@ k_wiki = list(range(26))
 
 def plot_wikipedia_pmfs():
     """
-    https://en.wikipedia.org/wiki/Negative_binomial_distribution#/media/File:Negbinomial.gif
+    https://en.wikipedia.org/wiki/Negative_binomial_distribution#/media/
+    File:Negbinomial.gif
     """
     r_s = [1, 2, 3, 4, 5, 10, 20, 40]
     fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(16, 9))

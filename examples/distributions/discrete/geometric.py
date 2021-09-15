@@ -8,7 +8,8 @@ k = list(range(1, 11))
 
 def plot_wikipedia_pmfs():
     """
-    https://en.wikipedia.org/wiki/Geometric_distribution#/media/File:Geometric_pmf.svg
+    https://en.wikipedia.org/wiki/Geometric_distribution#/media/
+    File:Geometric_pmf.svg
     """
     axf = AxesFormatter(width=12, height=9)
     Geometric(p=0.2).plot(k=k, kind='line', color='gray',
@@ -26,7 +27,8 @@ def plot_wikipedia_pmfs():
 
 def plot_wikipedia_cdfs():
     """
-    https://en.wikipedia.org/wiki/Geometric_distribution#/media/File:Geometric_cdf.svg
+    https://en.wikipedia.org/wiki/Geometric_distribution#/media/
+    File:Geometric_cdf.svg
     """
     axf = AxesFormatter(width=12, height=9)
     Geometric(p=0.2).cdf().plot(k=k, kind='line', color='gray',
