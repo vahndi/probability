@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Union, List, Dict, overload, Optional
+from typing import Union, List, Dict, overload, Optional, Hashable
 
 from pandas import Series, DataFrame, MultiIndex, merge
 from pandas.core.dtypes.inference import is_number
@@ -322,20 +322,25 @@ class Discrete(
             data=data, variables=variables, states=states
         )
 
-    def mean(self):
+    def mean(self, variable: Optional[str] = None):
         """
         Return the expected value of the distribution.
 
         N.B. only works for unidimensional distributions where the variable
         values are numeric.
         """
-        if self._is_1d_numeric:
+        is_1d = self._is_1d_numeric
+        if is_1d and variable is None:
             return (
                     Series(
                         index=self.data.index,
                         data=self.data.index
                     ) * self.data
             ).sum()
+        elif not is_1d and variable is not None:
+            p_name = f'p({variable})'
+            data = self.data.rename(p_name).reset_index()
+            return (data[variable] * data[p_name]).sum()
         else:
             raise TypeError(
                 "Can't calculate the mean for a non-numeric distribution"
@@ -344,8 +349,22 @@ class Discrete(
     def mode(self):
         """
         Return the most likely value(s) of the distribution.
+
+        For a 1D distribution, returns the modal value or list of modal values
+        if there is more than one.
+        For an ND distribution, returns a DataFrame with one column per variable
+        and one row per mode.
         """
-        return self.data.index[self.data.argmax()]
+        data = self.data.loc[self.data == self.data.max()]
+        if len(self.variables) == 1:
+            mode = data.reset_index()[self.variables[0]]
+            if len(mode) > 1:
+                return mode.to_list()
+            else:
+                return mode.iloc[0]
+        else:
+            mode = data.reset_index()[self.variables]
+        return mode
 
     def min(self):
         """

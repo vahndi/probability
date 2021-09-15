@@ -28,7 +28,8 @@ def get_joint_distribution(data_set: DataFrame) -> Series:
 def series_are_equivalent(series_1: Series, series_2: Series) -> bool:
     """
     Determine if the 2 series share the same items.
-    N.B. where series 1 has p(0), the associated item may be missing from series 2.
+    N.B. where series 1 has p(0), the associated item may be missing from
+    series 2.
     """
     d1 = series_1.copy().reset_index()
     cols_1 = sorted([c for c in d1.columns if c != 'p'])

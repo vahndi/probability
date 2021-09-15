@@ -26,6 +26,16 @@ class TestDiscrete(TestCase):
         self.education__total = 112 + 231 + 595 + 242 + 136 + 189 + 763 + 172
         self.total__high_school = 231 + 189
 
+        self.coin_dist = Discrete.from_probs(
+            data={
+                ('H', 'H', 1, 1): 0.25,
+                ('H', 'T', 1, 0): 0.25,
+                ('T', 'H', 1, 0): 0.25,
+                ('T', 'T', 0, 1): 0.25
+            },
+            variables=['coin_1', 'coin_2', 'x', 'y']
+        )
+
     def test_p(self):
         self.assertAlmostEqual(
             self.total__high_school / self.education__total,
@@ -302,7 +312,7 @@ class TestDiscrete(TestCase):
         actual = xor.given(A=0).data
         self.assertTrue(expected.equals(actual))
 
-    def test_mode_categorical(self):
+    def test_mode_1d_categorical(self):
 
         counts = Series({
             'a': 1, 'c': 2, 'e': 3
@@ -310,7 +320,7 @@ class TestDiscrete(TestCase):
         discrete = Discrete.from_counts(counts, variables='x')
         self.assertEqual('e', discrete.mode())
 
-    def test_mode_numeric(self):
+    def test_mode_1d_numeric(self):
 
         discrete = Discrete.from_probs(
             data={0: 0.7, 1000: 0.2, 2000: 0.1},
@@ -318,7 +328,7 @@ class TestDiscrete(TestCase):
         )
         self.assertEqual(0, discrete.mode())
 
-    def test_mode_multi_categorical(self):
+    def test_mode_nd_categorical(self):
 
         counts = Series({
             ('a', 'b'): 1,
@@ -326,7 +336,37 @@ class TestDiscrete(TestCase):
             ('e', 'f'): 3
         })
         discrete = Discrete.from_counts(counts, variables=['ace', 'bdf'])
-        self.assertEqual(('e', 'f'), discrete.mode())
+        expected = DataFrame([{
+            'ace': 'e',
+            'bdf': 'f'
+        }])
+        actual = discrete.mode()
+        self.assertTrue(expected.equals(actual))
+
+    def test_mode_1d_multi_value(self):
+
+        counts = Series({
+            'a': 2,
+            'b': 2,
+            'c': 1
+        })
+        discrete = Discrete.from_counts(counts, variables='x')
+        self.assertListEqual(['a', 'b'], discrete.mode())
+
+    def test_mode_nd_multi_value(self):
+
+        counts = Series({
+            ('a', 'b'): 1,
+            ('c', 'd'): 3,
+            ('e', 'f'): 3
+        })
+        expected = DataFrame(
+            {'ace': ['c', 'e'],
+             'bdf': ['d', 'f']},
+        )
+        discrete = Discrete.from_counts(counts, variables=['ace', 'bdf'])
+        actual = discrete.mode()
+        self.assertTrue(expected.equals(actual))
 
     def test_mean_numeric(self):
 
