@@ -322,28 +322,22 @@ class Discrete(
             data=data, variables=variables, states=states
         )
 
-    def mean(self, variable: Optional[str] = None):
+    def mean(self):
         """
         Return the expected value of the distribution.
-
         N.B. only works for unidimensional distributions where the variable
         values are numeric.
         """
-        is_1d = self._is_1d_numeric
-        if is_1d and variable is None:
+        if self._is_1d_numeric:
             return (
                     Series(
                         index=self.data.index,
                         data=self.data.index
                     ) * self.data
             ).sum()
-        elif not is_1d and variable is not None:
-            p_name = f'p({variable})'
-            data = self.data.rename(p_name).reset_index()
-            return (data[variable] * data[p_name]).sum()
         else:
             raise TypeError(
-                "Can't calculate the mean for a non-numeric distribution"
+                "Can't calculate the mean for a non-numeric or Nd distribution"
             )
 
     def mode(self):
@@ -376,7 +370,7 @@ class Discrete(
             return data.index.min()
         else:
             raise TypeError(
-                "Can't calculate the mean for a non-numeric distribution"
+                "Can't calculate the min for a non-numeric or Nd distribution"
             )
 
     def max(self):
@@ -389,7 +383,7 @@ class Discrete(
             return data.index.max()
         else:
             raise TypeError(
-                "Can't calculate the mean for a non-numeric distribution"
+                "Can't calculate the max for a non-numeric or Nd distribution"
             )
 
     def __mul__(
