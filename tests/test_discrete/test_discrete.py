@@ -273,7 +273,7 @@ class TestDiscrete(TestCase):
         }, variables='color')
         self.assertIsInstance(mix_1994, Discrete)
 
-    def test_conditional_all_variables(self):
+    def test_given_all_variables(self):
 
         expected = Discrete.binary(0, 'A_xor_B').data
         xor = Conditional.binary_from_probs(
@@ -289,7 +289,7 @@ class TestDiscrete(TestCase):
         actual = xor.given(A=1, B=1).data
         self.assertTrue(expected.equals(actual))
 
-    def test_conditional_one_variable(self):
+    def test_given_one_variable(self):
 
         expected = Conditional.binary_from_probs(
             data={

@@ -266,6 +266,30 @@ class Discrete(
             data=data, variables=variables, states=states
         )
 
+    def unique(
+            self, *variables: Hashable,
+            sort_values: bool = True
+    ) -> Union[List[Hashable], DataFrame]:
+        """
+        Return a list of unique values of the given variable, or DataFrame of
+        unique combinations of the given variables.
+
+        :param variables: Variable(s) to find unique values / combinations of.
+        :param sort_values: Sort before returning.
+        """
+        data: DataFrame = self.data.reset_index()
+        if len(variables) == 1:
+            unique = data[variables[0]].unique()
+            if sort_values:
+                unique = sorted(unique)
+            return unique
+        else:
+            variables = list(variables)
+            unique = data[variables].drop_duplicates()
+            if sort_values:
+                unique = unique.sort_values(variables)
+            return unique
+
     def conditional(self, *conditionals) -> Conditional:
         """
         Return a Conditional table of the distribution on the conditional
