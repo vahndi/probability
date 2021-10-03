@@ -1,33 +1,33 @@
 from typing import Type, List, Optional
 
-from probability.calculations.context import CalculationContext
-from probability.calculations.mixins import \
-    ProbabilityCalculationMixin, OperatorMixin
-from probability.calculation_types.probability_calculation import \
+from probability.calculations.calculation_types.probability_calculation import \
     ProbabilityCalculation
+from probability.calculations.context import CalculationContext
+from probability.calculations.mixins import OperatorMixin, \
+    ProbabilityCalculationMixin
 from probability.custom_types.calculation_types import CalculationValue
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 
-class AggregatorCalculation(
+class UnaryOperatorCalculation(
     ProbabilityCalculation
 ):
-
-    def __init__(
-            self,
-            calc_input: ProbabilityCalculationMixin,
-            aggregator: Type[OperatorMixin],
-            context: CalculationContext
-    ):
+    """
+    Calculation used to apply an operation to a Calculation e.g. the Complement.
+    """
+    def __init__(self,
+                 calc_input: ProbabilityCalculationMixin,
+                 operator: Type[OperatorMixin],
+                 context: CalculationContext):
         """
-        Create a new AggregatorCalculation.
+        Create a new UnaryOperatorCalculation.
 
-        :param calc_input: The ProbabilityCalculation to aggregate.
-        :param aggregator: The OperatorMixin to use to aggregate the input.
-        :param context: The CalculationContext applying to the Calculation.
+        :param calc_input: The input to the calculation.
+        :param operator: The operator to apply to the calculation input.
+        :param context: The CalculationContext.
         """
         self.calc_input: ProbabilityCalculationMixin = calc_input
-        self.aggregator: Type[OperatorMixin] = aggregator
+        self.operator: Type[OperatorMixin] = operator
         self.context: CalculationContext = context
 
     @property
@@ -56,7 +56,7 @@ class AggregatorCalculation(
                 input_ = self.calc_input.output(num_samples)
                 self.context[self.calc_input.name] = input_
             # calculate output
-            result = self.aggregator.operate(input_)
+            result = self.operator.operate(input_)
             self.context[self.name] = result
             return result
 
@@ -65,4 +65,4 @@ class AggregatorCalculation(
         """
         Return the name of the Calculation.
         """
-        return self.aggregator.get_name(self.calc_input.name)
+        return self.operator.get_name(self.calc_input.name)

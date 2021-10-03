@@ -2,7 +2,7 @@ from typing import overload, Union, Mapping, Any
 
 from pandas import Series, DataFrame
 
-from probability.calculation_types.binary_operator_calculation import \
+from probability.calculations.calculation_types import \
     BinaryOperatorCalculation
 from probability.calculations.context import CalculationContext
 from probability.calculations.operators.complement import Complement
@@ -10,10 +10,10 @@ from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.calculations.operators.divide import Divide
 from probability.calculations.operators.add import Add
 from probability.calculations.operators.multiply import Multiply
-from probability.calculation_types.sample_calculation import SampleCalculation
-from probability.calculation_types.unary_operator_calculation import \
+from probability.calculations.calculation_types import SampleCalculation
+from probability.calculations.calculation_types.unary_operator_calculation import \
     UnaryOperatorCalculation
-from probability.calculation_types.value_calculation import ValueCalculation
+from probability.calculations.calculation_types.value_calculation import ValueCalculation
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
 
