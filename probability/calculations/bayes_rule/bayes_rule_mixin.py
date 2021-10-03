@@ -6,7 +6,7 @@ from probability.custom_types.internal_custom_types import AnyBetaMap, \
 from probability.distributions import Beta, Dirichlet
 
 
-class BayesRule(object):
+class BayesRuleMixin(object):
 
     _prior: Union[float, Beta, AnyFloatMap, Dirichlet]
     _likelihood: Union[float, AnyFloatMap, AnyBetaMap, AnyDirichletMap]

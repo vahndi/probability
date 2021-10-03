@@ -2,7 +2,7 @@ from typing import Union
 
 from pandas import Series
 
-from probability.calculations.bayes_rule.bayes_rule import BayesRule
+from probability.calculations.bayes_rule.bayes_rule_mixin import BayesRuleMixin
 from probability.calculations.context import sync_context
 from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.custom_types.external_custom_types import AnyFloatMap
@@ -13,7 +13,7 @@ from probability.custom_types.type_checking import is_any_beta_map, \
 from probability.distributions import Beta
 
 
-class BinaryBayesRule(BayesRule):
+class BinaryBayesRule(BayesRuleMixin):
     """
     Class for testing one or more binary hypotheses using Bayes Rule.
     """

@@ -9,7 +9,7 @@ from probability.custom_types.calculation_types import CalculationValue
 
 class CalculationContext(object):
     """
-    Class to hold
+    Class to hold context of object in a calculation.
     """
     def __init__(self):
         """

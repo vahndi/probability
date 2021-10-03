@@ -7,14 +7,24 @@ class Complement(
     OperatorMixin,
     object
 ):
-
+    """
+    Operator to return the complement of a distribution (1 - p).
+    """
     @classmethod
     def get_name(cls, name: str):
+        """
+        Return the name of the result.
+        :param name: Name of the input.
+        """
         return f'1 - {name}'
 
     @staticmethod
     def operate(value):
+        """
+        Carry out the complement operation on the value.
 
+        :param value: The value to operate on.
+        """
         if type(value) in (int, float):
             return 1 - value
         elif isinstance(value, Series):

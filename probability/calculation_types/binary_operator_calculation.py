@@ -1,9 +1,9 @@
 from typing import Type, List, Optional
 
 from probability.calculations.mixins import ProbabilityCalculationMixin
-from probability.calculations.probability_calculation import \
+from probability.calculation_types.probability_calculation import \
     ProbabilityCalculation
-from probability.calculations.simple_calculation import SimpleCalculation
+from probability.calculation_types.simple_calculation import SimpleCalculation
 from probability.calculations.context import CalculationContext
 from probability.calculations.operators.binary_operator import BinaryOperator
 from probability.custom_types.calculation_types import CalculationValue

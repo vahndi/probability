@@ -349,6 +349,7 @@ class Discrete(
     def mean(self):
         """
         Return the expected value of the distribution.
+
         N.B. only works for unidimensional distributions where the variable
         values are numeric.
         """
@@ -362,6 +363,27 @@ class Discrete(
         else:
             raise TypeError(
                 "Can't calculate the mean for a non-numeric or Nd distribution"
+            )
+
+    def var(self):
+        """
+        Return the variance of the distribution.
+
+        N.B. only works for unidimensional distributions where the variable
+        values are numeric.
+        """
+        if self._is_1d_numeric:
+            mu = self.mean()
+            return (
+                Series(
+                    index=self.data.index,
+                    data=self.data.index.to_series() - mu
+                )
+            ).sum()
+        else:
+            raise TypeError(
+                "Can't calculate the variance for a non-numeric or Nd "
+                "distribution"
             )
 
     def mode(self):

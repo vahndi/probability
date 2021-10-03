@@ -2,7 +2,7 @@ from typing import Union
 
 from pandas import Series, DataFrame
 
-from probability.calculations.bayes_rule.bayes_rule import BayesRule
+from probability.calculations.bayes_rule.bayes_rule_mixin import BayesRuleMixin
 from probability.calculations.context import sync_context
 from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.custom_types.external_custom_types import AnyFloatMap
@@ -12,7 +12,7 @@ from probability.custom_types.type_checking import is_any_dirichlet_map, \
 from probability.distributions import Dirichlet
 
 
-class MultipleBayesRule(BayesRule):
+class MultipleBayesRule(BayesRuleMixin):
     """
     Class for testing multiple hypotheses with Bayes Rule.
     """

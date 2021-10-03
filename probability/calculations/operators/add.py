@@ -7,7 +7,9 @@ class Add(
     BinaryOperator,
     object
 ):
-
+    """
+    Operator to add the values of 2 distributions.
+    """
     symbol = '+'
     operator = add
     pandas_op_name = 'sum'

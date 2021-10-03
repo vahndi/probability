@@ -31,10 +31,10 @@ class BinaryOperator(OperatorMixin, object):
             value_2_calc: bool
     ) -> Tuple[str, str, str, str]:
         """
+        Return parentheses to place around each argument to a Binary Operator.
 
-        :param value_1_calc:
-        :param value_2_calc:
-        :return:
+        :param value_1_calc: True if the first input is a Calculation.
+        :param value_2_calc: True if the second input is a Calculation.
         """
         if value_1_calc:
             l1, r1 = '(', ')'
@@ -53,7 +53,14 @@ class BinaryOperator(OperatorMixin, object):
             value_1: CalculationValue, value_2: CalculationValue,
             value_1_calc: bool, value_2_calc: bool
     ) -> CalculationValue:
+        """
+        Execute the operation on a pair of input values.
 
+        :param value_1: The value of input 1.
+        :param value_2: The value of input 2.
+        :param value_1_calc: True if the first input is a Calculation.
+        :param value_2_calc: True if the second input is a Calculation.
+        """
         l1, r1, l2, r2 = BinaryOperator.get_parens(value_1_calc, value_2_calc)
 
         if type(value_1) in (int, float):
