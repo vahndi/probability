@@ -2,7 +2,6 @@ from typing import Union
 
 from scipy.stats import geom, rv_discrete
 
-from compound_types.built_ins import FloatIterable
 from compound_types.built_ins.sized_iterables import FloatSizedIterable
 from probability.distributions.mixins.attributes import PFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin

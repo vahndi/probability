@@ -3,7 +3,6 @@ from typing import Union
 from numpy import power, sum
 from scipy.stats import betabinom, rv_discrete
 
-from compound_types.built_ins import FloatIterable
 from compound_types.built_ins.sized_iterables import FloatSizedIterable
 from probability.distributions.mixins.attributes import NIntDMixin, \
     AlphaFloatDMixin, BetaFloatDMixin
