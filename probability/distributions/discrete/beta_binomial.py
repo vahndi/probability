@@ -3,7 +3,7 @@ from typing import Union
 from numpy import power, sum
 from scipy.stats import betabinom, rv_discrete
 
-from compound_types.built_ins.sized_iterables import FloatSizedIterable
+from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import NIntDMixin, \
     AlphaFloatDMixin, BetaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
@@ -68,11 +68,11 @@ class BetaBinomial(
         return self._n
 
     @staticmethod
-    def fit(data: FloatSizedIterable, **kwargs):
+    def fit(data: FloatArray1d, **kwargs):
         raise NotImplementedError
 
     @staticmethod
-    def fits(data: FloatSizedIterable, n: int) -> 'BetaBinomial':
+    def fits(data: FloatArray1d, n: int) -> 'BetaBinomial':
         """
         Fit a BetaBinomial distribution to the distribution of results of a
         series of N experiments, each having n trials, using the method of

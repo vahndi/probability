@@ -2,8 +2,7 @@ from typing import Union
 
 from scipy.stats import binom, rv_discrete
 
-from compound_types.built_ins import FloatIterable
-from compound_types.built_ins.sized_iterables import FloatSizedIterable
+from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import NIntDMixin, PFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
@@ -55,7 +54,7 @@ class Binomial(
         return self._n
 
     @staticmethod
-    def fit(data: FloatSizedIterable, **kwargs) -> 'Binomial':
+    def fit(data: FloatArray1d, **kwargs) -> 'Binomial':
         """
         Fit a Binomial distribution to the data from a single experiment using
         the maximum likelihood estimate for p.
@@ -70,7 +69,7 @@ class Binomial(
         return Binomial(n=n, p=k / n)
 
     @staticmethod
-    def fits(data: FloatSizedIterable, n: int) -> 'Binomial':
+    def fits(data: FloatArray1d, n: int) -> 'Binomial':
         """
         Fit a Binomial distribution to the distribution of results of a series
         of experiments using the maximum likelihood estimate for p.

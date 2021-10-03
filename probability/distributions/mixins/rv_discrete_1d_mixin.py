@@ -1,9 +1,9 @@
-from matplotlib.axes import Axes
-from scipy.stats import rv_discrete
 from typing import Iterable, Optional, Union
 
-from compound_types.built_ins import FloatIterable
-from compound_types.built_ins.sized_iterables import FloatSizedIterable
+from matplotlib.axes import Axes
+from scipy.stats import rv_discrete
+
+from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.plottable_mixin import \
     DiscretePlottableMixin
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
@@ -22,7 +22,7 @@ class RVDiscrete1dMixin(
     _distribution: rv_discrete
 
     @staticmethod
-    def fit(data: FloatSizedIterable, **kwargs) -> 'RVDiscrete1dMixin':
+    def fit(data: FloatArray1d, **kwargs) -> 'RVDiscrete1dMixin':
         """
         Fit a  distribution to the data from a single experiment
         (each experiment represents a series of trials).
@@ -32,7 +32,7 @@ class RVDiscrete1dMixin(
         raise NotImplementedError
 
     @staticmethod
-    def fits(data: FloatSizedIterable, **kwargs) -> 'RVDiscrete1dMixin':
+    def fits(data: FloatArray1d, **kwargs) -> 'RVDiscrete1dMixin':
         """
         Fit a Binomial distribution to the distribution of results of a series
         of experiments.

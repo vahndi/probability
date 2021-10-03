@@ -2,7 +2,7 @@ from typing import Union
 
 from scipy.stats import geom, rv_discrete
 
-from compound_types.built_ins.sized_iterables import FloatSizedIterable
+from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import PFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
@@ -49,7 +49,7 @@ class Geometric(
         return 1
 
     @staticmethod
-    def fit(data: FloatSizedIterable, **kwargs) -> 'Geometric':
+    def fit(data: FloatArray1d, **kwargs) -> 'Geometric':
         """
         Fit a Geometric distribution to the data of one or more experiments
         using the maximum likelihood estimate for p.
@@ -63,7 +63,7 @@ class Geometric(
         return Geometric(p=p)
 
     @staticmethod
-    def fits(data: FloatSizedIterable, **kwargs) -> 'Geometric':
+    def fits(data: FloatArray1d, **kwargs) -> 'Geometric':
         """
         Fit a Geometric distribution to the distribution of results of a
         series of experiments using the method of moments.

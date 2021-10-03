@@ -3,6 +3,7 @@ from typing import Union
 from scipy.stats import poisson, rv_discrete
 
 from compound_types.built_ins import FloatIterable
+from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixins import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
@@ -52,7 +53,7 @@ class Poisson(
         return int(self._lambda)
 
     @staticmethod
-    def fit(data: FloatIterable) -> 'Poisson':
+    def fit(data: FloatArray1d) -> 'Poisson':
         """
         Fit a Poisson distribution to the data using the method of moments.
 
@@ -67,7 +68,7 @@ class Poisson(
         return Poisson(lambda_=lambda_)
 
     @staticmethod
-    def fits(data: FloatIterable) -> 'Poisson':
+    def fits(data: FloatArray1d) -> 'Poisson':
         """
         Fit a Poisson distribution to the data using the method of moments.
 
