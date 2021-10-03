@@ -1,7 +1,6 @@
 from typing import Union, Iterable, Optional, List
 
 from matplotlib.axes import Axes
-from mpl_format.axes.axis_utils import new_axes
 from pandas import Series
 from scipy.stats import dirichlet
 from scipy.stats._multivariate import multi_rv_generic

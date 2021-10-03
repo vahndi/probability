@@ -64,9 +64,9 @@ class Beta(
             return 0, 1
         elif alpha > 1 and beta > 1:
             return (alpha - 1) / (alpha + beta - 2)
-        elif alpha <= 1 and beta > 1:
+        elif alpha <= 1 < beta:
             return 0
-        elif alpha > 1 and beta <= 1:
+        elif alpha > 1 >= beta:
             return 1
         else:
             raise ValueError("Can't calculate mode for this distribution.")

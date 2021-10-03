@@ -31,6 +31,10 @@ class DiscreteFunction1d(object):
     def at(self, k: Iterable[int]) -> Series:
         pass
 
+    @overload
+    def at(self, k: float) -> float:
+        pass
+
     def at(self, k):
         """
         Evaluation of the function for each value of k.

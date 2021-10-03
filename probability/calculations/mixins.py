@@ -13,7 +13,7 @@ class ProbabilityCalculationMixin(object):
 
     name: str  # name of the calculation
     set_context: Callable[[Any], 'ProbabilityCalculationMixin']
-    output: Callable[[Optional[int]], CalculationValue]
+    # output: Callable[[Optional[int]], CalculationValue]
 
     @property
     def input_calcs(self) -> List['ProbabilityCalculationMixin']:
@@ -29,4 +29,10 @@ class ProbabilityCalculationMixin(object):
         """
         raise NotImplementedError
 
+    def output(self, num_samples: Optional[int]) -> 'CalculationValue':
+        """
+        Sample the calculation output.
 
+        :param num_samples: Number of samples to draw.
+        """
+        raise NotImplementedError

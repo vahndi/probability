@@ -43,7 +43,8 @@ class ConjugateMixin(object):
 
     @staticmethod
     def infer_posterior(
-            data: Series
+            data: Series,
+            **kwargs
     ) -> Union[RVContinuous1dMixin, RVDiscrete1dMixin]:
         """
         Return a new distribution of the posterior most likely to

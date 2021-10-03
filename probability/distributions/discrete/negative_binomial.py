@@ -28,14 +28,14 @@ class NegativeBinomial(
 
     https://en.wikipedia.org/wiki/Negative_binomial_distribution
     """
-    def __init__(self, r: int, p: float):
+    def __init__(self, r: float, p: float):
         """
         Create a new NegativeBinomial distribution.
 
         :param r: Number of successes we want.
         :param p: Probability of a failure.
         """
-        self._r: int = r
+        self._r: float = r
         self._p: float = p
         self._reset_distribution()
 

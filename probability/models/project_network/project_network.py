@@ -66,7 +66,7 @@ class ProjectNetwork(object):
         y = {}
         for distance in range(max_distance + 1):
             distance_tasks = {k: v for k, v in task_distances.items()
-                                 if v == distance}
+                              if v == distance}
             for t, (task, task_distance) in enumerate(distance_tasks.items()):
                 y[task] = distribute_about_center(
                     index=t,

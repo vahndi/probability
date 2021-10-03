@@ -8,9 +8,12 @@ from probability.calculations.operators.add import Add
 from probability.calculations.operators.divide import Divide
 from probability.calculations.operators.multiply import Multiply
 from probability.calculations.operators.sum import Sum
-from probability.calculations.calculation_types.sample_calculation import SampleCalculation
-from probability.calculations.calculation_types.simple_calculation import SimpleCalculation
-from probability.calculations.calculation_types.value_calculation import ValueCalculation
+from probability.calculations.calculation_types.sample_calculation \
+    import SampleCalculation
+from probability.calculations.calculation_types.simple_calculation \
+    import SimpleCalculation
+from probability.calculations.calculation_types.value_calculation \
+    import ValueCalculation
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
 
 
@@ -46,8 +49,9 @@ def forward_binary_operation(
                 'Series or DataFrame'
             )
 
-    from probability.calculations.calculation_types.binary_operator_calculation import \
-        BinaryOperatorCalculation
+    from \
+        probability.calculations.calculation_types.binary_operator_calculation \
+        import BinaryOperatorCalculation
 
     return BinaryOperatorCalculation(
         calc_input_1=item_1,
@@ -62,6 +66,7 @@ def reverse_binary_operation(
     builtin_operator,
     calc_operator_type
 ):
+
     if isinstance(item_2, ProbabilityCalculationMixin):
         input_1 = item_2
         input_1.set_context(item_1.context)
@@ -88,8 +93,9 @@ def reverse_binary_operation(
                 'Series or DataFrame'
             )
 
-    from probability.calculations.calculation_types.binary_operator_calculation import \
-        BinaryOperatorCalculation
+    from \
+        probability.calculations.calculation_types.binary_operator_calculation \
+        import BinaryOperatorCalculation
 
     return BinaryOperatorCalculation(
         calc_input_1=input_1,
@@ -178,8 +184,8 @@ class ProbabilityCalculation(
 
     def sum(self):
 
-        from probability.calculations.calculation_types.aggregator_calculation import \
-            AggregatorCalculation
+        from probability.calculations.calculation_types.aggregator_calculation \
+            import AggregatorCalculation
 
         return AggregatorCalculation(
             calc_input=self,
