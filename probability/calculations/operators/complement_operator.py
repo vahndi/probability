@@ -3,7 +3,7 @@ from pandas import Series, DataFrame
 from probability.calculations.mixins import OperatorMixin
 
 
-class Complement(
+class ComplementOperator(
     OperatorMixin,
     object
 ):

@@ -10,6 +10,7 @@ from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
     EntropyMixin, Median1dMixin, Mean1dMixin, StD1dMixin, Var1dMixin, \
     Interval1dMixin, PMF1dMixin, CDFDiscrete1dMixin, SFDiscrete1dMixin, \
     PPFDiscrete1dMixin, ISFDiscrete1dMixin, StatMixin
+from probability.utils import is_scalar
 
 
 class RVDiscrete1dMixin(
@@ -59,7 +60,7 @@ class RVDiscrete1dMixin(
 
     def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return self.cdf().at(other)
         elif isinstance(other, RVS1dMixin):
             return super(RVDiscrete1dMixin, self).__le__(other)
@@ -68,7 +69,7 @@ class RVDiscrete1dMixin(
 
     def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return self.cdf().at(other - 1)
         elif isinstance(other, RVS1dMixin):
             return super(RVDiscrete1dMixin, self).__lt__(other)
@@ -77,7 +78,7 @@ class RVDiscrete1dMixin(
 
     def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return 1 - self.cdf().at(other - 1)
         elif isinstance(other, RVS1dMixin):
             return super(RVDiscrete1dMixin, self).__ge__(other)
@@ -86,7 +87,7 @@ class RVDiscrete1dMixin(
 
     def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return 1 - self.cdf().at(other)
         elif isinstance(other, RVS1dMixin):
             return super(RVDiscrete1dMixin, self).__gt__(other)

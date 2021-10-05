@@ -2,24 +2,21 @@ from typing import overload, Union, Mapping, Any
 
 from pandas import Series, DataFrame
 
-from probability.calculations.calculation_types.binary_operator_calculation \
-    import BinaryOperatorCalculation
-from probability.calculations.calculation_types.sample_calculation import \
-    SampleCalculation
-from probability.calculations.context import CalculationContext
-from probability.calculations.operators.complement import Complement
+
+from probability.calculations.calculation_context import CalculationContext
 from probability.calculations.mixins import ProbabilityCalculationMixin
-from probability.calculations.operators.divide import Divide
-from probability.calculations.operators.add import Add
-from probability.calculations.operators.multiply import Multiply
-from probability.calculations.calculation_types.unary_operator_calculation \
-    import UnaryOperatorCalculation
-from probability.calculations.calculation_types.value_calculation import \
-    ValueCalculation
-from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
+from probability.calculations.operators import \
+    AddOperator, DivideOperator, MultiplyOperator, ComplementOperator
+
+from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \
+    is_rvs
+from probability.utils import is_scalar
 
 
 class CalculableMixin(object):
+    """
+    Base class for distributions to enable calculations.
+    """
 
     @overload
     def __mul__(
@@ -51,14 +48,19 @@ class CalculableMixin(object):
                       the context of each value will not be synced. Use
                       `sync_context` if syncing is needed.
         """
+        from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types import \
+            BinaryOperatorCalculation
+        from probability.calculations.calculation_types.value_calculation import \
+            ValueCalculation
         if isinstance(other, ProbabilityCalculationMixin):
             context = other.context
             input_2 = other
         else:
             context = CalculationContext()
-            if type(other) in (int, float):
+            if is_scalar(other):
                 input_2 = ValueCalculation(calc_input=other, context=context)
-            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+            elif is_rvs(other):
                 input_2 = SampleCalculation(calc_input=other, context=context)
             elif isinstance(other, Series):
                 return Series({
@@ -85,20 +87,26 @@ class CalculableMixin(object):
         return BinaryOperatorCalculation(
             calc_input_1=input_1,
             calc_input_2=input_2,
-            operator=Multiply,
+            operator=MultiplyOperator,
             context=context
         )
 
     def __rmul__(self, other):
+
+        from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types import \
+            BinaryOperatorCalculation
+        from probability.calculations.calculation_types.value_calculation import \
+            ValueCalculation
 
         if isinstance(other, ProbabilityCalculationMixin):
             context = other.context
             input_1 = other
         else:
             context = CalculationContext()
-            if type(other) in (int, float):
+            if is_scalar(other):
                 input_1 = ValueCalculation(calc_input=other, context=context)
-            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+            elif is_rvs(other):
                 input_1 = SampleCalculation(calc_input=other, context=context)
             elif isinstance(other, Series) or isinstance(other, DataFrame):
                 return other * self
@@ -116,7 +124,7 @@ class CalculableMixin(object):
         return BinaryOperatorCalculation(
             calc_input_1=input_1,
             calc_input_2=input_2,
-            operator=Multiply,
+            operator=MultiplyOperator,
             context=context
         )
 
@@ -126,6 +134,9 @@ class CalculableMixin(object):
 
         :param other: Must be 1
         """
+        from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types.unary_operator_calculation \
+            import UnaryOperatorCalculation
         if (
                 (isinstance(other, int) or isinstance(other, float)) and
                 other == 1
@@ -133,13 +144,19 @@ class CalculableMixin(object):
             context = CalculationContext()
             return UnaryOperatorCalculation(
                 calc_input=SampleCalculation(calc_input=self, context=context),
-                operator=Complement,
+                operator=ComplementOperator,
                 context=context
             )
         else:
             raise NotImplementedError
 
     def __add__(self, other):
+
+        from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types import \
+            BinaryOperatorCalculation
+        from probability.calculations.calculation_types.value_calculation import \
+            ValueCalculation
 
         if isinstance(other, ProbabilityCalculationMixin):
             context = other.context
@@ -148,7 +165,7 @@ class CalculableMixin(object):
             context = CalculationContext()
             if isinstance(other, float):
                 input_2 = ValueCalculation(calc_input=other, context=context)
-            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+            elif is_rvs(other):
                 input_2 = SampleCalculation(calc_input=other, context=context)
             elif isinstance(other, Series) or isinstance(other, DataFrame):
                 return other * self
@@ -166,7 +183,7 @@ class CalculableMixin(object):
         return BinaryOperatorCalculation(
             calc_input_1=input_1,
             calc_input_2=input_2,
-            operator=Add,
+            operator=AddOperator,
             context=context
         )
 
@@ -185,14 +202,20 @@ class CalculableMixin(object):
                       the context of each value will not be synced. Use
                       `sync_context` if syncing is needed.
         """
+        from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types import \
+            BinaryOperatorCalculation
+        from probability.calculations.calculation_types.value_calculation import \
+            ValueCalculation
+
         if isinstance(other, ProbabilityCalculationMixin):
             context = other.context
             input_2 = other
         else:
             context = CalculationContext()
-            if type(other) in (int, float):
+            if is_scalar(other):
                 input_2 = ValueCalculation(calc_input=other, context=context)
-            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+            elif is_rvs(other):
                 input_2 = SampleCalculation(calc_input=other, context=context)
             elif isinstance(other, Series):
                 return Series({
@@ -219,20 +242,26 @@ class CalculableMixin(object):
         return BinaryOperatorCalculation(
             calc_input_1=input_1,
             calc_input_2=input_2,
-            operator=Divide,
+            operator=DivideOperator,
             context=context
         )
 
     def __rtruediv__(self, other):
+
+        from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types import \
+            BinaryOperatorCalculation
+        from probability.calculations.calculation_types.value_calculation import \
+            ValueCalculation
 
         if isinstance(other, ProbabilityCalculationMixin):
             context = other.context
             input_1 = other
         else:
             context = CalculationContext()
-            if type(other) in (int, float):
+            if is_scalar(other):
                 input_1 = ValueCalculation(calc_input=other, context=context)
-            elif isinstance(other, RVS1dMixin) or isinstance(other, RVSNdMixin):
+            elif is_rvs(other):
                 input_1 = SampleCalculation(calc_input=other, context=context)
             elif isinstance(other, Series) or isinstance(other, DataFrame):
                 return other / self
@@ -250,6 +279,6 @@ class CalculableMixin(object):
         return BinaryOperatorCalculation(
             calc_input_1=input_1,
             calc_input_2=input_2,
-            operator=Divide,
+            operator=DivideOperator,
             context=context
         )

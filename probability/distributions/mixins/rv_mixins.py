@@ -16,6 +16,7 @@ from probability.distributions.functions.discrete_function_nd import \
     DiscreteFunctionNd
 from probability.distributions.mixins.rv_series import RVSeries, \
     RVContinuousSeries
+from probability.utils import is_scalar
 
 NUM_SAMPLES_COMPARISON = 100_000
 
@@ -48,7 +49,7 @@ class RVS1dMixin(object):
 
     def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) < other).mean()
         elif isinstance(other, RVS1dMixin):
             return (
@@ -60,7 +61,7 @@ class RVS1dMixin(object):
 
     def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) <= other).mean()
         elif isinstance(other, RVS1dMixin):
             return (
@@ -72,7 +73,7 @@ class RVS1dMixin(object):
 
     def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) > other).mean()
         elif isinstance(other, RVS1dMixin):
             return (
@@ -84,7 +85,7 @@ class RVS1dMixin(object):
 
     def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) >= other).mean()
         elif isinstance(other, RVS1dMixin):
             return (
@@ -601,3 +602,10 @@ class StatMixin(object):
             return {stat_col: stat_val}
         else:
             return stat_val
+
+
+def is_rvs(arg) -> bool:
+    """
+    Return True if the arg can be sampled.
+    """
+    return isinstance(arg, RVS1dMixin) or isinstance(arg, RVSNdMixin)

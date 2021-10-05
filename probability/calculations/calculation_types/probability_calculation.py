@@ -2,19 +2,20 @@ from operator import mul, truediv, add
 
 from pandas import DataFrame, Series
 
-from probability.calculations.context import CalculationContext
-from probability.calculations.mixins import ProbabilityCalculationMixin
-from probability.calculations.operators.add import Add
-from probability.calculations.operators.divide import Divide
-from probability.calculations.operators.multiply import Multiply
-from probability.calculations.operators.sum import Sum
+from probability.calculations.calculation_context import CalculationContext
 from probability.calculations.calculation_types.sample_calculation \
     import SampleCalculation
 from probability.calculations.calculation_types.simple_calculation \
     import SimpleCalculation
 from probability.calculations.calculation_types.value_calculation \
     import ValueCalculation
-from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin
+from probability.calculations.mixins import ProbabilityCalculationMixin
+from probability.calculations.operators.aggregator_operators.sum_operator \
+    import SumOperator
+from probability.calculations.operators import \
+    AddOperator, DivideOperator, MultiplyOperator
+from probability.utils import is_scalar
+from probability.distributions.mixins.rv_mixins import is_rvs
 
 
 def forward_binary_operation(
@@ -28,9 +29,9 @@ def forward_binary_operation(
         input_2.set_context(item_1.context)
     else:
         context = CalculationContext()
-        if isinstance(item_2, float) or isinstance(item_2, int):
+        if is_scalar(item_2):
             input_2 = ValueCalculation(calc_input=item_2, context=context)
-        elif isinstance(item_2, RVS1dMixin) or isinstance(item_2, RVSNdMixin):
+        elif is_rvs(item_2):
             input_2 = SampleCalculation(calc_input=item_2, context=context)
         elif isinstance(item_2, Series):
             return Series({
@@ -72,9 +73,9 @@ def reverse_binary_operation(
         input_1.set_context(item_1.context)
     else:
         context = CalculationContext()
-        if isinstance(item_2, float) or isinstance(item_2, int):
+        if is_scalar(item_2):
             input_1 = ValueCalculation(calc_input=item_2, context=context)
-        elif isinstance(item_2, RVS1dMixin) or isinstance(item_2, RVSNdMixin):
+        elif is_rvs(item_2):
             input_1 = SampleCalculation(calc_input=item_2, context=context)
         elif isinstance(item_2, Series):
             return Series({
@@ -110,8 +111,6 @@ class ProbabilityCalculation(
     object
 ):
 
-    context: CalculationContext
-
     def set_context(
             self, context: CalculationContext
     ) -> 'ProbabilityCalculation':
@@ -132,13 +131,13 @@ class ProbabilityCalculation(
                       Use `sync_context` if syncing is needed.
         """
         return forward_binary_operation(
-            self, other, mul, Multiply
+            self, other, mul, MultiplyOperator
         )
 
     def __rmul__(self, other):
 
         return reverse_binary_operation(
-            self, other, mul, Multiply
+            self, other, mul, MultiplyOperator
         )
 
     def __add__(self, other):
@@ -151,7 +150,7 @@ class ProbabilityCalculation(
                       Use `sync_context` if syncing is needed.
         """
         return forward_binary_operation(
-            self, other, add, Add
+            self, other, add, AddOperator
         )
 
     def __radd__(self, other):
@@ -160,7 +159,7 @@ class ProbabilityCalculation(
             return self
         else:
             return reverse_binary_operation(
-                self, other, add, Add
+                self, other, add, AddOperator
             )
 
     def __truediv__(self, other):
@@ -173,13 +172,13 @@ class ProbabilityCalculation(
                       Use `sync_context` if syncing is needed.
         """
         return forward_binary_operation(
-            self, other, truediv, Divide
+            self, other, truediv, DivideOperator
         )
 
     def __rtruediv__(self, other):
 
         return reverse_binary_operation(
-            self, other, truediv, Divide
+            self, other, truediv, DivideOperator
         )
 
     def sum(self):
@@ -189,7 +188,7 @@ class ProbabilityCalculation(
 
         return AggregatorCalculation(
             calc_input=self,
-            aggregator=Sum,
+            aggregator=SumOperator,
             context=self.context
         )
 

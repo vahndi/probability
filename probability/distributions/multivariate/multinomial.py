@@ -9,7 +9,7 @@ from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.discrete import Binomial
 from probability.distributions.functions.discrete_function_nd import \
     DiscreteFunctionNd
-from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.rv_mixins import EntropyMixin, \
     RVSNdMixin, PMFNdMixin

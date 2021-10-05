@@ -5,10 +5,11 @@ from probability.calculations.calculation_types.probability_calculation import \
     ProbabilityCalculation
 from probability.calculations.calculation_types.simple_calculation import \
     SimpleCalculation
-from probability.calculations.context import CalculationContext
-from probability.calculations.operators.binary_operator import BinaryOperator
+from probability.calculations.calculation_context import CalculationContext
+from probability.calculations.operators.binary_operators.binary_operator import BinaryOperator
 from probability.custom_types.calculation_types import CalculationValue
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
+from probability.utils import is_scalar
 
 
 class BinaryOperatorCalculation(
@@ -59,29 +60,29 @@ class BinaryOperatorCalculation(
         else:
             # get input 1
             if self.context.has_object_named(self.calc_input_1.name):
-                input_1 = self.context[self.calc_input_1.name]
+                input_value_1 = self.context[self.calc_input_1.name]
             else:
-                input_1 = self.calc_input_1.output(num_samples=num_samples)
-                self.context[self.calc_input_1.name] = input_1
+                input_value_1 = self.calc_input_1.output(
+                    num_samples=num_samples)
+                self.context[self.calc_input_1.name] = input_value_1
             # get input 2
             if self.context.has_object_named(self.calc_input_2.name):
-                input_2 = self.context[self.calc_input_2.name]
+                input_value_2 = self.context[self.calc_input_2.name]
             else:
-                input_2 = self.calc_input_2.output(num_samples=num_samples)
-                self.context[self.calc_input_2.name] = input_2
+                input_value_2 = self.calc_input_2.output(
+                    num_samples=num_samples)
+                self.context[self.calc_input_2.name] = input_value_2
             # calculate output
             value_1_calc = not (
-                isinstance(self.calc_input_1, SimpleCalculation) or
-                isinstance(self.calc_input_1, int) or
-                isinstance(self.calc_input_1, float)
+                is_scalar(self.calc_input_1) or
+                isinstance(self.calc_input_1, SimpleCalculation)
             )
             value_2_calc = not (
-                isinstance(self.calc_input_2, SimpleCalculation) or
-                isinstance(self.calc_input_2, int) or
-                isinstance(self.calc_input_2, float)
+                is_scalar(self.calc_input_2) or
+                isinstance(self.calc_input_2, SimpleCalculation)
             )
             result = self.operator.operate(
-                value_1=input_1, value_2=input_2,
+                value_1=input_value_1, value_2=input_value_2,
                 value_1_calc=value_1_calc, value_2_calc=value_2_calc
             )
             self.context[self.name] = result

@@ -1,9 +1,10 @@
 from operator import truediv
 
-from probability.calculations.operators.binary_operator import BinaryOperator
+from probability.calculations.operators.binary_operators.binary_operator \
+    import BinaryOperator
 
 
-class Divide(
+class DivideOperator(
     BinaryOperator,
     object
 ):

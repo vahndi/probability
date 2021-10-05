@@ -6,7 +6,7 @@ from scipy.stats import norm, rv_continuous
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import MuFloatDMixin, \
     SigmaFloatDMixin
-from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.utils import any_are_not_none, any_are_none, num_format

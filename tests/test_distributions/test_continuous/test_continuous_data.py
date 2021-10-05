@@ -27,7 +27,7 @@ class TestContinuousData(TestCase):
 
     def test_mean(self):
 
-        self.assertEqual(self.data.mean(), self.dist.mean())
+        self.assertAlmostEqual(self.data.mean(), self.dist.mean(), 10)
 
     def test_median(self):
 

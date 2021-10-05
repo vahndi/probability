@@ -3,7 +3,7 @@ from typing import Union
 from pandas import Series
 
 from probability.calculations.bayes_rule.bayes_rule_mixin import BayesRuleMixin
-from probability.calculations.context import sync_context
+from probability.calculations.utils import sync_context
 from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.custom_types.external_custom_types import AnyFloatMap
 from probability.custom_types.internal_custom_types import AnyBetaMap, \
@@ -11,6 +11,7 @@ from probability.custom_types.internal_custom_types import AnyBetaMap, \
 from probability.custom_types.type_checking import is_any_beta_map, \
     is_any_numeric_map
 from probability.distributions import Beta
+from probability.utils import is_scalar
 
 
 class BinaryBayesRule(BayesRuleMixin):
@@ -33,16 +34,14 @@ class BinaryBayesRule(BayesRuleMixin):
         :param likelihood: Series with values of Dirichlet likelihoods.
         """
         if not (
-            isinstance(prior, float) or
-            isinstance(prior, int) or
+            is_scalar(prior) or
             isinstance(prior, Beta) or
             is_any_numeric_map(prior) or
             is_any_beta_map(prior)
         ):
             raise ValueError('wrong type for prior')
         if not (
-            isinstance(likelihood, float) or
-            isinstance(likelihood, int) or
+            is_scalar(likelihood) or
             isinstance(likelihood, Beta) or
             is_any_numeric_map(likelihood) or
             is_any_beta_map(likelihood)

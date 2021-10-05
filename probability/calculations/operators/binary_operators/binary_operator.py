@@ -16,7 +16,7 @@ class BinaryOperator(OperatorMixin, object):
     pandas_op_name: str
 
     @classmethod
-    def get_name(cls, name_1: str, name_2: str):
+    def get_name(cls, name_1: str, name_2: str) -> str:
         """
         Return the name of the Operator applied to 2 inputs.
 

@@ -1,4 +1,4 @@
-from typing import Mapping, List, Union, Iterable
+from typing import Mapping, Union, Iterable
 
 from pandas import Series
 

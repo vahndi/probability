@@ -1,6 +1,6 @@
 from unittest.case import TestCase
 
-from pandas import Series, DataFrame
+from pandas import Series
 
 from probability.distributions import Multinomial, Binomial
 

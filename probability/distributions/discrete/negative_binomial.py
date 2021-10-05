@@ -3,10 +3,10 @@ from typing import Union
 from scipy.stats import rv_discrete, nbinom
 
 from probability.distributions.mixins.attributes import PFloatDMixin
-from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
-from probability.utils import num_format
+from probability.utils import num_format, is_scalar
 
 
 class NegativeBinomial(
@@ -87,7 +87,7 @@ class NegativeBinomial(
 
     def __eq__(self, other: Union['NegativeBinomial', int, float]):
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return self.pmf().at(other)
         else:
             return (
@@ -99,7 +99,7 @@ class NegativeBinomial(
             self, other: Union['NegativeBinomial', int, float]
     ) -> Union[bool, float]:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return 1 - self.pmf().at(other)
         else:
             return not self.__eq__(other)

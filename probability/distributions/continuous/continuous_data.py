@@ -1,6 +1,6 @@
 from pandas import Series
 
-from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.mixins.rv_series import RVContinuousSeries

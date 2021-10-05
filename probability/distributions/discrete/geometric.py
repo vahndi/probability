@@ -4,10 +4,10 @@ from scipy.stats import geom, rv_discrete
 
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import PFloatDMixin
-from probability.distributions.mixins.calculable_mixins import CalculableMixin
+from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
-from probability.utils import num_format
+from probability.utils import num_format, is_scalar
 
 
 class Geometric(
@@ -90,7 +90,7 @@ class Geometric(
 
     def __eq__(self, other: Union['Geometric', int, float]):
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return self.pmf().at(other)
         else:
             return abs(self._p - other._p) < 1e-10
@@ -99,7 +99,7 @@ class Geometric(
             self, other: Union['Geometric', int, float]
     ) -> Union[bool, float]:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return 1 - self.pmf().at(other)
         else:
             return not self.__eq__(other)

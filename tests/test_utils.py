@@ -2,7 +2,7 @@ from unittest.case import TestCase
 
 from pandas import Series
 
-from probability.utils import is_binary
+from probability.utils import series_is_binary
 
 
 class TestUtils(TestCase):
@@ -23,18 +23,18 @@ class TestUtils(TestCase):
 
     def test_is_binary(self):
 
-        self.assertTrue(is_binary(self.int_binary))
-        self.assertTrue(is_binary(self.float_binary))
-        self.assertTrue(is_binary(self.bool_binary))
+        self.assertTrue(series_is_binary(self.int_binary))
+        self.assertTrue(series_is_binary(self.float_binary))
+        self.assertTrue(series_is_binary(self.bool_binary))
 
     def test_is_binary_zeros(self):
         
-        self.assertTrue(is_binary(self.int_binary_zeros))
-        self.assertTrue(is_binary(self.float_binary_zeros))
-        self.assertTrue(is_binary(self.bool_binary_zeros))
+        self.assertTrue(series_is_binary(self.int_binary_zeros))
+        self.assertTrue(series_is_binary(self.float_binary_zeros))
+        self.assertTrue(series_is_binary(self.bool_binary_zeros))
 
     def test_is_binary_ones(self):
         
-        self.assertTrue(is_binary(self.int_binary_ones))
-        self.assertTrue(is_binary(self.float_binary_ones))
-        self.assertTrue(is_binary(self.bool_binary_ones))
+        self.assertTrue(series_is_binary(self.int_binary_ones))
+        self.assertTrue(series_is_binary(self.float_binary_ones))
+        self.assertTrue(series_is_binary(self.bool_binary_ones))

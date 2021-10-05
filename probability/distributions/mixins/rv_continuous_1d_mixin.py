@@ -18,6 +18,7 @@ from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
     CDFContinuous1dMixin, SFContinuous1dMixin, PPFContinuous1dMixin, \
     ISFContinuous1dMixin, StatMixin
 from probability.distributions.mixins.rv_series import RVContinuousSeries
+from probability.utils import is_scalar
 
 
 class RVContinuous1dMixin(
@@ -138,7 +139,7 @@ class RVContinuous1dMixin(
 
     def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return self.cdf().at(other)
         elif isinstance(other, RVS1dMixin):
             return super(RVContinuous1dMixin, self).__le__(other)
@@ -151,7 +152,7 @@ class RVContinuous1dMixin(
 
     def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
 
-        if type(other) in (int, float):
+        if is_scalar(other):
             return 1 - self.__le__(other)
         elif isinstance(other, RVS1dMixin):
             return super(RVContinuous1dMixin, self).__ge__(other)

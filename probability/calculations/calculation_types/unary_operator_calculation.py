@@ -2,7 +2,7 @@ from typing import Type, List, Optional
 
 from probability.calculations.calculation_types.probability_calculation import \
     ProbabilityCalculation
-from probability.calculations.context import CalculationContext
+from probability.calculations.calculation_context import CalculationContext
 from probability.calculations.mixins import OperatorMixin, \
     ProbabilityCalculationMixin
 from probability.custom_types.calculation_types import CalculationValue

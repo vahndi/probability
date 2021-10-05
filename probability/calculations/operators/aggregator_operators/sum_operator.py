@@ -3,7 +3,7 @@ from pandas import DataFrame, Series
 from probability.calculations.mixins import OperatorMixin
 
 
-class Sum(
+class SumOperator(
     OperatorMixin,
     object
 ):

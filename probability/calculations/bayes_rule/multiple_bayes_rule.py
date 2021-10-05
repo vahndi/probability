@@ -3,7 +3,7 @@ from typing import Union
 from pandas import Series, DataFrame
 
 from probability.calculations.bayes_rule.bayes_rule_mixin import BayesRuleMixin
-from probability.calculations.context import sync_context
+from probability.calculations.utils import sync_context
 from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.custom_types.external_custom_types import AnyFloatMap
 from probability.custom_types.internal_custom_types import AnyDirichletMap

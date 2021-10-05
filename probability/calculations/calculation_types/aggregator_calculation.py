@@ -1,6 +1,6 @@
 from typing import Type, List, Optional
 
-from probability.calculations.context import CalculationContext
+from probability.calculations.calculation_context import CalculationContext
 from probability.calculations.mixins import \
     ProbabilityCalculationMixin, OperatorMixin
 from probability.calculations.calculation_types.probability_calculation import \

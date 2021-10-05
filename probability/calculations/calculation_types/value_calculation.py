@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from probability.calculations.calculation_types.simple_calculation import \
     SimpleCalculation
-from probability.calculations.context import CalculationContext
+from probability.calculations.calculation_context import CalculationContext
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 

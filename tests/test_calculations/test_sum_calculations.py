@@ -1,6 +1,6 @@
 from pandas import DataFrame, Series
 
-from probability.calculations.context import sync_context
+from probability.calculations.utils import sync_context
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 from tests.test_calculations.base_test import BaseTest
 

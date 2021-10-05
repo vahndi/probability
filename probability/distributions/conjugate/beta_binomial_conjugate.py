@@ -14,7 +14,7 @@ from probability.distributions.mixins.attributes import AlphaFloatMixin, \
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
     PredictiveMixin
 from probability.supports import SUPPORT_BETA
-from probability.utils import is_binary, num_format
+from probability.utils import series_is_binary, num_format
 
 
 class BetaBinomialConjugate(
@@ -264,7 +264,7 @@ class BetaBinomialConjugate(
         """
         if isinstance(prob_vars, str):
             prob_vars = [prob_vars]
-        if not all(is_binary(data[prob_var]) for prob_var in prob_vars):
+        if not all(series_is_binary(data[prob_var]) for prob_var in prob_vars):
             raise ValueError('Prob vars must be binary valued')
         if isinstance(cond_vars, str):
             cond_vars = [cond_vars]
