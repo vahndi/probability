@@ -87,11 +87,21 @@ class Ordinal(
 
     def __le__(self, other: 'Ordinal'):
 
-        return self < other or self == other
+        self._check_can_compare(other)
+        self_samples = self.rvs(NUM_SAMPLES_COMPARISON)
+        other_samples = other.rvs(NUM_SAMPLES_COMPARISON)
+        self_values = self_samples.replace(self._cat_to_num)
+        other_values = other_samples.replace(other._cat_to_num)
+        return (self_values <= other_values).mean()
 
     def __ge__(self, other: 'Ordinal'):
 
-        return self > other or self == other
+        self._check_can_compare(other)
+        self_samples = self.rvs(NUM_SAMPLES_COMPARISON)
+        other_samples = other.rvs(NUM_SAMPLES_COMPARISON)
+        self_values = self_samples.replace(self._cat_to_num)
+        other_values = other_samples.replace(other._cat_to_num)
+        return (self_values >= other_values).mean()
 
     def median(self) -> str:
 
