@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from numpy.random import seed
 from pandas import Series
@@ -30,15 +30,15 @@ class Ordinal(
         """
         self._data: Series = data
         self._categories: List[str] = data.cat.categories.to_list()
-        self._cat_to_num = {
+        self._name_to_val = {
             category: ix
             for ix, category in enumerate(self._categories)
         }
-        self._num_to_cat = {
+        self._val_to_name = {
             ix: category
             for ix, category in enumerate(self._categories)
         }
-        self._data_indices: Series = self._data.replace(self._cat_to_num)
+        self._data_vals: Series = self._data.replace(self._name_to_val)
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:
@@ -51,6 +51,17 @@ class Ordinal(
             n=num_samples, replace=True
         ).reset_index(drop=True)
 
+    def rvs_values(self, num_samples: int,
+                   random_state: Optional[int] = None) -> Series:
+        """
+        Sample `num_samples` random values from the distribution.
+        """
+        if random_state is not None:
+            seed(random_state)
+        return self._data_vals.sample(
+            n=num_samples, replace=True
+        ).reset_index(drop=True)
+
     def _check_can_compare(self, other: 'Ordinal'):
 
         if not isinstance(other, Ordinal):
@@ -58,55 +69,52 @@ class Ordinal(
         if not self._categories == other._categories:
             raise ValueError('Both Ordinals must have the same categories.')
 
-    def __lt__(self, other: 'Ordinal'):
+    def _comparison_samples(
+            self, other: 'Ordinal'
+    ) -> Tuple[Series, Series]:
+
+        self_samples = self.rvs_values(NUM_SAMPLES_COMPARISON)
+        other_samples = other.rvs_values(NUM_SAMPLES_COMPARISON)
+        return self_samples, other_samples
+
+    def __eq__(self, other: 'Ordinal') -> float:
 
         self._check_can_compare(other)
-        self_samples = self.rvs(NUM_SAMPLES_COMPARISON)
-        other_samples = other.rvs(NUM_SAMPLES_COMPARISON)
-        self_values = self_samples.replace(self._cat_to_num)
-        other_values = other_samples.replace(other._cat_to_num)
-        return (self_values < other_values).mean()
-
-    def __gt__(self, other: 'Ordinal'):
-
-        self._check_can_compare(other)
-        self_samples = self.rvs(NUM_SAMPLES_COMPARISON)
-        other_samples = other.rvs(NUM_SAMPLES_COMPARISON)
-        self_values = self_samples.replace(self._cat_to_num)
-        other_values = other_samples.replace(other._cat_to_num)
-        return (self_values > other_values).mean()
-
-    def __eq__(self, other: 'Ordinal'):
-
-        self._check_can_compare(other)
-        self_samples = self.rvs(NUM_SAMPLES_COMPARISON)
-        other_samples = other.rvs(NUM_SAMPLES_COMPARISON)
-        self_values = self_samples.replace(self._cat_to_num)
-        other_values = other_samples.replace(other._cat_to_num)
+        self_values, other_values = self._comparison_samples(other)
         return (self_values == other_values).mean()
 
-    def __le__(self, other: 'Ordinal'):
+    def __ne__(self, other: 'Ordinal') -> float:
+
+        return 1 - (self == other)
+
+    def __lt__(self, other: 'Ordinal') -> float:
 
         self._check_can_compare(other)
-        self_samples = self.rvs(NUM_SAMPLES_COMPARISON)
-        other_samples = other.rvs(NUM_SAMPLES_COMPARISON)
-        self_values = self_samples.replace(self._cat_to_num)
-        other_values = other_samples.replace(other._cat_to_num)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values < other_values).mean()
+
+    def __gt__(self, other: 'Ordinal') -> float:
+
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values > other_values).mean()
+
+    def __le__(self, other: 'Ordinal') -> float:
+
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
         return (self_values <= other_values).mean()
 
-    def __ge__(self, other: 'Ordinal'):
+    def __ge__(self, other: 'Ordinal') -> float:
 
         self._check_can_compare(other)
-        self_samples = self.rvs(NUM_SAMPLES_COMPARISON)
-        other_samples = other.rvs(NUM_SAMPLES_COMPARISON)
-        self_values = self_samples.replace(self._cat_to_num)
-        other_values = other_samples.replace(other._cat_to_num)
+        self_values, other_values = self._comparison_samples(other)
         return (self_values >= other_values).mean()
 
     def median(self) -> str:
 
-        median_ix = self._data_indices.median()
-        return self._num_to_cat[median_ix]
+        median_ix = self._data_vals.median()
+        return self._val_to_name[median_ix]
 
     def mode(self) -> Series:
 
