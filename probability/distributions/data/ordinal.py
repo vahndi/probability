@@ -119,3 +119,12 @@ class Ordinal(
     def mode(self) -> Series:
 
         return self._data.mode()
+
+    def __repr__(self):
+
+        cat_counts = self._data.value_counts().reindex(self._categories)
+        str_cat_counts = ', '.join([
+            f'"{cat}": {count}'
+            for cat, count in cat_counts.items()
+        ])
+        return f'Ordinal[{str_cat_counts}]'
