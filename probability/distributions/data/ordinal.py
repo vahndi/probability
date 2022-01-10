@@ -1,8 +1,9 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 from numpy.random import seed
 from pandas import Series
 
+from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
     NUM_SAMPLES_COMPARISON
 
@@ -56,11 +57,30 @@ class Ordinal(
         """
         Sample `num_samples` random values from the distribution.
         """
-        if random_state is not None:
-            seed(random_state)
         return self._data_vals.sample(
-            n=num_samples, replace=True
+            n=num_samples, replace=True,
+            random_state=random_state
         ).reset_index(drop=True)
+
+    def median_value(self) -> int:
+
+        return self._data_vals.median()
+
+    def median(self) -> str:
+
+        return self._val_to_name[self.median_value()]
+
+    def mode(self) -> Union[str, List[str]]:
+
+        mode = self._data_vals.mode()
+        if len(mode) > 1:
+            return mode.to_list()
+        else:
+            return mode[0]
+
+    def as_interval(self) -> Interval:
+
+        return Interval(data=self._data_vals)
 
     def _check_can_compare(self, other: 'Ordinal'):
 
@@ -110,15 +130,6 @@ class Ordinal(
         self._check_can_compare(other)
         self_values, other_values = self._comparison_samples(other)
         return (self_values >= other_values).mean()
-
-    def median(self) -> str:
-
-        median_ix = self._data_vals.median()
-        return self._val_to_name[median_ix]
-
-    def mode(self) -> Series:
-
-        return self._data.mode()
 
     def __repr__(self):
 
