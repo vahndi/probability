@@ -5,7 +5,8 @@ from pandas import Series
 
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
-    DataMixin, CategoricalDataMixin, DataMinMixin, DataMaxMixin
+    DataMixin, DataCPTMixin, DataMinMixin, DataMaxMixin, \
+    DataMutualInformationMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 
@@ -13,7 +14,8 @@ class Ordinal(
     DataMixin,
     DataMinMixin,
     DataMaxMixin,
-    CategoricalDataMixin,
+    DataCPTMixin,
+    DataMutualInformationMixin,
     object
 ):
     """

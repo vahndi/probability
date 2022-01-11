@@ -3,13 +3,14 @@ from typing import List, Union
 from pandas import Series
 
 from probability.distributions.mixins.data_mixins import DataMixin, \
-    CategoricalDataMixin, DataModeMixin
+    DataCPTMixin, DataModeMixin, DataMutualInformationMixin
 
 
 class Nominal(
     DataMixin,
     DataModeMixin,
-    CategoricalDataMixin,
+    DataCPTMixin,
+    DataMutualInformationMixin,
     object
 ):
 
