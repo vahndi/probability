@@ -106,15 +106,14 @@ class DataCPTMixin(object):
         return (joint / marginal).unstack()
 
 
-class DataMutualInformationMixin(object):
+class DataInformationMixin(object):
 
     _data: Series
 
-    def mutual_information(self, other: 'DataMutualInformationMixin') -> float:
+    def _calc_frame(self, other: 'DataInformationMixin') -> DataFrame:
         """
-        Return the mutual information between self and other.
-
-        https://en.wikipedia.org/wiki/Mutual_information#In_terms_of_PMFs_for_discrete_distributions
+        Calculate the joint and marginal probability distributions of self and
+        other and return as a DataFrame.
         """
         x_counts = self._data.value_counts().rename_axis('x')
         y_counts = other._data.value_counts().rename_axis('y')
@@ -130,10 +129,7 @@ class DataMutualInformationMixin(object):
             calc.index.get_level_values('x')].to_list()
         calc['p(y)'] = p_y.loc[
             calc.index.get_level_values('y')].to_list()
-        calc['I(x,y)'] = calc['p(x,y)'] * (
-                calc['p(x,y)'] / (calc['p(x)'] * calc['p(y)'])
-        ).map(log)
-        return calc['I(x,y)'].sum()
+        return calc
 
     def entropy(self) -> float:
         """
@@ -141,7 +137,54 @@ class DataMutualInformationMixin(object):
         """
         return entropy(self._data.value_counts())
 
-    def relative_mutual_information(self, other: 'DataMutualInformationMixin'):
+    def mutual_information(self, other: 'DataInformationMixin') -> float:
+        """
+        In probability theory and information theory, the mutual information
+        (MI) of two random variables is a measure of the mutual dependence
+        between the two variables. More specifically, it quantifies the
+        "amount of information" (in units such as shannons (bits), nats or
+        hartleys) obtained about one random variable by observing the other
+        random variable. The concept of mutual information is intimately linked
+        to that of entropy of a random variable, a fundamental notion in
+        information theory that quantifies the expected "amount of information"
+        held in a random variable.
+
+        https://en.wikipedia.org/wiki/Mutual_information
+        """
+        calc = self._calc_frame(other)
+        calc['I(x,y)'] = calc['p(x,y)'] * (
+                calc['p(x,y)'] / (calc['p(x)'] * calc['p(y)'])
+        ).map(log)
+        return calc['I(x,y)'].sum()
+
+    def conditional_entropy(self, other: 'DataInformationMixin') -> float:
+        """
+        In information theory, the conditional entropy quantifies the amount of
+        information needed to describe the outcome of a random variable Y given
+        that the value of another random variable X is known. Here, information
+        is measured in shannons, nats, or hartleys. The entropy of Y conditioned
+        on X is written as H(Y|X)}.
+
+        https://en.wikipedia.org/wiki/Conditional_entropy
+        """
+        calc = self._calc_frame(other)
+        calc['H(x|y)'] = calc['p(x,y)'] * (
+                calc['p(x,y)'] / calc['p(x)']
+        ).map(log)
+        return -calc['H(x|y)'].sum()
+
+    def joint_entropy(self, other: 'DataInformationMixin') -> float:
+        """
+        In information theory, joint entropy is a measure of the uncertainty
+        associated with a set of variables.
+
+        https://en.wikipedia.org/wiki/Joint_entropy
+        """
+        calc = self._calc_frame(other)
+        calc['H(x,y)'] = calc['p(x,y)'] * calc['p(x,y)'].map(log)
+        return -calc['H(x,y)'].sum()
+
+    def relative_mutual_information(self, other: 'DataInformationMixin'):
         """
         Return the proportion of entropy in self explained by observing
         other.
