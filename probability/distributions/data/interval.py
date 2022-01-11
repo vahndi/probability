@@ -1,13 +1,21 @@
-from typing import Optional, Union, List
+from typing import Optional
 
 from numpy.random import seed
 from pandas import Series
 
-from probability.distributions.mixins.rv_mixins import RVS1dMixin
+from probability.distributions.mixins.data_mixins import \
+    DataMixin, DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, \
+    DataStdMixin, DataModeMixin
 
 
 class Interval(
-    RVS1dMixin,
+    DataMixin,
+    DataMinMixin,
+    DataMaxMixin,
+    DataMeanMixin,
+    DataMedianMixin,
+    DataModeMixin,
+    DataStdMixin,
     object
 ):
 
@@ -18,11 +26,6 @@ class Interval(
         :param data: pandas Series of interval data.
         """
         self._data: Series = data
-
-    @property
-    def data(self) -> Series:
-
-        return self._data
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:
@@ -35,43 +38,19 @@ class Interval(
             n=num_samples, replace=True
         ).reset_index(drop=True)
 
-    def median(self) -> Union[int, float]:
-
-        return self._data.median()
-
-    def mode(self) -> Union[int, float, List[int], List[float]]:
-
-        mode = self._data.mode()
-        if len(mode) > 1:
-            return mode.to_list()
-        else:
-            return mode[0]
-
-    def mean(self) -> float:
-
-        return self._data.mean()
-
-    def std(self) -> float:
-
-        return self._data.std()
-
     def __add__(self, other: float) -> 'Interval':
         """
         Return a new Interval distribution with a constant value subtracted from
         each datum.
         """
-        return Interval(
-            data=self._data + other
-        )
+        return Interval(data=self._data + other)
 
     def __sub__(self, other: float) -> 'Interval':
         """
         Return a new Interval distribution with a constant value subtracted from
         each datum.
         """
-        return Interval(
-            data=self._data - other
-        )
+        return Interval(data=self._data - other)
 
 
 if __name__ == '__main__':

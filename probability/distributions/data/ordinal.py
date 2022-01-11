@@ -4,12 +4,16 @@ from numpy.random import seed
 from pandas import Series
 
 from probability.distributions.data.interval import Interval
-from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
-    NUM_SAMPLES_COMPARISON
+from probability.distributions.mixins.data_mixins import \
+    DataMixin, CategoricalDataMixin, DataMinMixin, DataMaxMixin
+from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 
 class Ordinal(
-    RVS1dMixin,
+    DataMixin,
+    DataMinMixin,
+    DataMaxMixin,
+    CategoricalDataMixin,
     object
 ):
     """
@@ -81,6 +85,35 @@ class Ordinal(
     def as_interval(self) -> Interval:
 
         return Interval(data=self._data_vals)
+
+    def drop(self, categories: Union[str, List[str]]) -> 'Ordinal':
+        """
+        Drop one or more categories from the underlying data.
+        """
+        if isinstance(categories, str):
+            categories = [categories]
+        data = self._data.loc[~self._data.isin(categories)]
+        new_cats = [cat for cat in self._categories if cat not in categories]
+        data = data.cat.set_categories(
+            new_categories=new_cats, ordered=True
+        )
+        return Ordinal(data=data)
+
+    def keep(self, categories: Union[str, List[str]]) -> 'Ordinal':
+        """
+        Drop all the categories from the data not in the one(s) given.
+
+        :param categories: Categories to keep.
+        """
+        if isinstance(categories, str):
+            categories = [categories]
+        data = self._data.loc[self._data.isin(categories)]
+        new_cats = [cat for cat in self._categories if cat in categories]
+        data = data.cat.set_categories(
+            new_categories=new_cats,
+            ordered=True
+        )
+        return Ordinal(data=data)
 
     def _check_can_compare(self, other: 'Ordinal'):
 
