@@ -16,6 +16,10 @@ class DataMixin(object):
         """
         return self._data
 
+    def rename(self, name: str) -> 'DataMixin':
+
+        return type(self)(data=self._data.rename(name))
+
 
 class DataMinMixin(object):
 

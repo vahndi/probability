@@ -1,7 +1,7 @@
 from typing import List, Optional, Tuple, Union
 
 from numpy.random import seed
-from pandas import Series
+from pandas import Series, concat
 
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
@@ -68,6 +68,16 @@ class Ordinal(
             random_state=random_state
         ).reset_index(drop=True)
 
+    def correlation(self, other: 'Ordinal') -> float:
+        """
+        Calculate the Spearman rank correlation coefficient with another
+        Ordinal.
+        """
+        combined = concat([
+            self._data_vals, other._data_vals
+        ], axis=1)
+        return combined.corr(method='spearman').iloc[0, 1]
+
     def median_value(self) -> int:
 
         return self._data_vals.median()
@@ -132,6 +142,8 @@ class Ordinal(
         other_samples = other.rvs_values(NUM_SAMPLES_COMPARISON)
         return self_samples, other_samples
 
+    # TODO: these methods should be part of ContinuousData and DiscreteData classes
+    # TODO: reimplment these as specific comparisons between series with same index
     def __eq__(self, other: 'Ordinal') -> float:
 
         self._check_can_compare(other)
