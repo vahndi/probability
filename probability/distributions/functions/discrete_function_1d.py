@@ -103,14 +103,14 @@ class DiscreteFunction1d(object):
                             line_styles='--', colors=color)
             axf.add_text(x=x_mean, y=self._distribution.pmf(x_mean),
                          text=f'mean={x_mean: 0.3f}', color=color,
-                         ha='center', va='bottom')
+                         h_align='center', v_align='bottom')
         if median:
             x_median = self._distribution.median()
             axf.add_v_lines(x=x_median, y_min=y_min, y_max=y_max,
                             line_styles='-.', colors=color)
             axf.add_text(x=x_median, y=self._distribution.pmf(x_median),
                          text=f'median={x_median: 0.3f}', color=color,
-                         ha='center', va='bottom')
+                         h_align='center', v_align='bottom')
         if std:
             x_std = self._distribution.std()
             axf.add_v_lines(x=[x_mean - x_std, x_mean + x_std],
@@ -119,7 +119,7 @@ class DiscreteFunction1d(object):
             axf.add_text(x=x_mean - x_std / 2,
                          y=self._distribution.pmf(x_mean - x_std / 2),
                          text=f'std={x_std: 0.3f}', color=color,
-                         ha='center', va='bottom')
+                         h_align='center', v_align='bottom')
 
         ax.set_xlabel(self._parent.x_label)
 
