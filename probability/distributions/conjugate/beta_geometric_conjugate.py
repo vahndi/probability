@@ -177,8 +177,8 @@ class BetaGeometricConjugate(
         """
         # assume that each experiment was completed such that the number of
         # successes observed equals the number of experiments
-        num_experiments = data.sum()
-        num_trials = len(data)
+        num_experiments = data.dropna().sum()
+        num_trials = len(data.dropna())
         return BetaGeometricConjugate(
             alpha=alpha, beta=beta,
             n=num_experiments,

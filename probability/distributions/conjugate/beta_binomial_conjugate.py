@@ -226,7 +226,8 @@ class BetaBinomialConjugate(
         """
         return BetaBinomialConjugate(
             alpha=alpha, beta=beta,
-            n=len(data), k=data.sum()
+            n=len(data.dropna()),
+            k=data.dropna().sum()
         ).posterior()
 
     @staticmethod
