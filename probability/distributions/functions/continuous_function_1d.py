@@ -136,3 +136,7 @@ class ContinuousFunction1d(object):
                 ax.set_ylabel(self._name)
 
         return ax
+
+    def __str__(self):
+
+        return f'{self._name}[{self._parent}]'

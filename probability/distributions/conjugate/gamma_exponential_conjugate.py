@@ -161,8 +161,9 @@ class GammaExponentialConjugate(
         :param beta: Value for the β hyper-parameter of the prior Gamma
                      distribution (sum of observations).
         """
-        n = len(data.dropna())
-        x_mean = data.dropna().mean()
+        data = data.dropna()
+        n = len(data)
+        x_mean = data.mean()
         return GammaExponentialConjugate(
             n=n, x_mean=x_mean,
             alpha=alpha, beta=beta

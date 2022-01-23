@@ -210,8 +210,9 @@ class GammaPoissonConjugate(
         :param beta: Value for the β hyper-parameter of the prior Gamma
                      distribution (number of intervals).
         """
-        k: int = data.dropna().sum()
-        n: int = len(data.dropna())
+        data = data.dropna()
+        k: int = data.sum()
+        n: int = len(data)
         return GammaPoissonConjugate(
             n=n, k=k, alpha=alpha, beta=beta
         ).posterior()

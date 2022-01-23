@@ -224,10 +224,11 @@ class BetaBinomialConjugate(
         :param beta: Value for the β hyper-parameter of the prior Beta
                      distribution.
         """
+        data = data.dropna()
         return BetaBinomialConjugate(
             alpha=alpha, beta=beta,
-            n=len(data.dropna()),
-            k=data.dropna().sum()
+            n=len(data),
+            k=data.sum()
         ).posterior()
 
     @staticmethod
@@ -246,11 +247,11 @@ class BetaBinomialConjugate(
         :param data: DataFrame containing discrete data.
         :param prob_vars: Name(s) of binary variables
                           whose posteriors to find probability of.
-        :param cond_vars: Names of discrete variables to condition on.
+        :param cond_vars: Name(s) of discrete variables C to condition on.
                           Calculations will be done for the cartesian product
                           of variable values
-                          e.g if cA={1,2} and cB={3,4} then
-                          cAB = {(1,3), (1, 4), (2, 3), (2, 4)}.
+                          e.g if C_a={1,2} and C_b={3,4} then
+                          C_ab = {(1,3), (1, 4), (2, 3), (2, 4)}.
         :param stats: Optional stats to append to the output e.g. 'alpha',
                       'median'. To pass arguments use a dict mapping stat
                       name to iterable of args.
@@ -259,8 +260,8 @@ class BetaBinomialConjugate(
         :param beta: Value for the β hyper-parameter of each prior Beta
                      distribution.
         :return: DataFrame with columns for each conditioning variable,
-                 a 'prob_var' column indicating the probability variable,
-                 a `prob_val` column indicating the value of the probability
+                 a `'prob_var'` column indicating the probability variable,
+                 a `'prob_val'` column indicating the value of the probability
                  variable, and a `Beta` column containing the distribution.
         """
         if isinstance(prob_vars, str):
