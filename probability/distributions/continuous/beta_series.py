@@ -1,19 +1,16 @@
 from typing import Optional, Mapping, Union, List
 
-from numpy import linspace
-from numpy.ma import arange
-from pandas import Series, DataFrame
-
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
-from mpl_format.literals import H_ALIGN
 from mpl_format.utils.color_utils import cross_fade
-from probability.custom_types.external_custom_types import FloatArray1d
+from numpy import linspace
+from numpy.ma import arange
+from pandas import Series
+
 from probability.distributions import Beta
-from probability.distributions.functions.continuous_function_1d import \
-    ContinuousFunction1d
 from probability.distributions.functions.continuous_function_1d_series import \
     ContinuousFunction1dSeries
+from probability.models.utils import loop_variable
 
 
 class BetaSeries(object):
@@ -58,21 +55,6 @@ class BetaSeries(object):
             self._data.map(lambda d: d.ppf())
         )
 
-    @staticmethod
-    def _loop_variable(variable, length: int) -> list:
-        """
-        Cycle a variable or list of variables until they are the given length.
-        """
-        if not isinstance(variable, list):
-            variable = [variable] * length
-        else:
-            # loop colors
-            if len(variable) < length:
-                div = length // len(variable)
-                rem = length % len(variable)
-                variable = variable * div + variable[: rem]
-        return variable
-
     def plot_density_bars(
             self,
             color: Union[Color, List[Color]],
@@ -100,10 +82,10 @@ class BetaSeries(object):
         axf = axf or AxesFormatter()
         beta: Beta
         num_dists = len(self._data)
-        color = BetaSeries._loop_variable(color, num_dists)
-        color_min = BetaSeries._loop_variable(color_min, num_dists)
-        width = BetaSeries._loop_variable(width, num_dists)
-        z_max = BetaSeries._loop_variable(z_max, num_dists)
+        color = loop_variable(color, num_dists)
+        color_min = loop_variable(color_min, num_dists)
+        width = loop_variable(width, num_dists)
+        z_max = loop_variable(z_max, num_dists)
 
         for i, (ix, beta) in enumerate(self._data.items()):
             y_to_z = beta.pdf().at(linspace(
@@ -135,26 +117,3 @@ class BetaSeries(object):
         axf.y_ticks.set_locations(arange(0, 1.1, 0.1))
         axf.set_y_lim(-0.05, 1.05)
         return axf
-
-
-betas = Series({
-    'a': Beta(3, 7),
-    'b': Beta(60, 40),
-    'c': Beta(900, 100),
-    'd': Beta(9500, 1000),
-    'e': Beta(99000, 100000)
-})
-bs = BetaSeries(betas)
-pdfs = bs.pdfs()
-print(pdfs)
-medians = pdfs.at(0.5)
-print(medians)
-deciles = pdfs.at(arange(0, 1.1, 0.1))
-print(deciles)
-axf = bs.plot_density_bars(
-    color=['r', 'g', 'b'],
-    color_min='yellow',
-    width=2 / 3,
-    edges=True
-)
-axf.show()

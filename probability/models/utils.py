@@ -22,3 +22,18 @@ def distribute_about_center(index: int, size: int,
     spacing = max_loc / (max_size - 1 if max_size > 1 else 1)
     min_loc = (max_loc / 2) - ((size - 1) * spacing) / 2
     return min_loc + index * spacing
+
+
+def loop_variable(variable, length: int) -> list:
+    """
+    Cycle a variable or list of variables until they are the given length.
+    """
+    if not isinstance(variable, list):
+        variable = [variable] * length
+    else:
+        # loop colors
+        if len(variable) < length:
+            div = length // len(variable)
+            rem = length % len(variable)
+            variable = variable * div + variable[: rem]
+    return variable
