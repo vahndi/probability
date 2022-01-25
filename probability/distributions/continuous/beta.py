@@ -90,7 +90,9 @@ class Beta(
             if arg is not None:
                 kwargs[kw] = arg
         alpha, beta, loc, scale = beta_dist.fit(
-            data=data, floc=0, fscale=1, **kwargs
+            data=data,
+            floc=-1e-9, fscale=1 + 2e-9,  # avoid fit error when 0 or 1 in data
+            **kwargs
         )
         return Beta(alpha=alpha, beta=beta)
 

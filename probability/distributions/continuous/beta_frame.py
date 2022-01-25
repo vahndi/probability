@@ -4,10 +4,11 @@ from matplotlib.patches import Patch
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
-from numpy import linspace, arange
-from pandas import DataFrame
+from numpy import linspace, arange, log
+from pandas import DataFrame, concat
 
 from probability.distributions import Beta
+from probability.distributions.continuous.beta_series import BetaSeries
 from probability.models.utils import loop_variable
 
 
@@ -21,15 +22,28 @@ class BetaFrame(object):
         """
         self._data: DataFrame = data
 
+    @staticmethod
+    def from_beta_series(data: List[BetaSeries]):
+
+        series = concat([bs.data for bs in data], axis=1)
+        return BetaFrame(series)
+
+    @property
+    def data(self) -> DataFrame:
+        return self._data
+
     def plot_density_bars(
             self,
-            color: Union[Color, List[Color]],
+            color: Union[Color, List[Color]] = 'k',
             color_min: Optional[Union[Color, List[Color]]] = None,
             group_width: float = 0.8,
             stagger: bool = True,
             item_width: float = 0.8,
             min_pct: float = 0.025, max_pct: float = 0.975,
+            resolution: int = 100,
             z_max: Optional[Union[float, List[float]]] = None,
+            log_z: bool = False,
+            min_n: int = None,
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
         """
@@ -46,6 +60,10 @@ class BetaFrame(object):
         :param max_pct: Max ppf to end plotting at for each distribution.
         :param z_max: Optional normalizing constant to divide each bar's height
                       by.
+        :param resolution: Number of density elements per unit y.
+        :param log_z: Whether to take the log of z before plotting.
+        :param min_n: Minimum number of pseudo-oservations (α + β) to plot a
+                      distribution.
         :param axf: Optional AxesFormatter instance.
         """
         axf = axf or AxesFormatter()
@@ -67,9 +85,17 @@ class BetaFrame(object):
         beta: Beta
         for i_row, (row_name, betas) in enumerate(self._data.iterrows()):
             for i_col, (col_name, beta) in enumerate(betas.items()):
+                if min_n is not None and beta.alpha + beta.beta < min_n:
+                    continue
+                y_min = beta.ppf().at(min_pct)
+                y_max = beta.ppf().at(max_pct)
+                n_bars = round(resolution * (y_max - y_min))
                 y_to_z = beta.pdf().at(linspace(
-                    beta.ppf().at(min_pct), beta.ppf().at(max_pct), 96
+                    y_min, y_max,
+                    n_bars + 1
                 ))
+                if log_z:
+                    y_to_z = y_to_z.map(log)
                 axf.add_v_density(
                     x=i_row + 1 + item_centers[i_col],
                     y_to_z=y_to_z,
@@ -93,3 +119,7 @@ class BetaFrame(object):
             ))
         axf.axes.legend(handles=patches)
         return axf
+
+    def __str__(self):
+
+        return str(self._data)
