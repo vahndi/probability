@@ -51,3 +51,13 @@ class Ratio(
     def to_gamma(self) -> Gamma:
 
         return Gamma.fit(self._data)
+
+    def __repr__(self):
+
+        return (
+            f'{self.name}: Ratio['
+            f'min={self._data.min()}, '
+            f'max={self._data.max()}, '
+            f'mean={self._data.mean()}'
+            f']'
+        )

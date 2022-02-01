@@ -66,4 +66,4 @@ class Nominal(
             f'"{cat}": {count}'
             for cat, count in cat_counts.items()
         ])
-        return f'{self.name}: Ordinal[{str_cat_counts}]'
+        return f'{self.name}: Nominal[{str_cat_counts}]'

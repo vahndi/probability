@@ -58,3 +58,13 @@ class Count(
         new_data = self._data.map(mapping).astype('category')
         new_data = new_data.cat.set_categories(new_categories, ordered=True)
         return Ordinal(data=new_data)
+
+    def __repr__(self):
+
+        return (
+            f'{self.name}: Count['
+            f'min={self._data.min()}, '
+            f'max={self._data.max()}, '
+            f'mean={self._data.mean()}'
+            f']'
+        )

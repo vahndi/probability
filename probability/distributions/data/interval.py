@@ -52,9 +52,12 @@ class Interval(
         """
         return Interval(data=self._data - other)
 
+    def __repr__(self):
 
-if __name__ == '__main__':
-
-    s = Series([1, 2, 2, 3, 3, 3, 4, 4, 4])
-    i = Interval(data=s)
-    print(i.rvs(10))
+        return (
+            f'{self.name}: Interval['
+            f'min={self._data.min()}, '
+            f'max={self._data.max()}, '
+            f'mean={self._data.mean()}'
+            f']'
+        )
