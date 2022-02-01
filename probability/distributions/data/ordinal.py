@@ -1,8 +1,13 @@
 from typing import List, Optional, Tuple, Union
 
+from numpy import nan
 from numpy.random import seed
 from pandas import Series, concat
 
+from mpl_format.axes import AxesFormatter
+from mpl_format.compound_types import Color
+from mpl_format.enums import FONT_SIZE
+from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
     DataMixin, DataCPTMixin, DataMinMixin, DataMaxMixin, \
@@ -46,6 +51,11 @@ class Ordinal(
             for ix, category in enumerate(self._categories)
         }
         self._data_vals: Series = self._data.replace(self._name_to_val)
+
+    @property
+    def categories(self) -> List[str]:
+
+        return self._categories
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:
@@ -95,8 +105,42 @@ class Ordinal(
             return mode[0]
 
     def as_interval(self) -> Interval:
-
+        """
+        Convert to an interval distribution.
+        """
         return Interval(data=self._data_vals)
+
+    def as_boolean(
+            self,
+            false: Union[str, List[str]],
+            true: Union[str, List[str]],
+            empty: Optional[Union[str, List[str]]] = None
+    ) -> Boolean:
+        """
+        Convert to a Boolean distribution.
+
+        :param false: Categories to map to False.
+        :param true: Categories to map to True.
+        :param empty: Categories to map to nan.
+        """
+        if not isinstance(false, list):
+            false = [false]
+        if not isinstance(true, list):
+            true = [true]
+        if empty is None:
+            empty = []
+        elif not isinstance(empty, list):
+            empty = [empty]
+        if not set(true + false + empty) == set(self.categories):
+            raise ValueError('Must provide all categories in the distribution')
+        data = self._data.copy()
+        for f in false:
+            data = data.replace(f, False)
+        for t in true:
+            data = data.replace(t, True)
+        for e in empty:
+            data = data.replace(e, nan)
+        return Boolean(data)
 
     def drop(self, categories: Union[str, List[str]]) -> 'Ordinal':
         """
@@ -142,6 +186,26 @@ class Ordinal(
         other_samples = other.rvs_values(NUM_SAMPLES_COMPARISON)
         return self_samples, other_samples
 
+    def plot_bars(
+            self,
+            axf: Optional[AxesFormatter] = None,
+            color: Color = 'k',
+            pct_font_size: int = FONT_SIZE.medium
+    ):
+
+        axf = axf or AxesFormatter()
+        counts = self._data.value_counts().reindex(self._categories)
+        counts.plot.bar(ax=axf.axes, color=color)
+        percents = 100 * counts / len(self._data.dropna())
+        axf.add_text(
+            x=range(len(counts)), y=counts,
+            text=percents.map(lambda p: f'{p: .1f}%'),
+            h_align='center', v_align='bottom',
+            font_size=pct_font_size
+        )
+        axf.y_axis.set_format_integer()
+        return axf
+
     # TODO: these methods should be part of ContinuousData and DiscreteData classes
     # TODO: reimplment these as specific comparisons between series with same index
     def __eq__(self, other: 'Ordinal') -> float:
@@ -185,4 +249,4 @@ class Ordinal(
             f'"{cat}": {count}'
             for cat, count in cat_counts.items()
         ])
-        return f'Ordinal[{str_cat_counts}]'
+        return f'{self.name}: Ordinal[{str_cat_counts}]'

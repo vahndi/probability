@@ -39,6 +39,7 @@ class BetaSeries(object):
                             distributions.
         :param prior_beta: Value for alpha assuming these represent posterior
                             distributions.
+        :param name: Name for the Series.
         """
         betas = {}
         for col in data.columns:

@@ -23,6 +23,11 @@ class Nominal(
         self._data: Series = data
         self._categories: List[str] = data.cat.categories.to_list()
 
+    @property
+    def categories(self) -> List[str]:
+
+        return self._categories
+
     def drop(self, categories: Union[str, List[str]]) -> 'Nominal':
         """
         Drop one or more categories from the underlying data.
@@ -53,3 +58,12 @@ class Nominal(
             ordered=False
         )
         return Nominal(data=data)
+
+    def __repr__(self):
+
+        cat_counts = self._data.value_counts().reindex(self._categories)
+        str_cat_counts = ', '.join([
+            f'"{cat}": {count}'
+            for cat, count in cat_counts.items()
+        ])
+        return f'{self.name}: Ordinal[{str_cat_counts}]'

@@ -16,6 +16,10 @@ class DataMixin(object):
         """
         return self._data
 
+    @property
+    def name(self):
+        return self._data.name
+
     def rename(self, name: str) -> 'DataMixin':
 
         return type(self)(data=self._data.rename(name))
@@ -129,10 +133,10 @@ class DataInformationMixin(object):
         p_y = y_counts / y_counts.sum()
         p_xy = xy_counts / xy_counts.sum()
         calc = p_xy.rename('p(x,y)').to_frame()
-        calc['p(x)'] = p_x.loc[
-            calc.index.get_level_values('x')].to_list()
-        calc['p(y)'] = p_y.loc[
-            calc.index.get_level_values('y')].to_list()
+        calc['p(x)'] = p_x.reindex(
+            calc.index.get_level_values('x')).to_list()
+        calc['p(y)'] = p_y.reindex(
+            calc.index.get_level_values('y')).to_list()
         return calc
 
     def entropy(self) -> float:
