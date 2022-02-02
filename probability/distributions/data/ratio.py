@@ -57,7 +57,7 @@ class Ratio(
 
         return Gamma.fit(self._data)
 
-    def plot_conditional_densities(
+    def plot_conditional_dist_densities(
             self,
             categorical: Union[DataMixin, DataCategoriesMixin],
             fit_dist: Type[RVContinuous1dMixin],
@@ -127,7 +127,8 @@ class Ratio(
         # labels
         axf.set_text(
             title=f'{hdi: .0%} HDIs of p({self.name}|{categorical.name})',
-            x_label=categorical.name, y_label=self.name
+            x_label=categorical.name,
+            y_label=self.name
         )
         # axes
         axf.set_x_lim(0, n_cats + 1)

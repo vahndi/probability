@@ -27,7 +27,7 @@ class DataMixin(object):
 
 class DataCategoriesMixin(object):
 
-    _categories: List[str]
+    _categories: List[Union[bool, str]]
 
     @property
     def categories(self) -> list:

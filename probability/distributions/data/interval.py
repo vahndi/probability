@@ -4,8 +4,10 @@ from numpy.random import seed
 from pandas import Series
 
 from probability.distributions.mixins.data_mixins import \
-    DataMixin, DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, \
-    DataStdMixin, DataModeMixin
+    DataMixin, \
+    DataMinMixin, DataMaxMixin, \
+    DataMeanMixin, DataMedianMixin, DataModeMixin, \
+    DataStdMixin
 
 
 class Interval(

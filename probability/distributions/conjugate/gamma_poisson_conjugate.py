@@ -5,7 +5,9 @@ from mpl_format.figures import FigureFormatter
 from numpy.ma import arange
 from pandas import Series, DataFrame
 
-from probability.distributions import Poisson, NegativeBinomial
+from probability.distributions.discrete.poisson import Poisson
+from probability.distributions.discrete.negative_binomial import \
+    NegativeBinomial
 from probability.distributions.conjugate.priors import VaguePrior
 from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
