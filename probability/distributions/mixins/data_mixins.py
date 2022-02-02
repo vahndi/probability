@@ -25,6 +25,16 @@ class DataMixin(object):
         return type(self)(data=self._data.rename(name))
 
 
+class DataCategoriesMixin(object):
+
+    _categories: List[str]
+
+    @property
+    def categories(self) -> list:
+
+        return self._categories
+
+
 class DataMinMixin(object):
 
     _data: Series

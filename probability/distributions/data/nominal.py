@@ -3,11 +3,12 @@ from typing import List, Union
 from pandas import Series
 
 from probability.distributions.mixins.data_mixins import DataMixin, \
-    DataCPTMixin, DataModeMixin, DataInformationMixin
+    DataCPTMixin, DataModeMixin, DataInformationMixin, DataCategoriesMixin
 
 
 class Nominal(
     DataMixin,
+    DataCategoriesMixin,
     DataModeMixin,
     DataCPTMixin,
     DataInformationMixin,
@@ -22,11 +23,6 @@ class Nominal(
         """
         self._data: Series = data
         self._categories: List[str] = data.cat.categories.to_list()
-
-    @property
-    def categories(self) -> List[str]:
-
-        return self._categories
 
     def drop(self, categories: Union[str, List[str]]) -> 'Nominal':
         """

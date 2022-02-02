@@ -2,21 +2,22 @@ from typing import List
 
 from pandas import Series
 
-from probability.distributions.mixins.data_mixins import DataMixin
+from probability.distributions.mixins.data_mixins import DataMixin, \
+    DataCategoriesMixin
 
 
-class Boolean(DataMixin):
+class Boolean(
+    DataMixin,
+    DataCategoriesMixin,
+    object
+):
 
     def __init__(self, data: Series):
         """
         Create a new Boolean distribution.
         """
         self._data: Series = data
-
-    @property
-    def categories(self) -> List[bool]:
-
-        return [False, True]
+        self._categories = [False, True]
 
     def __repr__(self):
 

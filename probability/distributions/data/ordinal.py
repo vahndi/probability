@@ -11,12 +11,13 @@ from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
     DataMixin, DataCPTMixin, DataMinMixin, DataMaxMixin, \
-    DataInformationMixin
+    DataInformationMixin, DataCategoriesMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 
 class Ordinal(
     DataMixin,
+    DataCategoriesMixin,
     DataMinMixin,
     DataMaxMixin,
     DataCPTMixin,
@@ -51,11 +52,6 @@ class Ordinal(
             for ix, category in enumerate(self._categories)
         }
         self._data_vals: Series = self._data.replace(self._name_to_val)
-
-    @property
-    def categories(self) -> List[str]:
-
-        return self._categories
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:
