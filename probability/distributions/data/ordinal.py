@@ -1,22 +1,24 @@
 from typing import List, Optional, Tuple, Union
 
-from numpy import nan
+from numpy import nan, inf
 from numpy.random import seed
 from pandas import Series, concat
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from mpl_format.enums import FONT_SIZE
+from mpl_format.utils.color_utils import cross_fade
+from mpl_format.utils.number_utils import format_as_percent
 from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
-    DataMixin, DataCPTMixin, DataMinMixin, DataMaxMixin, \
+    DataDistributionMixin, DataCPTMixin, DataMinMixin, DataMaxMixin, \
     DataInformationMixin, DataCategoriesMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 
 class Ordinal(
-    DataMixin,
+    DataDistributionMixin,
     DataCategoriesMixin,
     DataMinMixin,
     DataMaxMixin,
@@ -167,6 +169,14 @@ class Ordinal(
         )
         return Ordinal(data=data)
 
+    def filter_to(self, other: DataDistributionMixin) -> 'Ordinal':
+        """
+        Filter the data to the common indices with the other distribution.
+        """
+        shared_ix = list(set(self._data.index).intersection(other.data.index))
+        data = self._data.loc[shared_ix]
+        return Ordinal(data=data)
+
     def _check_can_compare(self, other: 'Ordinal'):
 
         if not isinstance(other, Ordinal):
@@ -200,6 +210,103 @@ class Ordinal(
             font_size=pct_font_size
         )
         axf.y_axis.set_format_integer()
+        return axf
+
+    def plot_conditional_dist_densities(
+            self,
+            categorical: Union[DataDistributionMixin, DataCategoriesMixin],
+            width: float = 0.8,
+            heights: float = 0.9,
+            color: Color = 'k',
+            color_min: Optional[Color] = None,
+            color_mean: Optional[Color] = None,
+            color_median: Optional[Color] = None,
+            axf: Optional[AxesFormatter] = None
+    ) -> AxesFormatter:
+        """
+        Plot conditional probability densities of the data, split by the
+        categories of an Ordinal or Nominal distribution.
+
+        :param categorical: Nominal or Ordinal distribution.
+        :param width: Width of each density bar.
+        :param color: Color for the densest part of each distribution.
+        :param color_min: Color for the sparsest part of each distribution,
+                          if different to color.
+        :param color_mean: Color for mean data markers.
+        :param color_median: Color for median data markers.
+        :param axf: Optional AxesFormatter to plot on.
+        """
+        axf = axf or AxesFormatter()
+        cats = categorical.categories
+        n_cats = len(cats)
+        # filter categorical data
+        shared_ix = list(
+            set(self._data.index).intersection(categorical.data.index)
+        )
+        cat_data = categorical.data.loc[shared_ix]
+        ordinal_data = self._data.loc[shared_ix]
+        max_cat_sum = max([
+            ordinal_data.loc[cat_data == category].value_counts().sum()
+            for category in categorical.categories
+        ])
+        max_pct = max([
+            ordinal_data.loc[cat_data == category].value_counts().max() /
+            ordinal_data.loc[cat_data == category].value_counts().sum()
+            for category in categorical.categories
+        ])
+        for c, category in enumerate(categorical.categories):
+            cat_ratio_data = ordinal_data.loc[cat_data == category]
+            value_counts = cat_ratio_data.value_counts().reindex(
+                self.categories).fillna(0)
+            cat_sum = value_counts.sum()
+            for i, (item, count) in enumerate(value_counts.items()):
+                pct = count / cat_sum
+                if color_min is not None:
+                    rect_color = cross_fade(color_min, color, pct / max_pct)
+                else:
+                    rect_color = color
+                bar_width = width * cat_sum / max_cat_sum
+                x_center = 1 + c
+                y_center = 1 + i
+                axf.add_rectangle(
+                    width=bar_width, height=heights,
+                    x_left=x_center - bar_width / 2,
+                    y_bottom=y_center - heights / 2,
+                    color=rect_color,
+                    alpha=pct / max_pct
+                )
+                axf.add_text(x=x_center, y=y_center,
+                             text=format_as_percent(pct, 1),
+                             h_align='center', v_align='center',
+                             bbox_edge_color='k', bbox_fill=True,
+                             bbox_face_color='white')
+            if len(cat_ratio_data) == 0:
+                continue
+            # plot descriptive statistics lines
+            if color_mean is not None:
+                interval = 1 + cat_ratio_data.cat.codes
+                mean = interval.mean()
+                axf.add_line(x=[c + 0.55, c + 1.45], y=[mean, mean],
+                             color=color_mean)
+            if color_median is not None:
+                interval = 1 + cat_ratio_data.cat.codes
+                median = interval.median()
+                axf.add_line(x=[c + 0.55, c + 1.45], y=[median, median],
+                             color='g')
+        # # labels
+        axf.set_text(
+            title=f'Distributions of p({self.name}|{categorical.name})',
+            x_label=categorical.name,
+            y_label=self.name
+        )
+        # # axes
+        axf.set_x_lim(0.5, n_cats + 0.5)
+        # yy_range = yy_max - yy_min
+        axf.set_y_lim(0, len(self._categories) + 1)
+        axf.x_ticks.set_locations(range(1, n_cats + 1)).set_labels(cats)
+        axf.y_ticks.set_locations(
+            range(1, len(self._categories) + 1)).set_labels(self._categories)
+
         return axf
 
     # TODO: these methods should be part of ContinuousData and DiscreteData classes

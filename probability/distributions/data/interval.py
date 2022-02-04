@@ -4,14 +4,14 @@ from numpy.random import seed
 from pandas import Series
 
 from probability.distributions.mixins.data_mixins import \
-    DataMixin, \
+    DataDistributionMixin, \
     DataMinMixin, DataMaxMixin, \
     DataMeanMixin, DataMedianMixin, DataModeMixin, \
     DataStdMixin
 
 
 class Interval(
-    DataMixin,
+    DataDistributionMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,
@@ -28,6 +28,14 @@ class Interval(
         :param data: pandas Series of interval data.
         """
         self._data: Series = data
+
+    def filter_to(self, other: DataDistributionMixin) -> 'Interval':
+        """
+        Filter the data to the common indices with the other distribution.
+        """
+        shared_ix = list(set(self._data.index).intersection(other.data.index))
+        data = self._data.loc[shared_ix]
+        return Interval(data=data)
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:

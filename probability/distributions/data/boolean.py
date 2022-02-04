@@ -6,12 +6,12 @@ from pandas import Series
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import BetaBinomialConjugate
-from probability.distributions.mixins.data_mixins import DataMixin, \
+from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
     DataCategoriesMixin
 
 
 class Boolean(
-    DataMixin,
+    DataDistributionMixin,
     DataCategoriesMixin,
     object
 ):
@@ -23,9 +23,17 @@ class Boolean(
         self._data: Series = data
         self._categories = [False, True]
 
+    def filter_to(self, other: DataDistributionMixin) -> 'Boolean':
+        """
+        Filter the data to the common indices with the other distribution.
+        """
+        shared_ix = list(set(self._data.index).intersection(other.data.index))
+        data = self._data.loc[shared_ix]
+        return Boolean(data=data)
+
     def plot_conditional_prob_densities(
             self,
-            categorical: Union[DataMixin, DataCategoriesMixin],
+            categorical: Union[DataDistributionMixin, DataCategoriesMixin],
             hdi: float = 0.95,
             width: float = 0.8,
             num_segments: int = 100,
@@ -51,6 +59,7 @@ class Boolean(
         :param axf: Optional AxesFormatter to plot on.
         """
         axf = axf or AxesFormatter()
+
         cats = categorical.categories
         n_cats = len(cats)
         yy_min, yy_max = inf, -inf

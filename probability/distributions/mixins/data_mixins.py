@@ -5,7 +5,7 @@ from pandas import Series, DataFrame, concat
 from scipy.stats import entropy
 
 
-class DataMixin(object):
+class DataDistributionMixin(object):
 
     _data: Series
 
@@ -20,7 +20,7 @@ class DataMixin(object):
     def name(self):
         return self._data.name
 
-    def rename(self, name: str) -> 'DataMixin':
+    def rename(self, name: str) -> 'DataDistributionMixin':
 
         return type(self)(data=self._data.rename(name))
 

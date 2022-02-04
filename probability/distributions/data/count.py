@@ -8,13 +8,13 @@ from mpl_format.compound_types import Color
 from probability.distributions.conjugate.gamma_poisson_conjugate import \
     GammaPoissonConjugate
 from probability.distributions.data.ordinal import Ordinal
-from probability.distributions.mixins.data_mixins import DataMixin, \
+from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
     DataModeMixin, DataCategoriesMixin
 
 
 class Count(
-    DataMixin,
+    DataDistributionMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,
@@ -30,6 +30,14 @@ class Count(
         :param data: pandas Series.
         """
         self._data: Series = data
+
+    def filter_to(self, other: DataDistributionMixin) -> 'Count':
+        """
+        Filter the data to the common indices with the other distribution.
+        """
+        shared_ix = list(set(self._data.index).intersection(other.data.index))
+        data = self._data.loc[shared_ix]
+        return Count(data=data)
 
     def as_ordinal(
             self,
@@ -66,7 +74,7 @@ class Count(
 
     def plot_conditional_prob_densities(
             self,
-            categorical: Union[DataMixin, DataCategoriesMixin],
+            categorical: Union[DataDistributionMixin, DataCategoriesMixin],
             hdi: float = 0.95,
             width: float = 0.8,
             num_segments: int = 100,

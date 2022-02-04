@@ -7,7 +7,7 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Gamma
 from probability.distributions.data.ordinal import Ordinal
-from probability.distributions.mixins.data_mixins import DataMixin, \
+from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
     DataModeMixin, DataCategoriesMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -15,7 +15,7 @@ from probability.distributions.mixins.rv_continuous_1d_mixin import \
 
 
 class Ratio(
-    DataMixin,
+    DataDistributionMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,
@@ -31,6 +31,14 @@ class Ratio(
         :param data: pandas Series.
         """
         self._data: Series = data
+
+    def filter_to(self, other: DataDistributionMixin) -> 'Ratio':
+        """
+        Filter the data to the common indices with the other distribution.
+        """
+        shared_ix = list(set(self._data.index).intersection(other.data.index))
+        data = self._data.loc[shared_ix]
+        return Ratio(data=data)
 
     def as_ordinal(
             self,
@@ -59,7 +67,7 @@ class Ratio(
 
     def plot_conditional_dist_densities(
             self,
-            categorical: Union[DataMixin, DataCategoriesMixin],
+            categorical: Union[DataDistributionMixin, DataCategoriesMixin],
             fit_dist: Type[RVContinuous1dMixin],
             hdi: float = 0.95,
             width: float = 0.8,
