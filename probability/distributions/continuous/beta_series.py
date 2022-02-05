@@ -85,7 +85,7 @@ class BetaSeries(object):
             color: Union[Color, List[Color]] = 'k',
             color_min: Optional[Union[Color, List[Color]]] = None,
             width: Union[float, List[float]] = 0.8,
-            min_pct: float = 0.025, max_pct: float = 0.975,
+            hdi: float = 0.95,
             z_max: Optional[Union[float, List[float]]] = None,
             resolution: int = 100,
             edges: bool = False,
@@ -99,8 +99,7 @@ class BetaSeries(object):
         :param color_min: Min color of each bar, all bars or list to cycle
                           through.
         :param width: Width of each bar.
-        :param min_pct: Min ppf to start plotting at for each distribution.
-        :param max_pct: Max ppf to end plotting at for each distribution.
+        :param hdi: Highest Density Interval width for each distribution.
         :param z_max: Optional normalizing constant to divide each bar's height
                       by.
         :param resolution: Number of density elements per unit y.
@@ -117,10 +116,8 @@ class BetaSeries(object):
         z_max = loop_variable(z_max, num_dists)
 
         for i, (ix, beta) in enumerate(self._data.items()):
-            y_to_z = beta.pdf().at(linspace(
-                    beta.ppf().at(min_pct), beta.ppf().at(max_pct),
-                    resolution + 1
-            ))
+            lower, upper = beta.hdi(hdi)
+            y_to_z = beta.pdf().at(linspace(lower, upper, resolution + 1))
             if orient == 'h':
                 axf.add_h_density(
                     y=i + 1,

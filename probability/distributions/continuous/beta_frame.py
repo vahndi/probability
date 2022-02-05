@@ -39,7 +39,7 @@ class BetaFrame(object):
             group_width: float = 0.8,
             stagger: bool = True,
             item_width: float = 0.8,
-            min_pct: float = 0.025, max_pct: float = 0.975,
+            hdi: float = 0.95,
             resolution: int = 100,
             z_max: Optional[Union[float, List[float]]] = None,
             log_z: bool = False,
@@ -56,13 +56,12 @@ class BetaFrame(object):
                            width divided by the number of items per group.
         :param stagger: Whether to plot items within a row next to each
                         other.
-        :param min_pct: Min ppf to start plotting at for each distribution.
-        :param max_pct: Max ppf to end plotting at for each distribution.
+        :param hdi: Highest Density Interval width for each distribution.
         :param z_max: Optional normalizing constant to divide each bar's height
                       by.
         :param resolution: Number of density elements per unit y.
         :param log_z: Whether to take the log of z before plotting.
-        :param min_n: Minimum number of pseudo-oservations (α + β) to plot a
+        :param min_n: Minimum number of pseudo-observations (α + β) to plot a
                       distribution.
         :param axf: Optional AxesFormatter instance.
         """
@@ -87,8 +86,7 @@ class BetaFrame(object):
             for i_col, (col_name, beta) in enumerate(betas.items()):
                 if min_n is not None and beta.alpha + beta.beta < min_n:
                     continue
-                y_min = beta.ppf().at(min_pct)
-                y_max = beta.ppf().at(max_pct)
+                y_min, y_max = beta.hdi(hdi)
                 n_bars = round(resolution * (y_max - y_min))
                 y_to_z = beta.pdf().at(linspace(
                     y_min, y_max,
