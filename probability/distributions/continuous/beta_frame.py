@@ -16,7 +16,7 @@ class BetaFrame(object):
 
     def __init__(self, data: DataFrame):
         """
-        Create a new BetaSeries.
+        Create a new BetaFrame.
 
         :param data: DataFrame of Beta distributions.
         """

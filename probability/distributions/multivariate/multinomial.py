@@ -96,7 +96,7 @@ class Multinomial(
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for bar plot.
         """
-        self.pmf().plot(k=k, color=color, ax=ax, **kwargs)
+        return self.pmf().plot(k=k, color=color, ax=ax, **kwargs)
 
     def __str__(self):
 

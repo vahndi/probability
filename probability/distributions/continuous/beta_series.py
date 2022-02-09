@@ -174,6 +174,6 @@ class BetaSeries(object):
             axf.set_x_lim(-0.05, 1.05)
         return axf
 
-    def __str__(self):
+    def __repr__(self):
 
-        return str(self._data)
+        return repr(self._data)

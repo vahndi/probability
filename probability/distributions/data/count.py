@@ -82,8 +82,6 @@ class Count(
         categories of an Ordinal or Nominal distribution.
 
         :param categorical: Nominal or Ordinal distribution.
-        :param fit_dist: Continuous distribution to fit to each set of
-                         conditioned data.
         :param hdi: Highest Density Interval width for each distribution.
         :param width: Width of each density bar.
         :param num_segments: Number of segments to plot per density.
