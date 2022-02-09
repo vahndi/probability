@@ -1,12 +1,11 @@
 from typing import List, Optional, Tuple, Union
 
-from numpy import nan, inf
+from numpy import nan
 from numpy.random import seed
 from pandas import Series, concat
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
-from mpl_format.enums import FONT_SIZE
 from mpl_format.utils.color_utils import cross_fade
 from mpl_format.utils.number_utils import format_as_percent
 from probability.distributions.data.boolean import Boolean
@@ -54,6 +53,17 @@ class Ordinal(
             for ix, category in enumerate(self._categories)
         }
         self._data_vals: Series = self._data.replace(self._name_to_val)
+
+    def rename_categories(
+            self,
+            new_categories: Union[list, dict]
+    ):
+        """
+        Return a new Ordinal with its categories renamed.
+        """
+        return Ordinal(
+            data=self._data.cat.rename_categories(new_categories)
+        )
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:
@@ -169,14 +179,6 @@ class Ordinal(
         )
         return Ordinal(data=data)
 
-    def filter_to(self, other: DataDistributionMixin) -> 'Ordinal':
-        """
-        Filter the data to the common indices with the other distribution.
-        """
-        shared_ix = list(set(self._data.index).intersection(other.data.index))
-        data = self._data.loc[shared_ix]
-        return Ordinal(data=data)
-
     def _check_can_compare(self, other: 'Ordinal'):
 
         if not isinstance(other, Ordinal):
@@ -191,26 +193,6 @@ class Ordinal(
         self_samples = self.rvs_values(NUM_SAMPLES_COMPARISON)
         other_samples = other.rvs_values(NUM_SAMPLES_COMPARISON)
         return self_samples, other_samples
-
-    def plot_bars(
-            self,
-            axf: Optional[AxesFormatter] = None,
-            color: Color = 'k',
-            pct_font_size: int = FONT_SIZE.medium
-    ):
-
-        axf = axf or AxesFormatter()
-        counts = self._data.value_counts().reindex(self._categories)
-        counts.plot.bar(ax=axf.axes, color=color)
-        percents = 100 * counts / len(self._data.dropna())
-        axf.add_text(
-            x=range(len(counts)), y=counts,
-            text=percents.map(lambda p: f'{p: .1f}%'),
-            h_align='center', v_align='bottom',
-            font_size=pct_font_size
-        )
-        axf.y_axis.set_format_integer()
-        return axf
 
     def plot_conditional_dist_densities(
             self,
@@ -229,6 +211,7 @@ class Ordinal(
 
         :param categorical: Nominal or Ordinal distribution.
         :param width: Width of each density bar.
+        :param heights: Height of each density bar.
         :param color: Color for the densest part of each distribution.
         :param color_min: Color for the sparsest part of each distribution,
                           if different to color.

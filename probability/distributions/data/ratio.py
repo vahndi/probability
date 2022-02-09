@@ -32,18 +32,11 @@ class Ratio(
         """
         self._data: Series = data
 
-    def filter_to(self, other: DataDistributionMixin) -> 'Ratio':
-        """
-        Filter the data to the common indices with the other distribution.
-        """
-        shared_ix = list(set(self._data.index).intersection(other.data.index))
-        data = self._data.loc[shared_ix]
-        return Ratio(data=data)
-
     def as_ordinal(
             self,
             method: str,
-            categories: Union[int, List[float], IntervalIndex]
+            categories: Union[int, List[float], IntervalIndex],
+            labels: Optional[List[str]] = None
     ) -> Ordinal:
         """
         Quantize the data and convert to an Ordinal.
@@ -52,9 +45,10 @@ class Ratio(
                        One of {'cut', 'qcut'}.
         :param categories: Number of categories (for 'cut' and 'qcut'),
                            or list of bin edges or IntervalIndex (for 'cut').
+        :param labels: Optional list of labels for when method='cut'
         """
         if method == 'cut':
-            data = cut(self.data, categories)
+            data = cut(x=self.data, bins=categories, labels=labels)
         elif method == 'qcut':
             data = qcut(x=self.data, q=categories, duplicates='drop')
         else:

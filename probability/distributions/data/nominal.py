@@ -24,14 +24,6 @@ class Nominal(
         self._data: Series = data
         self._categories: List[str] = data.cat.categories.to_list()
 
-    def filter_to(self, other: DataDistributionMixin) -> 'Nominal':
-        """
-        Filter the data to the common indices with the other distribution.
-        """
-        shared_ix = list(set(self._data.index).intersection(other.data.index))
-        data = self._data.loc[shared_ix]
-        return Nominal(data=data)
-
     def drop(self, categories: Union[str, List[str]]) -> 'Nominal':
         """
         Drop one or more categories from the underlying data.

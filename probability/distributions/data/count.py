@@ -31,14 +31,6 @@ class Count(
         """
         self._data: Series = data
 
-    def filter_to(self, other: DataDistributionMixin) -> 'Count':
-        """
-        Filter the data to the common indices with the other distribution.
-        """
-        shared_ix = list(set(self._data.index).intersection(other.data.index))
-        data = self._data.loc[shared_ix]
-        return Count(data=data)
-
     def as_ordinal(
             self,
             values: List[Union[int, Tuple[int, int]]]

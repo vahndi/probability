@@ -23,14 +23,6 @@ class Boolean(
         self._data: Series = data
         self._categories = [False, True]
 
-    def filter_to(self, other: DataDistributionMixin) -> 'Boolean':
-        """
-        Filter the data to the common indices with the other distribution.
-        """
-        shared_ix = list(set(self._data.index).intersection(other.data.index))
-        data = self._data.loc[shared_ix]
-        return Boolean(data=data)
-
     def plot_conditional_prob_densities(
             self,
             categorical: Union[DataDistributionMixin, DataCategoriesMixin],

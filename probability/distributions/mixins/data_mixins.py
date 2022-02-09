@@ -1,8 +1,16 @@
-from typing import Union, List
+from typing import Union, List, Optional, Iterable, Tuple, TypeVar
 
 from numpy import log
 from pandas import Series, DataFrame, concat
 from scipy.stats import entropy
+
+from mpl_format.axes import AxesFormatter
+from mpl_format.compound_types import Color, FontSize
+from mpl_format.enums import FONT_SIZE
+from mpl_format.utils.number_utils import format_as_percent, format_as_integer
+
+
+T = TypeVar('T', bound='DataDistributionMixin')
 
 
 class DataDistributionMixin(object):
@@ -18,21 +26,132 @@ class DataDistributionMixin(object):
 
     @property
     def name(self):
+        """
+        Return the name of the Series of data.
+        """
         return self._data.name
 
-    def rename(self, name: str) -> 'DataDistributionMixin':
-
+    def rename(self: T, name: str) -> T:
+        """
+        Rename the Series of data.
+        """
         return type(self)(data=self._data.rename(name))
+
+    def filter_to(self: T, other: 'DataDistributionMixin') -> T:
+        """
+        Filter the data to the common indices with the other distribution.
+        """
+        shared_ix = list(set(self._data.index).intersection(other.data.index))
+        data = self._data.loc[shared_ix]
+        return type(self)(data=data)
 
 
 class DataCategoriesMixin(object):
 
     _categories: List[Union[bool, str]]
+    _data: Series
+    name: str
 
     @property
     def categories(self) -> list:
 
         return self._categories
+
+    def plot_bars(
+            self,
+            color: Color = 'k',
+            pct_font_size: int = FONT_SIZE.medium,
+            axf: Optional[AxesFormatter] = None
+    ) -> AxesFormatter:
+
+        axf = axf or AxesFormatter()
+        counts = self._data.value_counts().reindex(self._categories)
+        counts.plot.bar(ax=axf.axes, color=color)
+        percents = 100 * counts / len(self._data.dropna())
+        axf.add_text(
+            x=range(len(counts)), y=counts,
+            text=percents.map(lambda p: f'{p: .1f}%'),
+            h_align='center', v_align='bottom',
+            font_size=pct_font_size
+        )
+        axf.y_axis.set_format_integer()
+        return axf
+
+    def plot_comparison_bars(
+            self, other: 'DataCategoriesMixin',
+            absolute: bool = False,
+            color: Tuple[Color] = ('C0', 'C1'),
+            width: float = 0.5,
+            sig_colors: Optional[Tuple[Color]] = ('green', 'red'),
+            label_pcts: bool = True,
+            label_counts: bool = False,
+            label_size: Optional[FontSize] = FONT_SIZE.medium,
+            axf: Optional[AxesFormatter] = None
+    ) -> AxesFormatter:
+        """
+        Plot a comparison of the 2 ordinals, with outlines around bars that
+        are significantly higher or lower than others.
+
+        :param other: Another Ordinal with the same categories.
+        :param absolute: Whether to plot bar heights as absolute values or
+                        percentages.
+        :param color: Color for each set of bars.
+        :param width: Total width of each pair of bars.
+        :param sig_colors: Colors for significantly higher and lower bar borders
+        :param label_pcts: Whether to add percentage labels.
+        :param label_counts: Whether to add count labels.
+        :param label_size: Font size for bar labels.
+        :param axf: Optional AxesFormatter instance.
+        """
+        # validation
+        self_cats, other_cats = set(self._categories), set(other._categories)
+        if self_cats != other_cats:
+            str_warning = f'WARNING: Ordinals contain different categories'
+            unique_1 = self_cats.difference(other_cats)
+            unique_2 = other_cats.difference(self_cats)
+            if unique_1:
+                str_warning += f'\nOnly in {self.name}: {", ".join(unique_1)}'
+            if unique_2:
+                str_warning += f'\nOnly in {other.name}: {", ".join(unique_2)}'
+            print(str_warning)
+        # get data
+        self_counts = self._data.value_counts().reindex(self._categories)
+        other_counts = other._data.value_counts().reindex(self._categories)
+        count_data = concat([self_counts, other_counts], axis=1)
+        pct_data = count_data / count_data.sum()
+        # plot bars
+        axf = axf or AxesFormatter()
+        if absolute:
+            plot_data = count_data
+        else:
+            plot_data = pct_data
+        plot_data.plot.bar(ax=axf.axes, color=color, width=width)
+        # add labels
+        for o, ordinal in enumerate(plot_data.columns):
+            for i, ix in enumerate(plot_data[ordinal].index):
+                if not label_pcts and not label_counts:
+                    continue
+                label_x = i - width / 4 + o * width / 2
+                label_y = plot_data.loc[ix, ordinal]
+                texts = []
+                if label_pcts:
+                    texts.append(format_as_percent(pct_data.loc[ix, ordinal]))
+                if label_counts:
+                    texts.append(format_as_integer(count_data.loc[ix, ordinal]))
+                text = ' | '.join(texts)
+                axf.add_text(label_x, label_y, text,
+                             font_size=label_size,
+                             h_align='center', v_align='bottom')
+        # add colors for significance
+        if sig_colors is not None:
+            pass
+        # format y-axis
+        if not absolute:
+            axf.y_axis.set_format_percent()
+        else:
+            axf.y_axis.set_format_integer()
+
+        return axf
 
 
 class DataMinMixin(object):
