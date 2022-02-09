@@ -227,9 +227,7 @@ class DirichletMultinomialConjugate(
     @staticmethod
     def infer_posterior(
             data: Series,
-            alpha: Union[
-                FloatArray1d, dict, float
-            ] = UniformPrior.Dirichlet.alpha
+            alpha: Optional[Union[FloatArray1d, dict, float]] = None
     ) -> Dirichlet:
         """
         Return a new Dirichlet distribution of the posterior most likely to
@@ -237,8 +235,10 @@ class DirichletMultinomialConjugate(
 
         :param data: Series of categorical values.
         :param alpha: Value(s) for the α hyper-parameter of the prior Dirichlet
-                      distribution.
+                      distribution. Defaults to Uniform distribution,
         """
+        if alpha is None:
+            alpha = UniformPrior.Dirichlet.alpha
         if is_categorical_dtype(data):
             categories = data.cat.categories.to_list()
         else:

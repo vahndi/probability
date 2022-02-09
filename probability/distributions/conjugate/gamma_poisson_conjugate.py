@@ -199,8 +199,8 @@ class GammaPoissonConjugate(
 
     @staticmethod
     def infer_posterior(data: Series,
-                        alpha: float = VaguePrior.Gamma.alpha,
-                        beta: float = VaguePrior.Gamma.beta) -> Gamma:
+                        alpha: Optional[float] = None,
+                        beta: Optional[float] = None) -> Gamma:
         """
         Return a new Gamma distribution of the posterior most likely to generate
         the given data.
@@ -208,10 +208,14 @@ class GammaPoissonConjugate(
         :param data: Series of integers representing the number of occurrences
                      per interval.
         :param alpha: Value for the α hyper-parameter of the prior Gamma
-                      distribution (number of occurrences).
+                      distribution (number of occurrences). Defaults to Vague.
         :param beta: Value for the β hyper-parameter of the prior Gamma
-                     distribution (number of intervals).
+                     distribution (number of intervals). Defaults to Vague.
         """
+        if alpha is None:
+            alpha = VaguePrior.Gamma.alpha
+        if alpha is None:
+            alpha = VaguePrior.Gamma.beta
         data = data.dropna()
         k: int = data.sum()
         n: int = len(data)

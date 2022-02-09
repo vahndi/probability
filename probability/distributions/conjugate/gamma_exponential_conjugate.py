@@ -148,8 +148,8 @@ class GammaExponentialConjugate(
 
     @staticmethod
     def infer_posterior(data: Series,
-                        alpha: float = VaguePrior.Gamma.alpha,
-                        beta: float = VaguePrior.Gamma.beta) -> Gamma:
+                        alpha: Optional[float] = None,
+                        beta: Optional[float] = None) -> Gamma:
         """
         Return a new Gamma distribution of the posterior most likely to
         generate the given data.
@@ -157,10 +157,14 @@ class GammaExponentialConjugate(
         :param data: Series of float values representing duration of,
                      or between each observation.
         :param alpha: Value for the α hyper-parameter of the prior Gamma
-                      distribution (number of observations).
+                      distribution (number of observations). Defaults to Vague.
         :param beta: Value for the β hyper-parameter of the prior Gamma
-                     distribution (sum of observations).
+                     distribution (sum of observations). Defaults to Vague.
         """
+        if alpha is None:
+            alpha = VaguePrior.Gamma.alpha
+        if beta is None:
+            beta = VaguePrior.Gamma.beta
         data = data.dropna()
         n = len(data)
         x_mean = data.mean()

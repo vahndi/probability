@@ -212,18 +212,22 @@ class BetaBinomialConjugate(
 
     @staticmethod
     def infer_posterior(data: Series,
-                        alpha: float = UniformPrior.Binomial.alpha,
-                        beta: float = UniformPrior.Binomial.beta) -> Beta:
+                        alpha: Optional[float] = None,
+                        beta: Optional[float] = None) -> Beta:
         """
         Return a new Beta distribution of the posterior most likely to generate
         the given data.
 
         :param data: Series of `1`s and `0`s or `True`s and `False`s
         :param alpha: Value for the α hyper-parameter of the prior Beta
-                      distribution.
+                      distribution. Defaults to Uniform.
         :param beta: Value for the β hyper-parameter of the prior Beta
-                     distribution.
+                     distribution. Defaults to Uniform.
         """
+        if alpha is None:
+            alpha = UniformPrior.Binomial.alpha
+        if beta is None:
+            beta = UniformPrior.Binomial.beta
         data = data.dropna()
         return BetaBinomialConjugate(
             alpha=alpha, beta=beta,

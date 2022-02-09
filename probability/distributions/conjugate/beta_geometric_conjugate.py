@@ -154,8 +154,8 @@ class BetaGeometricConjugate(
 
     @staticmethod
     def infer_posterior(data: Series,
-                        alpha: float = UniformPrior.Geometric.alpha,
-                        beta: float = UniformPrior.Geometric.beta) -> Beta:
+                        alpha: Optional[float] = None,
+                        beta: Optional[float] = None) -> Beta:
         """
         Return a new Beta distribution of the posterior most likely to generate
         the given data.
@@ -171,12 +171,16 @@ class BetaGeometricConjugate(
                      experiment ends with an observation of 1 preceded by
                      0 or more observations of 0.
         :param alpha: Value for the α hyper-parameter of the prior Beta
-                      distribution.
+                      distribution. Defaults to Uniform.
         :param beta: Value for the β hyper-parameter of the prior Beta
-                     distribution.
+                     distribution. Defaults to Uniform.
         """
         # assume that each experiment was completed such that the number of
         # successes observed equals the number of experiments
+        if alpha is None:
+            alpha = UniformPrior.Geometric.alpha
+        if beta is None:
+            beta = UniformPrior.Geometric.beta
         num_experiments = data.dropna().sum()
         num_trials = len(data.dropna())
         return BetaGeometricConjugate(
