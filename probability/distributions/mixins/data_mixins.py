@@ -10,7 +10,8 @@ from mpl_format.enums import FONT_SIZE
 from mpl_format.utils.number_utils import format_as_percent, format_as_integer
 
 
-T = TypeVar('T', bound='DataDistributionMixin')
+DDM = TypeVar('DDM', bound='DataDistributionMixin')
+DCM = TypeVar('DCM', bound='DataCategoriesMixin')
 
 
 class DataDistributionMixin(object):
@@ -31,13 +32,13 @@ class DataDistributionMixin(object):
         """
         return self._data.name
 
-    def rename(self: T, name: str) -> T:
+    def rename(self: DDM, name: str) -> DDM:
         """
         Rename the Series of data.
         """
         return type(self)(data=self._data.rename(name))
 
-    def filter_to(self: T, other: 'DataDistributionMixin') -> T:
+    def filter_to(self: DDM, other: 'DataDistributionMixin') -> DDM:
         """
         Filter the data to the common indices with the other distribution.
         """
@@ -50,12 +51,48 @@ class DataCategoriesMixin(object):
 
     _categories: List[Union[bool, str]]
     _data: Series
+    _ordered: bool
     name: str
 
     @property
     def categories(self) -> list:
-
+        """
+        Return the names of the data categories.
+        """
         return self._categories
+
+    def drop(self: DCM, categories: Union[str, List[str]]) -> DCM:
+        """
+        Drop one or more categories from the underlying data.
+
+        :param categories: Categories to drop.
+        """
+        if isinstance(categories, str):
+            categories = [categories]
+        data = self._data.loc[~self._data.isin(categories)]
+        new_cats = [cat for cat in self._categories
+                    if cat not in categories]
+        data = data.cat.set_categories(
+            new_categories=new_cats,
+            ordered=self._ordered
+        )
+        return type(self)(data=data)
+
+    def keep(self: DCM, categories: Union[str, List[str]]) -> DCM:
+        """
+        Drop all the categories from the data not in the one(s) given.
+
+        :param categories: Categories to keep.
+        """
+        if isinstance(categories, str):
+            categories = [categories]
+        data = self._data.loc[self._data.isin(categories)]
+        new_cats = [cat for cat in self._categories if cat in categories]
+        data = data.cat.set_categories(
+            new_categories=new_cats,
+            ordered=self._ordered
+        )
+        return type(self)(data=data)
 
     def plot_bars(
             self,
@@ -63,7 +100,13 @@ class DataCategoriesMixin(object):
             pct_font_size: int = FONT_SIZE.medium,
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
+        """
+        Plot a bar plot of the counts of each category.
 
+        :param color: Color of the bars.
+        :param pct_font_size: Font size for percentage labels.
+        :param axf: Optional AxesFormatter instance.
+        """
         axf = axf or AxesFormatter()
         counts = self._data.value_counts().reindex(self._categories)
         counts.plot.bar(ax=axf.axes, color=color)
@@ -78,11 +121,11 @@ class DataCategoriesMixin(object):
         return axf
 
     def plot_comparison_bars(
-            self, other: 'DataCategoriesMixin',
+            self,
+            other: 'DataCategoriesMixin',
             absolute: bool = False,
             color: Tuple[Color] = ('C0', 'C1'),
             width: float = 0.5,
-            sig_colors: Optional[Tuple[Color]] = ('green', 'red'),
             label_pcts: bool = True,
             label_counts: bool = False,
             label_size: Optional[FontSize] = FONT_SIZE.medium,
@@ -97,7 +140,6 @@ class DataCategoriesMixin(object):
                         percentages.
         :param color: Color for each set of bars.
         :param width: Total width of each pair of bars.
-        :param sig_colors: Colors for significantly higher and lower bar borders
         :param label_pcts: Whether to add percentage labels.
         :param label_counts: Whether to add count labels.
         :param label_size: Font size for bar labels.
@@ -142,9 +184,6 @@ class DataCategoriesMixin(object):
                 axf.add_text(label_x, label_y, text,
                              font_size=label_size,
                              h_align='center', v_align='bottom')
-        # add colors for significance
-        if sig_colors is not None:
-            pass
         # format y-axis
         if not absolute:
             axf.y_axis.set_format_percent()
