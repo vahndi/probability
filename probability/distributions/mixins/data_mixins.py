@@ -1,4 +1,4 @@
-from typing import Union, List, Optional, Iterable, Tuple, TypeVar
+from typing import Union, List, Optional, Tuple, TypeVar
 
 from numpy import log
 from pandas import Series, DataFrame, concat
@@ -8,7 +8,10 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color, FontSize
 from mpl_format.enums import FONT_SIZE
 from mpl_format.utils.number_utils import format_as_percent, format_as_integer
-
+from probability.custom_types.external_custom_types import FloatArray1d
+from probability.distributions.conjugate.dirichlet_multinomial_conjugate import \
+    DirichletMultinomialConjugate
+from probability.distributions.continuous.beta_series import BetaSeries
 
 DDM = TypeVar('DDM', bound='DataDistributionMixin')
 DCM = TypeVar('DCM', bound='DataCategoriesMixin')
@@ -61,6 +64,13 @@ class DataCategoriesMixin(object):
         """
         return self._categories
 
+    @property
+    def num_categories(self) -> int:
+        """
+        Return the number of data categories.
+        """
+        return len(self._categories)
+
     def drop(self: DCM, categories: Union[str, List[str]]) -> DCM:
         """
         Drop one or more categories from the underlying data.
@@ -93,6 +103,37 @@ class DataCategoriesMixin(object):
             ordered=self._ordered
         )
         return type(self)(data=data)
+
+    def counts(self):
+        """
+        Return a Series with the count of each category.
+        """
+        return self._data.value_counts().reindex(self._categories)
+
+    def pmf(self) -> Series:
+        """
+        Return a Series with the probability of each category.
+        """
+        return self.counts() / self.counts().sum()
+
+    def pmf_betas(
+            self,
+            alpha: Optional[Union[FloatArray1d, dict, float]] = None
+    ) -> BetaSeries:
+        """
+        Return a BetaSeries with the probability of each category as a
+        Beta distribution.
+
+        :param alpha: Value(s) for the α hyper-parameter of the prior Dirichlet
+                      distribution. Defaults to Uniform distribution,
+        """
+        dirichlet = DirichletMultinomialConjugate.infer_posterior(
+            data=self._data, alpha=alpha
+        )
+        return BetaSeries(Series({
+            name: dirichlet[name]
+            for name in dirichlet.names
+        }))
 
     def plot_bars(
             self,
