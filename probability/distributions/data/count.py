@@ -29,6 +29,7 @@ class Count(
 
         :param data: pandas Series.
         """
+        data = data.dropna()
         self._data: Series = data
 
     def as_ordinal(

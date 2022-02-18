@@ -1,7 +1,8 @@
-from typing import Union, List, Optional, Tuple, TypeVar
+from collections import OrderedDict
+from typing import Union, List, Optional, Tuple, TypeVar, Dict
 
 from numpy import log
-from pandas import Series, DataFrame, concat
+from pandas import Series, DataFrame, concat, Categorical
 from scipy.stats import entropy
 
 from mpl_format.axes import AxesFormatter
@@ -15,6 +16,7 @@ from probability.distributions.continuous.beta_series import BetaSeries
 
 DDM = TypeVar('DDM', bound='DataDistributionMixin')
 DCM = TypeVar('DCM', bound='DataCategoriesMixin')
+DNM = TypeVar('DNM', bound='DataNumericMixin')
 
 
 class DataDistributionMixin(object):
@@ -48,6 +50,10 @@ class DataDistributionMixin(object):
         shared_ix = list(set(self._data.index).intersection(other.data.index))
         data = self._data.loc[shared_ix]
         return type(self)(data=data)
+
+    def __len__(self):
+
+        return len(self._data)
 
 
 class DataCategoriesMixin(object):
@@ -104,7 +110,34 @@ class DataCategoriesMixin(object):
         )
         return type(self)(data=data)
 
-    def counts(self):
+    def rename_categories(
+            self,
+            new_categories: Union[list, dict]
+    ) -> DCM:
+        """
+        Return a new Ordinal with its categories renamed.
+        """
+        if (
+                isinstance(new_categories, list) or
+                (isinstance(new_categories, dict) and
+                 len(new_categories.values()) ==
+                 len(set(new_categories.values())))
+        ):
+            # one to one
+            return type(self)(
+                data=self._data.cat.rename_categories(new_categories)
+            )
+        else:
+            # many to one
+            data = self._data.replace(new_categories).astype('category')
+            categories = list(OrderedDict.fromkeys(new_categories.values()))
+            data = data.cat.set_categories(
+                new_categories=categories,
+                ordered=self._ordered
+            )
+            return type(self)(data=data)
+
+    def counts(self) -> Series:
         """
         Return a Series with the count of each category.
         """
@@ -232,6 +265,35 @@ class DataCategoriesMixin(object):
             axf.y_axis.set_format_integer()
 
         return axf
+
+
+class DataNumericMixin(object):
+
+    _data: Series
+
+    def where_eq(self, value: Union[int, float]) -> DNM:
+
+        return type(self)(data=self._data.loc[self._data == value])
+
+    def where_ne(self, value: Union[int, float]) -> DNM:
+
+        return type(self)(data=self._data.loc[self._data != value])
+
+    def where_gt(self, value: Union[int, float]) -> DNM:
+
+        return type(self)(data=self._data.loc[self._data > value])
+
+    def where_lt(self, value: Union[int, float]) -> DNM:
+
+        return type(self)(data=self._data.loc[self._data < value])
+
+    def where_ge(self, value: Union[int, float]) -> DNM:
+
+        return type(self)(data=self._data.loc[self._data >= value])
+
+    def where_le(self, value: Union[int, float]) -> DNM:
+
+        return type(self)(data=self._data.loc[self._data <= value])
 
 
 class DataMinMixin(object):

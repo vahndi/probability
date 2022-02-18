@@ -6,8 +6,8 @@ from pandas import Series
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import BetaBinomialConjugate
-from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
-    DataCategoriesMixin
+from probability.distributions.mixins.data_mixins import \
+    DataDistributionMixin, DataCategoriesMixin
 
 
 class Boolean(
@@ -20,6 +20,7 @@ class Boolean(
         """
         Create a new Boolean distribution.
         """
+        data = data.dropna()
         self._data: Series = data
         self._categories = [False, True]
 

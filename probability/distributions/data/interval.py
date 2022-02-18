@@ -27,6 +27,7 @@ class Interval(
 
         :param data: pandas Series of interval data.
         """
+        data = data.dropna()
         self._data: Series = data
 
     def rvs(self, num_samples: int,

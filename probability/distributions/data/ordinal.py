@@ -45,6 +45,7 @@ class Ordinal(
 
         :param data: Categorical pandas Series.
         """
+        data = data.dropna()
         self._data: Series = data
         self._categories: List[str] = data.cat.categories.to_list()
         self._name_to_val = {
@@ -56,17 +57,6 @@ class Ordinal(
             for ix, category in enumerate(self._categories)
         }
         self._data_vals: Series = self._data.replace(self._name_to_val)
-
-    def rename_categories(
-            self,
-            new_categories: Union[list, dict]
-    ):
-        """
-        Return a new Ordinal with its categories renamed.
-        """
-        return Ordinal(
-            data=self._data.cat.rename_categories(new_categories)
-        )
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:
@@ -115,11 +105,15 @@ class Ordinal(
         else:
             return mode[0]
 
-    def as_interval(self) -> Interval:
+    def as_interval(self, offset: int = 0) -> Interval:
         """
-        Convert to an interval distribution.
+        Convert to an Interval distribution.
+
+        :param offset: Optional number to add to each interval value e.g. to
+                       get from a 5-point (0:4) scale to a (-2:2) scale use
+                       offset=-2.
         """
-        return Interval(data=self._data_vals)
+        return Interval(data=self._data_vals + offset)
 
     def as_boolean(
             self,
@@ -151,6 +145,7 @@ class Ordinal(
             data = data.replace(t, True)
         for e in empty:
             data = data.replace(e, nan)
+        data = data.dropna()
         return Boolean(data)
 
     def _check_can_compare(self, other: 'Ordinal'):
