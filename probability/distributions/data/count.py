@@ -10,11 +10,12 @@ from probability.distributions.conjugate.gamma_poisson_conjugate import \
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataCategoriesMixin
+    DataModeMixin, DataCategoriesMixin, DataNumericMixin
 
 
 class Count(
     DataDistributionMixin,
+    DataNumericMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,

@@ -1,8 +1,8 @@
 from collections import OrderedDict
-from typing import Union, List, Optional, Tuple, TypeVar, Dict
+from typing import Union, List, Optional, Tuple, TypeVar
 
 from numpy import log
-from pandas import Series, DataFrame, concat, Categorical
+from pandas import Series, DataFrame, concat
 from scipy.stats import entropy
 
 from mpl_format.axes import AxesFormatter
@@ -111,7 +111,7 @@ class DataCategoriesMixin(object):
         return type(self)(data=data)
 
     def rename_categories(
-            self,
+            self: DCM,
             new_categories: Union[list, dict]
     ) -> DCM:
         """
@@ -198,7 +198,7 @@ class DataCategoriesMixin(object):
             self,
             other: 'DataCategoriesMixin',
             absolute: bool = False,
-            color: Tuple[Color] = ('C0', 'C1'),
+            color: Tuple[Color, Color] = ('C0', 'C1'),
             width: float = 0.5,
             label_pcts: bool = True,
             label_counts: bool = False,
@@ -220,6 +220,9 @@ class DataCategoriesMixin(object):
         :param axf: Optional AxesFormatter instance.
         """
         # validation
+        if self.name == other.name:
+            raise ValueError(
+                'Distributions must have different names in order to compare.')
         self_cats, other_cats = set(self._categories), set(other._categories)
         if self_cats != other_cats:
             str_warning = f'WARNING: Ordinals contain different categories'
@@ -271,27 +274,27 @@ class DataNumericMixin(object):
 
     _data: Series
 
-    def where_eq(self, value: Union[int, float]) -> DNM:
+    def where_eq(self: DNM, value: Union[int, float]) -> DNM:
 
         return type(self)(data=self._data.loc[self._data == value])
 
-    def where_ne(self, value: Union[int, float]) -> DNM:
+    def where_ne(self: DNM, value: Union[int, float]) -> DNM:
 
         return type(self)(data=self._data.loc[self._data != value])
 
-    def where_gt(self, value: Union[int, float]) -> DNM:
+    def where_gt(self: DNM, value: Union[int, float]) -> DNM:
 
         return type(self)(data=self._data.loc[self._data > value])
 
-    def where_lt(self, value: Union[int, float]) -> DNM:
+    def where_lt(self: DNM, value: Union[int, float]) -> DNM:
 
         return type(self)(data=self._data.loc[self._data < value])
 
-    def where_ge(self, value: Union[int, float]) -> DNM:
+    def where_ge(self: DNM, value: Union[int, float]) -> DNM:
 
         return type(self)(data=self._data.loc[self._data >= value])
 
-    def where_le(self, value: Union[int, float]) -> DNM:
+    def where_le(self: DNM, value: Union[int, float]) -> DNM:
 
         return type(self)(data=self._data.loc[self._data <= value])
 

@@ -9,13 +9,14 @@ from probability.distributions import Gamma
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataCategoriesMixin
+    DataModeMixin, DataCategoriesMixin, DataNumericMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 
 
 class Ratio(
     DataDistributionMixin,
+    DataNumericMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,

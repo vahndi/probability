@@ -7,11 +7,12 @@ from probability.distributions.mixins.data_mixins import \
     DataDistributionMixin, \
     DataMinMixin, DataMaxMixin, \
     DataMeanMixin, DataMedianMixin, DataModeMixin, \
-    DataStdMixin
+    DataStdMixin, DataNumericMixin
 
 
 class Interval(
     DataDistributionMixin,
+    DataNumericMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,
