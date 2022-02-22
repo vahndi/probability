@@ -66,6 +66,23 @@ class Count(
         new_data = new_data.cat.set_categories(new_categories, ordered=True)
         return Ordinal(data=new_data)
 
+    def counts(self) -> Series:
+        """
+        Return a Series with the count of each category.
+        """
+        value_counts = self._data.value_counts().sort_index()
+        value_counts = value_counts.reindex(range(
+            value_counts.index.min(),
+            value_counts.index.max() + 1
+        )).fillna(0)
+        return value_counts
+
+    def pmf(self) -> Series:
+        """
+        Return a Series with the probability of each category.
+        """
+        return self.counts() / self.counts().sum()
+
     def plot_conditional_prob_densities(
             self,
             categorical: Union[DataDistributionMixin, DataCategoriesMixin],
