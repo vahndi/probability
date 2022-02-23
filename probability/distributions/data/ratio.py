@@ -2,6 +2,7 @@ from typing import List, Union, Type, Optional
 
 from numpy import inf, linspace
 from pandas import Series, IntervalIndex, cut, qcut
+from seaborn import kdeplot, histplot
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
@@ -60,6 +61,58 @@ class Ratio(
     def to_gamma(self) -> Gamma:
 
         return Gamma.fit(self._data)
+
+    def plot_kde(
+            self,
+            color: Color = 'k',
+            zi_threshold: float = 0.5,
+            axf: Optional[AxesFormatter] = None
+    ) -> AxesFormatter:
+        """
+        Plot a kde plot of the distribution.
+
+        :param color: Color of the bars.
+        :param zi_threshold: Proportion of values which must be zero to add
+                             an additional line to plot the non-zero-inflated
+                             curve.
+        :param axf: Optional AxesFormatter instance.
+        """
+        axf = axf or AxesFormatter()
+        kdeplot(
+            data=self._data,
+            color=color,
+            ax=axf.axes,
+            label=self.name
+        )
+        non_zero = self._data.loc[self._data != 0]
+        if len(non_zero) / len(self._data) > zi_threshold:
+            kdeplot(
+                data=non_zero,
+                color=color,
+                ls='--',
+                ax=axf.axes,
+                label=f'{self.name} != 0'
+            )
+        return axf
+
+    def plot_hist(
+            self,
+            color: Color = 'k',
+            axf: Optional[AxesFormatter] = None
+    ) -> AxesFormatter:
+        """
+        Plot a kde plot of the distribution.
+
+        :param color: Color of the bars.
+        :param axf: Optional AxesFormatter instance.
+        """
+        axf = axf or AxesFormatter()
+        histplot(
+            data=self._data,
+            color=color,
+            ax=axf.axes
+        )
+        return axf
 
     def plot_conditional_dist_densities(
             self,
