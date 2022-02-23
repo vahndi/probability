@@ -7,12 +7,13 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import BetaBinomialConjugate
 from probability.distributions.mixins.data_mixins import \
-    DataDistributionMixin, DataCategoriesMixin
+    DataDistributionMixin, DataCategoriesMixin, DataDiscreteMixin
 
 
 class Boolean(
     DataDistributionMixin,
     DataCategoriesMixin,
+    DataDiscreteMixin,
     object
 ):
 

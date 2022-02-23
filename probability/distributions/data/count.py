@@ -10,12 +10,13 @@ from probability.distributions.conjugate.gamma_poisson_conjugate import \
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataCategoriesMixin, DataNumericMixin
+    DataModeMixin, DataCategoriesMixin, DataNumericMixin, DataDiscreteMixin
 
 
 class Count(
     DataDistributionMixin,
     DataNumericMixin,
+    DataDiscreteMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,
@@ -31,7 +32,13 @@ class Count(
         :param data: pandas Series.
         """
         data = data.dropna()
-        self._data: Series = data
+        self._data: Series = data.astype(int)
+        self._categories = list(range(self._data.min(), self._data.max() + 1))
+
+    @property
+    def num_categories(self) -> int:
+
+        return len(self._categories)
 
     def as_ordinal(
             self,
@@ -65,23 +72,6 @@ class Count(
         new_data = self._data.map(mapping).astype('category')
         new_data = new_data.cat.set_categories(new_categories, ordered=True)
         return Ordinal(data=new_data)
-
-    def counts(self) -> Series:
-        """
-        Return a Series with the count of each category.
-        """
-        value_counts = self._data.value_counts().sort_index()
-        value_counts = value_counts.reindex(range(
-            value_counts.index.min(),
-            value_counts.index.max() + 1
-        )).fillna(0)
-        return value_counts
-
-    def pmf(self) -> Series:
-        """
-        Return a Series with the probability of each category.
-        """
-        return self.counts() / self.counts().sum()
 
     def plot_conditional_prob_densities(
             self,

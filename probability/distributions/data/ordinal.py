@@ -12,13 +12,14 @@ from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
     DataDistributionMixin, DataCPTMixin, DataMinMixin, DataMaxMixin, \
-    DataInformationMixin, DataCategoriesMixin
+    DataInformationMixin, DataCategoriesMixin, DataDiscreteMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 
 class Ordinal(
     DataDistributionMixin,
     DataCategoriesMixin,
+    DataDiscreteMixin,
     DataMinMixin,
     DataMaxMixin,
     DataCPTMixin,
