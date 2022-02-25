@@ -518,7 +518,7 @@ class DataInformationMixin(object):
     def relative_mutual_information(self, other: 'DataInformationMixin'):
         """
         Return the proportion of entropy in self explained by observing
-        other.
+        other. Relative here refers to the other distribution.
         """
         return self.mutual_information(other) / self.entropy()
 
@@ -573,7 +573,7 @@ class DataInformationMixin(object):
     ):
         """
         Return the relative normalized mutual information (rNMI) as described in
-        [1].
+        [1]. Relative here refers to a random distribution.
 
         :param other: Other distribution to compute rNMI with.
         :param method: One of {'approx', 'samples'}. 'approx' computes
