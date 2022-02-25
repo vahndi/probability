@@ -65,34 +65,80 @@ class Ratio(
     def plot_kde(
             self,
             color: Color = 'k',
-            zi_threshold: float = 0.5,
+            inflated_value: float = 0.0,
+            inflated_threshold: float = 0.5,
+            mean_line: Union[bool, dict] = False,
+            median_line: Union[bool, dict] = False,
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
         """
         Plot a kde plot of the distribution.
 
         :param color: Color of the bars.
-        :param zi_threshold: Proportion of values which must be zero to add
-                             an additional line to plot the non-zero-inflated
-                             curve.
+        :param inflated_value: Value which may occur disproportionately often in
+                               the data due to a mixed distribution (e.g. ZIPF),
+                               or collection method
+                               (e.g. code all > 100% as 101%).
+        :param inflated_threshold: Proportion of values which must equal the
+                                   inflated_value to add an additional line to
+                                   plot the non-inflated curve.
+        :param mean_line: Boolean flag to indicate whether to annotate the mean.
+                          Or dict of kws to pass to AxesFormatter.add_v_line.
+        :param median_line: Boolean flag to indicate whether to annotate the
+                            mean.
+                            Or dict of kws to pass to AxesFormatter.add_v_line.
         :param axf: Optional AxesFormatter instance.
         """
         axf = axf or AxesFormatter()
+        # main kde
         kdeplot(
             data=self._data,
             color=color,
             ax=axf.axes,
             label=self.name
         )
-        non_zero = self._data.loc[self._data != 0]
-        if len(non_zero) / len(self._data) > zi_threshold:
+        # non-inflated kde
+        non_zero = self._data.loc[self._data != inflated_value]
+        if len(non_zero) / len(self._data) > inflated_threshold:
             kdeplot(
                 data=non_zero,
                 color=color,
                 ls='--',
                 ax=axf.axes,
-                label=f'{self.name} != 0'
+                label=f'{self.name} != {inflated_value}'
             )
+        # draw mean
+        mean_line_kws = None
+        if isinstance(mean_line, bool):
+            if mean_line is True:
+                mean_line_kws = {
+                    'color': 'green',
+                    'line_style': ':'
+                }
+        else:
+            mean_line_kws = mean_line
+        if mean_line_kws is not None:
+            mean = self._data.mean()
+            axf.add_v_line(x=mean, **mean_line_kws)
+            y_min, y_max = axf.get_y_min(), axf.get_y_max()
+            axf.add_text(x=mean, y=y_min + 0.8 * (y_max - y_min),
+                         text=f'mean = {mean: 0.1f}')
+        # draw median
+        median_line_kws = None
+        if isinstance(median_line, bool):
+            if median_line is True:
+                median_line_kws = {
+                    'color': 'blue',
+                    'line_style': ':'
+                }
+        else:
+            median_line_kws = median_line
+        if median_line_kws is not None:
+            median = self._data.median()
+            axf.add_v_line(x=median, **median_line_kws)
+            y_min, y_max = axf.get_y_min(), axf.get_y_max()
+            axf.add_text(x=median, y=y_min + 0.7 * (y_max - y_min),
+                         text=f'median = {median: 0.1f}')
         return axf
 
     def plot_hist(
