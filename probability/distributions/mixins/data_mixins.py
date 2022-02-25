@@ -578,7 +578,13 @@ class DataInformationMixin(object):
         :param other: Other distribution to compute rNMI with.
         :param method: One of {'approx', 'samples'}. 'approx' computes
                        NMI_random as described in [1] equation (9). 'samples'
-                       computes  NMI_random as described in [1] equation (10)
+                       computes  NMI_random as described in [1] equation (10).
+                       Over estimation ε of rNMI using 'approx' for smaller
+                       datasets in [1] depending on sample size n is around
+                       n = 1,000 => ε = +24%,
+                       n = 2,000 => ε = +12%,
+                       n = 4,000 => ε = +6%,
+                       n = 8,000 => ε = +3%
         :param samples: Number of random partitions to compute the expectation
                         of NMI(A, C) where method='samples'. Defaults to 10 as
                         described in [1].
@@ -599,7 +605,7 @@ class DataInformationMixin(object):
                 samples = 10
             nmi_ac_total = 0.0
             for s in range(samples):
-                c_s = other_data.sample(frac=1)
+                c_s = other_data.sample(frac=1).set_axis(other_data.index)
                 calc = self._make_calc_frame(self_data, c_s)
                 mi__a__c_s = calc['I(x,y)'].sum()
                 nmi__a__c_s = 2 * mi__a__c_s / (h_a + h_b)
