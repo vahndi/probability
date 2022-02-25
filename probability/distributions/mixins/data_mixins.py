@@ -398,19 +398,39 @@ class DataCPTMixin(object):
 
 
 class DataInformationMixin(object):
-
+    """
+    References
+    ----------
+    [1] Evaluating accuracy of community detection using the relative normalized
+    mutual information, Pan Zhang https://arxiv.org/pdf/1501.03844.pdf
+    [2] Probabilistic Machine Learning: An Introduction, K. Murphy
+    """
     _data: Series
 
-    def _calc_frame(self, other: 'DataInformationMixin') -> DataFrame:
-        """
-        Calculate the joint and marginal probability distributions of self and
-        other and return as a DataFrame.
-        """
-        x_counts = self._data.value_counts().rename_axis('x')
-        y_counts = other._data.value_counts().rename_axis('y')
+    def _get_shared_data(
+            self,
+            other: 'DataInformationMixin'
+    ) -> Tuple[Series, Series]:
+
+        shared_ix = list(set(self._data.index).intersection(other._data.index))
+        self_data = self._data.loc[shared_ix]
+        other_data = other._data.loc[shared_ix]
+        if len(self_data) < len(self._data):
+            print(
+                f'WARNING: DataInformationMixin operating on subset of size '
+                f'{len(self_data)} of {len(self._data)} '
+                f'({100 * len(self_data) / len(self._data): 0.1f}%)'
+            )
+        return self_data, other_data
+
+    @staticmethod
+    def _make_calc_frame(self_data: Series, other_data: Series) -> DataFrame:
+
+        x_counts = self_data.value_counts().rename_axis('x')
+        y_counts = other_data.value_counts().rename_axis('y')
         xy_counts = concat([
-            self._data.rename('x'),
-            other._data.rename('y')
+            self_data.rename('x'),
+            other_data.rename('y')
         ], axis=1).value_counts()
         p_x = x_counts / x_counts.sum()
         p_y = y_counts / y_counts.sum()
@@ -420,7 +440,23 @@ class DataInformationMixin(object):
             calc.index.get_level_values('x')).to_list()
         calc['p(y)'] = p_y.reindex(
             calc.index.get_level_values('y')).to_list()
+        calc['I(x,y)'] = calc['p(x,y)'] * (
+                calc['p(x,y)'] / (calc['p(x)'] * calc['p(y)'])
+        ).map(log)
+        calc['H(x,y)'] = calc['p(x,y)'] * calc['p(x,y)'].map(log)
+        calc['H(x|y)'] = calc['p(x,y)'] * (
+                calc['p(x,y)'] / calc['p(x)']
+        ).map(log)
+
         return calc
+
+    def _calc_frame(self, other: 'DataInformationMixin') -> DataFrame:
+        """
+        Calculate various information measures of self and
+        other and return as a DataFrame.
+        """
+        self_data, other_data = self._get_shared_data(other)
+        return DataInformationMixin._make_calc_frame(self_data, other_data)
 
     def entropy(self) -> float:
         """
@@ -443,9 +479,15 @@ class DataInformationMixin(object):
         https://en.wikipedia.org/wiki/Mutual_information
         """
         calc = self._calc_frame(other)
-        calc['I(x,y)'] = calc['p(x,y)'] * (
-                calc['p(x,y)'] / (calc['p(x)'] * calc['p(y)'])
-        ).map(log)
+        return calc['I(x,y)'].sum()
+
+    @staticmethod
+    def _mutual_information(self_data: Series, other_data: Series):
+        """
+        Same as mutual_information but assumes data has already been filtered to
+        a shared index.
+        """
+        calc = DataInformationMixin._make_calc_frame(self_data, other_data)
         return calc['I(x,y)'].sum()
 
     def conditional_entropy(self, other: 'DataInformationMixin') -> float:
@@ -459,9 +501,6 @@ class DataInformationMixin(object):
         https://en.wikipedia.org/wiki/Conditional_entropy
         """
         calc = self._calc_frame(other)
-        calc['H(x|y)'] = calc['p(x,y)'] * (
-                calc['p(x,y)'] / calc['p(x)']
-        ).map(log)
         return -calc['H(x|y)'].sum()
 
     def joint_entropy(self, other: 'DataInformationMixin') -> float:
@@ -472,7 +511,6 @@ class DataInformationMixin(object):
         https://en.wikipedia.org/wiki/Joint_entropy
         """
         calc = self._calc_frame(other)
-        calc['H(x,y)'] = calc['p(x,y)'] * calc['p(x,y)'].map(log)
         return -calc['H(x,y)'].sum()
 
     def relative_mutual_information(self, other: 'DataInformationMixin'):
@@ -481,3 +519,116 @@ class DataInformationMixin(object):
         other.
         """
         return self.mutual_information(other) / self.entropy()
+
+    @staticmethod
+    def _normalized_mutual_information(
+            self_data: Series,
+            other_data: Series,
+            method: str = 'avg'
+    ) -> float:
+        """
+        Same as normalized_mutual_information but assumes data has already been
+        filtered to a shared index.
+        """
+        h_self = entropy(self_data.value_counts())
+        h_other = entropy(other_data.value_counts())
+        mi = DataInformationMixin._mutual_information(self_data, other_data)
+        if method == 'max':
+            return mi / min(h_self, h_other)
+        elif method == 'avg':
+            return 2 * mi / (h_self + h_other)
+        else:
+            raise ValueError("method must be one of {'max', 'avg'}")
+
+    def normalized_mutual_information(
+            self,
+            other: 'DataInformationMixin',
+            method: str = 'avg'
+    ):
+        """
+        Return the maximum or average of the proportion of entropy explained
+        by self by other and other by self.
+
+        The 'avg' method is referenced in [1]
+        The 'max' method is referenced in [2]
+        """
+        if method == 'max':
+            return self.mutual_information(other) / min(
+                self.entropy(), other.entropy()
+            )
+        elif method == 'avg':
+            return 2 * self.mutual_information(other) / (
+                self.entropy() + other.entropy()
+            )
+        else:
+            raise ValueError("method must be one of {'max', 'avg'}")
+
+    def relative_normalized_mutual_information(
+            self,
+            other: 'DataInformationMixin',
+            method: str = 'approx',
+            samples: Optional[int] = None
+    ):
+        """
+        Return the relative normalized mutual information (rNMI) as described in
+        [1].
+
+        :param other: Other distribution to compute rNMI with.
+        :param method: One of {'approx', 'samples'}. 'approx' computes
+                       NMI_random as described in [1] equation (9). 'samples'
+                       computes  NMI_random as described in [1] equation (10)
+        :param samples: Number of random partitions to compute the expectation
+                        of NMI(A, C) where method='samples'. Defaults to 10 as
+                        described in [1].
+        """
+        h_a = self.entropy()
+        h_b = other.entropy()
+        self_data, other_data = self._get_shared_data(other)
+        if method == 'approx':
+            n = len(self_data)
+            q_a = self_data.nunique()
+            q_b = other_data.nunique()
+            nmi_ac = (
+                (q_a * q_b - q_a - q_b + 1) /
+                ((h_a + h_b) * 2 * n)
+            )
+        elif method == 'samples':
+            if samples is None:
+                samples = 10
+            nmi_ac_total = 0.0
+            for s in range(samples):
+                c_s = other_data.sample(frac=1)
+                calc = self._make_calc_frame(self_data, c_s)
+                mi__a__c_s = calc['I(x,y)'].sum()
+                nmi__a__c_s = 2 * mi__a__c_s / (h_a + h_b)
+                nmi_ac_total += nmi__a__c_s
+            nmi_ac = nmi_ac_total / samples
+        else:
+            raise ValueError("method must be one of {'approx', 'samples'}")
+
+        nmi_ab = self._normalized_mutual_information(self_data, other_data)
+        return nmi_ab - nmi_ac
+
+    def rnmi(
+            self,
+            other: 'DataInformationMixin',
+            method: str = 'approx',
+            samples: Optional[int] = None
+    ):
+        """
+        Return the relative normalized mutual information (rNMI) as described in
+        [1].
+
+        :param other: Other distribution to compute rNMI with.
+        :param method: One of {'approx', 'samples'}. 'approx' computes
+                       NMI_random as described in [1] equation (9). 'samples'
+                       computes  NMI_random as described in [1] equation (10)
+        :param samples: Number of random partitions to compute the expectation
+                        of NMI(A, C) where method='samples'. Defaults to 10 as
+                        described in [1].
+        """
+        return self.relative_normalized_mutual_information(
+            other=other,
+            method=method,
+            samples=samples
+        )
