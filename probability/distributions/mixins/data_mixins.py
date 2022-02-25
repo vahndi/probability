@@ -2,7 +2,7 @@ from collections import OrderedDict
 from typing import Union, List, Optional, Tuple, TypeVar, Any
 
 from numpy import log
-from pandas import Series, DataFrame, concat
+from pandas import Series, DataFrame, concat, merge
 from scipy.stats import entropy
 
 from mpl_format.axes import AxesFormatter
@@ -47,8 +47,9 @@ class DataDistributionMixin(object):
         """
         Filter the data to the common indices with the other distribution.
         """
-        shared_ix = list(set(self._data.index).intersection(other.data.index))
-        data = self._data.loc[shared_ix]
+        merged = merge(left=self.data, right=other.data,
+                       left_index=True, right_index=True)
+        data = merged.iloc[:, 0]
         return type(self)(data=data)
 
     def __len__(self):
@@ -412,9 +413,10 @@ class DataInformationMixin(object):
             other: 'DataInformationMixin'
     ) -> Tuple[Series, Series]:
 
-        shared_ix = list(set(self._data.index).intersection(other._data.index))
-        self_data = self._data.loc[shared_ix]
-        other_data = other._data.loc[shared_ix]
+        merged = merge(left=self.data, right=other.data,
+                       left_index=True, right_index=True)
+        self_data = merged.iloc[:, 0]
+        other_data = merged.iloc[:, 1]
         if len(self_data) < len(self._data):
             print(
                 f'WARNING: DataInformationMixin operating on subset of size '
