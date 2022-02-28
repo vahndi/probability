@@ -413,7 +413,7 @@ class DataInformationMixin(object):
             other: 'DataInformationMixin'
     ) -> Tuple[Series, Series]:
 
-        merged = merge(left=self.data, right=other.data,
+        merged = merge(left=self._data, right=other._data,
                        left_index=True, right_index=True)
         self_data = merged.iloc[:, 0]
         other_data = merged.iloc[:, 1]
@@ -483,6 +483,24 @@ class DataInformationMixin(object):
         calc = self._calc_frame(other)
         return calc['I(x,y)'].sum()
 
+    def mi(self, other: 'DataInformationMixin') -> float:
+        """
+        In probability theory and information theory, the mutual information
+        (MI) of two random variables is a measure of the mutual dependence
+        between the two variables. More specifically, it quantifies the
+        "amount of information" (in units such as shannons (bits), nats or
+        hartleys) obtained about one random variable by observing the other
+        random variable. The concept of mutual information is intimately linked
+        to that of entropy of a random variable, a fundamental notion in
+        information theory that quantifies the expected "amount of information"
+        held in a random variable.
+
+        Alias for mutual_information.
+
+        https://en.wikipedia.org/wiki/Mutual_information
+        """
+        return self.mutual_information(other=other)
+
     @staticmethod
     def _mutual_information(self_data: Series, other_data: Series):
         """
@@ -521,6 +539,15 @@ class DataInformationMixin(object):
         other. Relative here refers to the other distribution.
         """
         return self.mutual_information(other) / self.entropy()
+
+    def rmi(self, other: 'DataInformationMixin'):
+        """
+        Return the proportion of entropy in self explained by observing
+        other. Relative here refers to the other distribution.
+
+        Alias for relative_mutual_information.
+        """
+        return self.relative_mutual_information(other)
 
     @staticmethod
     def _normalized_mutual_information(
@@ -564,6 +591,25 @@ class DataInformationMixin(object):
             )
         else:
             raise ValueError("method must be one of {'max', 'avg'}")
+
+    def nmi(
+            self,
+            other: 'DataInformationMixin',
+            method: str = 'avg'
+    ):
+        """
+        Return the maximum or average of the proportion of entropy explained
+        by self by other and other by self.
+
+        Alias for normalized_mutual_information.
+
+        The 'avg' method is referenced in [1]
+        The 'max' method is referenced in [2]
+        """
+        return self.normalized_mutual_information(
+            other=other,
+            method=method
+        )
 
     def relative_normalized_mutual_information(
             self,
@@ -626,6 +672,8 @@ class DataInformationMixin(object):
         """
         Return the relative normalized mutual information (rNMI) as described in
         [1].
+
+        Alias for relative_normalized_mutual_information.
 
         :param other: Other distribution to compute rNMI with.
         :param method: One of {'approx', 'samples'}. 'approx' computes
