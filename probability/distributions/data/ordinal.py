@@ -11,7 +11,7 @@ from mpl_format.utils.number_utils import format_as_percent
 from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
-    DataDistributionMixin, DataCPTMixin, DataMinMixin, DataMaxMixin, \
+    DataDistributionMixin, DataProbabilityTableMixin, DataMinMixin, DataMaxMixin, \
     DataInformationMixin, DataCategoriesMixin, DataDiscreteMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
@@ -22,7 +22,7 @@ class Ordinal(
     DataDiscreteMixin,
     DataMinMixin,
     DataMaxMixin,
-    DataCPTMixin,
+    DataProbabilityTableMixin,
     DataInformationMixin,
     object
 ):
@@ -149,21 +149,6 @@ class Ordinal(
         data = data.dropna()
         return Boolean(data)
 
-    def _check_can_compare(self, other: 'Ordinal'):
-
-        if not isinstance(other, Ordinal):
-            raise TypeError('Can only compare an Ordinal with another Ordinal')
-        if not self._categories == other._categories:
-            raise ValueError('Both Ordinals must have the same categories.')
-
-    def _comparison_samples(
-            self, other: 'Ordinal'
-    ) -> Tuple[Series, Series]:
-
-        self_samples = self.rvs_values(NUM_SAMPLES_COMPARISON)
-        other_samples = other.rvs_values(NUM_SAMPLES_COMPARISON)
-        return self_samples, other_samples
-
     def plot_conditional_dist_densities(
             self,
             categorical: Union[DataDistributionMixin, DataCategoriesMixin],
@@ -262,29 +247,94 @@ class Ordinal(
 
         return axf
 
-    # TODO: these methods should be part of ContinuousData and DiscreteData classes
-    # TODO: reimplment these as specific comparisons between series with same index
-    def __eq__(self, other: 'Ordinal') -> float:
+    def _check_can_compare(self, other: 'Ordinal'):
+
+        if not isinstance(other, Ordinal):
+            raise TypeError('Can only compare an Ordinal with another Ordinal')
+        if not self._categories == other._categories:
+            raise ValueError('Both Ordinals must have the same categories.')
+
+    def _comparison_samples(
+            self, other: 'Ordinal',
+            num_samples: Optional[int] = None
+    ) -> Tuple[Series, Series]:
+
+        if num_samples is None:
+            num_samples = NUM_SAMPLES_COMPARISON
+        self_samples = self.rvs_values(num_samples)
+        other_samples = other.rvs_values(num_samples)
+        return self_samples, other_samples
+
+    def prob_equal_to(self, other: 'Ordinal',
+                      num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
         return (self_values == other_values).mean()
+
+    def __eq__(self, other: 'Ordinal') -> float:
+
+        return self.prob_equal_to(other)
+
+    def prob_not_equal_to(self, other: 'Ordinal',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+
+        return 1 - self.prob_equal_to(other, num_samples)
 
     def __ne__(self, other: 'Ordinal') -> float:
 
-        return 1 - (self == other)
+        return self.prob_not_equal_to(other)
+
+    def prob_less_than(self, other: 'Ordinal',
+                       num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values < other_values).mean()
 
     def __lt__(self, other: 'Ordinal') -> float:
 
+        return self.prob_less_than(other)
+
+    def probably_less_than(self, other: 'Ordinal') -> float:
+        """
+        Find the approximate probability that self > other.
+
+        Assigns a proportion of the samples that are equal to greater than
+        according to the relative proportion of greater than to greater than
+        plus less than.
+        """
+        gt = self > other
+        lt = self < other
+        eq = self == other
+        return lt + (lt / (lt + gt)) * eq
+
+    def prob_greater_than(self, other: 'Ordinal',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+
         self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other)
-        return (self_values < other_values).mean()
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values > other_values).mean()
 
     def __gt__(self, other: 'Ordinal') -> float:
 
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other)
-        return (self_values > other_values).mean()
+        return self.prob_greater_than(other)
+
+    def probably_greater_than(
+            self, other: 'Ordinal',
+            num_samples: int = NUM_SAMPLES_COMPARISON
+    ) -> float:
+        """
+        Find the approximate probability that self > other.
+
+        Assigns a proportion of the samples that are equal to greater than
+        according to the relative proportion of greater than to greater than
+        plus less than.
+        """
+        gt = self.prob_greater_than(other, num_samples)
+        lt = self.prob_less_than(other, num_samples)
+        eq = self.prob_equal_to(other, num_samples)
+        return gt + (gt / (gt + lt)) * eq
 
     def __le__(self, other: 'Ordinal') -> float:
 

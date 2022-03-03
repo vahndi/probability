@@ -7,7 +7,7 @@ from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data_mixins import \
     DataDistributionMixin, \
-    DataCPTMixin, DataModeMixin, DataInformationMixin, DataCategoriesMixin, \
+    DataProbabilityTableMixin, DataModeMixin, DataInformationMixin, DataCategoriesMixin, \
     DataDiscreteMixin
 
 
@@ -16,7 +16,7 @@ class Nominal(
     DataCategoriesMixin,
     DataDiscreteMixin,
     DataModeMixin,
-    DataCPTMixin,
+    DataProbabilityTableMixin,
     DataInformationMixin,
     object
 ):
