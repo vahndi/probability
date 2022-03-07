@@ -8,6 +8,7 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from mpl_format.utils.color_utils import cross_fade
 from mpl_format.utils.number_utils import format_as_percent
+from probability.distributions import Normal
 from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data_mixins import \
@@ -298,16 +299,17 @@ class Ordinal(
 
     def probably_less_than(self, other: 'Ordinal') -> float:
         """
-        Find the approximate probability that self > other.
-
-        Assigns a proportion of the samples that are equal to greater than
-        according to the relative proportion of greater than to greater than
-        plus less than.
+        Find the approximate probability that self < other, assuming an
+        underlying Normal data generating distribution..
         """
-        gt = self > other
-        lt = self < other
-        eq = self == other
-        return lt + (lt / (lt + gt)) * eq
+        m_self = self._data_vals.mean()
+        s_self = self._data_vals.std()
+        m_other = other._data_vals.mean()
+        s_other = other._data_vals.std()
+        m_diff = m_self - m_other
+        s_diff = s_self + s_other
+        diff = Normal(mu=m_diff, sigma=s_diff)
+        return diff < 0
 
     def prob_greater_than(self, other: 'Ordinal',
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
@@ -320,21 +322,19 @@ class Ordinal(
 
         return self.prob_greater_than(other)
 
-    def probably_greater_than(
-            self, other: 'Ordinal',
-            num_samples: int = NUM_SAMPLES_COMPARISON
-    ) -> float:
+    def probably_greater_than(self, other: 'Ordinal') -> float:
         """
-        Find the approximate probability that self > other.
-
-        Assigns a proportion of the samples that are equal to greater than
-        according to the relative proportion of greater than to greater than
-        plus less than.
+        Find the approximate probability that self > other, assuming an
+        underlying Normal data generating distribution..
         """
-        gt = self.prob_greater_than(other, num_samples)
-        lt = self.prob_less_than(other, num_samples)
-        eq = self.prob_equal_to(other, num_samples)
-        return gt + (gt / (gt + lt)) * eq
+        m_self = self._data_vals.mean()
+        s_self = self._data_vals.std()
+        m_other = other._data_vals.mean()
+        s_other = other._data_vals.std()
+        m_diff = m_self - m_other
+        s_diff = (s_self ** 2 + s_other ** 2) ** 0.5
+        diff = Normal(mu=m_diff, sigma=s_diff)
+        return diff > 0
 
     def __le__(self, other: 'Ordinal') -> float:
 
