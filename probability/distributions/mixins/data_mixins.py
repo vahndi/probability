@@ -83,6 +83,7 @@ class DataDiscreteMixin(object):
             self,
             color: Color = 'k',
             pct_font_size: int = FONT_SIZE.medium,
+            max_pct: Optional[float] = None,
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
         """
@@ -90,12 +91,19 @@ class DataDiscreteMixin(object):
 
         :param color: Color of the bars.
         :param pct_font_size: Font size for percentage labels.
+        :param max_pct: Highest percentile value of the data to plot a count of.
+                        Useful for long-tail distributions.
         :param axf: Optional AxesFormatter instance.
         """
         axf = axf or AxesFormatter()
         counts = self.counts()
+        pmf = self.pmf()
+        if max_pct is not None:
+            max_count = self._data.quantile(max_pct)
+            counts = counts.loc[counts.index <= max_count]
+            pmf = pmf.loc[counts.index]
         counts.plot.bar(ax=axf.axes, color=color)
-        percents = 100 * self.pmf()
+        percents = 100 * pmf
         axf.add_text(
             x=range(len(counts)), y=counts,
             text=percents.map(lambda p: f'{p: .1f}%'),
