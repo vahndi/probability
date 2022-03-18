@@ -8,16 +8,22 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Gamma
 from probability.distributions.data.ordinal import Ordinal
-from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
+from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
+    DataNumericComparisonMixin
+from probability.distributions.mixins.data.data_categories_mixin import \
+    DataCategoriesMixin
+from probability.distributions.mixins.data.data_distribution_mixin import \
+    DataDistributionMixin
+from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataCategoriesMixin, DataNumericMixin
+    DataModeMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 
 
 class Ratio(
     DataDistributionMixin,
-    DataNumericMixin,
+    DataNumericComparisonMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,

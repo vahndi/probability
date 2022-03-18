@@ -8,16 +8,25 @@ from mpl_format.compound_types import Color
 from probability.distributions.conjugate.gamma_poisson_conjugate import \
     GammaPoissonConjugate
 from probability.distributions.data.ordinal import Ordinal
-from probability.distributions.mixins.data_mixins import DataDistributionMixin, \
+from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataCategoriesMixin, DataNumericMixin, DataDiscreteMixin, \
+    DataModeMixin
+from probability.distributions.mixins.data.data_categories_mixin import \
+    DataCategoriesMixin
+from probability.distributions.mixins.data.data_discrete_numeric_mixin import \
+    DataDiscreteNumericMixin
+from probability.distributions.mixins.data.data_distribution_mixin import \
+    DataDistributionMixin
+from probability.distributions.mixins.data.data_information_mixin import \
     DataInformationMixin
+from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
+    DataNumericComparisonMixin
 
 
 class Count(
     DataDistributionMixin,
-    DataNumericMixin,
-    DataDiscreteMixin,
+    DataNumericComparisonMixin,
+    DataDiscreteNumericMixin,
     DataInformationMixin,
     DataMinMixin,
     DataMaxMixin,

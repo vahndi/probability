@@ -4,16 +4,18 @@ from numpy import arange
 from numpy.random import seed, choice, uniform
 from pandas import Series
 
-from probability.distributions.mixins.data_mixins import \
-    DataDistributionMixin, \
-    DataMinMixin, DataMaxMixin, \
-    DataMeanMixin, DataMedianMixin, DataModeMixin, \
-    DataStdMixin, DataNumericMixin
+from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
+    DataNumericComparisonMixin
+from probability.distributions.mixins.data.data_distribution_mixin import \
+    DataDistributionMixin
+from probability.distributions.mixins.data.data_aggregate_mixins import \
+    DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
+    DataModeMixin
 
 
 class Interval(
     DataDistributionMixin,
-    DataNumericMixin,
+    DataNumericComparisonMixin,
     DataMinMixin,
     DataMaxMixin,
     DataMeanMixin,

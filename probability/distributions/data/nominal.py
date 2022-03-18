@@ -5,16 +5,26 @@ from pandas import Series
 
 from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.ordinal import Ordinal
-from probability.distributions.mixins.data_mixins import \
-    DataDistributionMixin, \
-    DataProbabilityTableMixin, DataModeMixin, DataInformationMixin, DataCategoriesMixin, \
-    DataDiscreteMixin
+from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
+    DataDiscreteCategoricalMixin
+from probability.distributions.mixins.data.data_discrete_numeric_mixin import \
+    DataDiscreteNumericMixin
+from probability.distributions.mixins.data.data_probability_table_mixin import \
+    DataProbabilityTableMixin
+from probability.distributions.mixins.data.data_information_mixin import \
+    DataInformationMixin
+from probability.distributions.mixins.data.data_categories_mixin import \
+    DataCategoriesMixin
+from probability.distributions.mixins.data.data_distribution_mixin import \
+    DataDistributionMixin
+from probability.distributions.mixins.data.data_aggregate_mixins import \
+    DataModeMixin
 
 
 class Nominal(
     DataDistributionMixin,
     DataCategoriesMixin,
-    DataDiscreteMixin,
+    DataDiscreteCategoricalMixin,
     DataModeMixin,
     DataProbabilityTableMixin,
     DataInformationMixin,

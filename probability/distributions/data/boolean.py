@@ -6,17 +6,26 @@ from pandas import Series
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import BetaBinomialConjugate
-from probability.distributions.mixins.data_mixins import \
-    DataDistributionMixin, DataCategoriesMixin, DataDiscreteMixin, \
-    DataInformationMixin, DataNumericMixin, DataProbabilityTableMixin
+from probability.distributions.mixins.data.data_categories_mixin import \
+    DataCategoriesMixin
+from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
+    DataDiscreteCategoricalMixin
+from probability.distributions.mixins.data.data_distribution_mixin import \
+    DataDistributionMixin
+from probability.distributions.mixins.data.data_information_mixin import \
+    DataInformationMixin
+from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
+    DataNumericComparisonMixin
+from probability.distributions.mixins.data.data_probability_table_mixin import \
+    DataProbabilityTableMixin
 
 
 class Boolean(
     DataDistributionMixin,
     DataInformationMixin,
     DataCategoriesMixin,
-    DataDiscreteMixin,
-    DataNumericMixin,
+    DataDiscreteCategoricalMixin,
+    DataNumericComparisonMixin,
     DataProbabilityTableMixin,
     object
 ):
