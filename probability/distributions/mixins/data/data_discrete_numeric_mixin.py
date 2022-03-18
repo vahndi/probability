@@ -67,6 +67,8 @@ class DataDiscreteNumericMixin(
             label_pcts: bool = True,
             label_counts: bool = False,
             label_size: Optional[FontSize] = FONT_SIZE.medium,
+            max_pct: Optional[float] = None,
+            max_value: Optional[int] = None,
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
         """
@@ -81,6 +83,9 @@ class DataDiscreteNumericMixin(
         :param label_pcts: Whether to add percentage labels.
         :param label_counts: Whether to add count labels.
         :param label_size: Font size for bar labels.
+        :param max_pct: Highest percentile value of the data to plot a count of.
+                        Useful for long-tail distributions.
+        :param max_value: Highest value of the data to plot a count of.
         :param axf: Optional AxesFormatter instance.
         """
         # validation
@@ -100,6 +105,16 @@ class DataDiscreteNumericMixin(
         # get data
         self_counts = self._data.value_counts().reindex(self._categories)
         other_counts = other._data.value_counts().reindex(self._categories)
+        if max_pct is not None:
+            max_count = max(
+                self._data.quantile(max_pct),
+                other._data.quantile(max_pct)
+            )
+            self_counts = self_counts.loc[self_counts.index <= max_count]
+            other_counts = other_counts.loc[other_counts.index <= max_count]
+        if max_value is not None:
+            self_counts = self_counts.loc[self_counts.index <= max_value]
+            other_counts = other_counts.loc[other_counts.index <= max_value]
         count_data = concat([self_counts, other_counts], axis=1)
         pct_data = count_data / count_data.sum()
         # plot bars
