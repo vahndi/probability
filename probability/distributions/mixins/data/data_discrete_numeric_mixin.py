@@ -93,18 +93,12 @@ class DataDiscreteNumericMixin(
             raise ValueError(
                 'Distributions must have different names in order to compare.')
         self_cats, other_cats = set(self._categories), set(other._categories)
-        if self_cats != other_cats:
-            str_warning = f'WARNING: Distributions contain different categories'
-            unique_1 = self_cats.difference(other_cats)
-            unique_2 = other_cats.difference(self_cats)
-            if unique_1:
-                str_warning += f'\nOnly in {self.name}: {", ".join(unique_1)}'
-            if unique_2:
-                str_warning += f'\nOnly in {other.name}: {", ".join(unique_2)}'
-            print(str_warning)
+        categories = sorted(self_cats.union(other_cats))
         # get data
-        self_counts = self._data.value_counts().reindex(self._categories)
-        other_counts = other._data.value_counts().reindex(self._categories)
+        self_counts = self._data.value_counts().reindex(categories)
+        other_counts = other._data.value_counts().reindex(categories)
+        count_data = concat([self_counts, other_counts], axis=1)
+        pct_data = count_data / count_data.sum()
         if max_pct is not None:
             max_count = max(
                 self._data.quantile(max_pct),
@@ -116,7 +110,7 @@ class DataDiscreteNumericMixin(
             self_counts = self_counts.loc[self_counts.index <= max_value]
             other_counts = other_counts.loc[other_counts.index <= max_value]
         count_data = concat([self_counts, other_counts], axis=1)
-        pct_data = count_data / count_data.sum()
+        pct_data = pct_data.loc[count_data.index]
         # plot bars
         axf = axf or AxesFormatter()
         if absolute:
