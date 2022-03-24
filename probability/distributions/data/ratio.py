@@ -1,7 +1,7 @@
-from typing import List, Union, Type, Optional
+from typing import List, Union, Type, Optional, Iterable
 
-from numpy import inf, linspace
-from pandas import Series, IntervalIndex, cut, qcut
+from numpy import inf, linspace, floor, ceil, arange, histogram
+from pandas import Series, IntervalIndex, cut, qcut, DataFrame
 from seaborn import kdeplot, histplot
 
 from mpl_format.axes import AxesFormatter
@@ -40,6 +40,44 @@ class Ratio(
         """
         data = data.dropna()
         self._data: Series = data
+
+    def histogram(
+            self,
+            bins: Union[int, float, Iterable[float]],
+            min_pct: float = 0.0,
+            max_pct: float = 1.0
+    ) -> Series:
+        """
+        Calculate a histogram of the data.
+
+        :param bins: int number of bins, float bin spacing, or sequence of bin
+                     edges.
+        :param min_pct: Lowest percentile of data to use for the histogram.
+        :param max_pct: Highest percentile of data to use for the histogram.
+        :return: Series with indices of low, high and values of count.
+        """
+        if isinstance(bins, float):
+            # Calculate bins for distribution.
+            spacing = bins
+            low_bin = spacing * floor(self._data.quantile(min_pct) / spacing)
+            high_bin = spacing * ceil(self._data.quantile(max_pct) / spacing)
+            # calculate bins
+            bins = arange(low_bin, high_bin + spacing, spacing)
+        data = self._data
+        if min_pct > 0:
+            min_val = self._data.quantile(min_pct)
+            data = data.loc[data >= min_val]
+        if max_pct < 1:
+            max_val = self._data.quantile(max_pct)
+            data = data.loc[data <= max_val]
+        hist, bin_edges = histogram(a=data, bins=bins)
+        counts = DataFrame([
+            {'min': bin_edges[i],
+             'max': bin_edges[i + 1],
+             'count': hist[i]}
+            for i in range(len(hist))
+        ])
+        return counts.set_index(['min', 'max'])['count']
 
     def as_ordinal(
             self,
@@ -153,7 +191,7 @@ class Ratio(
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
         """
-        Plot a kde plot of the distribution.
+        Plot a histogram of the distribution.
 
         :param color: Color of the bars.
         :param axf: Optional AxesFormatter instance.
