@@ -1,4 +1,4 @@
-from typing import Union, Dict, Any, Optional
+from typing import Union, Dict, Any, Optional, Iterable
 
 from numpy import clip
 from pandas import Series, DataFrame
@@ -6,17 +6,23 @@ from pandas import Series, DataFrame
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Ratio
+from probability.distributions.mixins.data.data_series_aggregate_mixins import \
+    DataSeriesMinMixin, DataSeriesMaxMixin
 
 
-class RatioSeries(object):
+class RatioSeries(
+    DataSeriesMinMixin,
+    DataSeriesMaxMixin,
+    object
+):
     """
     Series of Ratio distributions.
     """
     def __init__(self, data: Union[Series, Dict[Any, Ratio]]):
         """
-        Create a new CountSeries.
+        Create a new RatioSeries.
 
-        :param data: Series of Count distributions.
+        :param data: Series of Ratio distributions.
         """
         if isinstance(data, dict):
             data = Series(data)
@@ -44,6 +50,26 @@ class RatioSeries(object):
             ].rename(f'{ratio}|{split_by}={unique}'))
         return RatioSeries(split_ratios)
 
+    def histograms(
+            self,
+            bins: Union[int, float, Iterable[float]],
+            min_pct: float = 0.0,
+            max_pct: float = 1.0
+    ):
+        """
+        Return a Series mapping distribution names to histograms.
+
+        :param bins: int number of bins, float bin spacing, or sequence of bin
+                     edges.
+        :param min_pct: Lowest percentile of data to use for the histogram.
+        :param max_pct: Highest percentile of data to use for the histogram.
+        """
+        dist: Ratio
+        return Series({
+            ix: dist.histogram(bins=bins, min_pct=min_pct, max_pct=max_pct)
+            for ix, dist in self._data.items()
+        })
+
     def plot_density_bars(
             self,
             bin_spacing: float,
@@ -57,6 +83,8 @@ class RatioSeries(object):
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
         """
+        Plot a density bar for each Ratio distribution.
+
         :param bin_spacing: Spacing between each bin used to calculate
                             histogram of each Ratio distribution.
         :param conditional: Whether to set opacity relative to the highest bin
@@ -74,7 +102,10 @@ class RatioSeries(object):
         dist: Ratio
         # calculate histograms, counts and bin limits
         hists = [
-            dist.histogram(bins=bin_spacing, min_pct=min_pct, max_pct=max_pct)
+            dist.histogram(
+                bins=float(bin_spacing),
+                min_pct=min_pct, max_pct=max_pct
+            )
             for _, dist in self._data.items()
         ]
         lowest_bin = min([
@@ -115,7 +146,7 @@ class RatioSeries(object):
                     fill=False, color=None, edge_color=edge_color
                 )
         # format axes
-        axf.set_x_lim(-1, len(self._data) + 0.5)
+        axf.set_x_lim(-1, len(self._data))
         axf.set_y_lim(lowest_bin - bin_spacing, highest_bin + bin_spacing)
         axf.x_ticks.set_locations(range(len(self._data)))
         axf.x_ticks.set_labels(self._data.index.to_list())

@@ -6,9 +6,15 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from mpl_format.utils.color_utils import cross_fade, set_alpha
 from probability.distributions import Count
+from probability.distributions.mixins.data.data_series_aggregate_mixins import \
+    DataSeriesMinMixin, DataSeriesMaxMixin
 
 
-class CountSeries(object):
+class CountSeries(
+    DataSeriesMinMixin,
+    DataSeriesMaxMixin,
+    object
+):
     """
     Series of Count distributions.
     """
@@ -22,31 +28,21 @@ class CountSeries(object):
             data = Series(data)
         self._data: Series = data
 
-    def min(self) -> Series:
-
-        return Series({
-            ix: self._data[ix].min()
-            for ix in self._data.index
-        })
-
     def pmfs(self) -> Series:
-
+        """
+        Return a Series mapping each distribution name to its pmf.
+        """
         return Series({
             ix: self._data[ix].pmf()
             for ix in self._data.index
         })
 
     def counts(self) -> Series:
-
+        """
+        Return a Series mapping each distribution name to its counts.
+        """
         return Series({
             ix: self._data[ix].counts()
-            for ix in self._data.index
-        })
-
-    def max(self) -> Series:
-
-        return Series({
-            ix: self._data[ix].max()
             for ix in self._data.index
         })
 
