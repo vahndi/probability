@@ -53,9 +53,20 @@ class DataStdMixin(object):
 
     def std(self) -> float:
         """
-        Return the median value of the data.
+        Return the standard deviation of the data.
         """
         return self._data.std()
+
+
+class DataVarMixin(object):
+
+    _data: Series
+
+    def var(self) -> float:
+        """
+        Return the variance of the data.
+        """
+        return self._data.var()
 
 
 class DataModeMixin(object):
