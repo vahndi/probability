@@ -285,6 +285,23 @@ class Ratio(
 
         return axf
 
+    def cohens_d(self, other: 'Ratio') -> float:
+        """
+        Calculate the Cohen's d standardized difference of means between self
+        and other.
+
+        https://en.wikipedia.org/wiki/Effect_size#Cohen's_d
+        """
+        n1, n2 = len(self), len(other)
+        v1, v2 = self._data.var(), other._data.var()
+        x1, x2 = self._data.mean(), other._data.mean()
+        # pooled standard deviation
+        s = (
+            ((n1 - 1) * v1 + (n2 - 1) * v2) /
+            (n1 + n2 - 2)
+        ) ** 0.5
+        return (x1 - x2) / s
+
     def __repr__(self):
 
         return (

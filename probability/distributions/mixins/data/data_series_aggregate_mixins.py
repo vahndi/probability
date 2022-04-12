@@ -27,9 +27,3 @@ class DataSeriesMaxMixin(object):
             ix: self._data[ix].max()
             for ix in self._data.index
         })
-
-
-class DataSeriesPMFMixin(object):
-
-    _data: Series
-
