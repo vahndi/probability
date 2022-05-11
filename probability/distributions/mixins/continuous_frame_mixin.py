@@ -1,4 +1,4 @@
-from typing import Union, List, Optional
+from typing import Union, List, Optional, TypeVar
 
 from matplotlib.patches import Patch
 from numpy import arange, linspace, log
@@ -11,6 +11,9 @@ from probability.distributions.mixins.rv_mixins import PDF1dMixin, \
 from probability.models.utils import loop_variable
 
 
+CFM = TypeVar('CFM', bound='ContinuousFrameMixin')
+
+
 class ContinuousFrameMixin(object):
 
     _data: DataFrame
@@ -18,6 +21,32 @@ class ContinuousFrameMixin(object):
     @property
     def data(self) -> DataFrame:
         return self._data
+
+    def drop(
+            self: CFM,
+            labels: Union[str, List[str]] = None,
+            axis: int = 0,
+            index: Union[str, List[str]] = None,
+            columns: Union[str, List[str]] = None
+    ) -> CFM:
+        """
+        Drop one or more rows or columns.
+
+        :param labels: Index or column labels to drop.
+        :param axis: Whether to drop labels from the index (0 or ‘index’) or
+                     columns (1 or ‘columns’).
+        :param index: Alternative to specifying axis (labels, axis=0 is
+                      equivalent to index=labels).
+        :param columns: Alternative to specifying axis (labels, axis=1 is
+                        equivalent to columns=labels).
+        """
+        return type(self)(
+            data=self._data.drop(
+                labels=labels,
+                axis=axis,
+                index=index, columns=columns
+            )
+        )
 
     def plot_density_bars(
             self,
