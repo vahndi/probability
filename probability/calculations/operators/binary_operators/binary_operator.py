@@ -50,8 +50,10 @@ class BinaryOperator(OperatorMixin, object):
     @classmethod
     def operate(
             cls,
-            value_1: CalculationValue, value_2: CalculationValue,
-            value_1_calc: bool, value_2_calc: bool
+            value_1: CalculationValue,
+            value_2: CalculationValue,
+            value_1_calc: bool,
+            value_2_calc: bool
     ) -> CalculationValue:
         """
         Execute the operation on a pair of input values.

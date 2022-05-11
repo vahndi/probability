@@ -41,3 +41,9 @@ class CalculationContext(object):
         :param name: The name of the item to check for.
         """
         return name in self._context.keys()
+
+    def clear(self):
+        """
+        Remove all items from the context.
+        """
+        self._context = {}

@@ -52,7 +52,8 @@ class SampleCalculation(SimpleCalculation):
             num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> Union[Series, DataFrame]:
         """
-        Calculate the sampled output of the Calculation.
+        Calculate the sampled output of the Calculation if it does not already
+        exist.
 
         :param num_samples: Number of samples to draw.
         """

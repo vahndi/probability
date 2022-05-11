@@ -34,9 +34,10 @@ class ValueCalculation(SimpleCalculation):
             num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> float:
         """
-        Get the sampled output of the calculation.
+        Calculate the sampled output of the Calculation if it does not already
+        exist.
 
-        :param num_samples: Number of samples to draw. Not used.
+        :param num_samples: Number of samples to draw.
         """
         if self.context.has_object_named(self.name):
             return self.context[self.name]

@@ -64,7 +64,8 @@ class ArrayCalculation(ProbabilityCalculation):
             num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> CalculationValue:
         """
-        Calculate the sampled output of the Calculation.
+        Calculate the sampled output of the Calculation if it does not already
+        exist.
 
         :param num_samples: Number of samples to draw.
         """
@@ -73,9 +74,11 @@ class ArrayCalculation(ProbabilityCalculation):
             if self.context.has_object_named(calc_input.name):
                 input_values.append(self.context[calc_input.name])
             else:
+                # calculate input
                 input_value = calc_input.output(num_samples=num_samples)
                 input_values.append(input_value)
                 self.context[calc_input.name] = input_value
+        # calculate output
         result = self.operator.operate(input_values)
         return result
 

@@ -42,7 +42,8 @@ class AggregatorCalculation(
             num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
     ) -> CalculationValue:
         """
-        Get the sampled output of the calculation.
+        Calculate the sampled output of the Calculation if it does not already
+        exist.
 
         :param num_samples: Number of samples to draw.
         """
