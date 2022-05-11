@@ -18,6 +18,8 @@ from probability.distributions.mixins.data.data_distribution_mixin import \
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
     DataModeMixin, DataVarMixin
+from probability.distributions.mixins.data.data_sortable_mixin import \
+    DataSortableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 
@@ -32,6 +34,7 @@ class Ratio(
     DataStdMixin,
     DataVarMixin,
     DataModeMixin,
+    DataSortableMixin,
     object
 ):
     def __init__(self, data: Series):
@@ -356,8 +359,8 @@ class Ratio(
 
         return (
             f'{self.name}: Ratio['
-            f'min={self._data.min()}, '
-            f'max={self._data.max()}, '
-            f'mean={self._data.mean()}'
+            f'min={self.min()}, '
+            f'max={self.max()}, '
+            f'mean={self.mean()}'
             f']'
         )

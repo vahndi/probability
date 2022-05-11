@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import TypeVar, Iterable
 
 from pandas import Series, merge
 
@@ -29,7 +29,10 @@ class DataDistributionMixin(object):
         """
         return type(self)(data=self._data.rename(name))
 
-    def filter_to(self: DDM, other: 'DataDistributionMixin') -> DDM:
+    def filter_to(
+            self: DDM,
+            other: 'DataDistributionMixin'
+    ) -> DDM:
         """
         Filter the data to the common indices with the other distribution.
         """
@@ -37,6 +40,15 @@ class DataDistributionMixin(object):
                        left_index=True, right_index=True)
         data = merged.iloc[:, 0]
         return type(self)(data=data)
+
+    def loc(
+            self: DDM,
+            other: Iterable
+    ) -> DDM:
+        """
+        Similar to pandas .loc but return distribution.
+        """
+        return type(self)(data=self.data.loc[other])
 
     def __len__(self):
 
