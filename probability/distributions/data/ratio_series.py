@@ -6,17 +6,22 @@ from pandas import Series, DataFrame
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Ratio
+from probability.distributions.continuous.normal_series import NormalSeries
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
-    DataSeriesMinMixin, DataSeriesMaxMixin
+    DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin
+from probability.distributions.mixins.data.data_series_mixin import \
+    DataSeriesMixin
 
 
 class RatioSeries(
+    DataSeriesMixin,
     DataSeriesMinMixin,
     DataSeriesMaxMixin,
+    DataSeriesMeanMixin,
     object
 ):
     """
-    Series of Ratio distributions.
+    Series or dict of Ratio distributions.
     """
     def __init__(self, data: Union[Series, Dict[Any, Ratio]]):
         """
@@ -49,6 +54,15 @@ class RatioSeries(
                 ratio
             ].rename(f'{ratio}|{split_by}={unique}'))
         return RatioSeries(split_ratios)
+
+    def to_normal(self) -> NormalSeries:
+        """
+        Infer a Series of Normal distributions, one for each Ratio distribution.
+        """
+        return NormalSeries(Series({
+            key: self._data[key].to_normal()
+            for key in self.keys()
+        }))
 
     def histograms(
             self,

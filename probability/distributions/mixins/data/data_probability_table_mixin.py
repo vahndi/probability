@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pandas import Series, concat, DataFrame
 
 from probability.distributions import Beta
@@ -57,23 +59,40 @@ class DataProbabilityTableMixin(object):
 
     def conditional_probability_table(
             self,
-            condition: 'DataProbabilityTableMixin'
+            condition: 'DataProbabilityTableMixin',
+            weights=None
     ) -> DataFrame:
         """
         Return the conditional probability of each category given different
         values of condition.
+
+        :param condition: Other categorical to condition on.
+        :param weights: Optional distribution of weights.
         """
         self_name = self._data.name
         other_name = condition._data.name
-        data = concat([condition._data, self._data], axis=1)
-        joint = data[[other_name, self_name]].value_counts()
-        marginal = data[other_name].value_counts()
+        if weights is None:
+            data = concat([condition._data, self._data], axis=1)
+            joint = data[[other_name, self_name]].value_counts()
+            marginal = data[other_name].value_counts()
+        else:
+            weights_name = 'weights'
+            while weights_name in [self_name, other_name]:
+                weights_name += '_'
+            data = concat([
+                condition._data,
+                self._data,
+                weights._data.rename(weights_name)
+            ], axis=1)
+            joint = data.groupby([other_name, self_name])[weights_name].sum()
+            marginal = data.groupby(other_name)[weights_name].sum()
         marginal.index.name = other_name
         return (joint / marginal).unstack()
 
     def cpt(
             self,
-            condition: 'DataProbabilityTableMixin'
+            condition: 'DataProbabilityTableMixin',
+            weights=None
     ) -> DataFrame:
         """
         Return the conditional probability of each category given different
@@ -81,7 +100,10 @@ class DataProbabilityTableMixin(object):
 
         Alias for conditional_probability_table.
         """
-        return self.conditional_probability_table(condition=condition)
+        return self.conditional_probability_table(
+            condition=condition,
+            weights=weights
+        )
 
     def conditional_beta_table(
             self,

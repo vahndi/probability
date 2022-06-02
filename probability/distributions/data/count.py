@@ -1,4 +1,4 @@
-from typing import Union, Tuple, List, Optional
+from typing import Union, Tuple, List, Optional, TYPE_CHECKING
 
 from numpy import linspace, inf
 from pandas import Series
@@ -21,6 +21,10 @@ from probability.distributions.mixins.data.data_information_mixin import \
     DataInformationMixin
 from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
     DataNumericComparisonMixin
+
+
+if TYPE_CHECKING:
+    from probability.distributions.data.count_series import CountSeries
 
 
 class Count(
@@ -166,6 +170,22 @@ class Count(
         axf.x_ticks.set_locations(range(1, n_cats + 1)).set_labels(cats)
 
         return axf
+
+    def split_by(
+            self,
+            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+    ) -> 'CountSeries':
+        """
+        Split into a CountSeries on different values of the given categorical
+        distribution.
+
+        :param categorical: Distribution to split on
+        """
+        counts_dict = {}
+        for category in categorical.categories:
+            counts_dict[category] = self.filter_to(categorical.keep(category))
+        from probability.distributions.data.count_series import CountSeries
+        return CountSeries(counts_dict)
 
     def __repr__(self):
 

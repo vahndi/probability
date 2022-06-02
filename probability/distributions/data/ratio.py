@@ -1,5 +1,5 @@
 from itertools import product
-from typing import List, Union, Type, Optional, Iterable, Dict
+from typing import List, Union, Type, Optional, Iterable, Dict, TYPE_CHECKING
 
 from numpy import inf, linspace, floor, ceil, arange, histogram
 from pandas import Series, IntervalIndex, cut, qcut, DataFrame
@@ -7,8 +7,8 @@ from seaborn import kdeplot, histplot
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
-from probability.distributions import Gamma
-from probability.distributions.data.ordinal import Ordinal
+from probability.distributions import Gamma, Normal
+
 from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
     DataNumericComparisonMixin
 from probability.distributions.mixins.data.data_categories_mixin import \
@@ -22,6 +22,9 @@ from probability.distributions.mixins.data.data_sortable_mixin import \
     DataSortableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+
+if TYPE_CHECKING:
+    from probability.distributions.data.ordinal import Ordinal
 
 
 class Ratio(
@@ -89,7 +92,7 @@ class Ratio(
             method: str,
             categories: Union[int, List[float], IntervalIndex],
             labels: Optional[List[str]] = None
-    ) -> Ordinal:
+    ) -> 'Ordinal':
         """
         Quantize the data and convert to an Ordinal.
 
@@ -99,6 +102,7 @@ class Ratio(
                            or list of bin edges or IntervalIndex (for 'cut').
         :param labels: Optional list of labels for when method='cut'
         """
+        from probability.distributions.data.ordinal import Ordinal
         if method == 'cut':
             data = cut(x=self.data, bins=categories, labels=labels)
         elif method == 'qcut':
@@ -108,8 +112,16 @@ class Ratio(
         return Ordinal(data=data)
 
     def to_gamma(self) -> Gamma:
+        """
+        Fit a gamma distribution to the data.
+        """
+        return Gamma.fit(data=self._data)
 
-        return Gamma.fit(self._data)
+    def to_normal(self) -> Normal:
+        """
+        Fit a normal distribution to the data.
+        """
+        return Normal.fit(data=self._data)
 
     def plot_kde(
             self,
@@ -208,6 +220,22 @@ class Ratio(
             ax=axf.axes
         )
         return axf
+
+    def split_by(
+            self,
+            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+    ):
+        """
+        Split into a RatioSeries on different values of the given categorical
+        distribution.
+
+        :param categorical: Distribution to split on
+        """
+        ratios_dict = {}
+        for category in categorical.categories:
+            ratios_dict[category] = self.filter_to(categorical.keep(category))
+        from probability.distributions.data.ratio_series import RatioSeries
+        return RatioSeries(ratios_dict)
 
     def plot_conditional_dist_densities(
             self,

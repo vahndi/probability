@@ -7,16 +7,23 @@ from mpl_format.compound_types import Color
 from mpl_format.utils.color_utils import cross_fade, set_alpha
 from probability.distributions import Count
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
-    DataSeriesMinMixin, DataSeriesMaxMixin
+    DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
+    DataSeriesModeMixin, DataSeriesMedianMixin
+from probability.distributions.mixins.data.data_series_mixin import \
+    DataSeriesMixin
 
 
 class CountSeries(
+    DataSeriesMixin,
     DataSeriesMinMixin,
     DataSeriesMaxMixin,
+    DataSeriesMeanMixin,
+    DataSeriesModeMixin,
+    DataSeriesMedianMixin,
     object
 ):
     """
-    Series of Count distributions.
+    Series or dict of Count distributions.
     """
     def __init__(self, data: Union[Series, Dict[Any, Count]]):
         """

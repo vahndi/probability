@@ -59,7 +59,8 @@ class ContinuousFrameMixin(object):
             resolution: int = 100,
             z_max: Optional[Union[float, List[float]]] = None,
             log_z: bool = False,
-            axf: Optional[AxesFormatter] = None
+            axf: Optional[AxesFormatter] = None,
+            legend_kwargs: Optional[dict] = None
     ) -> AxesFormatter:
         """
         Plot each row of distributions as a group of density bars.
@@ -117,8 +118,6 @@ class ContinuousFrameMixin(object):
         axf.set_x_lim(0, n_rows + 1)
         axf.x_ticks.set_locations(range(1, n_rows + 1))
         axf.x_ticks.set_labels(self._data.index)
-        axf.y_ticks.set_locations(arange(0, 1.1, 0.1))
-        axf.set_y_lim(-0.05, 1.05)
         # legend
         patches = []
         for i_col in range(n_cols):
@@ -126,7 +125,9 @@ class ContinuousFrameMixin(object):
                 color=color[i_col],
                 label=self._data.columns[i_col]
             ))
-        axf.axes.legend(handles=patches)
+        if legend_kwargs is None:
+            legend_kwargs = {}
+        axf.axes.legend(handles=patches, **legend_kwargs)
         return axf
 
     def __str__(self):

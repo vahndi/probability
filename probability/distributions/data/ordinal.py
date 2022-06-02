@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, TYPE_CHECKING, Dict
 
 from numpy import nan
 from numpy.random import seed
@@ -17,8 +17,6 @@ from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
     DataDiscreteCategoricalMixin
-from probability.distributions.mixins.data.data_discrete_numeric_mixin import \
-    DataDiscreteNumericMixin
 from probability.distributions.mixins.data.data_distribution_mixin import \
     DataDistributionMixin
 from probability.distributions.mixins.data.data_information_mixin import \
@@ -26,6 +24,10 @@ from probability.distributions.mixins.data.data_information_mixin import \
 from probability.distributions.mixins.data.data_probability_table_mixin import \
     DataProbabilityTableMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
+
+if TYPE_CHECKING:
+    from probability.distributions.data.ratio import Ratio
+    from probability.distributions.data.ordinal_series import OrdinalSeries
 
 
 class Ordinal(
@@ -112,7 +114,7 @@ class Ordinal(
 
     def mode(self) -> Union[str, List[str]]:
 
-        mode = self._data_vals.mode()
+        mode = self._data.mode()
         if len(mode) > 1:
             return mode.to_list()
         else:
@@ -160,6 +162,46 @@ class Ordinal(
             data = data.replace(e, nan)
         data = data.dropna()
         return Boolean(data)
+
+    def as_ratio(
+            self,
+            category_values: Union[Series, Dict[str, float]]
+    ) -> 'Ratio':
+        """
+        Convert to a Ratio distribution.
+
+        :param category_values: Mapping from each Ordinal category to a float
+                                value.
+        """
+        from probability.distributions.data.ratio import Ratio
+        if not (
+                isinstance(category_values, dict) or
+                isinstance(category_values, Series)
+        ):
+            raise TypeError('category_values must be a dict or Series')
+        if not set(category_values.keys()) == set(self._data.cat.categories):
+            raise ValueError('keys of category_values must match categories')
+        data = self._data.replace(to_replace=category_values)
+        return Ratio(data)
+
+    def split_by(
+            self,
+            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+    ) -> 'OrdinalSeries':
+        """
+        Split into an OrdinalSeries on different values of the given categorical
+        distribution.
+
+        :param categorical: Distribution to split on
+        """
+        ordinals_dict = {}
+        for category in categorical.categories:
+            ordinals_dict[category] = self.filter_to(categorical.keep(category))
+        from probability.distributions.data.ordinal_series import OrdinalSeries
+        ordinals_series = Series(ordinals_dict)
+        ordinals_series.name = self.name
+        ordinals_series.index.name = categorical.name
+        return OrdinalSeries(ordinals_series)
 
     def plot_conditional_dist_densities(
             self,

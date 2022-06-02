@@ -3,9 +3,14 @@ from typing import Union, Mapping
 from pandas import Series, DataFrame
 
 from probability.distributions import Normal
+from probability.distributions.mixins.continuous_series_mixin import \
+    ContinuousSeriesMixin
 
 
-class NormalSeries(object):
+class NormalSeries(
+    ContinuousSeriesMixin,
+    object
+):
 
     def __init__(self, data: Series):
         """
@@ -39,4 +44,3 @@ class NormalSeries(object):
     @property
     def data(self) -> Union[Series, Mapping[str, Normal]]:
         return self._data
-

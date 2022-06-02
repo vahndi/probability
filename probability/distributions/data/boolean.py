@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Union, Optional, TYPE_CHECKING
 
 from numpy import linspace, inf
 from pandas import Series
@@ -6,6 +6,9 @@ from pandas import Series
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import BetaBinomialConjugate
+from probability.distributions.mixins.data.data_aggregate_mixins import \
+    DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
+    DataVarMixin, DataModeMixin
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
@@ -20,6 +23,10 @@ from probability.distributions.mixins.data.data_probability_table_mixin import \
     DataProbabilityTableMixin
 
 
+if TYPE_CHECKING:
+    from probability.distributions.data.boolean_series import BooleanSeries
+
+
 class Boolean(
     DataDistributionMixin,
     DataInformationMixin,
@@ -27,6 +34,13 @@ class Boolean(
     DataDiscreteCategoricalMixin,
     DataNumericComparisonMixin,
     DataProbabilityTableMixin,
+    DataMinMixin,
+    DataMaxMixin,
+    DataMeanMixin,
+    DataMedianMixin,
+    DataStdMixin,
+    DataVarMixin,
+    DataModeMixin,
     object
 ):
 
@@ -37,6 +51,22 @@ class Boolean(
         data = data.dropna()
         self._data: Series = data
         self._categories = [False, True]
+
+    def split_by(
+            self,
+            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+    ) -> 'BooleanSeries':
+        """
+        Split into a BooleanSeries on different values of the given categorical
+        distribution.
+
+        :param categorical: Distribution to split on
+        """
+        bools_dict = {}
+        for category in categorical.categories:
+            bools_dict[category] = self.filter_to(categorical.keep(category))
+        from probability.distributions.data.boolean_series import BooleanSeries
+        return BooleanSeries(bools_dict)
 
     def plot_conditional_prob_densities(
             self,

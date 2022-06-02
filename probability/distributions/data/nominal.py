@@ -1,4 +1,4 @@
-from typing import List, Union, Optional
+from typing import List, Union, Optional, TYPE_CHECKING
 
 from numpy import nan
 from pandas import Series
@@ -7,8 +7,6 @@ from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
     DataDiscreteCategoricalMixin
-from probability.distributions.mixins.data.data_discrete_numeric_mixin import \
-    DataDiscreteNumericMixin
 from probability.distributions.mixins.data.data_probability_table_mixin import \
     DataProbabilityTableMixin
 from probability.distributions.mixins.data.data_information_mixin import \
@@ -19,6 +17,9 @@ from probability.distributions.mixins.data.data_distribution_mixin import \
     DataDistributionMixin
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataModeMixin
+
+if TYPE_CHECKING:
+    from probability.distributions.data.nominal_series import NominalSeries
 
 
 class Nominal(
@@ -92,6 +93,22 @@ class Nominal(
             data = data.replace(e, nan)
         data = data.dropna()
         return Boolean(data)
+
+    def split_by(
+            self,
+            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+    ) -> 'NominalSeries':
+        """
+        Split into an OrdinalSeries on different values of the given categorical
+        distribution.
+
+        :param categorical: Distribution to split on
+        """
+        nominals_dict = {}
+        for category in categorical.categories:
+            nominals_dict[category] = self.filter_to(categorical.keep(category))
+        from probability.distributions.data.nominal_series import NominalSeries
+        return NominalSeries(nominals_dict)
 
     def __repr__(self):
 

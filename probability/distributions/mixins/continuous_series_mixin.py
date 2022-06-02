@@ -1,6 +1,6 @@
 from typing import TypeVar, Union, Mapping, List, Optional
 
-from numpy import linspace, arange
+from numpy import linspace, arange, inf
 from pandas import Series
 
 from mpl_format.axes import AxesFormatter
@@ -41,7 +41,7 @@ class ContinuousSeriesMixin(object):
             width: Union[float, List[float]] = 0.8,
             hdi: float = 0.95,
             z_max: Optional[Union[float, List[float]]] = None,
-            resolution: int = 100,
+            resolution: Optional[int] = None,
             edges: bool = False,
             orient: str = 'v',
             axf: Optional[AxesFormatter] = None
@@ -56,7 +56,8 @@ class ContinuousSeriesMixin(object):
         :param hdi: Highest Density Interval width for each distribution.
         :param z_max: Optional normalizing constant to divide each bar's height
                       by.
-        :param resolution: Number of density elements per unit y.
+        :param resolution: Number of density elements per unit y. If left as
+                           None, 100 total elements will be used.
         :param edges: Whether to plot the edges of each bar.
         :param orient: Orientation. One of {'v', 'h'}.
         :param axf: Optional AxesFormatter instance.
@@ -68,10 +69,16 @@ class ContinuousSeriesMixin(object):
         color_min = loop_variable(color_min, num_dists)
         width = loop_variable(width, num_dists)
         z_max = loop_variable(z_max, num_dists)
-
+        lowest, highest = inf, -inf
         for i, (ix, dist) in enumerate(self._data.items()):
             lower, upper = dist.hdi(hdi)
-            y_to_z = dist.pdf().at(linspace(lower, upper, resolution + 1))
+            lowest = min(lowest, lower)
+            highest = max(highest, upper)
+            n_bars = (
+                round(resolution * (upper - lower))
+                if resolution is not None else 100
+            )
+            y_to_z = dist.pdf().at(linspace(lower, upper, n_bars + 1))
             if orient == 'h':
                 axf.add_h_density(
                     y=i + 1,
@@ -118,14 +125,14 @@ class ContinuousSeriesMixin(object):
             axf.set_x_lim(0, num_dists + 1)
             axf.x_ticks.set_locations(range(1, num_dists + 1))
             axf.x_ticks.set_labels(self._data.index)
-            axf.y_ticks.set_locations(arange(0, 1.1, 0.1))
-            axf.set_y_lim(-0.05, 1.05)
+            axf.set_y_lim(lowest - (highest - lowest) / 20,
+                          highest + (highest - lowest) / 20)
         else:
             axf.set_y_lim(0, num_dists + 1)
             axf.y_ticks.set_locations(range(1, num_dists + 1))
             axf.y_ticks.set_labels(self._data.index)
-            axf.x_ticks.set_locations(arange(0, 1.1, 0.1))
-            axf.set_x_lim(-0.05, 1.05)
+            axf.set_x_lim(lowest - (highest - lowest) / 20,
+                          highest + (highest - lowest) / 20)
         return axf
 
     def __repr__(self):
