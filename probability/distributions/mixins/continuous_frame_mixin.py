@@ -78,6 +78,7 @@ class ContinuousFrameMixin(object):
         :param resolution: Number of density elements per unit y.
         :param log_z: Whether to take the log of z before plotting.
         :param axf: Optional AxesFormatter instance.
+        :param legend_kwargs: Optional kwargs to pass to legend constructor.
         """
         axf = axf or AxesFormatter()
         n_rows = self._data.shape[0]

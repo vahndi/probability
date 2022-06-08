@@ -108,7 +108,9 @@ class Nominal(
         for category in categorical.categories:
             nominals_dict[category] = self.filter_to(categorical.keep(category))
         from probability.distributions.data.nominal_series import NominalSeries
-        return NominalSeries(nominals_dict)
+        nominal_series_data = Series(nominals_dict, name=self.name)
+        nominal_series_data.index.name = categorical.name
+        return NominalSeries(nominal_series_data)
 
     def __repr__(self):
 

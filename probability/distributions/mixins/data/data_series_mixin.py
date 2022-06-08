@@ -12,6 +12,10 @@ class DataSeriesMixin(object):
         return self._data.index
 
     @property
+    def data(self) -> Series:
+        return self._data
+
+    @property
     def name(self) -> Hashable:
         return self._data.name
 
@@ -23,3 +27,7 @@ class DataSeriesMixin(object):
         Return the distribution corresponding to the given key.
         """
         return self._data[item]
+
+    def __repr__(self):
+
+        return repr(self._data)

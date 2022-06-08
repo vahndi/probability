@@ -1,9 +1,13 @@
-from typing import Optional, Union
+from typing import Optional, Union, TYPE_CHECKING
 
 from numpy import arange
 from numpy.random import seed, choice, uniform
 from pandas import Series
 
+from probability.distributions.mixins.data.data_categories_mixin import \
+    DataCategoriesMixin
+from probability.distributions.mixins.data.data_comparison_mixins import \
+    DataCohensDMixin
 from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
     DataNumericComparisonMixin
 from probability.distributions.mixins.data.data_distribution_mixin import \
@@ -11,6 +15,9 @@ from probability.distributions.mixins.data.data_distribution_mixin import \
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
     DataModeMixin, DataVarMixin
+
+if TYPE_CHECKING:
+    from probability.distributions.data.interval_series import IntervalSeries
 
 
 class Interval(
@@ -23,6 +30,7 @@ class Interval(
     DataModeMixin,
     DataStdMixin,
     DataVarMixin,
+    DataCohensDMixin,
     object
 ):
 
@@ -97,6 +105,26 @@ class Interval(
         return self._data.sample(
             n=num_samples, replace=True
         ).reset_index(drop=True)
+
+    def split_by(
+            self,
+            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+    ) -> 'IntervalSeries':
+        """
+        Split into an IntervalSeries on different values of the given categorical
+        distribution.
+
+        :param categorical: Distribution to split on
+        """
+        intervals_dict = {}
+        for category in categorical.categories:
+            intervals_dict[category] = self.filter_to(
+                categorical.keep(category))
+        from probability.distributions.data.interval_series \
+            import IntervalSeries
+        interval_series_data = Series(intervals_dict, name=self.name)
+        interval_series_data.index.name = categorical.name
+        return IntervalSeries(interval_series_data)
 
     def __add__(self, other: float) -> 'Interval':
         """

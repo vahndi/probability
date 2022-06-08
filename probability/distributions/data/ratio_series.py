@@ -2,13 +2,15 @@ from typing import Union, Dict, Any, Optional, Iterable
 
 from numpy import clip
 from pandas import Series, DataFrame
+from seaborn import kdeplot
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Ratio
 from probability.distributions.continuous.normal_series import NormalSeries
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
-    DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin
+    DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
+    DataSeriesStdMixin
 from probability.distributions.mixins.data.data_series_mixin import \
     DataSeriesMixin
 
@@ -18,6 +20,7 @@ class RatioSeries(
     DataSeriesMinMixin,
     DataSeriesMaxMixin,
     DataSeriesMeanMixin,
+    DataSeriesStdMixin,
     object
 ):
     """
@@ -59,10 +62,12 @@ class RatioSeries(
         """
         Infer a Series of Normal distributions, one for each Ratio distribution.
         """
-        return NormalSeries(Series({
-            key: self._data[key].to_normal()
-            for key in self.keys()
-        }))
+        return NormalSeries(
+            Series({
+                key: self._data[key].to_normal()
+                for key in self.keys()
+            }, name=self.name)
+        )
 
     def histograms(
             self,
@@ -165,5 +170,32 @@ class RatioSeries(
         axf.x_ticks.set_locations(range(len(self._data)))
         axf.x_ticks.set_labels(self._data.index.to_list())
         axf.y_axis.set_format_integer()
+        axf.set_text(
+            title=f'Distribution of '
+                  f'p({self.data.name}|{self.data.index.name})',
+            x_label=self.data.index.name,
+            y_label=self.data.name
+        )
 
+        return axf
+
+    def plot_density_distributions(
+            self,
+            axf: Optional[AxesFormatter] = None
+    ):
+        """
+        Plot the distribution of probability density for each Ratio
+        distribution.
+
+        :param axf: Optional AxesFormatter instance.
+        """
+        axf = axf or AxesFormatter()
+        name: str
+        dist: Ratio
+        for name, dist in self._data.items():
+            kdeplot(
+                x=dist.data,
+                label=name, ax=axf.axes
+            )
+        axf.axes.legend()
         return axf

@@ -19,6 +19,14 @@ class ContinuousSeriesMixin(object):
 
     _data: Series
 
+    @property
+    def name(self):
+        return self._data.name
+
+    @property
+    def data(self) -> Series:
+        return self._data
+
     def means(self) -> Union[Series, Mapping[str, float]]:
         return self._data.map(lambda d: d.mean())
 
@@ -127,12 +135,14 @@ class ContinuousSeriesMixin(object):
             axf.x_ticks.set_labels(self._data.index)
             axf.set_y_lim(lowest - (highest - lowest) / 20,
                           highest + (highest - lowest) / 20)
+            axf.set_y_label_text(str(self.name))
         else:
             axf.set_y_lim(0, num_dists + 1)
             axf.y_ticks.set_locations(range(1, num_dists + 1))
             axf.y_ticks.set_labels(self._data.index)
             axf.set_x_lim(lowest - (highest - lowest) / 20,
                           highest + (highest - lowest) / 20)
+            axf.set_x_label_text(str(self.name))
         return axf
 
     def __repr__(self):

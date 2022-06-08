@@ -14,9 +14,9 @@ class NormalFrame(
 
     def __init__(self, data: DataFrame):
         """
-        Create a new BetaFrame.
+        Create a new NormalFrame.
 
-        :param data: DataFrame of Beta distributions.
+        :param data: DataFrame of Normal distributions.
         """
         self._data: DataFrame = data
 

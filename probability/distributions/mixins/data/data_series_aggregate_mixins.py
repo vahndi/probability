@@ -69,3 +69,17 @@ class DataSeriesMedianMixin(object):
             ix: self._data[ix].median()
             for ix in self._data.index
         })
+
+
+class DataSeriesStdMixin(object):
+
+    _data: Series
+
+    def std(self) -> Series:
+        """
+        Return a Series of the standard deviation of each distribution.
+        """
+        return Series({
+            ix: self._data[ix].std()
+            for ix in self._data.index
+        })

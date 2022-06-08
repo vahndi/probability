@@ -104,7 +104,8 @@ class OrdinalSeries(
                     x_left=x_center - bar_width / 2,
                     y_bottom=y_center - heights / 2,
                     color=rect_color,
-                    alpha=pct / max_pct
+                    alpha=pct / max_pct,
+                    line_width=0
                 )
                 if pct_labels:
                     axf.add_text(x=x_center, y=y_center,

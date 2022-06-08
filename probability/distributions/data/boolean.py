@@ -66,7 +66,9 @@ class Boolean(
         for category in categorical.categories:
             bools_dict[category] = self.filter_to(categorical.keep(category))
         from probability.distributions.data.boolean_series import BooleanSeries
-        return BooleanSeries(bools_dict)
+        boolean_series_data = Series(bools_dict, name=self.name)
+        boolean_series_data.index.name = categorical.name
+        return BooleanSeries(boolean_series_data)
 
     def plot_conditional_prob_densities(
             self,

@@ -8,6 +8,8 @@ from seaborn import kdeplot, histplot
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Gamma, Normal
+from probability.distributions.mixins.data.data_comparison_mixins import \
+    DataCohensDMixin
 
 from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
     DataNumericComparisonMixin
@@ -38,6 +40,7 @@ class Ratio(
     DataVarMixin,
     DataModeMixin,
     DataSortableMixin,
+    DataCohensDMixin,
     object
 ):
     def __init__(self, data: Series):
@@ -235,7 +238,9 @@ class Ratio(
         for category in categorical.categories:
             ratios_dict[category] = self.filter_to(categorical.keep(category))
         from probability.distributions.data.ratio_series import RatioSeries
-        return RatioSeries(ratios_dict)
+        ratio_series_data = Series(ratios_dict, name=self.name)
+        ratio_series_data.index.name = categorical.name
+        return RatioSeries(ratio_series_data)
 
     def plot_conditional_dist_densities(
             self,
@@ -317,71 +322,6 @@ class Ratio(
         axf.x_ticks.set_locations(range(1, n_cats + 1)).set_labels(cats)
 
         return axf
-
-    def cohens_d(self, other: 'Ratio') -> float:
-        """
-        Calculate the Cohen's d standardized difference of means between self
-        and other.
-
-        https://en.wikipedia.org/wiki/Effect_size#Cohen's_d
-        """
-        n1, n2 = len(self), len(other)
-        v1, v2 = self._data.var(), other._data.var()
-        x1, x2 = self._data.mean(), other._data.mean()
-        # pooled standard deviation
-        s = (
-            ((n1 - 1) * v1 + (n2 - 1) * v2) /
-            (n1 + n2 - 2)
-        ) ** 0.5
-        return (x1 - x2) / s
-
-    def conditional_cohens_d(
-            self,
-            categorical: DataCategoriesMixin
-    ) -> DataFrame:
-        """
-        Return a matrix of the Cohen's d of the Ratio conditioned on each
-        category compared to it conditioned on each other category.
-
-        :param categorical: Categorical data distribution to condition on.
-
-        https://en.wikipedia.org/wiki/Effect_size#Cohen's_d
-        """
-        dists: Dict[str, Ratio] = {
-            category: self.filter_to(
-                categorical.keep(category)
-            ).rename(category)
-            for category in categorical.categories
-        }
-        v: Dict[str, float] = {
-            category: dist.var()
-            for category, dist in dists.items()
-        }
-        n: Dict[str, int] = {
-            category: len(dist)
-            for category, dist in dists.items()
-        }
-        x: Dict[str, float] = {
-            category: dist.mean()
-            for category, dist in dists.items()
-        }
-        results = []
-        for control, treatment in product(dists.keys(), dists.keys()):
-            n1, n2 = n[control], n[treatment]
-            v1, v2 = v[control], v[treatment]
-            x1, x2 = x[control], x[treatment]
-            s = (
-                    ((n1 - 1) * v1 + (n2 - 1) * v2) /
-                    (n1 + n2 - 2)
-            ) ** 0.5
-            results.append({
-                'control': control,
-                'treatment': treatment,
-                'd': (x2 - x1) / s
-            })
-        return DataFrame(results).pivot(
-            index='control', columns='treatment', values='d'
-        ).reindex(dists.keys(), axis=0).reindex(dists.keys(), axis=1)
 
     def __repr__(self):
 

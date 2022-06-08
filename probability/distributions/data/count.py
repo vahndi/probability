@@ -185,7 +185,9 @@ class Count(
         for category in categorical.categories:
             counts_dict[category] = self.filter_to(categorical.keep(category))
         from probability.distributions.data.count_series import CountSeries
-        return CountSeries(counts_dict)
+        count_series_data = Series(counts_dict, name=self.name)
+        count_series_data.index.name = categorical.name
+        return CountSeries(count_series_data)
 
     def __repr__(self):
 
