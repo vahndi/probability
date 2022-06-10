@@ -130,8 +130,8 @@ class BooleanSeries(
         axf.set_text(
             title=f'{hdi: .0%} HDIs of $p(' +
                   r'p_{' + self.name + r'}' +
-                  f'|{category})$',
-            x_label=category,
+                  f'|{self.index.name})$',
+            x_label=self.index.name,
             y_label=r'$p_{' + self.name + r'}$'
         )
         # axes

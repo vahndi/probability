@@ -5,6 +5,7 @@ from pandas import DataFrame
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from mpl_format.utils.color_utils import cross_fade
+from mpl_format.utils.number_utils import format_as_percent
 from probability.distributions import Boolean
 
 
@@ -35,6 +36,7 @@ class BooleanFrame(object):
             width: float = 0.8,
             color: Color = 'k',
             color_min: Optional[Color] = None,
+            pct_labels: bool = True,
             edges: bool = False,
             conditional: bool = True,
             axf: Optional[AxesFormatter] = None
@@ -46,6 +48,7 @@ class BooleanFrame(object):
         :param color: Color for the densest part of each distribution.
         :param color_min: Color for the sparsest part of each distribution,
                           if different to color.
+        :param pct_labels: Whether to add percentage labels to each density bar.
         :param edges: Whether to plot the edges of each set of bars.
         :param conditional: Whether to use the max of all means or the max of
                             means of each index to color the bars.
@@ -66,15 +69,23 @@ class BooleanFrame(object):
                     rect_color = cross_fade(color_min, color, pct / max_mean)
                 else:
                     rect_color = color
+                x_center = x + 1
+                y_center = y + 1
                 axf.add_rectangle(
                     width=bar_width,
                     height=1,
-                    x_center=x + 1,
-                    y_center=y + 1,
+                    x_center=x_center,
+                    y_center=y_center,
                     color=rect_color,
                     alpha=pct / max_mean,
                     line_width=0
                 )
+                if pct_labels:
+                    axf.add_text(x=x_center, y=y_center,
+                                 text=format_as_percent(pct, 1),
+                                 h_align='center', v_align='center',
+                                 bbox_edge_color='k', bbox_fill=True,
+                                 bbox_face_color='white')
             if edges:
                 x_center = x + 1
                 axf.add_rectangle(

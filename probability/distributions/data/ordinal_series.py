@@ -74,8 +74,7 @@ class OrdinalSeries(
             self._data[key].counts().sum()
             for key in self.keys()
         ])
-        # find highest percentage of total items of a category in its
-        # distribution
+        # find highest % of total items of a category in its distribution
         max_pct = max([
             self._data[key].counts().max() / self._data[key].counts().sum()
             for key in self.keys()
