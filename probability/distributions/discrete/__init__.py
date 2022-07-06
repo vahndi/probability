@@ -5,3 +5,4 @@ from probability.distributions.discrete.hyper_geometric import HyperGeometric
 from probability.distributions.discrete.negative_binomial import \
     NegativeBinomial
 from probability.distributions.discrete.poisson import Poisson
+from probability.distributions.discrete.skellam import Skellam
