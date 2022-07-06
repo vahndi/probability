@@ -22,6 +22,12 @@ class DataSeriesMixin(object):
     def keys(self) -> List[str]:
         return self._data.keys().to_list()
 
+    def lens(self) -> Series:
+        return Series({
+            key: len(self._data[key])
+            for key in self.keys()
+        })
+
     def __getitem__(self, item):
         """
         Return the distribution corresponding to the given key.

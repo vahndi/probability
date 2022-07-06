@@ -1,4 +1,4 @@
-from typing import Union, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING, List
 
 from numpy import linspace, inf
 from pandas import Series
@@ -51,6 +51,28 @@ class Boolean(
         data = data.dropna()
         self._data: Series = data
         self._categories = [False, True]
+
+    def drop(self, categories: Union[bool, List[bool]]) -> 'Boolean':
+        """
+        Drop one or more categories from the underlying data.
+
+        :param categories: Categories to drop.
+        """
+        if isinstance(categories, bool):
+            categories = [categories]
+        data = self._data.loc[~self._data.isin(categories)]
+        return type(self)(data=data)
+
+    def keep(self, categories: Union[bool, List[bool]]) -> 'Boolean':
+        """
+        Drop all the categories from the data not in the one(s) given.
+
+        :param categories: Categories to keep.
+        """
+        if isinstance(categories, str) or isinstance(categories, bool):
+            categories = [categories]
+        data = self._data.loc[self._data.isin(categories)]
+        return type(self)(data=data)
 
     def split_by(
             self,

@@ -4,8 +4,8 @@ from typing import TypeVar, List, Union, Optional
 from pandas import Series
 
 from probability.custom_types.external_custom_types import FloatArray1d
-from probability.distributions.conjugate.dirichlet_multinomial_conjugate import \
-    DirichletMultinomialConjugate
+from probability.distributions.conjugate.dirichlet_multinomial_conjugate \
+    import DirichletMultinomialConjugate
 from probability.distributions.continuous.beta_series import BetaSeries
 
 DCM = TypeVar('DCM', bound='DataCategoriesMixin')
@@ -70,7 +70,7 @@ class DataCategoriesMixin(object):
             new_categories: Union[list, dict]
     ) -> DCM:
         """
-        Return a new Ordinal with its categories renamed.
+        Return a new instance with its categories renamed.
         """
         if (
                 isinstance(new_categories, list) or
@@ -91,6 +91,17 @@ class DataCategoriesMixin(object):
                 ordered=self._ordered
             )
             return type(self)(data=data)
+
+    def reverse_categories(self: DCM) -> DCM:
+        """
+        Return a new instance with its category order reversed. Leaves the data
+        untouched.
+        """
+        data = self._data.cat.set_categories(
+            new_categories=self.categories[::-1],
+            ordered=self._ordered
+        )
+        return type(self)(data=data)
 
     def pmf_betas(
             self,

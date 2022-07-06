@@ -378,7 +378,7 @@ class Ordinal(
     def probably_greater_than(self, other: 'Ordinal') -> float:
         """
         Find the approximate probability that self > other, assuming an
-        underlying Normal data generating distribution..
+        underlying Normal data generating distribution.
         """
         m_self = self._data_vals.mean()
         s_self = self._data_vals.std()

@@ -1,4 +1,5 @@
-from typing import List, Union, Optional, TYPE_CHECKING
+from itertools import combinations
+from typing import List, Union, Optional, TYPE_CHECKING, Tuple
 
 from numpy import nan
 from pandas import Series
@@ -111,6 +112,14 @@ class Nominal(
         nominal_series_data = Series(nominals_dict, name=self.name)
         nominal_series_data.index.name = categorical.name
         return NominalSeries(nominal_series_data)
+
+    def category_combinations(self, k: int) -> List[Tuple[str, ...]]:
+        """
+        Return combinations of category names.
+
+        :param k: Number of names in each combination
+        """
+        return list(combinations(self.categories, k))
 
     def __repr__(self):
 
