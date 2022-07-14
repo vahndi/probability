@@ -1,7 +1,9 @@
 from itertools import product
-from typing import List, Union, Type, Optional, Iterable, Dict, TYPE_CHECKING
+from typing import List, Union, Type, Optional, Iterable, Dict, TYPE_CHECKING, \
+    Tuple
 
 from numpy import inf, linspace, floor, ceil, arange, histogram
+from numpy.random import seed
 from pandas import Series, IntervalIndex, cut, qcut, DataFrame
 from seaborn import kdeplot, histplot
 
@@ -24,6 +26,7 @@ from probability.distributions.mixins.data.data_sortable_mixin import \
     DataSortableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 if TYPE_CHECKING:
     from probability.distributions.data.ordinal import Ordinal
@@ -241,6 +244,137 @@ class Ratio(
         ratio_series_data = Series(ratios_dict, name=self.name)
         ratio_series_data.index.name = categorical.name
         return RatioSeries(ratio_series_data)
+
+    def _check_can_compare(self, other: 'Ratio'):
+
+        if not isinstance(other, Ratio):
+            raise TypeError('Can only compare a Ratio with another Ratio')
+
+    def rvs(self, num_samples: int,
+            random_state: Optional[int] = None) -> Series:
+        """
+        Sample `num_samples` random values from the distribution.
+        """
+        if random_state is not None:
+            seed(random_state)
+        return self._data.sample(
+            n=num_samples, replace=True
+        ).reset_index(drop=True)
+
+    def _comparison_samples(
+            self, other: 'Ratio',
+            num_samples: Optional[int] = None
+    ) -> Tuple[Series, Series]:
+        """
+        Method to make it faster and more accurate to implement  <= and >=.
+        """
+        if num_samples is None:
+            num_samples = NUM_SAMPLES_COMPARISON
+        self_samples = self.rvs(num_samples)
+        other_samples = other.rvs(num_samples)
+        return self_samples, other_samples
+
+    def prob_equal_to(self, other: 'Ratio',
+                      num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self = other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values == other_values).mean()
+
+    def __eq__(self, other: 'Ratio') -> float:
+        """
+        Return the probability that self = other. based on sampling.
+        """
+        return self.prob_equal_to(other)
+
+    def prob_not_equal_to(self, other: 'Ratio',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self != other. based on sampling.
+        """
+        return 1 - self.prob_equal_to(other, num_samples)
+
+    def __ne__(self, other: 'Ratio') -> float:
+        """
+        Return the probability that self != other. based on sampling.
+        """
+        return self.prob_not_equal_to(other)
+
+    def prob_less_than(self, other: 'Ratio',
+                       num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self < other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values < other_values).mean()
+
+    def __lt__(self, other: 'Ratio') -> float:
+        """
+        Return the probability that self < other. based on sampling.
+        """
+        return self.prob_less_than(other)
+
+    def prob_greater_than(self, other: 'Ratio',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self > other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values > other_values).mean()
+
+    def __gt__(self, other: 'Ratio') -> float:
+        """
+        Return the probability that self > other. based on sampling.
+        """
+        return self.prob_greater_than(other)
+
+    def __le__(self, other: 'Ratio') -> float:
+        """
+        Return the probability that self <= other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values <= other_values).mean()
+
+    def __ge__(self, other: 'Ratio') -> float:
+        """
+        Return the probability that self >= other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values >= other_values).mean()
+
+    def probably_less_than(self, other: 'Ratio') -> float:
+        """
+        Find the approximate probability that self < other, assuming an
+        underlying Normal data generating distribution.
+        """
+        m_self = self._data.mean()
+        s_self = self._data.std()
+        m_other = other._data.mean()
+        s_other = other._data.std()
+        m_diff = m_self - m_other
+        s_diff = (s_self ** 2 + s_other ** 2) ** 0.5
+        diff = Normal(mu=m_diff, sigma=s_diff)
+        return diff < 0
+
+    def probably_greater_than(self, other: 'Ratio') -> float:
+        """
+        Find the approximate probability that self > other, assuming an
+        underlying Normal data generating distribution.
+        """
+        m_self = self._data.mean()
+        s_self = self._data.std()
+        m_other = other._data.mean()
+        s_other = other._data.std()
+        m_diff = m_self - m_other
+        s_diff = (s_self ** 2 + s_other ** 2) ** 0.5
+        diff = Normal(mu=m_diff, sigma=s_diff)
+        return diff > 0
 
     def plot_conditional_dist_densities(
             self,

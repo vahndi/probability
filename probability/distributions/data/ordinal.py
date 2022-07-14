@@ -312,7 +312,9 @@ class Ordinal(
             self, other: 'Ordinal',
             num_samples: Optional[int] = None
     ) -> Tuple[Series, Series]:
-
+        """
+        Method to make it faster and more accurate to implement  <= and >=.
+        """
         if num_samples is None:
             num_samples = NUM_SAMPLES_COMPARISON
         self_samples = self.rvs_values(num_samples)
@@ -321,59 +323,91 @@ class Ordinal(
 
     def prob_equal_to(self, other: 'Ordinal',
                       num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-
+        """
+        Return the probability that self = other. based on sampling.
+        """
         self._check_can_compare(other)
         self_values, other_values = self._comparison_samples(other, num_samples)
         return (self_values == other_values).mean()
 
     def __eq__(self, other: 'Ordinal') -> float:
-
+        """
+        Return the probability that self = other. based on sampling.
+        """
         return self.prob_equal_to(other)
 
     def prob_not_equal_to(self, other: 'Ordinal',
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-
+        """
+        Return the probability that self != other. based on sampling.
+        """
         return 1 - self.prob_equal_to(other, num_samples)
 
     def __ne__(self, other: 'Ordinal') -> float:
-
+        """
+        Return the probability that self != other. based on sampling.
+        """
         return self.prob_not_equal_to(other)
 
     def prob_less_than(self, other: 'Ordinal',
                        num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-
+        """
+        Return the probability that self < other. based on sampling.
+        """
         self._check_can_compare(other)
         self_values, other_values = self._comparison_samples(other, num_samples)
         return (self_values < other_values).mean()
 
     def __lt__(self, other: 'Ordinal') -> float:
-
+        """
+        Return the probability that self < other. based on sampling.
+        """
         return self.prob_less_than(other)
+
+    def prob_greater_than(self, other: 'Ordinal',
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self > other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values > other_values).mean()
+
+    def __gt__(self, other: 'Ordinal') -> float:
+        """
+        Return the probability that self > other. based on sampling.
+        """
+        return self.prob_greater_than(other)
+
+    def __le__(self, other: 'Ordinal') -> float:
+        """
+        Return the probability that self <= other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values <= other_values).mean()
+
+    def __ge__(self, other: 'Ordinal') -> float:
+        """
+        Return the probability that self >= other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values >= other_values).mean()
 
     def probably_less_than(self, other: 'Ordinal') -> float:
         """
         Find the approximate probability that self < other, assuming an
-        underlying Normal data generating distribution..
+        underlying Normal data generating distribution.
         """
         m_self = self._data_vals.mean()
         s_self = self._data_vals.std()
         m_other = other._data_vals.mean()
         s_other = other._data_vals.std()
         m_diff = m_self - m_other
-        s_diff = s_self + s_other
+        s_diff = (s_self ** 2 + s_other ** 2) ** 0.5
         diff = Normal(mu=m_diff, sigma=s_diff)
         return diff < 0
-
-    def prob_greater_than(self, other: 'Ordinal',
-                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other, num_samples)
-        return (self_values > other_values).mean()
-
-    def __gt__(self, other: 'Ordinal') -> float:
-
-        return self.prob_greater_than(other)
 
     def probably_greater_than(self, other: 'Ordinal') -> float:
         """
@@ -388,18 +422,6 @@ class Ordinal(
         s_diff = (s_self ** 2 + s_other ** 2) ** 0.5
         diff = Normal(mu=m_diff, sigma=s_diff)
         return diff > 0
-
-    def __le__(self, other: 'Ordinal') -> float:
-
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other)
-        return (self_values <= other_values).mean()
-
-    def __ge__(self, other: 'Ordinal') -> float:
-
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other)
-        return (self_values >= other_values).mean()
 
     def __repr__(self):
 

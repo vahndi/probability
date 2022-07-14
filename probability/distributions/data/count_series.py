@@ -1,6 +1,8 @@
 from typing import Optional, Union, Dict, Any
 
-from pandas import Series
+from numpy.random import choice
+from pandas import Series, DataFrame, concat
+from tqdm import tqdm
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
@@ -52,6 +54,110 @@ class CountSeries(
             ix: self._data[ix].counts()
             for ix in self._data.index
         })
+
+    def increase_probs(self) -> Series:
+        """
+        Return a Series of probabilities of whether each adjacent pair of
+        Ordinals increases from one to the next.
+        """
+        keys = self.keys()
+        results = []
+        for k in range(len(keys) - 1):
+            k_x = keys[k]
+            k_y = keys[k + 1]
+            results.append({
+                'x': k_x,
+                'y': k_y,
+                'p(y > x)': self._data[k_y].probably_greater_than(
+                    self._data[k_x]
+                )
+            })
+        return DataFrame(results).set_index(['x', 'y'])['p(y > x)']
+
+    def unsplit(self) -> Count:
+        """
+        Return a Count with all the data for each Count in the
+        CountSeries concatenated.
+        """
+        return Count(
+            data=concat([
+                self._data[key].data for key in self.keys()
+            ])
+        )
+
+    def p_increasing(
+            self,
+            n_iter: int = 1_000
+    ) -> float:
+        """
+        Return the probability that the Counts increase as the key increases.
+        """
+        ref_probs = self.increase_probs()
+        ref_sum = ref_probs.sum()
+        ref_prod = ref_probs.product()
+        # calculate p(y)
+        p_y = self.unsplit().pmf()
+        y = p_y.index.to_list()
+        # calculate n[X]
+        n_x = self.lens()
+        # repeat
+        results = []
+        for _ in tqdm(range(n_iter)):
+            # create sampled distribution for each x
+            s_x = {}
+            for k in self.keys():
+                s_x[k] = Count(Series(
+                    data=choice(a=y, size=n_x[k], p=p_y),
+                ))
+            count_test = CountSeries(s_x)
+            # find probability that sampled distribution is increasing,
+            # and by how much
+            test_probs = count_test.increase_probs()
+            test_sum = test_probs.sum()
+            test_prod = test_probs.prod()
+            # if result is more extreme than observed, record a 1
+            if ref_sum > test_sum and ref_prod > test_prod:
+                results.append(1)
+            else:
+                results.append(0)
+        return Series(results).mean()
+
+    def p_decreasing(
+            self,
+            n_iter: int = 1_000
+    ) -> float:
+        """
+        Return the probability that the Counts decrease as the key increases.
+        """
+        ref_probs = self.increase_probs()
+        ref_sum = ref_probs.sum()
+        ref_prod = ref_probs.product()
+        # calculate p(y)
+        p_y = self.unsplit().pmf()
+        y = p_y.index.to_list()
+        # calculate n[X]
+        n_x = self.lens()
+        # repeat
+        results = []
+        for _ in tqdm(range(n_iter)):
+            # create sampled distribution for each x
+            s_x = {}
+            for k in self.keys():
+                s_x[k] = Count(Series(
+                    data=choice(a=y, size=n_x[k], p=p_y),
+                ))
+            count_test = CountSeries(s_x)
+            # find probability that sampled distribution is increasing,
+            # and by how much
+            test_probs = count_test.increase_probs()
+            test_sum = test_probs.sum()
+            test_prod = test_probs.prod()
+            # if result is more extreme than observed, record a 1
+            if ref_sum < test_sum and ref_prod < test_prod:
+                results.append(1)
+            else:
+                results.append(0)
+        return Series(results).mean()
 
     def plot_bars(
             self,

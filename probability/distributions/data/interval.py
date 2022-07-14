@@ -13,8 +13,9 @@ from probability.distributions.mixins.data.data_numeric_comparison_mixin import 
 from probability.distributions.mixins.data.data_distribution_mixin import \
     DataDistributionMixin
 from probability.distributions.mixins.data.data_aggregate_mixins import \
-    DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataVarMixin
+    DataMinMixin, DataMaxMixin, \
+    DataMeanMixin, DataMedianMixin, DataModeMixin, \
+    DataStdMixin, DataVarMixin
 
 if TYPE_CHECKING:
     from probability.distributions.data.interval_series import IntervalSeries
