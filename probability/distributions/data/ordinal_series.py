@@ -1,12 +1,14 @@
 from itertools import product
 from typing import Union, Dict, Any, Optional, Mapping, List
 
-from numpy import inf
+from numpy import inf, arange, nan
 from numpy.random import choice
 from pandas import Series, DataFrame, concat
+from seaborn import heatmap
 from tqdm import tqdm
 
 from mpl_format.axes import AxesFormatter
+from mpl_format.axes.axis_utils import new_axes
 from mpl_format.compound_types import Color
 from mpl_format.utils.color_utils import cross_fade
 from mpl_format.utils.number_utils import format_as_percent
@@ -55,6 +57,15 @@ class OrdinalSeries(
         return DataFrame(
             correlations
         ).set_index(['x', 'y']).unstack('y').droplevel(0, axis=1)
+
+    def entropy(self) -> Series:
+        """
+        Return a Series with the entropy of each item.
+        """
+        return Series({
+            k: v.entropy()
+            for k, v in self._data.items()
+        })
 
     def increase_probs(self) -> Series:
         """
@@ -280,4 +291,28 @@ class OrdinalSeries(
         axf.y_ticks.set_locations(
             range(1, n_cats + 1)).set_labels(cats)
 
+        return axf
+
+    def plot_correlation(
+            self,
+            grid_font_size: float = 12,
+            fmt: str = '.1%',
+            axf: Optional[AxesFormatter] = None,
+            **heatmap_kwargs
+    ) -> AxesFormatter:
+        """
+        Plot a correlation grid for the Ordinals in the Series.
+
+        :param grid_font_size: Font size for the grid labels.
+        :param fmt: Formatter for the grid labels.
+        :param axf: Optional AxesFormatter instance.
+        """
+        axf = axf or new_axes()
+        corr = self.correlation().round(2)
+        corr.values[[arange(corr.shape[0])] * 2] = nan
+        heatmap(
+            corr, ax=axf.axes,
+            annot=True, fmt=fmt, annot_kws={'fontsize': grid_font_size},
+            **heatmap_kwargs
+        )
         return axf
