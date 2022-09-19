@@ -5,7 +5,7 @@ from pandas import Series
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
-from probability.distributions import BetaBinomialConjugate
+from probability.distributions import BetaBinomialConjugate, Beta
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
     DataVarMixin, DataModeMixin
@@ -73,6 +73,15 @@ class Boolean(
             categories = [categories]
         data = self._data.loc[self._data.isin(categories)]
         return type(self)(data=data)
+
+    def to_beta(self) -> Beta:
+        """
+        Convert to a Beta distribution.
+        """
+        return Beta(
+            alpha=(self._data == True).sum(),
+            beta=(self._data == False).sum()
+        )
 
     def split_by(
             self,

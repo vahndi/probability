@@ -1,18 +1,10 @@
-from typing import Optional, Mapping, Union, List
+from typing import Mapping, Union
 
-from numpy import linspace
-from numpy.ma import arange
 from pandas import Series, DataFrame
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
-from mpl_format.utils.color_utils import cross_fade
 from probability.distributions import Beta
-from probability.distributions.functions.continuous_function_1d_series import \
-    ContinuousFunction1dSeries
 from probability.distributions.mixins.continuous_series_mixin import \
     ContinuousSeriesMixin
-from probability.models.utils import loop_variable
 
 
 class BetaSeries(
@@ -69,3 +61,6 @@ class BetaSeries(
     @property
     def data(self) -> Union[Series, Mapping[str, Beta]]:
         return self._data
+
+    def rename(self, name: str) -> 'BetaSeries':
+        return BetaSeries(data=self._data.rename(name))

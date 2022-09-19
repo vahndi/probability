@@ -6,6 +6,7 @@ from pandas import Series, DataFrame
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Boolean, BetaBinomialConjugate
+from probability.distributions.continuous.beta_series import BetaSeries
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
 from probability.distributions.mixins.data.data_distribution_mixin import \
@@ -73,6 +74,12 @@ class BooleanSeries(
         from probability.distributions.data.boolean_frame import BooleanFrame
         return BooleanFrame(bools_frame)
 
+    def to_beta_series(self) -> BetaSeries:
+        """
+        Convert to a Beta distribution.
+        """
+        return BetaSeries(data=self._data.map(lambda b: b.to_beta()))
+
     def plot_prob_densities(
             self,
             hdi: float = 0.95,
@@ -107,9 +114,7 @@ class BooleanSeries(
         for c, category in enumerate(self.keys()):
             # fit distribution and find limits for HDI
             cat_data: Series = self._data[category].data
-            cat_dist = BetaBinomialConjugate.infer_posterior(
-                self._data[category].data
-            )
+            cat_dist = BetaBinomialConjugate.infer_posterior(cat_data)
             # cat_dist = Beta.fit(data=cat_ratio_data)
             y_min, y_max = cat_dist.hdi(hdi)
             yy_min, yy_max = min(y_min, yy_min), max(y_max, yy_max)

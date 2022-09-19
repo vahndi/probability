@@ -182,7 +182,7 @@ class OrdinalSeries(
             self,
             width: float = 0.8,
             heights: float = 0.9,
-            color: Color = 'k',
+            color: Union[Color, List[Color]] = 'k',
             pct_labels: bool = True,
             edges: bool = False,
             color_min: Optional[Color] = None,
@@ -219,6 +219,11 @@ class OrdinalSeries(
             self._data[key].counts().max() / self._data[key].counts().sum()
             for key in self.keys()
         ])
+        # assign colors
+        if isinstance(color, list):
+            colors = {key: color for key, color in zip(self.keys(), color)}
+        else:
+            colors = {key: color for key in self.keys()}
         for k, key in enumerate(self.keys()):
             key_ord_data = self[key]
             value_counts = key_ord_data.data.value_counts().reindex(
@@ -273,8 +278,8 @@ class OrdinalSeries(
                     x_left=x_center - bar_width / 2,
                     y_bottom=y_min,
                     edge_color=(
-                        color if color_min is None else
-                        cross_fade(color_min, color, 0.5)
+                        colors[key] if color_min is None else
+                        cross_fade(color_min, colors[key], 0.5)
                     ),
                     fill=False
                 )
