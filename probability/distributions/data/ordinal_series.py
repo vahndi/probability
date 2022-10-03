@@ -178,7 +178,7 @@ class OrdinalSeries(
                 results.append(0)
         return Series(results).mean()
 
-    def plot_densities(
+    def plot_density_grid(
             self,
             width: float = 0.8,
             heights: float = 0.9,
@@ -320,4 +320,18 @@ class OrdinalSeries(
             annot=True, fmt=fmt, annot_kws={'fontsize': grid_font_size},
             **heatmap_kwargs
         )
+        return axf
+
+    def plot_pmf_lines(
+            self,
+            axf: Optional[AxesFormatter] = None,
+            **plot_kwargs
+    ):
+
+        pmf_data = concat([
+            self[key].pmf().rename(key)
+            for key in self.keys()
+        ], axis=1)
+        axf = axf or AxesFormatter()
+        pmf_data.plot.line(ax=axf.axes, **plot_kwargs)
         return axf
