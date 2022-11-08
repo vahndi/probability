@@ -65,7 +65,7 @@ class Count(
 
     def as_ordinal(
             self,
-            values: List[Union[int, Tuple[int, int]]]
+            values: Optional[List[Union[int, Tuple[int, int]]]] = None
     ):
         """
         Convert to an Ordinal variable.
@@ -76,6 +76,8 @@ class Count(
         """
         mapping = {}
         new_categories = []
+        if values is None:
+            values = self._categories
         for value in values:
             if isinstance(value, int):
                 category_name = str(value)

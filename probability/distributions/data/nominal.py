@@ -4,6 +4,8 @@ from typing import List, Union, Optional, TYPE_CHECKING, Tuple
 from numpy import nan
 from pandas import Series
 
+from probability.distributions import Beta
+from probability.distributions.continuous.beta_series import BetaSeries
 from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
@@ -94,6 +96,14 @@ class Nominal(
             data = data.replace(e, nan)
         data = data.dropna()
         return Boolean(data)
+
+    def to_beta_series(self) -> BetaSeries:
+
+        return BetaSeries(
+            data=Series(data={k: Beta(alpha=v, beta=len(self) - v)
+                              for k, v in self.counts().items()},
+                        name=self.name),
+        )
 
     def split_by(
             self,

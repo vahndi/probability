@@ -178,11 +178,11 @@ class OrdinalSeries(
                 results.append(0)
         return Series(results).mean()
 
-    def plot_densities(
+    def plot_density_grid(
             self,
             width: float = 0.8,
             heights: float = 0.9,
-            color: Color = 'k',
+            color: Union[Color, List[Color]] = 'k',
             pct_labels: bool = True,
             edges: bool = False,
             color_min: Optional[Color] = None,
@@ -219,6 +219,11 @@ class OrdinalSeries(
             self._data[key].counts().max() / self._data[key].counts().sum()
             for key in self.keys()
         ])
+        # assign colors
+        if isinstance(color, list):
+            colors = {key: color for key, color in zip(self.keys(), color)}
+        else:
+            colors = {key: color for key in self.keys()}
         for k, key in enumerate(self.keys()):
             key_ord_data = self[key]
             value_counts = key_ord_data.data.value_counts().reindex(
@@ -273,8 +278,8 @@ class OrdinalSeries(
                     x_left=x_center - bar_width / 2,
                     y_bottom=y_min,
                     edge_color=(
-                        color if color_min is None else
-                        cross_fade(color_min, color, 0.5)
+                        colors[key] if color_min is None else
+                        cross_fade(color_min, colors[key], 0.5)
                     ),
                     fill=False
                 )
@@ -315,4 +320,18 @@ class OrdinalSeries(
             annot=True, fmt=fmt, annot_kws={'fontsize': grid_font_size},
             **heatmap_kwargs
         )
+        return axf
+
+    def plot_pmf_lines(
+            self,
+            axf: Optional[AxesFormatter] = None,
+            **plot_kwargs
+    ):
+
+        pmf_data = concat([
+            self[key].pmf().rename(key)
+            for key in self.keys()
+        ], axis=1)
+        axf = axf or AxesFormatter()
+        pmf_data.plot.line(ax=axf.axes, **plot_kwargs)
         return axf

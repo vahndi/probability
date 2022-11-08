@@ -212,6 +212,7 @@ class Ordinal(
             color_min: Optional[Color] = None,
             color_mean: Optional[Color] = None,
             color_median: Optional[Color] = None,
+            pct_label_kwargs: Optional[dict] = None,
             axf: Optional[AxesFormatter] = None
     ) -> AxesFormatter:
         """
@@ -226,6 +227,7 @@ class Ordinal(
                           if different to color.
         :param color_mean: Color for mean data markers.
         :param color_median: Color for median data markers.
+        :param pct_label_kwargs: Keyword arguments to pass to add_text method.
         :param axf: Optional AxesFormatter to plot on.
         """
         axf = axf or AxesFormatter()
@@ -246,6 +248,12 @@ class Ordinal(
             ordinal_data.loc[cat_data == category].value_counts().sum()
             for category in categorical.categories
         ])
+        pct_kwargs = dict(h_align='center', v_align='center',
+                          bbox_edge_color='k', bbox_fill=True,
+                          bbox_face_color='white')
+        if pct_label_kwargs is not None:
+            for k, v in pct_label_kwargs.items():
+                pct_kwargs[k] = v
         for c, category in enumerate(categorical.categories):
             cat_ratio_data = ordinal_data.loc[cat_data == category]
             value_counts = cat_ratio_data.value_counts().reindex(
@@ -269,9 +277,7 @@ class Ordinal(
                 )
                 axf.add_text(x=x_center, y=y_center,
                              text=format_as_percent(pct, 1),
-                             h_align='center', v_align='center',
-                             bbox_edge_color='k', bbox_fill=True,
-                             bbox_face_color='white')
+                             **pct_kwargs)
             if len(cat_ratio_data) == 0:
                 continue
             # plot descriptive statistics lines
