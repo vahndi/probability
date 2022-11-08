@@ -1,4 +1,4 @@
-from typing import Optional, Mapping, Union, List
+from typing import Optional, Mapping, Union, List, Any, Dict
 
 from numpy import linspace
 from numpy.ma import arange
@@ -20,12 +20,14 @@ class BetaSeries(
     object
 ):
 
-    def __init__(self, data: Series):
+    def __init__(self, data: Union[Series, Dict[Any, Beta]]):
         """
         Create a new BetaSeries.
 
         :param data: Series of Beta distributions.
         """
+        if isinstance(data, dict):
+            data = Series(data)
         self._data: Series = data
 
     @staticmethod
