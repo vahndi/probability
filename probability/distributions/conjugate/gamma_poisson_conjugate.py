@@ -214,8 +214,8 @@ class GammaPoissonConjugate(
         """
         if alpha is None:
             alpha = VaguePrior.Gamma.alpha
-        if alpha is None:
-            alpha = VaguePrior.Gamma.beta
+        if beta is None:
+            beta = VaguePrior.Gamma.beta
         data = data.dropna()
         k: int = data.sum()
         n: int = len(data)

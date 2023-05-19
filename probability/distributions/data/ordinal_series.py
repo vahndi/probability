@@ -334,4 +334,26 @@ class OrdinalSeries(
         ], axis=1)
         axf = axf or AxesFormatter()
         pmf_data.plot.line(ax=axf.axes, **plot_kwargs)
+        axf.set_text(
+            title=f'p({self.name}|{self.index.name})',
+            x_label=str(self.name), y_label=f'p({self.name})'
+        )
+        return axf
+
+    def plot_pmf_bars(
+            self,
+            axf: Optional[AxesFormatter] = None,
+            **plot_kwargs
+    ):
+
+        pmf_data = concat([
+            self[key].pmf().rename(key)
+            for key in self.keys()
+        ], axis=1)
+        axf = axf or AxesFormatter()
+        pmf_data.plot.bar(ax=axf.axes, **plot_kwargs)
+        axf.set_text(
+            title=f'p({self.name}|{self.index.name})',
+            x_label=str(self.name), y_label=f'p({self.name})'
+        )
         return axf
