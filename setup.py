@@ -17,7 +17,10 @@ setup(
         'numba',
         'numpy',
         'pandas',
-        'scipy'
+        'scipy',
+        'seaborn',
+        'setuptools',
+        'tqdm'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',
