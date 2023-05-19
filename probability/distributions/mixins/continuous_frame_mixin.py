@@ -23,7 +23,6 @@ class ContinuousFrameMixin(object):
         return self._data
 
     def means(self) -> DataFrame:
-
         return self._data.applymap(lambda dist: dist.mean())
 
     def drop(
@@ -136,5 +135,28 @@ class ContinuousFrameMixin(object):
         return axf
 
     def __str__(self):
-
         return str(self._data)
+
+    def __gt__(self: CFM, other: CFM) -> DataFrame:
+        """
+        Return the probability that each distribution in this frame is greater
+        than the corresponding distribution in the other frame.
+        """
+        if set(self.data.index) != set(other.data.index):
+            raise IndexError('mismatched Indexes')
+        if set(self.data.columns) != set(other.data.columns):
+            raise IndexError('mismatched Columns')
+        gt = self.data.copy()
+        for ix in self.data.index:
+            for col in self.data.columns:
+                gt.loc[ix, col] = (
+                        self.data.loc[ix, col] > other.data.loc[ix, col]
+                )
+        return gt
+
+    def __lt__(self: CFM, other: CFM) -> DataFrame:
+        """
+        Return the probability that each distribution in this frame is greater
+        than the corresponding distribution in the other frame.
+        """
+        return 1 - self.__gt__(other)

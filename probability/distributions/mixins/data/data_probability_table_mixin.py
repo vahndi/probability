@@ -82,7 +82,7 @@ class DataProbabilityTableMixin(object):
             data = concat([
                 condition._data,
                 self._data,
-                weights._data.rename(weights_name)
+                weights._counts.rename(weights_name)
             ], axis=1)
             joint = data.groupby([other_name, self_name])[weights_name].sum()
             marginal = data.groupby(other_name)[weights_name].sum()
