@@ -7,6 +7,7 @@ from tqdm import tqdm
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from mpl_format.utils.color_utils import cross_fade, set_alpha
+from mpl_format.utils.number_utils import format_as_percent
 from probability.distributions import Count
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
@@ -169,6 +170,7 @@ class CountSeries(
             color_min: Optional[Color] = None,
             alpha_min: float = 0.0,
             edge_color: Optional[Color] = 'grey',
+            pct_labels: bool = True,
             axf: Optional[AxesFormatter] = None
     ):
         """
@@ -184,6 +186,7 @@ class CountSeries(
         :param color_min: Optional different color for the sparsest bars.
         :param alpha_min: Alpha value for the sparsest bars.
         :param edge_color: Optional edge color of each bar.
+        :param pct_labels: Whether to add percentage labels to each bar.
         :param axf: Optional AxesFormatter instance.
         """
         axf = axf or AxesFormatter()
@@ -201,6 +204,7 @@ class CountSeries(
         # plot each Series
         for x, (ix, dist) in enumerate(self._data.items()):
             dist_items = dist.counts()
+            dist_items_orig = dist_items
             if max_pct:
                 max_dist_val = dist.data.quantile(max_pct)
                 dist_items = dist_items.loc[dist_items.index <= max_dist_val]
@@ -225,6 +229,13 @@ class CountSeries(
                         amount=dist_count / max_count
                     )
                 )
+                if pct_labels:
+                    pct = dist_count / dist_items_orig.sum()
+                    axf.add_text(x=coords['x_center'], y=coords['y_center'],
+                                 text=format_as_percent(pct, 1),
+                                 h_align='center', v_align='center',
+                                 bbox_edge_color='k', bbox_fill=True,
+                                 bbox_face_color='white')
                 if edge_color is not None:
                     axf.add_rectangle(
                         **coords,
