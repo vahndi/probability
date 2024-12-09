@@ -2,7 +2,6 @@ from typing import Union
 
 from scipy.stats import poisson, rv_discrete
 
-from compound_types.built_ins import FloatIterable
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import LambdaFloatDMixin
 from probability.distributions.mixins.calculable_mixin import CalculableMixin

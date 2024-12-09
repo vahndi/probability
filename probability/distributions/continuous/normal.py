@@ -3,7 +3,7 @@ from typing import overload, Optional
 
 from scipy.stats import norm, rv_continuous
 
-from compound_types.built_ins import FloatIterable
+from probability.custom_types.external_custom_types import FloatIterable
 from probability.distributions.mixins.attributes import MuFloatDMixin, \
     SigmaFloatDMixin
 from probability.distributions.mixins.calculable_mixin import CalculableMixin
