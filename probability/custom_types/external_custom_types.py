@@ -5,6 +5,9 @@ from pandas import Series
 
 from probability.calculations.mixins import ProbabilityCalculationMixin
 
+
+FloatIterable = Iterable[float]
+
 Array1d = Union[Iterable[int], Iterable[float], ndarray]
 FloatArray1d = Union[Iterable[float], ndarray, Series, Sized]
 FloatOrFloatArray1d = Union[float, Iterable[float], ndarray]

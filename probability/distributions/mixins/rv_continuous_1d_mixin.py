@@ -9,7 +9,7 @@ from typing import Iterable, Optional, Tuple, Union, Dict, Any
 from probability.plotting import Color, add_v_density, new_axes
 
 
-from compound_types.built_ins import FloatIterable
+from probability.custom_types.external_custom_types import FloatIterable
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableMixin
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, \

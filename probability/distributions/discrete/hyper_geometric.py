@@ -2,7 +2,7 @@ from typing import Union
 
 from scipy.stats import rv_discrete, hypergeom
 
-from compound_types.built_ins import FloatIterable
+from probability.custom_types.external_custom_types import FloatIterable
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import NIntDMixin, \
     BigNIntDMixin, BigKIntDMixin

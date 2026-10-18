@@ -2,7 +2,7 @@ from typing import Optional
 
 from scipy.stats import rv_continuous, gamma
 
-from compound_types.built_ins import FloatIterable
+from probability.custom_types.external_custom_types import FloatIterable
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \

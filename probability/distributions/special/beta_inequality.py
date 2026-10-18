@@ -4,19 +4,19 @@ from numba import jit
 from numpy import exp, sum, array
 
 
-@jit
+@jit(nopython=True)
 def h(a, b, c, d):
     num = lgamma(a + c) + lgamma(b + d) + lgamma(a + b) + lgamma(c + d)
     den = lgamma(a) + lgamma(b) + lgamma(c) + lgamma(d) + lgamma(a + b + c + d)
     return exp(num - den)
 
 
-@jit
+@jit(nopython=True)
 def g0(a, b, c):
     return exp(lgamma(a + b) + lgamma(a + c) - (lgamma(a + b + c) + lgamma(a)))
 
 
-@jit
+@jit(nopython=True)
 def hiter(a, b, c, d):
     h_list = []
     while d > 1:
@@ -25,7 +25,7 @@ def hiter(a, b, c, d):
     return array(h_list)
 
 
-@jit
+@jit(nopython=True)
 def g(a, b, c, d):
     return g0(a, b, c) + sum(hiter(a, b, c, d))
 
