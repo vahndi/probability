@@ -25,6 +25,8 @@ from probability.distributions.mixins.data.data_information_mixin import \
     DataInformationMixin
 from probability.distributions.mixins.data.data_numeric_comparison_mixin \
     import DataNumericComparisonMixin
+from probability.distributions.mixins.data.data_sortable_mixin import \
+    DataSortableMixin
 from probability.distributions.protocols import CategoricalDistribution
 
 if TYPE_CHECKING:
@@ -45,6 +47,7 @@ class Count(
     DataVarMixin,
     DataSemMixin,
     DataModeMixin,
+    DataSortableMixin,
     DataCohensDMixin,
     DataHypothesisTestMixin,
     object
@@ -57,7 +60,13 @@ class Count(
         """
         data = data.dropna()
         self._data: Series = data.astype(int)
-        self._categories = list(range(self._data.min(), self._data.max() + 1))
+        if len(self._data) > 0:
+            self._categories = list(
+                range(int(self._data.min()), int(self._data.max()) + 1)
+            )
+        else:
+            self._categories = []
+
 
     @property
     def categories(self) -> List[int]:

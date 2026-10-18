@@ -14,6 +14,8 @@ from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, \
     DataMeanMixin, DataMedianMixin, DataModeMixin, \
     DataStdMixin, DataVarMixin, DataSemMixin
+from probability.distributions.mixins.data.data_sortable_mixin import \
+    DataSortableMixin
 from probability.distributions.protocols import CategoricalDistribution
 
 if TYPE_CHECKING:
@@ -31,6 +33,7 @@ class Interval(
     DataStdMixin,
     DataVarMixin,
     DataSemMixin,
+    DataSortableMixin,
     DataCohensDMixin,
     DataHypothesisTestMixin,
     object

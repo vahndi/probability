@@ -290,6 +290,38 @@ class TestDataDistributions(TestCase):
         self.assertAlmostEqual(0.0, gender_diffs['no_email'], 10)
         self.assertEqual(3, len(gender_diffs))
 
+    def test_quantiles_and_boolean_indicators(self):
+        # Chapter 2 ENEM scores workflow: top/bottom quantile indicators and outlier trimming
+        scores = Ratio(Series(range(1, 101), dtype=float, name='avg_score'))
+        students = Count(Series(range(10, 110), name='number_of_students'))
+
+        self.assertAlmostEqual(99.01, scores.quantile(0.99), 2)
+
+        top_school = scores.ge_quantile(0.99)
+        bottom_school = scores.le_quantile(0.01)
+        self.assertIsInstance(top_school, Boolean)
+        self.assertEqual(1, (top_school.data == True).sum())
+        self.assertEqual(1, (bottom_school.data == True).sum())
+
+        extreme_school = top_school.logical_or(bottom_school)
+        middle_school = ~extreme_school
+        self.assertEqual(2, (extreme_school.data == True).sum())
+        self.assertEqual(98, (middle_school.data == True).sum())
+
+        trimmed_students = students.between_quantiles(0.0, 0.98, inclusive='left')
+        self.assertEqual(98, len(trimmed_students))
+
+        students_by_top = students | top_school
+        self.assertEqual(99, len(students_by_top[False]))
+        self.assertEqual(1, len(students_by_top[True]))
+
+        # Also works when a split category is empty after outlier trimming
+        trimmed_by_top = trimmed_students | top_school
+        self.assertEqual(98, len(trimmed_by_top[False]))
+        self.assertEqual(0, len(trimmed_by_top[True]))
+
+
+
 
 
 

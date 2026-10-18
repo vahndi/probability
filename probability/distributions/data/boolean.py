@@ -89,6 +89,45 @@ class Boolean(
             beta=(self._data == False).sum()
         )
 
+    def __invert__(self) -> 'Boolean':
+        """
+        Return the element-wise logical negation (~self) as a Boolean
+        distribution.
+        """
+        name = f'~{self.name}' if self.name else None
+        return Boolean(data=(~self._data.astype(bool)).rename(name))
+
+    def logical_and(self, other: 'Boolean') -> 'Boolean':
+        """
+        Return the element-wise logical AND of self and other on shared indices.
+        """
+        shared_ix = self._data.index.intersection(other._data.index)
+        s = (
+            self._data.loc[shared_ix].astype(bool) &
+            other._data.loc[shared_ix].astype(bool)
+        )
+        name = (
+            f'({self.name} & {other.name})'
+            if self.name and other.name else None
+        )
+        return Boolean(data=s.rename(name))
+
+    def logical_or(self, other: 'Boolean') -> 'Boolean':
+        """
+        Return the element-wise logical OR of self and other on shared indices.
+        """
+        shared_ix = self._data.index.intersection(other._data.index)
+        s = (
+            self._data.loc[shared_ix].astype(bool) |
+            other._data.loc[shared_ix].astype(bool)
+        )
+        name = (
+            f'({self.name} | {other.name})'
+            if self.name and other.name else None
+        )
+        return Boolean(data=s.rename(name))
+
+
     def split_by(
             self,
             categorical: CategoricalDistribution
