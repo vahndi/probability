@@ -1,4 +1,4 @@
-from pandas import Series
+from pandas import DataFrame, Series
 
 
 class DataSeriesMinMixin(object):
@@ -83,3 +83,66 @@ class DataSeriesStdMixin(object):
             ix: self._data[ix].std()
             for ix in self._data.index
         })
+
+
+class DataSeriesVarMixin(object):
+
+    _data: Series
+
+    def var(self) -> Series:
+        """
+        Return a Series of the variance of each distribution.
+        """
+        return Series({
+            ix: self._data[ix].var()
+            for ix in self._data.index
+        })
+
+
+class DataSeriesSemMixin(object):
+
+    _data: Series
+
+    def se(self) -> Series:
+        """
+        Return a Series of the standard error of the mean of each distribution.
+        """
+        return Series({
+            ix: self._data[ix].se()
+            for ix in self._data.index
+        })
+
+    def sem(self) -> Series:
+        """
+        Alias for se(): return a Series of the standard error of the mean of
+        each distribution.
+        """
+        return self.se()
+
+    def mean_dist(self, use_t: bool = False) -> Series:
+        """
+        Return a Series of the sampling distributions of the mean for each
+        distribution.
+        """
+        return Series({
+            ix: self._data[ix].mean_dist(use_t=use_t)
+            for ix in self._data.index
+        })
+
+    def ci(
+            self,
+            percent: float = 0.95,
+            use_t: bool = False
+    ) -> DataFrame:
+        """
+        Return a DataFrame with 'lower' and 'upper' confidence interval bounds
+        around the mean of each distribution.
+        """
+        rows = {}
+        for ix in self._data.index:
+            low, high = self._data[ix].ci(percent=percent, use_t=use_t)
+            rows[ix] = {'lower': low, 'upper': high}
+        df = DataFrame.from_dict(rows, orient='index')
+        df.index.name = self._data.index.name
+        return df
+

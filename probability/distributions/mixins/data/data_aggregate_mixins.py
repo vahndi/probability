@@ -1,6 +1,10 @@
-from typing import Union, List
+from typing import Union, List, Tuple, TYPE_CHECKING
 
 from pandas import Series
+
+if TYPE_CHECKING:
+    from probability.distributions.continuous.normal import Normal
+    from probability.distributions.continuous.students_t import StudentsT
 
 
 class DataMinMixin(object):
@@ -69,6 +73,58 @@ class DataVarMixin(object):
         return self._data.var()
 
 
+class DataSemMixin(object):
+
+    _data: Series
+
+    def se(self) -> float:
+        """
+        Return the standard error of the mean of the data (s / sqrt(n)).
+        """
+        return float(self._data.sem())
+
+    def sem(self) -> float:
+        """
+        Alias for se(): standard error of the mean of the data.
+        """
+        return self.se()
+
+    def mean_dist(
+            self,
+            use_t: bool = False
+    ) -> Union['Normal', 'StudentsT']:
+        """
+        Return the sampling distribution of the sample mean.
+
+        :param use_t: If True, return a StudentsT distribution with n - 1
+                      degrees of freedom; otherwise return a Normal
+                      distribution.
+        """
+        mu = float(self._data.mean())
+        se = self.se()
+        if use_t:
+            from probability.distributions.continuous.students_t import (
+                StudentsT
+            )
+            return StudentsT(nu=len(self._data) - 1, mu=mu, sigma=se)
+        from probability.distributions.continuous.normal import Normal
+        return Normal(mu=mu, sigma=se)
+
+    def ci(
+            self,
+            percent: float = 0.95,
+            use_t: bool = False
+    ) -> Tuple[float, float]:
+        """
+        Return the confidence interval around the sample mean.
+
+        :param percent: Confidence level between 0 and 1 (default 0.95).
+        :param use_t: If True, use the Student's t-distribution with n - 1
+                      degrees of freedom; otherwise use the Normal distribution.
+        """
+        return self.mean_dist(use_t=use_t).interval(percent)
+
+
 class DataModeMixin(object):
 
     _data: Series
@@ -83,3 +139,4 @@ class DataModeMixin(object):
             return mode.to_list()
         else:
             return mode[0]
+

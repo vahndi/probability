@@ -12,7 +12,7 @@ from probability.distributions.conjugate.gamma_poisson_conjugate import \
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataVarMixin
+    DataModeMixin, DataVarMixin, DataSemMixin
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
 from probability.distributions.mixins.data.data_comparison_mixins import \
@@ -43,6 +43,7 @@ class Count(
     DataMedianMixin,
     DataStdMixin,
     DataVarMixin,
+    DataSemMixin,
     DataModeMixin,
     object
 ):

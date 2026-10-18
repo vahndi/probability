@@ -172,5 +172,52 @@ class TestDataDistributions(TestCase):
         self.assertEqual(2, len(gt_2))
         self.assertEqual(3.5, gt_2.mean())
 
+    def test_se_mean_dist_and_ci(self):
+        from probability.distributions.continuous.normal import Normal
+        from probability.distributions.continuous.students_t import StudentsT
+        from probability.distributions.data.interval import Interval
+
+        s = Series([2.0, 4.0, 6.0, 8.0])
+        r = Ratio(s)
+        iv = Interval(s)
+        c = Count(Series([2, 4, 6, 8]))
+        b = Boolean(Series([True, False, True, False]))
+
+        expected_se = float(s.sem())
+        for dist in (r, iv, c, b):
+            self.assertIsInstance(dist, NumericDataDistribution)
+            self.assertAlmostEqual( dist.data.sem(), dist.se(), 10)
+            self.assertAlmostEqual(dist.se(), dist.sem(), 10)
+
+        norm_dist = r.mean_dist(use_t=False)
+        self.assertIsInstance(norm_dist, Normal)
+        self.assertAlmostEqual(5.0, norm_dist.mu, 10)
+        self.assertAlmostEqual(expected_se, norm_dist.sigma, 10)
+
+        t_dist = r.mean_dist(use_t=True)
+        self.assertIsInstance(t_dist, StudentsT)
+        self.assertEqual(3, t_dist.nu)
+        self.assertAlmostEqual(5.0, t_dist.mu, 10)
+        self.assertAlmostEqual(expected_se, t_dist.sigma, 10)
+
+        ci_norm = r.ci(0.95, use_t=False)
+        ci_t = r.ci(0.95, use_t=True)
+        self.assertAlmostEqual(5.0 - 1.959963984540054 * expected_se, ci_norm[0], 6)
+        self.assertAlmostEqual(5.0 + 1.959963984540054 * expected_se, ci_norm[1], 6)
+        # t-interval with df=3 is wider than normal interval
+        self.assertLess(ci_t[0], ci_norm[0])
+        self.assertGreater(ci_t[1], ci_norm[1])
+
+        # Series aggregates (e.g. RatioSeries, BooleanSeries)
+        arm = Nominal(Series(['ctrl', 'ctrl', 'trat', 'trat']))
+        rs = r | arm
+        bs = b | arm
+        self.assertEqual(2, len(rs.se()))
+        self.assertEqual(2, len(bs.sem()))
+        ci_df = rs.ci(0.95)
+        self.assertEqual(['lower', 'upper'], list(ci_df.columns))
+        self.assertEqual(['ctrl', 'trat'], list(ci_df.index))
+
+
 
 

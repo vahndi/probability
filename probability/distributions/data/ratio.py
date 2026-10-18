@@ -21,7 +21,7 @@ from probability.distributions.mixins.data.data_distribution_mixin import \
     DataDistributionMixin
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataModeMixin, DataVarMixin
+    DataModeMixin, DataVarMixin, DataSemMixin
 from probability.distributions.mixins.data.data_sortable_mixin import \
     DataSortableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -42,6 +42,7 @@ class Ratio(
     DataMedianMixin,
     DataStdMixin,
     DataVarMixin,
+    DataSemMixin,
     DataModeMixin,
     DataSortableMixin,
     DataCohensDMixin,

@@ -8,7 +8,7 @@ from mpl_format.compound_types import Color
 from probability.distributions import BetaBinomialConjugate, Beta
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
-    DataVarMixin, DataModeMixin
+    DataVarMixin, DataSemMixin, DataModeMixin
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
@@ -41,6 +41,7 @@ class Boolean(
     DataMedianMixin,
     DataStdMixin,
     DataVarMixin,
+    DataSemMixin,
     DataModeMixin,
     object
 ):

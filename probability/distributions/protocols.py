@@ -261,6 +261,19 @@ class NumericDataDistribution(
 
     def std(self) -> float: ...
 
+    def se(self) -> float: ...
+
+    def sem(self) -> float: ...
+
+    def mean_dist(self, use_t: bool = False) -> SupportsContinuousRV1d: ...
+
+    def ci(
+            self,
+            percent: float = 0.95,
+            use_t: bool = False
+    ) -> Tuple[float, float]: ...
+
+
 
 @runtime_checkable
 class SupportsDataSeries(Protocol):

@@ -10,7 +10,7 @@ from probability.distributions import Ratio
 from probability.distributions.continuous.normal_series import NormalSeries
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
-    DataSeriesStdMixin
+    DataSeriesStdMixin, DataSeriesVarMixin, DataSeriesSemMixin
 from probability.distributions.mixins.data.data_series_mixin import \
     DataSeriesMixin, DataSeriesTrendMixin
 
@@ -22,6 +22,8 @@ class RatioSeries(
     DataSeriesMaxMixin,
     DataSeriesMeanMixin,
     DataSeriesStdMixin,
+    DataSeriesVarMixin,
+    DataSeriesSemMixin,
     object
 ):
     """

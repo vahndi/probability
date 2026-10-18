@@ -9,7 +9,8 @@ from mpl_format.utils.color_utils import cross_fade, set_alpha
 from probability.distributions import Count
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
-    DataSeriesModeMixin, DataSeriesMedianMixin
+    DataSeriesModeMixin, DataSeriesMedianMixin, DataSeriesStdMixin, \
+    DataSeriesVarMixin, DataSeriesSemMixin
 from probability.distributions.mixins.data.data_series_category_mixins import \
     DataSeriesCountsMixin, DataSeriesPMFsMixin
 from probability.distributions.mixins.data.data_series_mixin import \
@@ -26,6 +27,9 @@ class CountSeries(
     DataSeriesMeanMixin,
     DataSeriesModeMixin,
     DataSeriesMedianMixin,
+    DataSeriesStdMixin,
+    DataSeriesVarMixin,
+    DataSeriesSemMixin,
     object
 ):
     """

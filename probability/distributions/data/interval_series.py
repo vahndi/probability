@@ -5,7 +5,7 @@ from pandas import Series
 from probability.distributions import Interval
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
-    DataSeriesStdMixin
+    DataSeriesStdMixin, DataSeriesVarMixin, DataSeriesSemMixin
 from probability.distributions.mixins.data.data_series_mixin import \
     DataSeriesMixin
 
@@ -16,6 +16,8 @@ class IntervalSeries(
     DataSeriesMaxMixin,
     DataSeriesMeanMixin,
     DataSeriesStdMixin,
+    DataSeriesVarMixin,
+    DataSeriesSemMixin,
     object
 ):
     """

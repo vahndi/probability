@@ -9,7 +9,8 @@ from probability.distributions import Boolean, BetaBinomialConjugate
 from probability.distributions.continuous.beta_series import BetaSeries
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
-    DataSeriesModeMixin, DataSeriesMedianMixin
+    DataSeriesModeMixin, DataSeriesMedianMixin, DataSeriesStdMixin, \
+    DataSeriesVarMixin, DataSeriesSemMixin
 from probability.distributions.mixins.data.data_series_mixin import \
     DataSeriesMixin
 from probability.distributions.protocols import CategoricalDistribution
@@ -26,6 +27,9 @@ class BooleanSeries(
     DataSeriesMeanMixin,
     DataSeriesModeMixin,
     DataSeriesMedianMixin,
+    DataSeriesStdMixin,
+    DataSeriesVarMixin,
+    DataSeriesSemMixin,
     object
 ):
     """
