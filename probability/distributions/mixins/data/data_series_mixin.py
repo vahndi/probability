@@ -3,6 +3,8 @@ from typing import List, Hashable, Union, Dict, Any
 from pandas import Series, Index, DataFrame
 from tqdm import tqdm
 
+from probability.distributions.protocols import SupportsTrendSeries
+
 
 class DataSeriesMixin(object):
 
@@ -57,19 +59,7 @@ class DataSeriesTrendMixin(object):
     """
     _data: Series
 
-    def keys(self) -> List[str]:
-        raise NotImplementedError
-
-    def lens(self) -> Series:
-        raise NotImplementedError
-
-    def unsplit(self):
-        raise NotImplementedError
-
-    def _sample_series(self, unsplit_dist, n_x: Series) -> 'DataSeriesTrendMixin':
-        raise NotImplementedError
-
-    def increase_probs(self) -> Series:
+    def increase_probs(self: SupportsTrendSeries) -> Series:
         """
         Return a Series of probabilities of whether each adjacent pair of
         distributions increases from one to the next.
@@ -88,7 +78,11 @@ class DataSeriesTrendMixin(object):
             })
         return DataFrame(results).set_index(['x', 'y'])['p(y > x)']
 
-    def _p_trend(self, increasing: bool, n_iter: int = 1_000) -> float:
+    def _p_trend(
+            self: SupportsTrendSeries,
+            increasing: bool,
+            n_iter: int = 1_000
+    ) -> float:
         ref_probs = self.increase_probs()
         ref_sum = ref_probs.sum()
         ref_prod = ref_probs.prod()
@@ -107,17 +101,18 @@ class DataSeriesTrendMixin(object):
             results.append(1 if is_more_extreme else 0)
         return float(Series(results).mean())
 
-    def p_increasing(self, n_iter: int = 1_000) -> float:
+    def p_increasing(self: SupportsTrendSeries, n_iter: int = 1_000) -> float:
         """
         Return the probability that the distributions increase as the key
         increases.
         """
         return self._p_trend(increasing=True, n_iter=n_iter)
 
-    def p_decreasing(self, n_iter: int = 1_000) -> float:
+    def p_decreasing(self: SupportsTrendSeries, n_iter: int = 1_000) -> float:
         """
         Return the probability that the distributions decrease as the key
         increases.
         """
         return self._p_trend(increasing=False, n_iter=n_iter)
+
 

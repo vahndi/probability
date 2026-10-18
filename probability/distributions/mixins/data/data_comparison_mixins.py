@@ -3,11 +3,12 @@ from typing import TypeVar, Dict, Optional, Tuple
 
 from pandas import Series, DataFrame
 
-from probability.distributions.mixins.data.data_categories_mixin import \
-    DataCategoriesMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
+from probability.distributions.protocols import (
+    CategoricalDistribution, NumericDataDistribution
+)
 
-DCDM = TypeVar('DCDM')
+DCDM = TypeVar('DCDM', bound=NumericDataDistribution)
 DPCM = TypeVar('DPCM', bound='DataProbComparisonMixin')
 
 
@@ -133,7 +134,7 @@ class DataCohensDMixin(object):
 
     def conditional_cohens_d(
             self: DCDM,
-            categorical: DataCategoriesMixin
+            categorical: CategoricalDistribution
     ) -> DataFrame:
         """
         Return a matrix of the Cohen's d of the Ratio conditioned on each

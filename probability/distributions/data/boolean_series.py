@@ -7,15 +7,12 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Boolean, BetaBinomialConjugate
 from probability.distributions.continuous.beta_series import BetaSeries
-from probability.distributions.mixins.data.data_categories_mixin import \
-    DataCategoriesMixin
-from probability.distributions.mixins.data.data_distribution_mixin import \
-    DataDistributionMixin
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
     DataSeriesModeMixin, DataSeriesMedianMixin
 from probability.distributions.mixins.data.data_series_mixin import \
     DataSeriesMixin
+from probability.distributions.protocols import CategoricalDistribution
 
 
 if TYPE_CHECKING:
@@ -37,7 +34,7 @@ class BooleanSeries(
 
     def split_by(
             self,
-            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+            categorical: CategoricalDistribution
     ) -> 'BooleanFrame':
         """
         Split into a BooleanSeries on different values of the given categorical

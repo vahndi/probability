@@ -1,6 +1,8 @@
-from typing import List, Callable
+from typing import List
 
 from pandas import Series
+
+from probability.distributions.protocols import SupportsDataSeries
 
 
 class DataSeriesCategoryMixin(object):
@@ -8,17 +10,14 @@ class DataSeriesCategoryMixin(object):
     _data: Series
 
     @property
-    def categories(self) -> List[str]:
+    def categories(self: SupportsDataSeries) -> List[str]:
 
         return self._data.iloc[0].categories
 
 
 class DataSeriesCountsMixin(object):
 
-    _data: Series
-    keys: Callable[[], List[str]]
-
-    def counts(self) -> Series:
+    def counts(self: SupportsDataSeries) -> Series:
 
         return Series({
             key: self._data.loc[key].counts()
@@ -28,10 +27,7 @@ class DataSeriesCountsMixin(object):
 
 class DataSeriesPMFsMixin(object):
 
-    _data: Series
-    keys: Callable[[], List[str]]
-
-    def pmfs(self) -> Series:
+    def pmfs(self: SupportsDataSeries) -> Series:
 
         return Series({
             key: self._data.loc[key].pmf()
@@ -41,12 +37,10 @@ class DataSeriesPMFsMixin(object):
 
 class DataSeriesPMFBetasMixin(object):
 
-    _data: Series
-    keys: Callable[[], List[str]]
-
-    def pmf_betas(self):
+    def pmf_betas(self: SupportsDataSeries) -> Series:
 
         return Series({
             key: self._data.loc[key].pmf_betas()
             for key in self.keys()
         })
+

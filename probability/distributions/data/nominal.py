@@ -20,6 +20,7 @@ from probability.distributions.mixins.data.data_distribution_mixin import \
     DataDistributionMixin
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataModeMixin
+from probability.distributions.protocols import CategoricalDistribution
 
 if TYPE_CHECKING:
     from probability.distributions.data.nominal_series import NominalSeries
@@ -76,7 +77,7 @@ class Nominal(
 
     def split_by(
             self,
-            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+            categorical: CategoricalDistribution
     ) -> 'NominalSeries':
         """
         Split into an OrdinalSeries on different values of the given categorical

@@ -21,6 +21,7 @@ from probability.distributions.mixins.data.data_numeric_comparison_mixin import 
     DataNumericComparisonMixin
 from probability.distributions.mixins.data.data_probability_table_mixin import \
     DataProbabilityTableMixin
+from probability.distributions.protocols import CategoricalDistribution
 
 
 if TYPE_CHECKING:
@@ -85,7 +86,7 @@ class Boolean(
 
     def split_by(
             self,
-            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+            categorical: CategoricalDistribution
     ) -> 'BooleanSeries':
         """
         Split into a BooleanSeries on different values of the given categorical
@@ -103,7 +104,7 @@ class Boolean(
 
     def plot_conditional_prob_densities(
             self,
-            categorical: Union[DataDistributionMixin, DataCategoriesMixin],
+            categorical: CategoricalDistribution,
             hdi: float = 0.95,
             width: float = 0.8,
             num_segments: int = 100,

@@ -2,9 +2,14 @@ from unittest.case import TestCase
 
 from pandas import Series, CategoricalDtype
 
+from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.count import Count
 from probability.distributions.data.nominal import Nominal
 from probability.distributions.data.ordinal import Ordinal
+from probability.distributions.data.ratio import Ratio
+from probability.distributions.protocols import (
+    CategoricalDistribution, NumericDataDistribution, SupportsDataSeries
+)
 
 
 class TestDataDistributions(TestCase):
@@ -90,3 +95,19 @@ class TestDataDistributions(TestCase):
         p_dec = cs.p_decreasing(n_iter=20)
         self.assertTrue(0.0 <= p_inc <= 1.0)
         self.assertTrue(0.0 <= p_dec <= 1.0)
+
+    def test_protocols_and_sortable(self):
+
+        nom = Nominal(Series(['a', 'b', 'a']))
+        boolean = Boolean(Series([True, False, True]))
+        ratio = Ratio(Series([1.0, 2.0, 3.0, 4.0]))
+
+        self.assertIsInstance(nom, CategoricalDistribution)
+        self.assertIsInstance(boolean, CategoricalDistribution)
+        self.assertIsInstance(ratio, NumericDataDistribution)
+        self.assertIsInstance(ratio.split_by( Nominal(Series(['x', 'x', 'y', 'y']))), SupportsDataSeries)
+
+        self.assertEqual(2, len(ratio.upper(n=2)))
+        self.assertEqual(3.5, ratio.upper(frac=0.5).mean())
+        self.assertEqual(1.5, ratio.lower(frac=0.5).mean())
+

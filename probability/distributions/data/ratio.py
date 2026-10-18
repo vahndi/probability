@@ -26,6 +26,7 @@ from probability.distributions.mixins.data.data_sortable_mixin import \
     DataSortableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
+from probability.distributions.protocols import CategoricalDistribution
 
 if TYPE_CHECKING:
     from probability.distributions.data.ordinal import Ordinal
@@ -229,7 +230,7 @@ class Ratio(
 
     def split_by(
             self,
-            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+            categorical: CategoricalDistribution
     ):
         """
         Split into a RatioSeries on different values of the given categorical
@@ -275,7 +276,7 @@ class Ratio(
 
     def plot_conditional_dist_densities(
             self,
-            categorical: Union[DataDistributionMixin, DataCategoriesMixin],
+            categorical: CategoricalDistribution,
             fit_dist: Type[RVContinuous1dMixin],
             hdi: float = 0.95,
             width: float = 0.8,

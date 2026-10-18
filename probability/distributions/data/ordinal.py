@@ -26,6 +26,7 @@ from probability.distributions.mixins.data.data_information_mixin import \
 from probability.distributions.mixins.data.data_probability_table_mixin import \
     DataProbabilityTableMixin
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
+from probability.distributions.protocols import CategoricalDistribution
 
 if TYPE_CHECKING:
     from probability.distributions.data.ratio import Ratio
@@ -152,7 +153,7 @@ class Ordinal(
 
     def split_by(
             self,
-            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+            categorical: CategoricalDistribution
     ) -> 'OrdinalSeries':
         """
         Split into an OrdinalSeries on different values of the given categorical
@@ -171,7 +172,7 @@ class Ordinal(
 
     def plot_conditional_dist_densities(
             self,
-            categorical: Union[DataDistributionMixin, DataCategoriesMixin],
+            categorical: CategoricalDistribution,
             width: float = 0.8,
             heights: float = 0.9,
             color: Color = 'k',

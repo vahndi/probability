@@ -4,8 +4,6 @@ from numpy import arange
 from numpy.random import seed, choice, uniform
 from pandas import Series
 
-from probability.distributions.mixins.data.data_categories_mixin import \
-    DataCategoriesMixin
 from probability.distributions.mixins.data.data_comparison_mixins import \
     DataCohensDMixin
 from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
@@ -16,6 +14,7 @@ from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, \
     DataMeanMixin, DataMedianMixin, DataModeMixin, \
     DataStdMixin, DataVarMixin
+from probability.distributions.protocols import CategoricalDistribution
 
 if TYPE_CHECKING:
     from probability.distributions.data.interval_series import IntervalSeries
@@ -98,7 +97,7 @@ class Interval(
 
     def split_by(
             self,
-            categorical: Union[DataCategoriesMixin, DataDistributionMixin]
+            categorical: CategoricalDistribution
     ) -> 'IntervalSeries':
         """
         Split into an IntervalSeries on different values of the given categorical
