@@ -1,5 +1,5 @@
 from math import sqrt
-from typing import overload, Optional
+from typing import overload, Optional, Union
 
 from scipy.stats import norm, rv_continuous
 
@@ -8,7 +8,9 @@ from probability.distributions.mixins.attributes import MuFloatDMixin, \
     SigmaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
-from probability.utils import any_are_not_none, any_are_none, num_format
+from probability.utils import (
+    any_are_not_none, any_are_none, is_scalar, num_format
+)
 
 
 class Normal(
@@ -80,6 +82,91 @@ class Normal(
 
         return self._mu
 
+    def _new_like(self, mu: float, sigma: float,
+                  other: Optional['Normal'] = None) -> 'Normal':
+        use_sq = (
+            self._parameterization == 'μσ²' and
+            (other is None or other._parameterization == 'μσ²')
+        )
+        if use_sq:
+            return Normal(mu=mu, sigma_sq=sigma ** 2)
+        return Normal(mu=mu, sigma=sigma)
+
+    def __neg__(self) -> 'Normal':
+        return self._new_like(mu=-self._mu, sigma=self._sigma)
+
+    def __add__(self, other):
+        if isinstance(other, Normal):
+            return self._new_like(
+                mu=self._mu + other._mu,
+                sigma=sqrt(self._sigma ** 2 + other._sigma ** 2),
+                other=other
+            )
+        elif is_scalar(other):
+            return self._new_like(
+                mu=self._mu + float(other),
+                sigma=self._sigma
+            )
+        return super().__add__(other)
+
+    def __radd__(self, other):
+        if isinstance(other, (int, float)) and other == 0:
+            return self
+        elif is_scalar(other):
+            return self._new_like(
+                mu=float(other) + self._mu,
+                sigma=self._sigma
+            )
+        return super().__radd__(other)
+
+    def __sub__(self, other):
+        if isinstance(other, Normal):
+            return self._new_like(
+                mu=self._mu - other._mu,
+                sigma=sqrt(self._sigma ** 2 + other._sigma ** 2),
+                other=other
+            )
+        elif is_scalar(other):
+            return self._new_like(
+                mu=self._mu - float(other),
+                sigma=self._sigma
+            )
+        return super().__sub__(other)
+
+    def __rsub__(self, other):
+        if is_scalar(other):
+            return self._new_like(
+                mu=float(other) - self._mu,
+                sigma=self._sigma
+            )
+        return super().__rsub__(other)
+
+    def __mul__(self, other):
+        if is_scalar(other):
+            c = float(other)
+            if c != 0:
+                return self._new_like(
+                    mu=self._mu * c,
+                    sigma=abs(c) * self._sigma
+                )
+        return super().__mul__(other)
+
+    def __rmul__(self, other):
+        if is_scalar(other):
+            return self.__mul__(other)
+        return super().__rmul__(other)
+
+    def __truediv__(self, other):
+        if is_scalar(other):
+            c = float(other)
+            if c == 0:
+                raise ZeroDivisionError('Cannot divide Normal distribution by 0')
+            return self._new_like(
+                mu=self._mu / c,
+                sigma=self._sigma / abs(c)
+            )
+        return super().__truediv__(other)
+
     @staticmethod
     def fit(data: FloatIterable,
             mu: Optional[float] = None,
@@ -126,6 +213,7 @@ class Normal(
     def __eq__(self, other: 'Normal') -> bool:
 
         return (
+            isinstance(other, Normal) and
             abs(self._mu - other._mu) < 1e-10 and
             abs(self._sigma - other._sigma) < 1e-10
         )
@@ -133,3 +221,4 @@ class Normal(
     def __ne__(self, other: 'Normal') -> bool:
 
         return not self.__eq__(other)
+

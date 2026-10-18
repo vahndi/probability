@@ -48,6 +48,34 @@ class TestNormal(TestCase):
                 (0.2, 1.0, 5.0, 0.5)
         ):
             normal_orig = Normal(mu=mu, sigma_sq=sigma_sq)
-            normal_fit = Normal.fit(normal_orig.rvs(100_000))
+            normal_fit = Normal.fit(normal_orig.rvs(100_000, random_state=42))
             self.assertAlmostEqual(normal_orig.mu, normal_fit.mu, 1)
             self.assertAlmostEqual(normal_orig.sigma_sq, normal_fit.sigma_sq, 1)
+
+    def test_normal_arithmetic(self):
+        # Chapter 2 example: N(1, 4^2) - N(4, 3^2) == N(-3, 5^2)
+        n1 = Normal(mu=4, sigma=3)
+        n2 = Normal(mu=1, sigma=4)
+        n_diff = n2 - n1
+        self.assertIsInstance(n_diff, Normal)
+        self.assertEqual(Normal(mu=-3, sigma=5), n_diff)
+
+        n_sum = n1 + n2
+        self.assertEqual(Normal(mu=5, sigma=5), n_sum)
+
+        # Scalar operations and linear combinations
+        self.assertEqual(Normal(mu=6, sigma=3), n1 + 2)
+        self.assertEqual(Normal(mu=6, sigma=3), 2 + n1)
+        self.assertEqual(Normal(mu=2, sigma=3), n1 - 2)
+        self.assertEqual(Normal(mu=-2, sigma=3), 2 - n1)
+        self.assertEqual(Normal(mu=-4, sigma=3), -n1)
+        self.assertEqual(Normal(mu=-8, sigma=6), -2 * n1)
+        self.assertEqual(Normal(mu=8, sigma=6), n1 * 2)
+        self.assertEqual(Normal(mu=2, sigma=1.5), n1 / 2)
+
+        # Preserves μσ² parameterization when both operands use μσ²
+        n1_sq = Normal(mu=4, sigma_sq=9)
+        n2_sq = Normal(mu=1, sigma_sq=16)
+        diff_sq = n2_sq - n1_sq
+        self.assertEqual('Normal(mu=-3, sigma_sq=25.0)', repr(diff_sq))
+
