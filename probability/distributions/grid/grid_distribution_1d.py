@@ -176,7 +176,7 @@ class GridDistribution1d(object):
 
     def update(
             self,
-            likelihood_fn: Union[Callable[[float, Any], float], Callable[[ndarray, Any], ndarray]],
+            likelihood_fn: Union[Callable[[float, Any], float], Callable[[ndarray, Any], ndarray], Sequence[float], ndarray],
             data: Any = None,
             inplace: bool = False
     ) -> 'GridDistribution1d':
@@ -184,12 +184,15 @@ class GridDistribution1d(object):
         Perform Bayesian updating given a likelihood function:
             posterior(θ) ∝ prior(θ) × likelihood(θ, data)
 
-        :param likelihood_fn: Function mapping (theta, data) -> likelihood value(s).
-                              Can be scalar-valued or vectorized over grid array.
+        :param likelihood_fn: Function mapping (theta, data) -> likelihood value(s),
+                              or array of likelihood values matching grid shape.
         :param data: Observed data passed to the likelihood function.
         :param inplace: If True, mutate self; otherwise return a new GridDistribution1d.
         :return: Updated GridDistribution1d.
         """
+        if not callable(likelihood_fn):
+            return self.update_likelihood(likelihood=likelihood_fn, inplace=inplace)
+
         try:
             # Try vectorized call
             likes = np.asarray(likelihood_fn(self._grid, data), dtype=float)
@@ -198,6 +201,37 @@ class GridDistribution1d(object):
         except Exception:
             likes = np.array([float(likelihood_fn(theta, data)) for theta in self._grid], dtype=float)
 
+        likes = np.nan_to_num(likes, nan=0.0, posinf=0.0, neginf=0.0)
+        if np.any(likes < 0):
+            raise ValueError("Likelihood values must be non-negative.")
+
+        unnorm_post = self._probs * likes
+        total = unnorm_post.sum()
+        if total <= 0:
+            raise ValueError("Likelihood resulted in zero posterior probability across the entire grid support.")
+
+        norm_post = unnorm_post / total
+        if inplace:
+            self._probs = norm_post
+            return self
+        return GridDistribution1d(grid=self._grid, probs=norm_post, name=self._name)
+
+    def update_likelihood(
+            self,
+            likelihood: Union[ndarray, Sequence[float]],
+            inplace: bool = False
+    ) -> 'GridDistribution1d':
+        """
+        Perform Bayesian updating given a direct array of likelihood values across the grid:
+            posterior(θ) ∝ prior(θ) × likelihood(θ)
+
+        :param likelihood: Array or sequence of likelihood values matching the grid length.
+        :param inplace: If True, mutate self; otherwise return a new GridDistribution1d.
+        :return: Updated GridDistribution1d.
+        """
+        likes = np.asarray(likelihood, dtype=float)
+        if likes.shape != self._grid.shape:
+            raise ValueError(f"Likelihood array shape {likes.shape} must match grid shape {self._grid.shape}.")
         likes = np.nan_to_num(likes, nan=0.0, posinf=0.0, neginf=0.0)
         if np.any(likes < 0):
             raise ValueError("Likelihood values must be non-negative.")

@@ -37,3 +37,12 @@ def make_ab_test_data() -> dict:
         'variant_a': {'k': 140, 'n': 250},
         'variant_b': {'k': 120, 'n': 250},
     }
+
+
+def load_heights(n: int = 200, seed: int = 42) -> DataFrame:
+    """Adult heights (Statistical Rethinking Ch 4 / Think Bayes Ch 15)."""
+    np.random.seed(seed)
+    heights = np.random.normal(loc=175.0, scale=7.5, size=n)
+    ages = np.random.uniform(18, 70, size=n)
+    return DataFrame({'height': heights, 'age': ages})
+

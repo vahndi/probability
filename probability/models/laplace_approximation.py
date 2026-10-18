@@ -337,20 +337,33 @@ class LaplaceApproximation(object):
         df[f'{hdi:.0%} HDI upper'] = self._mode + z * self._std
         return df
 
-    def sample(self, size: int = 1000, seed: Optional[int] = None) -> DataFrame:
+    def sample(
+            self,
+            size: Optional[int] = None,
+            n: Optional[int] = None,
+            seed: Optional[int] = None
+    ) -> DataFrame:
         """
         Draw samples from the joint Gaussian posterior approximation.
 
-        :param size: Number of draws.
+        :param size: Number of draws (or 'n').
+        :param n: Alias for size.
         :param seed: Optional random seed.
         :return: DataFrame of draws of shape (size, ndim).
         """
+        if size is None and n is None:
+            num_draws = 1000
+        elif size is not None:
+            num_draws = size
+        else:
+            num_draws = n
+
         if seed is not None:
             np.random.seed(seed)
         draws = np.random.multivariate_normal(
             mean=self._mode.values,
             cov=self._cov.values,
-            size=size
+            size=num_draws
         )
         return DataFrame(draws, columns=self._param_names)
 

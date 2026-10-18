@@ -62,3 +62,11 @@ def load_wage() -> DataFrame:
     """
     return _load_csv('wage.csv')
 
+
+def load_management_training() -> DataFrame:
+    """
+    Load the Chapter 5 management_training.csv dataset.
+    """
+    return _load_csv('management_training.csv')
+
+
