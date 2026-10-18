@@ -68,7 +68,7 @@ Support *Think Bayes* and *Statistical Rethinking* (Chapters 2–4) workflows wh
 ### Phase 3: Empirical Bayes & Hierarchical Shrinkage on Series
 Bring partial pooling to `BooleanSeries`, `CountSeries`, and `RatioSeries` without requiring MCMC.
 
-- [ ] **3.1 Beta-Binomial Empirical Bayes on `BooleanSeries`**
+- [x] **3.1 Beta-Binomial Empirical Bayes on `BooleanSeries`**
   - `BooleanSeries.empirical_bayes_prior() -> Beta`: Fit hyperparameter $(\hat{\alpha}, \hat{\beta})$ across categories via method-of-moments or marginal MLE (Beta-Binomial marginal likelihood).
   - `BooleanSeries.shrunk_posteriors() -> BetaSeries`: Return shrunk posterior `Beta` distributions for each category, automatically pulling small-sample categories toward the grand mean.
   - `BooleanSeries.plot_shrinkage(ax=None)`: Visualize raw category means vs. Empirical Bayes shrunk posterior means and HDIs.

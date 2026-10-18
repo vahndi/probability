@@ -2,7 +2,7 @@ from typing import Union, Dict, Any
 
 from pandas import Series
 
-from probability.distributions import Interval
+from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
     DataSeriesStdMixin, DataSeriesVarMixin, DataSeriesSemMixin

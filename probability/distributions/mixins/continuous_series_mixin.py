@@ -1,4 +1,4 @@
-from typing import TypeVar, Union, Mapping, List, Optional
+from typing import TypeVar, Union, Mapping, List, Optional, Any
 
 from matplotlib.axes import Axes
 from numpy import linspace, arange, inf
@@ -154,6 +154,18 @@ class ContinuousSeriesMixin(object):
                         highest + (highest - lowest) / 20)
             ax.set_xlabel(str(self.name))
         return ax
+
+    def __getitem__(self, item):
+        return self._data[item]
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def __iter__(self):
+        return iter(self._data)
+
+    def keys(self) -> List[Any]:
+        return list(self._data.index)
 
     def __repr__(self):
 

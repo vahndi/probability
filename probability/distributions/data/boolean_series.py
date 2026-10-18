@@ -1,10 +1,15 @@
 from typing import Union, Dict, Any, Optional, TYPE_CHECKING
 
 from matplotlib.axes import Axes
+import numpy as np
 from numpy import linspace, inf
 from pandas import Series, DataFrame
+from scipy.optimize import minimize
+from scipy.special import betaln
 
-from probability.distributions import Boolean, BetaBinomialConjugate
+from probability.distributions.data.boolean import Boolean
+from probability.distributions.conjugate.beta_binomial_conjugate import BetaBinomialConjugate
+from probability.distributions.continuous.beta import Beta
 from probability.plotting import Color, add_v_density, new_axes
 from probability.distributions.continuous.beta_series import BetaSeries
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
@@ -71,6 +76,239 @@ class BooleanSeries(
         Convert to a Beta distribution.
         """
         return BetaSeries(data=self._data.map(lambda b: b.to_beta()))
+
+    def empirical_bayes_prior(self, method: str = 'mle') -> Beta:
+        """
+        Estimate the shared Beta(alpha, beta) hyperparameter prior across categories
+        using Empirical Bayes.
+
+        :param method: 'mle' (default, marginal Beta-Binomial MLE) or 'moments' (method of moments).
+        :return: Fitted Beta prior distribution.
+        """
+        cats = self.keys()
+        if len(cats) < 2:
+            raise ValueError("Empirical Bayes prior requires at least 2 categories.")
+
+        ks = []
+        ns = []
+        for cat in cats:
+            b_dist: Boolean = self._data[cat]
+            k = int((b_dist.data == True).sum())
+            n = len(b_dist)
+            if n > 0:
+                ks.append(k)
+                ns.append(n)
+
+        if len(ks) < 2:
+            raise ValueError("At least 2 non-empty categories are required.")
+
+        k_arr = np.asarray(ks, dtype=float)
+        n_arr = np.asarray(ns, dtype=float)
+        p_arr = k_arr / n_arr
+
+        # Grand mean
+        p_bar = float(np.sum(k_arr) / np.sum(n_arr))
+        p_bar = float(np.clip(p_bar, 1e-4, 1.0 - 1e-4))
+
+        # Method of moments estimate
+        var_p = float(np.var(p_arr, ddof=1)) if len(p_arr) > 1 else 0.0
+        n_mean = float(np.mean(n_arr))
+        binom_var = p_bar * (1.0 - p_bar) / n_mean
+
+        if var_p > binom_var:
+            s_est = (p_bar * (1.0 - p_bar) - var_p) / (var_p - binom_var)
+            s_est = max(s_est, 0.5)
+            alpha_0 = max(p_bar * s_est, 0.1)
+            beta_0 = max((1.0 - p_bar) * s_est, 0.1)
+        else:
+            alpha_0 = max(p_bar * 10.0, 0.5)
+            beta_0 = max((1.0 - p_bar) * 10.0, 0.5)
+
+        if method == 'moments':
+            return Beta(alpha=alpha_0, beta=beta_0)
+        elif method == 'mle':
+            # Negative log-marginal Beta-Binomial likelihood over log(alpha), log(beta)
+            def neg_log_lik(theta):
+                log_a, log_b = theta
+                a = np.exp(log_a)
+                b = np.exp(log_b)
+                # sum_j [ betaln(k_j + a, n_j - k_j + b) - betaln(a, b) ]
+                terms = betaln(k_arr + a, n_arr - k_arr + b) - betaln(a, b)
+                val = np.sum(terms)
+                if np.isnan(val) or np.isneginf(val):
+                    return 1e12
+                return -float(val)
+
+            x0 = np.array([np.log(alpha_0), np.log(beta_0)])
+            res = minimize(neg_log_lik, x0=x0, method='L-BFGS-B')
+            if res.success:
+                a_mle = float(np.exp(res.x[0]))
+                b_mle = float(np.exp(res.x[1]))
+                return Beta(alpha=a_mle, beta=b_mle)
+            else:
+                return Beta(alpha=alpha_0, beta=beta_0)
+        else:
+            raise ValueError(f"Unknown method '{method}'. Must be 'mle' or 'moments'.")
+
+    def shrunk_posteriors(
+            self,
+            prior: Optional[Beta] = None,
+            method: str = 'mle'
+    ) -> BetaSeries:
+        """
+        Compute Empirical Bayes shrunk posterior Beta distributions for each category.
+
+        Pulls small-sample noisy categories toward the fitted grand mean prior:
+            p_j | D ~ Beta(alpha + k_j, beta + n_j - k_j)
+
+        :param prior: Optional pre-specified Beta prior. If None, fitted via Empirical Bayes.
+        :param method: 'mle' (default) or 'moments' for fitting prior.
+        :return: BetaSeries containing posterior Beta distributions for all categories.
+        """
+        if prior is None:
+            prior = self.empirical_bayes_prior(method=method)
+
+        alpha_prior = prior.alpha
+        beta_prior = prior.beta
+
+        shrunk_betas = {}
+        for cat in self.keys():
+            b_dist: Boolean = self._data[cat]
+            k = int((b_dist.data == True).sum())
+            n = len(b_dist)
+            shrunk_betas[cat] = Beta(
+                alpha=alpha_prior + k,
+                beta=beta_prior + (n - k)
+            )
+
+        series_data = Series(shrunk_betas, name=f"shrunk_{self.name}" if self.name else "shrunk_posterior")
+        series_data.index.name = self.index.name
+        return BetaSeries(series_data)
+
+    def shrinkage_summary(
+            self,
+            hdi: float = 0.95,
+            prior: Optional[Beta] = None,
+            method: str = 'mle'
+    ) -> DataFrame:
+        """
+        Tidy DataFrame comparing raw category sample proportions with Empirical Bayes
+        shrunk posterior estimates and HDIs.
+        """
+        if prior is None:
+            prior = self.empirical_bayes_prior(method=method)
+
+        shrunk_series = self.shrunk_posteriors(prior=prior)
+        cats = self.keys()
+
+        rows = []
+        for cat in cats:
+            b_dist: Boolean = self._data[cat]
+            k = int((b_dist.data == True).sum())
+            n = len(b_dist)
+            raw_mean = k / n if n > 0 else np.nan
+            shrunk_dist: Beta = shrunk_series[cat]
+            low, high = shrunk_dist.hdi(hdi)
+            weight = n / (n + prior.alpha + prior.beta) if n > 0 else 0.0
+
+            rows.append({
+                'category': cat,
+                'k': k,
+                'n': n,
+                'raw_mean': raw_mean,
+                'shrunk_mean': shrunk_dist.mean(),
+                'shrunk_std': shrunk_dist.std(),
+                f'{hdi:.0%} HDI lower': low,
+                f'{hdi:.0%} HDI upper': high,
+                'weight_data': weight
+            })
+
+        df = DataFrame(rows).set_index('category')
+        return df
+
+    def plot_shrinkage(
+            self,
+            hdi: float = 0.95,
+            prior: Optional[Beta] = None,
+            method: str = 'mle',
+            order_by: str = 'raw_mean',
+            title: Optional[str] = None,
+            ax: Optional[Axes] = None,
+            **kwargs
+    ) -> Axes:
+        """
+        Visualize Empirical Bayes shrinkage across categories.
+
+        Plots raw category conversion rates alongside shrunk posterior means and HDIs,
+        with arrows indicating the directional shrinkage toward the prior grand mean.
+
+        :param hdi: Highest Density Interval width (default 0.95).
+        :param prior: Optional pre-fitted Beta prior.
+        :param method: 'mle' or 'moments' for Empirical Bayes estimation.
+        :param order_by: 'raw_mean' (default), 'n', or 'original' to order categories.
+        :param title: Optional custom title.
+        :param ax: Optional matplotlib Axes.
+        """
+        ax = ax or new_axes()
+        if prior is None:
+            prior = self.empirical_bayes_prior(method=method)
+
+        summary_df = self.shrinkage_summary(hdi=hdi, prior=prior)
+        if order_by == 'raw_mean':
+            summary_df = summary_df.sort_values('raw_mean')
+        elif order_by == 'n':
+            summary_df = summary_df.sort_values('n')
+
+        cats = list(summary_df.index)
+        n_cats = len(cats)
+        y_positions = np.arange(n_cats)
+
+        grand_mean = prior.mean()
+
+        # Plot grand mean reference line
+        ax.axvline(
+            grand_mean, color='gray', linestyle='--', alpha=0.7,
+            label=f'Prior Grand Mean ({grand_mean:.3f})'
+        )
+
+        raw_means = summary_df['raw_mean'].values
+        shrunk_means = summary_df['shrunk_mean'].values
+        lowers = summary_df[f'{hdi:.0%} HDI lower'].values
+        uppers = summary_df[f'{hdi:.0%} HDI upper'].values
+
+        # Plot error bars for shrunk posterior HDIs
+        xerr_low = shrunk_means - lowers
+        xerr_high = uppers - shrunk_means
+        ax.errorbar(
+            shrunk_means, y_positions,
+            xerr=[xerr_low, xerr_high],
+            fmt='o', color='tab:blue', ecolor='tab:blue',
+            elinewidth=1.8, capsize=3.5, markersize=6,
+            label='Shrunk Posterior Mean & HDI'
+        )
+
+        # Plot raw points
+        ax.scatter(
+            raw_means, y_positions,
+            color='tab:red', marker='x', s=50, zorder=3,
+            label='Raw Sample Rate'
+        )
+
+        # Connect raw to shrunk with arrows
+        for y, raw, shrunk in zip(y_positions, raw_means, shrunk_means):
+            ax.annotate(
+                '', xy=(shrunk, y), xytext=(raw, y),
+                arrowprops=dict(arrowstyle='->', color='gray', lw=1.2, alpha=0.7)
+            )
+
+        ax.set_yticks(y_positions)
+        ax.set_yticklabels([f"{c} (n={summary_df.loc[c, 'n']})" for c in cats])
+        ax.set_xlabel('Probability / Conversion Rate')
+        ax.set_title(
+            title or f"Empirical Bayes Shrinkage (Prior: Beta(α={prior.alpha:.2f}, β={prior.beta:.2f}))"
+        )
+        ax.legend(loc='best')
+        return ax
 
     def plot_prob_densities(
             self,

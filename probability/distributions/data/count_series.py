@@ -4,7 +4,7 @@ from matplotlib.axes import Axes
 from numpy.random import choice
 from pandas import Series, concat
 
-from probability.distributions import Count
+from probability.distributions.data.count import Count
 from probability.plotting import (
     Color,
     add_rectangle,

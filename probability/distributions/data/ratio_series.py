@@ -5,7 +5,7 @@ from numpy import clip
 from pandas import Series, DataFrame, concat
 from seaborn import kdeplot
 
-from probability.distributions import Ratio
+from probability.distributions.data.ratio import Ratio
 from probability.plotting import (
     Color,
     add_rectangle,

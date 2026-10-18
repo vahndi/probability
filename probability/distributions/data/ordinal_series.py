@@ -7,7 +7,7 @@ from numpy.random import choice
 from pandas import Series, DataFrame, concat
 from seaborn import heatmap
 
-from probability.distributions import Ordinal
+from probability.distributions.data.ordinal import Ordinal
 from probability.plotting import (
     Color,
     add_rectangle,

@@ -3,7 +3,7 @@ from typing import Optional
 from matplotlib.axes import Axes
 from pandas import DataFrame
 
-from probability.distributions import Boolean
+from probability.distributions.data.boolean import Boolean
 from probability.plotting import (
     Color,
     add_rectangle,
