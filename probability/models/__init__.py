@@ -6,6 +6,7 @@ from probability.models.laplace_approximation import (
     QuadraticApproximation,
     Quap
 )
+from probability.models.linear_regression import LinearRegression, OLS
 
 __all__ = [
     'BayesianLinearRegression',
@@ -14,4 +15,7 @@ __all__ = [
     'LaplaceApproximation',
     'QuadraticApproximation',
     'Quap',
+    'LinearRegression',
+    'OLS',
 ]
+

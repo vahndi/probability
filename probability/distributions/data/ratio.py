@@ -1,9 +1,9 @@
 from itertools import product
 from typing import List, Union, Type, Optional, Iterable, Dict, TYPE_CHECKING, \
-    Tuple
+    Tuple, Any
 
 from matplotlib.axes import Axes
-from numpy import inf, linspace, floor, ceil, arange, histogram
+from numpy import inf, linspace, floor, ceil, arange, histogram, ndarray
 from numpy.random import seed
 from pandas import Series, IntervalIndex, cut, qcut, DataFrame
 from seaborn import kdeplot, histplot
@@ -364,6 +364,67 @@ class Ratio(
         return ax
 
 
+    def residualize(
+            self,
+            X: Union[DataFrame, Series, ndarray, List[Any], Any],
+            keep_mean: bool = True
+    ) -> 'Ratio':
+        """
+        Frisch-Waugh-Lovell (FWL) partialling-out / residualization of this Ratio outcome on covariates X.
+
+        Regresses this Ratio distribution on X (with intercept) and computes the residuals:
+            tilde_y = y - X beta_hat
+        If keep_mean is True (default), adds back the sample mean y_bar so the adjusted
+        distribution remains on the original unit scale:
+            y_adjusted = tilde_y + y_bar
+
+        :param X: Confounder(s) or covariate(s) to partial out (Series, DataFrame, or array).
+        :param keep_mean: If True, shift residuals back by original mean (preserving unit scale).
+        :return: A new Ratio distribution containing the adjusted / residualized values.
+        """
+        from probability.models.linear_regression import LinearRegression
+
+        model = LinearRegression.fit(
+            X=X,
+            y=self._data,
+            fit_intercept=True,
+            cov_type='nonrobust'
+        )
+        resids = model.residuals
+        if keep_mean:
+            adjusted = resids + float(self._data.loc[resids.index].mean())
+        else:
+            adjusted = resids
+
+        adjusted.name = f"{self.name or 'ratio'}_residualized"
+        return Ratio(adjusted)
+
+    def regress(
+            self,
+            X: Union[DataFrame, Series, ndarray, List[Any], Any],
+            cov_type: Optional[str] = None,
+            cluster: Optional[Any] = None,
+            fit_intercept: bool = True
+    ) -> 'LinearRegression':
+        """
+        Fit an OLS regression of this Ratio outcome on covariates X with robust standard errors.
+
+        :param X: Predictors / covariates (DataFrame, Series, array, or distribution objects).
+        :param cov_type: Covariance estimator ('HC3' default, 'HC2', 'HC1', 'HC0', 'nonrobust', 'cluster').
+        :param cluster: Cluster identifiers for cluster-robust standard errors.
+        :param fit_intercept: Whether to fit an intercept term (default True).
+        :return: Fitted LinearRegression instance.
+        """
+        from probability.models.linear_regression import LinearRegression
+
+        return LinearRegression.fit(
+            X=X,
+            y=self,
+            cov_type=cov_type,
+            cluster=cluster,
+            fit_intercept=fit_intercept
+        )
+
     def __repr__(self):
 
         return (
@@ -373,3 +434,4 @@ class Ratio(
             f'mean={self.mean()}'
             f']'
         )
+
