@@ -7,7 +7,7 @@ from pandas import Series, DataFrame, CategoricalDtype
 from probability.plotting import new_subplots
 
 from probability.custom_types.external_custom_types import Array1d, FloatArray1d
-from probability.distributions import UniformPrior
+from probability.distributions.conjugate.priors import UniformPrior
 from probability.distributions.mixins.conjugate import ConjugateMixin
 from probability.distributions.multivariate import Dirichlet, Multinomial
 from probability.supports import SUPPORT_DIRICHLET
