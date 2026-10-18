@@ -2,6 +2,8 @@ from probability.distributions.conjugate.beta_binomial_conjugate import \
     BetaBinomialConjugate
 from probability.distributions.conjugate.beta_geometric_conjugate import \
     BetaGeometricConjugate
+from probability.distributions.conjugate.beta_negative_binomial_conjugate import \
+    BetaNegativeBinomialConjugate
 from probability.distributions.conjugate.dirichlet_multinomial_conjugate import \
     DirichletMultinomialConjugate
 from probability.distributions.conjugate.gamma_exponential_conjugate import \

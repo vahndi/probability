@@ -41,9 +41,10 @@ Finish and unify all standard univariate and multivariate conjugate families so 
     - `.infer_posterior(data: Series | Ratio)` classmethod for one-line Bayesian inference on continuous data.
 - [x] **1.3 Multivariate Normal-Inverse-Wishart (`MVNormalInverseWishartConjugate`)**
   - Conjugate prior/posterior for multivariate Normal data with unknown mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$, yielding multivariate Student-$t$ marginal and predictive distributions.
-- [ ] **1.4 Additional Univariate Parametric Distributions**
-  - [`LogNormal`](probability/distributions/continuous/log_normal.py) (completed in Phase 6.1), `Weibull`, `Cauchy`, `Pareto`, `Uniform` (discrete & continuous parity), and `NegativeBinomial` (with `BetaNegativeBinomialConjugate`).
-  - Moment-matching & MLE `.fit(data)` and `.from_mean_and_std()` constructors across all continuous distributions.
+- [x] **1.4 Additional Univariate Parametric Distributions**
+  - Added [`LogNormal`](probability/distributions/continuous/log_normal.py), [`Weibull`](probability/distributions/continuous/weibull.py), [`Cauchy`](probability/distributions/continuous/cauchy.py), [`Pareto`](probability/distributions/continuous/pareto.py), [`DiscreteUniform`](probability/distributions/discrete/discrete_uniform.py), and [`BetaNegativeBinomialConjugate`](probability/distributions/conjugate/beta_negative_binomial_conjugate.py).
+  - Enhanced [`NegativeBinomial`](probability/distributions/discrete/negative_binomial.py) with `.from_mean_and_variance()` and `.fit(data)`.
+  - Added `.fit(data)`, `.from_quantiles()`, and `.from_interval()` constructors across continuous distributions.
 
 ---
 

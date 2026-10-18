@@ -1,8 +1,21 @@
 from probability.distributions.discrete.beta_binomial import BetaBinomial
 from probability.distributions.discrete.binomial import Binomial
+from probability.distributions.discrete.discrete_uniform import DiscreteUniform
 from probability.distributions.discrete.geometric import Geometric
 from probability.distributions.discrete.hyper_geometric import HyperGeometric
 from probability.distributions.discrete.negative_binomial import \
     NegativeBinomial
 from probability.distributions.discrete.poisson import Poisson
 from probability.distributions.discrete.skellam import Skellam
+
+__all__ = [
+    'BetaBinomial',
+    'Binomial',
+    'DiscreteUniform',
+    'Geometric',
+    'HyperGeometric',
+    'NegativeBinomial',
+    'Poisson',
+    'Skellam',
+]
+

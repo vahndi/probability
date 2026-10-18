@@ -72,6 +72,40 @@ class NegativeBinomial(
         else:
             return int(self._p * (self._r - 1) / (1 - self._p))
 
+    @classmethod
+    def from_mean_and_variance(cls, mean: float, variance: float) -> 'NegativeBinomial':
+        """
+        Construct a NegativeBinomial distribution matching a given mean and variance.
+        Note: Negative binomial requires overdispersion (variance > mean).
+
+        :param mean: Mean of distribution (mean > 0).
+        :param variance: Variance of distribution (variance > mean).
+        """
+        if mean <= 0:
+            raise ValueError(f"mean must be strictly positive, got {mean}")
+        if variance <= mean:
+            raise ValueError(f"variance ({variance}) must be strictly greater than mean ({mean})")
+
+        p = 1.0 - (mean / variance)
+        r = (mean ** 2) / (variance - mean)
+        return cls(r=r, p=p)
+
+    @classmethod
+    def fit(cls, data) -> 'NegativeBinomial':
+        """
+        Fit a NegativeBinomial distribution using method of moments.
+
+        :param data: Iterable of non-negative integer counts.
+        """
+        import numpy as np
+        arr = np.asarray(list(data), dtype=float)
+        mean = float(np.mean(arr))
+        variance = float(np.var(arr, ddof=1)) if len(arr) > 1 else mean * 1.5
+        if variance <= mean:
+            # minimal overdispersion fallback
+            variance = mean * 1.01
+        return cls.from_mean_and_variance(mean=mean, variance=variance)
+
     def __str__(self):
 
         return (

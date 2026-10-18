@@ -38,6 +38,13 @@ class UniformPrior(object):
         alpha = 1
         beta = 1
 
+    class NegativeBinomial(object):
+        """
+        Uniform prior for Beta-Negative Binomial conjugate model.
+        """
+        alpha = 1
+        beta = 1
+
     class Dirichlet(object):
 
         alpha = 1
