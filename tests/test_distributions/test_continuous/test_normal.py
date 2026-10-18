@@ -79,3 +79,15 @@ class TestNormal(TestCase):
         diff_sq = n2_sq - n1_sq
         self.assertEqual('Normal(mu=-3, sigma_sq=25.0)', repr(diff_sq))
 
+    def test_normal_plot_ci_and_fill_interval(self):
+        import matplotlib.pyplot as plt
+        std_norm = Normal.StandardNormal()
+        ax1 = std_norm.plot(ci=[0.68, 0.95, 0.997])
+        self.assertGreaterEqual(len(ax1.collections), 3)
+        plt.close(ax1.figure)
+
+        ax2 = std_norm.plot(fill_interval=(1.96, None))
+        self.assertGreaterEqual(len(ax2.collections), 1)
+        plt.close(ax2.figure)
+
+

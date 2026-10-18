@@ -1,4 +1,5 @@
-from typing import Iterable, overload, Optional, Union
+from typing import Iterable, overload, Optional, Tuple, Union
+
 
 from matplotlib.axes import Axes
 from numpy import linspace
@@ -44,13 +45,18 @@ class ContinuousFunction1d(object):
             return Series(index=x, data=self._method(x), name=self._name)
 
     def plot(self,
-             x: Optional[Iterable],
+             x: Optional[Iterable] = None,
              kind: str = 'line',
              color: str = 'C0',
              mean: bool = False,
              median: bool = False,
              mode: bool = False,
              std: bool = False,
+             ci: Optional[Union[float, Iterable[float]]] = None,
+             fill_interval: Optional[
+                 Tuple[Optional[float], Optional[float]]
+             ] = None,
+             fill_alpha: float = 0.3,
              ax: Optional[Axes] = None,
              **kwargs) -> Axes:
         """
@@ -63,6 +69,11 @@ class ContinuousFunction1d(object):
         :param median: Whether to show marker and label for the median.
         :param mode: Whether to show marker and label for the mode.
         :param std: Whether to show marker and label for the standard deviation.
+        :param ci: Optional confidence level (float in (0, 1)) or iterable of
+                   confidence levels to shade under the curve.
+        :param fill_interval: Optional (low, high) interval to shade under the
+                              curve. Use None for open lower/upper tail bounds.
+        :param fill_alpha: Alpha transparency for shaded regions (default 0.3).
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
@@ -86,6 +97,38 @@ class ContinuousFunction1d(object):
             data.plot(kind=kind, color=color, ax=axf.axes, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
+
+        # shaded confidence intervals
+        if ci is not None:
+            ci_levels = [ci] if isinstance(ci, (int, float)) else list(ci)
+            for level in ci_levels:
+                low, high = self._distribution.interval(level)
+                sub = data.loc[(data.index >= low) & (data.index <= high)]
+                ax.fill_between(
+                    sub.index.to_numpy(dtype=float),
+                    0,
+                    sub.to_numpy(dtype=float),
+                    color=color,
+                    alpha=fill_alpha,
+                    label=f'{level:.1%} CI'
+                )
+
+        # shaded custom interval / tail
+        if fill_interval is not None:
+            low, high = fill_interval
+            mask = Series(True, index=data.index)
+            if low is not None:
+                mask &= (data.index >= low)
+            if high is not None:
+                mask &= (data.index <= high)
+            sub = data.loc[mask]
+            ax.fill_between(
+                sub.index.to_numpy(dtype=float),
+                0,
+                sub.to_numpy(dtype=float),
+                color=color,
+                alpha=fill_alpha
+            )
 
         # stats
         y_min = axf.get_y_min()
@@ -136,6 +179,7 @@ class ContinuousFunction1d(object):
                 ax.set_ylabel(self._name)
 
         return ax
+
 
     def __str__(self):
 

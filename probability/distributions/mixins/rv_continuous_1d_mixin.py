@@ -7,7 +7,8 @@ from mpl_format.compound_types import Color
 from numpy import linspace
 from pandas import DataFrame, Series
 from scipy.stats import rv_continuous
-from typing import Iterable, Optional, Union, Dict, Any
+from typing import Iterable, Optional, Tuple, Union, Dict, Any
+
 
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.plottable_mixin import \
@@ -48,6 +49,15 @@ class RVContinuous1dMixin(
              x: Optional[Iterable] = None,
              kind: str = 'line',
              color: str = 'C0',
+             mean: bool = False,
+             median: bool = False,
+             mode: bool = False,
+             std: bool = False,
+             ci: Optional[Union[float, Iterable[float]]] = None,
+             fill_interval: Optional[
+                 Tuple[Optional[float], Optional[float]]
+             ] = None,
+             fill_alpha: float = 0.3,
              ax: Axes = None, **kwargs) -> Axes:
         """
         Plot the PDF of the distribution.
@@ -55,10 +65,25 @@ class RVContinuous1dMixin(
         :param x: Range of values of x to plot p(x) over.
         :param kind: Kind of plot e.g. 'bar', 'line'.
         :param color: Optional color for the series.
+        :param mean: Whether to show marker and label for the mean.
+        :param median: Whether to show marker and label for the median.
+        :param mode: Whether to show marker and label for the mode.
+        :param std: Whether to show marker and label for the standard deviation.
+        :param ci: Optional confidence level (float in (0, 1)) or iterable of
+                   confidence levels to shade under the curve.
+        :param fill_interval: Optional (low, high) interval to shade under the
+                              curve. Use None for open lower/upper tail bounds.
+        :param fill_alpha: Alpha transparency for shaded regions (default 0.3).
         :param ax: Optional matplotlib axes to plot on.
         :param kwargs: Additional arguments for the matplotlib plot function.
         """
-        return self.pdf().plot(x=x, kind=kind, color=color, ax=ax, **kwargs)
+        return self.pdf().plot(
+            x=x, kind=kind, color=color,
+            mean=mean, median=median, mode=mode, std=std,
+            ci=ci, fill_interval=fill_interval, fill_alpha=fill_alpha,
+            ax=ax, **kwargs
+        )
+
 
     @staticmethod
     def plot_densities(
