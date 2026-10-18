@@ -100,11 +100,13 @@ Support *Causal Inference in Python* (Chapters 03+) and applied regression workf
 ### Phase 5: Exact Discrete Graphical Models & Decision Analysis
 Expand the *Bayesian Reasoning and Machine Learning* (BRML) and decision-modeling capabilities where exact discrete algebra shines.
 
-- [ ] **5.1 Discrete Bayesian Network (`BayesianNetwork`)**
-  - Construct a DAG of discrete `Discrete` and `Conditional` tables.
-  - Exact marginal and conditional queries $P(X \mid E = e)$ via variable elimination (building on `prob_sum_product`).
-  - D-separation and conditional independence queries (`net.is_independent(X, Y, given=Z)`).
-  - `.draw(ax=None)` using `networkx` and `probability.plotting`.
+- [x] **5.1 Discrete Bayesian Network (`BayesianNetwork`)**
+  - Directed Acyclic Graph (DAG) wrapper in [`probability.discrete.BayesianNetwork`](probability/discrete/bayesian_network.py) constructed from `Discrete` and `Conditional` CPTs.
+  - Exact marginal and conditional inference via **Variable Elimination** (`.query(target, evidence=None)`).
+  - D-separation and conditional independence testing via `.is_independent(X, Y, given=Z)`.
+  - DAG rendering via `.draw(ax=None)` using NetworkX.
+  - Full joint distribution calculation via `.joint()`.
+  - Comprehensive unit tests in [`tests/test_discrete/test_bayesian_network.py`](tests/test_discrete/test_bayesian_network.py) and BRML Chapter 3 showcase notebook in [`examples/notebooks/brml/chapter_03__belief_networks.ipynb`](examples/notebooks/brml/chapter_03__belief_networks.ipynb) (Alarm Network, Asia / Chest Clinic Network, and explaining away).
 - [ ] **5.2 Markov Chains & Hidden Markov Models (`MarkovChain`, `HMM`)**
   - Stationary distributions, $n$-step transition probabilities, absorption times, forward-backward filtering, and Viterbi decoding.
 - [ ] **5.3 Continuous Uncertainty in `DecisionTree` and `ProjectNetwork`**
