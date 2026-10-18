@@ -136,6 +136,8 @@ class BooleanSeries(
         yy_range = yy_max - yy_min
         axf.set_y_lim(yy_min - yy_range * 0.05, yy_max + yy_range * 0.05)
         axf.y_ticks.set_locations(linspace(0, 1, 11))
-        axf.x_ticks.set_locations(range(1, n_cats + 1)).set_labels(cats)
+        axf.axes.set_xticks(range(1, n_cats + 1))
+        axf.axes.set_xticklabels(cats)
 
         return axf
+

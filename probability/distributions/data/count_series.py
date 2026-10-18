@@ -129,8 +129,9 @@ class CountSeries(
                     )
         axf.set_x_lim(0.5, len(self._data) + 0.5)
         axf.set_y_lim(self.min().min() - 1, max_val + 1)
-        axf.x_ticks.set_locations(range(1, len(self._data) + 1))
-        axf.x_ticks.set_labels(self._data.index.to_list())
+        axf.axes.set_xticks(range(1, len(self._data) + 1))
+        axf.axes.set_xticklabels(self._data.index.to_list())
+
         axf.y_axis.set_format_integer()
 
         return axf

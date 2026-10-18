@@ -184,8 +184,9 @@ class RatioSeries(
         # format axes
         axf.set_x_lim(-1, len(self._data))
         axf.set_y_lim(lowest_bin - bin_spacing, highest_bin + bin_spacing)
-        axf.x_ticks.set_locations(range(len(self._data)))
-        axf.x_ticks.set_labels(self._data.index.to_list())
+        axf.axes.set_xticks(range(len(self._data)))
+        axf.axes.set_xticklabels(self._data.index.to_list())
+
         axf.y_axis.set_format_integer()
         axf.set_text(
             title=f'Distribution of '

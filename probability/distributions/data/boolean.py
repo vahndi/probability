@@ -67,7 +67,9 @@ class Boolean(
         if isinstance(categories, bool):
             categories = [categories]
         data = self._data.loc[~self._data.isin(categories)]
-        return type(self)(data=data)
+        res = type(self)(data=data)
+        res._categories = [c for c in self._categories if c not in categories]
+        return res
 
     def keep(self, categories: Union[bool, List[bool]]) -> 'Boolean':
         """
@@ -78,7 +80,10 @@ class Boolean(
         if isinstance(categories, str) or isinstance(categories, bool):
             categories = [categories]
         data = self._data.loc[self._data.isin(categories)]
-        return type(self)(data=data)
+        res = type(self)(data=data)
+        res._categories = [c for c in self._categories if c in categories]
+        return res
+
 
     def to_beta(self) -> Beta:
         """
@@ -219,9 +224,11 @@ class Boolean(
         yy_range = yy_max - yy_min
         axf.set_y_lim(yy_min - yy_range * 0.05, yy_max + yy_range * 0.05)
         axf.y_ticks.set_locations(linspace(0, 1, 11))
-        axf.x_ticks.set_locations(range(1, n_cats + 1)).set_labels(cats)
+        axf.axes.set_xticks(range(1, n_cats + 1))
+        axf.axes.set_xticklabels(cats)
 
         return axf
+
 
     def __repr__(self):
 

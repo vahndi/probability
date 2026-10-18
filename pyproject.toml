@@ -38,6 +38,11 @@ dev = [
     "openpyxl",
     "pytest",
 ]
+notebooks = [
+    "ipykernel",
+    "jupyterlab",
+]
+
 
 [project.urls]
 Homepage = "https://github.com/vahndi/probability"
