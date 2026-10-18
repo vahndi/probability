@@ -42,7 +42,7 @@ Finish and unify all standard univariate and multivariate conjugate families so 
 - [x] **1.3 Multivariate Normal-Inverse-Wishart (`MVNormalInverseWishartConjugate`)**
   - Conjugate prior/posterior for multivariate Normal data with unknown mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$, yielding multivariate Student-$t$ marginal and predictive distributions.
 - [ ] **1.4 Additional Univariate Parametric Distributions**
-  - `LogNormal`, `Weibull`, `Cauchy`, `Pareto`, `Uniform` (discrete & continuous parity), and `NegativeBinomial` (with `BetaNegativeBinomialConjugate`).
+  - [`LogNormal`](probability/distributions/continuous/log_normal.py) (completed in Phase 6.1), `Weibull`, `Cauchy`, `Pareto`, `Uniform` (discrete & continuous parity), and `NegativeBinomial` (with `BetaNegativeBinomialConjugate`).
   - Moment-matching & MLE `.fit(data)` and `.from_mean_and_std()` constructors across all continuous distributions.
 
 ---
@@ -115,8 +115,17 @@ Expand the *Bayesian Reasoning and Machine Learning* (BRML) and decision-modelin
 ### Phase 6: Prior Elicitation & PyMC / ArviZ Bridge
 Make `probability` the best companion library for users who *do* drop into PyMC for complex hierarchical models.
 
-- [ ] **6.1 Prior Elicitation From Quantiles (`.from_interval()` / `.from_quantiles()`)**
-  - Construct any 2-parameter distribution (`Normal`, `Beta`, `Gamma`, `InverseGamma`, `LogNormal`) by specifying desired quantile bounds, e.g. `Gamma.from_interval(lower=2.0, upper=10.0, prob=0.95)`.
+- [x] **6.1 Prior Elicitation From Quantiles (`.from_interval()` / `.from_quantiles()`, `.from_mean_and_std()`)**
+  - Elicitation module in [`probability.distributions.elicitation`](probability/distributions/elicitation.py) with exact analytical and 1D root-finding solvers for:
+    - `elicit_normal(q1, v1, q2, v2)` (closed-form)
+    - `elicit_log_normal(q1, v1, q2, v2)` (closed-form on log scale)
+    - `elicit_gamma(q1, v1, q2, v2)` (robust monotonic 1D Brent's method on $\alpha$ with closed-form rate $\beta$)
+    - `elicit_beta(q1, v1, q2, v2)` (regularized incomplete beta root solver)
+    - `elicit_inverse_gamma(q1, v1, q2, v2)` (exact duality to Gamma via $1/Y$)
+    - `elicit_continuous_uniform(q1, v1, q2, v2)` (closed-form)
+  - Added `.from_interval(lower, upper, prob=0.95)`, `.from_quantiles(q1, v1, q2, v2)`, and `.from_mean_and_std(mean, std)` classmethods to `Normal`, `Beta`, `Gamma`, `InverseGamma`, `LogNormal`, and `ContinuousUniform`.
+  - Added [`LogNormal`](probability/distributions/continuous/log_normal.py) continuous distribution with mode, interval, fit, and elicitation methods.
+  - Comprehensive unit tests in [`tests/test_distributions/test_continuous/test_prior_elicitation.py`](tests/test_distributions/test_continuous/test_prior_elicitation.py) and runnable example script in [`examples/distributions/continuous/prior_elicitation.py`](examples/distributions/continuous/prior_elicitation.py).
 - [ ] **6.2 Posterior Sample Wrapping (`EmpiricalPosterior` / `Ratio` Enhancements)**
   - `Ratio.from_samples(samples)` / ArviZ `InferenceData` converter that extracts 1D parameter draws into `Ratio` (or `RatioSeries`), enabling `prob_A > prob_B`, `.hdi(0.95)`, ROPE (Region of Practical Equivalence) probability `.prob_in_rope(low, high)`, and `.plot_kde()` on MCMC traces.
 - [ ] **6.3 Optional PyMC Export Helper (`.to_pymc(name)`)**

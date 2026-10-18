@@ -3,6 +3,7 @@ from typing import Optional
 from scipy.stats import invgamma, rv_continuous
 
 from probability.custom_types.external_custom_types import FloatIterable
+from probability.distributions.elicitation import elicit_inverse_gamma
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -52,6 +53,61 @@ class InverseGamma(
     @property
     def upper_bound(self) -> float:
         return self.isf().at(0.01)
+
+    @classmethod
+    def from_interval(
+            cls, lower: float, upper: float, prob: float = 0.95
+    ) -> 'InverseGamma':
+        """
+        Elicit an InverseGamma distribution whose central credible interval matches
+        [lower, upper] with probability `prob`.
+
+        :param lower: Lower bound of interval (lower > 0).
+        :param upper: Upper bound of interval (upper > lower).
+        :param prob: Central coverage probability (0 < prob < 1), default 0.95.
+        """
+        if not (0.0 < prob < 1.0):
+            raise ValueError(f"prob must be between 0 and 1, got {prob}.")
+        alpha_tail = (1.0 - prob) / 2.0
+        return cls.from_quantiles(
+            q1=alpha_tail, v1=lower,
+            q2=1.0 - alpha_tail, v2=upper
+        )
+
+    @classmethod
+    def from_quantiles(
+            cls, q1: float, v1: float, q2: float, v2: float
+    ) -> 'InverseGamma':
+        """
+        Elicit an InverseGamma distribution matching two arbitrary cumulative quantiles:
+            P(X <= v1) = q1 and P(X <= v2) = q2
+
+        :param q1: Lower cumulative probability (0 < q1 < q2 < 1).
+        :param v1: Lower quantile value (v1 > 0).
+        :param q2: Upper cumulative probability (0 < q1 < q2 < 1).
+        :param v2: Upper quantile value (v2 > v1).
+        """
+        alpha, beta = elicit_inverse_gamma(q1=q1, v1=v1, q2=q2, v2=v2)
+        return cls(alpha=alpha, beta=beta)
+
+    @classmethod
+    def from_mean_and_std(cls, mean: float, std: float) -> 'InverseGamma':
+        """
+        Construct an InverseGamma distribution matching a given mean and standard deviation.
+        Note: Requires alpha > 2 for finite variance, which holds for any mean > 0, std > 0.
+
+        :param mean: Arithmetic mean E[X] (mean > 0).
+        :param std: Standard deviation SD[X] (std > 0).
+        """
+        if mean <= 0.0:
+            raise ValueError(f"mean must be strictly positive, got {mean}.")
+        if std <= 0.0:
+            raise ValueError(f"std must be strictly positive, got {std}.")
+
+        var = std ** 2
+        alpha = 2.0 + (mean ** 2) / var
+        beta = mean * (alpha - 1.0)
+        return cls(alpha=alpha, beta=beta)
 
     @staticmethod
     def fit(data: FloatIterable,

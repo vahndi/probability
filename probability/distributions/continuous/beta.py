@@ -3,6 +3,7 @@ from typing import Union, Tuple, Optional
 from scipy.stats import beta as beta_dist, rv_continuous
 
 from probability.custom_types.external_custom_types import FloatIterable
+from probability.distributions.elicitation import elicit_beta
 from probability.distributions.mixins.attributes import \
     AlphaFloatDMixin, BetaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -69,6 +70,67 @@ class Beta(
             return 1
         else:
             raise ValueError("Can't calculate mode for this distribution.")
+
+    @classmethod
+    def from_interval(
+            cls, lower: float, upper: float, prob: float = 0.95
+    ) -> 'Beta':
+        """
+        Elicit a Beta distribution whose central credible interval matches
+        [lower, upper] with probability `prob`.
+
+        :param lower: Lower bound of interval (0 < lower < 1).
+        :param upper: Upper bound of interval (0 < lower < upper < 1).
+        :param prob: Central coverage probability (0 < prob < 1), default 0.95.
+        """
+        if not (0.0 < prob < 1.0):
+            raise ValueError(f"prob must be between 0 and 1, got {prob}.")
+        alpha_tail = (1.0 - prob) / 2.0
+        return cls.from_quantiles(
+            q1=alpha_tail, v1=lower,
+            q2=1.0 - alpha_tail, v2=upper
+        )
+
+    @classmethod
+    def from_quantiles(
+            cls, q1: float, v1: float, q2: float, v2: float
+    ) -> 'Beta':
+        """
+        Elicit a Beta distribution matching two arbitrary cumulative quantiles:
+            P(X <= v1) = q1 and P(X <= v2) = q2
+
+        :param q1: Lower cumulative probability (0 < q1 < q2 < 1).
+        :param v1: Lower quantile value (0 < v1 < 1).
+        :param q2: Upper cumulative probability (0 < q1 < q2 < 1).
+        :param v2: Upper quantile value (0 < v1 < v2 < 1).
+        """
+        alpha, beta = elicit_beta(q1=q1, v1=v1, q2=q2, v2=v2)
+        return cls(alpha=alpha, beta=beta)
+
+    @classmethod
+    def from_mean_and_std(cls, mean: float, std: float) -> 'Beta':
+        """
+        Construct a Beta distribution matching a given mean and standard deviation.
+
+        :param mean: Arithmetic mean (0 < mean < 1).
+        :param std: Standard deviation (0 < std < sqrt(mean * (1 - mean))).
+        """
+        if not (0.0 < mean < 1.0):
+            raise ValueError(f"mean must be between 0 and 1, got {mean}.")
+        if std <= 0.0:
+            raise ValueError(f"std must be strictly positive, got {std}.")
+
+        var = std ** 2
+        max_var = mean * (1.0 - mean)
+        if var >= max_var:
+            raise ValueError(
+                f"Variance ({var}) must be strictly less than mean*(1-mean) ({max_var}) for a Beta distribution."
+            )
+
+        nu = (max_var / var) - 1.0
+        alpha = mean * nu
+        beta = (1.0 - mean) * nu
+        return cls(alpha=alpha, beta=beta)
 
     @staticmethod
     def fit(data: FloatIterable,

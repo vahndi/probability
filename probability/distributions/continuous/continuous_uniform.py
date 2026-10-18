@@ -1,8 +1,10 @@
+from math import sqrt
 from typing import Optional
 
 from scipy.stats import uniform
 
 from probability.custom_types.external_custom_types import FloatIterable
+from probability.distributions.elicitation import elicit_continuous_uniform
 from probability.distributions.mixins.attributes import AFloatDMixin, \
     BFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
@@ -54,6 +56,55 @@ class ContinuousUniform(
     def _reset_distribution(self):
 
         self._distribution = uniform(loc=self._a, scale=self._b - self._a)
+
+    @classmethod
+    def from_interval(
+            cls, lower: float, upper: float, prob: float = 0.95
+    ) -> 'ContinuousUniform':
+        """
+        Elicit a ContinuousUniform distribution whose central credible interval matches
+        [lower, upper] with probability `prob`.
+
+        :param lower: Lower bound of interval.
+        :param upper: Upper bound of interval (upper > lower).
+        :param prob: Central coverage probability (0 < prob < 1), default 0.95.
+        """
+        if not (0.0 < prob < 1.0):
+            raise ValueError(f"prob must be between 0 and 1, got {prob}.")
+        alpha_tail = (1.0 - prob) / 2.0
+        return cls.from_quantiles(
+            q1=alpha_tail, v1=lower,
+            q2=1.0 - alpha_tail, v2=upper
+        )
+
+    @classmethod
+    def from_quantiles(
+            cls, q1: float, v1: float, q2: float, v2: float
+    ) -> 'ContinuousUniform':
+        """
+        Elicit a ContinuousUniform distribution matching two arbitrary cumulative quantiles:
+            P(X <= v1) = q1 and P(X <= v2) = q2
+
+        :param q1: Lower cumulative probability (0 < q1 < q2 < 1).
+        :param v1: Lower quantile value.
+        :param q2: Upper cumulative probability (0 < q1 < q2 < 1).
+        :param v2: Upper quantile value (v2 > v1).
+        """
+        a, b = elicit_continuous_uniform(q1=q1, v1=v1, q2=q2, v2=v2)
+        return cls(a=a, b=b)
+
+    @classmethod
+    def from_mean_and_std(cls, mean: float, std: float) -> 'ContinuousUniform':
+        """
+        Construct a ContinuousUniform distribution matching a given mean and standard deviation.
+
+        :param mean: Arithmetic mean (a + b) / 2.
+        :param std: Standard deviation (b - a) / sqrt(12), (std > 0).
+        """
+        if std <= 0.0:
+            raise ValueError(f"std must be strictly positive, got {std}.")
+        half_width = sqrt(3.0) * std
+        return cls(a=mean - half_width, b=mean + half_width)
 
     @staticmethod
     def fit(data: FloatIterable,

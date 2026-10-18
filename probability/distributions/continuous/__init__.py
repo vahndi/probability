@@ -9,6 +9,7 @@ from probability.distributions.continuous.gamma import Gamma
 from probability.distributions.continuous.gamma_series import GammaSeries
 from probability.distributions.continuous.inverse_gamma import InverseGamma
 from probability.distributions.continuous.laplace import Laplace
+from probability.distributions.continuous.log_normal import LogNormal
 from probability.distributions.continuous.lomax import Lomax
 from probability.distributions.continuous.normal import Normal
 from probability.distributions.continuous.normal_series import NormalSeries
@@ -25,9 +26,11 @@ __all__ = [
     'GammaSeries',
     'InverseGamma',
     'Laplace',
+    'LogNormal',
     'Lomax',
     'Normal',
     'NormalSeries',
     'PERT',
     'StudentsT',
 ]
+
