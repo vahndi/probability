@@ -59,7 +59,7 @@ Support *Think Bayes* and *Statistical Rethinking* (Chapters 2–4) workflows wh
   - Joint 2D posterior grid (e.g., $(\mu, \sigma)$ or $(\alpha, \beta)$ in logistic/binomial dose-response models).
   - `.marginal_x()` and `.marginal_y()` returning `GridDistribution1d`.
   - `.plot_contour()` and `.plot_heatmap()` on native Matplotlib `Axes`.
-- [ ] **2.3 Quadratic / Laplace Approximation (`LaplaceApproximation`)**
+- [x] **2.3 Quadratic / Laplace Approximation (`LaplaceApproximation`)**
   - Given a log-posterior function (or prior + likelihood specification), find the MAP estimate $\hat{\theta}$ via `scipy.optimize` and compute the inverse Hessian $\mathbf{H}^{-1}$ via finite differences.
   - Return a `Normal` (1D) or `MultivariateNormal` ($d$-D) posterior object with full access to `.hdi()`, `.summary()`, and `.sample()`.
 
