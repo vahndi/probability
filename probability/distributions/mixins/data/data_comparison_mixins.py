@@ -1,12 +1,113 @@
 from itertools import product
-from typing import TypeVar, Dict
+from typing import TypeVar, Dict, Optional, Tuple
 
 from pandas import Series, DataFrame
 
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
+from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
 DCDM = TypeVar('DCDM')
+DPCM = TypeVar('DPCM', bound='DataProbComparisonMixin')
+
+
+class DataProbComparisonMixin(object):
+
+    def _check_can_compare(self: DPCM, other: DPCM):
+
+        if not isinstance(other, type(self)):
+            cls_name = type(self).__name__
+            article = 'an' if cls_name[0].lower() in 'aeiou' else 'a'
+            raise TypeError(
+                f'Can only compare {article} {cls_name} with another {cls_name}'
+            )
+
+    def _comparison_samples(
+            self: DPCM, other: DPCM,
+            num_samples: Optional[int] = None
+    ) -> Tuple[Series, Series]:
+        """
+        Method to make it faster and more accurate to implement <= and >=.
+        """
+        if num_samples is None:
+            num_samples = NUM_SAMPLES_COMPARISON
+        self_samples = self.rvs(num_samples)
+        other_samples = other.rvs(num_samples)
+        return self_samples, other_samples
+
+    def prob_equal_to(self: DPCM, other: DPCM,
+                      num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self = other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values == other_values).mean()
+
+    def __eq__(self: DPCM, other: DPCM) -> float:
+        """
+        Return the probability that self = other. based on sampling.
+        """
+        return self.prob_equal_to(other)
+
+    def prob_not_equal_to(self: DPCM, other: DPCM,
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self != other. based on sampling.
+        """
+        return 1 - self.prob_equal_to(other, num_samples)
+
+    def __ne__(self: DPCM, other: DPCM) -> float:
+        """
+        Return the probability that self != other. based on sampling.
+        """
+        return self.prob_not_equal_to(other)
+
+    def prob_less_than(self: DPCM, other: DPCM,
+                       num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self < other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values < other_values).mean()
+
+    def __lt__(self: DPCM, other: DPCM) -> float:
+        """
+        Return the probability that self < other. based on sampling.
+        """
+        return self.prob_less_than(other)
+
+    def prob_greater_than(self: DPCM, other: DPCM,
+                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
+        """
+        Return the probability that self > other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other, num_samples)
+        return (self_values > other_values).mean()
+
+    def __gt__(self: DPCM, other: DPCM) -> float:
+        """
+        Return the probability that self > other. based on sampling.
+        """
+        return self.prob_greater_than(other)
+
+    def __le__(self: DPCM, other: DPCM) -> float:
+        """
+        Return the probability that self <= other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values <= other_values).mean()
+
+    def __ge__(self: DPCM, other: DPCM) -> float:
+        """
+        Return the probability that self >= other. based on sampling.
+        """
+        self._check_can_compare(other)
+        self_values, other_values = self._comparison_samples(other)
+        return (self_values >= other_values).mean()
 
 
 class DataCohensDMixin(object):
@@ -78,3 +179,4 @@ class DataCohensDMixin(object):
         return DataFrame(results).pivot(
             index='control', columns='treatment', values='d'
         ).reindex(dists.keys(), axis=0).reindex(dists.keys(), axis=1)
+

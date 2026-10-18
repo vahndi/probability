@@ -1,12 +1,16 @@
 from collections import OrderedDict
-from typing import TypeVar, List, Union, Optional
+from typing import TypeVar, List, Union, Optional, TYPE_CHECKING
 
+from numpy import nan
 from pandas import Series
 
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.conjugate.dirichlet_multinomial_conjugate \
     import DirichletMultinomialConjugate
 from probability.distributions.continuous.beta_series import BetaSeries
+
+if TYPE_CHECKING:
+    from probability.distributions.data.boolean import Boolean
 
 DCM = TypeVar('DCM', bound='DataCategoriesMixin')
 
@@ -84,7 +88,7 @@ class DataCategoriesMixin(object):
             )
         else:
             # many to one
-            data = self._data.replace(new_categories).astype('category')
+            data = self._data.astype(object).replace(new_categories).astype('category')
             categories = list(OrderedDict.fromkeys(new_categories.values()))
             data = data.cat.set_categories(
                 new_categories=categories,
@@ -102,6 +106,40 @@ class DataCategoriesMixin(object):
             ordered=self._ordered
         )
         return type(self)(data=data)
+
+    def as_boolean(
+            self,
+            false: Union[str, List[str]],
+            true: Union[str, List[str]],
+            empty: Optional[Union[str, List[str]]] = None
+    ) -> 'Boolean':
+        """
+        Convert to a Boolean distribution.
+
+        :param false: Categories to map to False.
+        :param true: Categories to map to True.
+        :param empty: Categories to map to nan.
+        """
+        from probability.distributions.data.boolean import Boolean
+        if not isinstance(false, list):
+            false = [false]
+        if not isinstance(true, list):
+            true = [true]
+        if empty is None:
+            empty = []
+        elif not isinstance(empty, list):
+            empty = [empty]
+        if not set(true + false + empty) == set(self.categories):
+            raise ValueError('Must provide all categories in the distribution')
+        mapping = {}
+        for f in false:
+            mapping[f] = False
+        for t in true:
+            mapping[t] = True
+        for e in empty:
+            mapping[e] = nan
+        data = self._data.astype(object).map(mapping).dropna().astype(bool)
+        return Boolean(data)
 
     def pmf_betas(
             self,
@@ -121,3 +159,4 @@ class DataCategoriesMixin(object):
             name: dirichlet[name]
             for name in dirichlet.names
         }))
+

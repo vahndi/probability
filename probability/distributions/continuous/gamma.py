@@ -115,9 +115,11 @@ class Gamma(
         :param alpha: Optional fixed value for alpha.
         :param beta: Optional fixed value for beta.
         """
+        if alpha is not None and beta is not None:
+            return Gamma(alpha=alpha, beta=beta)
         kwargs = {}
         if alpha is not None:
-            kwargs['fa'] = alpha
+            kwargs['f0'] = alpha
         if beta is not None:
             kwargs['fscale'] = 1 / beta
         alpha, loc, scale = gamma.fit(data=data, floc=0, **kwargs)

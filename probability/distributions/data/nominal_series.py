@@ -24,12 +24,5 @@ class NominalSeries(
     """
     Series of Nominal distributions.
     """
-    def __init__(self, data: Union[Series, Dict[Any, Nominal]]):
-        """
-        Create a new NominalSeries.
+    pass
 
-        :param data: Series or dict of Nominal distributions.
-        """
-        if isinstance(data, dict):
-            data = Series(data)
-        self._data: Series = data

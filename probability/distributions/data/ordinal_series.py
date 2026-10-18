@@ -1,11 +1,10 @@
 from itertools import product
-from typing import Union, Dict, Any, Optional, Mapping, List
+from typing import Union, Optional, List
 
 from numpy import inf, arange, nan
 from numpy.random import choice
 from pandas import Series, DataFrame, concat
 from seaborn import heatmap
-from tqdm import tqdm
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.axes.axis_utils import new_axes
@@ -19,11 +18,12 @@ from probability.distributions.mixins.data.data_series_category_mixins import \
     DataSeriesCategoryMixin, DataSeriesCountsMixin, DataSeriesPMFsMixin, \
     DataSeriesPMFBetasMixin
 from probability.distributions.mixins.data.data_series_mixin import \
-    DataSeriesMixin
+    DataSeriesMixin, DataSeriesTrendMixin
 
 
 class OrdinalSeries(
     DataSeriesMixin,
+    DataSeriesTrendMixin,
     DataSeriesCategoryMixin,
     DataSeriesCountsMixin,
     DataSeriesPMFsMixin,
@@ -34,16 +34,6 @@ class OrdinalSeries(
     """
     Series of Ordinal distributions.
     """
-    def __init__(self, data: Union[Series, Dict[Any, Ordinal]]):
-        """
-        Create a new OrdinalSeries. Assumes all distributions have the same
-        categories.
-
-        :param data: Series or dict of Ordinal distributions.
-        """
-        if isinstance(data, dict):
-            data = Series(data)
-        self._data: Union[Series, Mapping[Any, Ordinal]] = data
 
     def correlation(self) -> DataFrame:
         """
@@ -67,25 +57,6 @@ class OrdinalSeries(
             for k, v in self._data.items()
         })
 
-    def increase_probs(self) -> Series:
-        """
-        Return a Series of probabilities of whether each adjacent pair of
-        Ordinals increases from one to the next.
-        """
-        keys = self.keys()
-        results = []
-        for k in range(len(keys) - 1):
-            k_x = keys[k]
-            k_y = keys[k + 1]
-            results.append({
-                'x': k_x,
-                'y': k_y,
-                'p(y > x)': self._data[k_y].probably_greater_than(
-                    self._data[k_x]
-                )
-            })
-        return DataFrame(results).set_index(['x', 'y'])['p(y > x)']
-
     def unsplit(self) -> Ordinal:
         """
         Return an Ordinal with all the data for each Ordinal in the
@@ -100,83 +71,22 @@ class OrdinalSeries(
             )
         )
 
-    def p_increasing(
+    def _sample_series(
             self,
-            n_iter: int = 1_000
-    ) -> float:
-        """
-        Return the probability that the Ordinals increase as the key increases.
-        """
-        ref_probs = self.increase_probs()
-        ref_sum = ref_probs.sum()
-        ref_prod = ref_probs.product()
-        # calculate p(y)
-        p_y = self.unsplit().pmf()
+            unsplit_dist: Ordinal,
+            n_x: Series
+    ) -> 'OrdinalSeries':
+        p_y = unsplit_dist.pmf()
         y = p_y.index.to_list()
-        # calculate n[X]
-        n_x = self.lens()
-        # repeat
-        results = []
-        for _ in tqdm(range(n_iter)):
-            # create sampled distribution for each x
-            s_x = {}
-            for k in self.keys():
-                s_x[k] = Ordinal(Series(
-                    data=choice(a=y, size=n_x[k], p=p_y),
-                ).astype('category').cat.set_categories(
-                    self.categories, ordered=True
-                ))
-            ord_test = OrdinalSeries(s_x)
-            # find probability that sampled distribution is increasing,
-            # and by how much
-            test_probs = ord_test.increase_probs()
-            test_sum = test_probs.sum()
-            test_prod = test_probs.prod()
-            # if result is more extreme than observed, record a 1
-            if ref_sum > test_sum and ref_prod > test_prod:
-                results.append(1)
-            else:
-                results.append(0)
-        return Series(results).mean()
-
-    def p_decreasing(
-            self,
-            n_iter: int = 1_000
-    ) -> float:
-        """
-        Return the probability that the Ordinals decrease as the key increases.
-        """
-        ref_probs = self.increase_probs()
-        ref_sum = ref_probs.sum()
-        ref_prod = ref_probs.product()
-        # calculate p(y)
-        p_y = self.unsplit().pmf()
-        y = p_y.index.to_list()
-        # calculate n[X]
-        n_x = self.lens()
-        # repeat
-        results = []
-        for _ in tqdm(range(n_iter)):
-            # create sampled distribution for each x
-            s_x = {}
-            for k in self.keys():
-                s_x[k] = Ordinal(Series(
-                    data=choice(a=y, size=n_x[k], p=p_y),
-                ).astype('category').cat.set_categories(
-                    self.categories, ordered=True
-                ))
-            ord_test = OrdinalSeries(s_x)
-            # find probability that sampled distribution is increasing,
-            # and by how much
-            test_probs = ord_test.increase_probs()
-            test_sum = test_probs.sum()
-            test_prod = test_probs.prod()
-            # if result is more extreme than observed, record a 1
-            if ref_sum < test_sum and ref_prod < test_prod:
-                results.append(1)
-            else:
-                results.append(0)
-        return Series(results).mean()
+        s_x = {
+            k: Ordinal(Series(
+                data=choice(a=y, size=n_x[k], p=p_y),
+            ).astype('category').cat.set_categories(
+                self.categories, ordered=True
+            ))
+            for k in self.keys()
+        }
+        return OrdinalSeries(s_x)
 
     def plot_density_grid(
             self,

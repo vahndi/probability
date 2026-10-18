@@ -34,15 +34,6 @@ class BooleanSeries(
     """
     Series or dict of Boolean distributions.
     """
-    def __init__(self, data: Union[Series, Dict[Any, Boolean]]):
-        """
-        Create a new BooleanSeries.
-
-        :param data: Series of Boolean distributions.
-        """
-        if isinstance(data, dict):
-            data = Series(data)
-        self._data: Series = data
 
     def split_by(
             self,

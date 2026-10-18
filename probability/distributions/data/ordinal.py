@@ -15,6 +15,8 @@ from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
+from probability.distributions.mixins.data.data_comparison_mixins import \
+    DataProbComparisonMixin
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
     DataDiscreteCategoricalMixin
 from probability.distributions.mixins.data.data_distribution_mixin import \
@@ -32,6 +34,7 @@ if TYPE_CHECKING:
 
 class Ordinal(
     DataDistributionMixin,
+    DataProbComparisonMixin,
     DataCategoriesMixin,
     DataDiscreteCategoricalMixin,
     DataMinMixin,
@@ -72,17 +75,6 @@ class Ordinal(
             for ix, category in enumerate(self._categories)
         }
         self._data_vals: Series = self._data.map(self._name_to_val).astype(int)
-
-    def rvs(self, num_samples: int,
-            random_state: Optional[int] = None) -> Series:
-        """
-        Sample `num_samples` random values from the distribution.
-        """
-        if random_state is not None:
-            seed(random_state)
-        return self._data.sample(
-            n=num_samples, replace=True
-        ).reset_index(drop=True)
 
     def rvs_values(self, num_samples: int,
                    random_state: Optional[int] = None) -> Series:
@@ -136,39 +128,6 @@ class Ordinal(
                        offset=-2.
         """
         return Interval(data=self._data_vals + offset)
-
-    def as_boolean(
-            self,
-            false: Union[str, List[str]],
-            true: Union[str, List[str]],
-            empty: Optional[Union[str, List[str]]] = None
-    ) -> Boolean:
-        """
-        Convert to a Boolean distribution.
-
-        :param false: Categories to map to False.
-        :param true: Categories to map to True.
-        :param empty: Categories to map to nan.
-        """
-        if not isinstance(false, list):
-            false = [false]
-        if not isinstance(true, list):
-            true = [true]
-        if empty is None:
-            empty = []
-        elif not isinstance(empty, list):
-            empty = [empty]
-        if not set(true + false + empty) == set(self.categories):
-            raise ValueError('Must provide all categories in the distribution')
-        mapping = {}
-        for f in false:
-            mapping[f] = False
-        for t in true:
-            mapping[t] = True
-        for e in empty:
-            mapping[e] = nan
-        data = self._data.astype(object).map(mapping).dropna().astype(bool)
-        return Boolean(data)
 
     def as_ratio(
             self,
@@ -333,80 +292,6 @@ class Ordinal(
         self_samples = self.rvs_values(num_samples)
         other_samples = other.rvs_values(num_samples)
         return self_samples, other_samples
-
-    def prob_equal_to(self, other: 'Ordinal',
-                      num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-        """
-        Return the probability that self = other. based on sampling.
-        """
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other, num_samples)
-        return (self_values == other_values).mean()
-
-    def __eq__(self, other: 'Ordinal') -> float:
-        """
-        Return the probability that self = other. based on sampling.
-        """
-        return self.prob_equal_to(other)
-
-    def prob_not_equal_to(self, other: 'Ordinal',
-                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-        """
-        Return the probability that self != other. based on sampling.
-        """
-        return 1 - self.prob_equal_to(other, num_samples)
-
-    def __ne__(self, other: 'Ordinal') -> float:
-        """
-        Return the probability that self != other. based on sampling.
-        """
-        return self.prob_not_equal_to(other)
-
-    def prob_less_than(self, other: 'Ordinal',
-                       num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-        """
-        Return the probability that self < other. based on sampling.
-        """
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other, num_samples)
-        return (self_values < other_values).mean()
-
-    def __lt__(self, other: 'Ordinal') -> float:
-        """
-        Return the probability that self < other. based on sampling.
-        """
-        return self.prob_less_than(other)
-
-    def prob_greater_than(self, other: 'Ordinal',
-                          num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
-        """
-        Return the probability that self > other. based on sampling.
-        """
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other, num_samples)
-        return (self_values > other_values).mean()
-
-    def __gt__(self, other: 'Ordinal') -> float:
-        """
-        Return the probability that self > other. based on sampling.
-        """
-        return self.prob_greater_than(other)
-
-    def __le__(self, other: 'Ordinal') -> float:
-        """
-        Return the probability that self <= other. based on sampling.
-        """
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other)
-        return (self_values <= other_values).mean()
-
-    def __ge__(self, other: 'Ordinal') -> float:
-        """
-        Return the probability that self >= other. based on sampling.
-        """
-        self._check_can_compare(other)
-        self_values, other_values = self._comparison_samples(other)
-        return (self_values >= other_values).mean()
 
     def probably_less_than(self, other: 'Ordinal') -> float:
         """

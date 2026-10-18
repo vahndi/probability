@@ -1,11 +1,22 @@
-from typing import List, Hashable
+from typing import List, Hashable, Union, Dict, Any
 
-from pandas import Series, Index
+from pandas import Series, Index, DataFrame
+from tqdm import tqdm
 
 
 class DataSeriesMixin(object):
 
     _data: Series
+
+    def __init__(self, data: Union[Series, Dict[Any, Any]]):
+        """
+        Create a new DataSeries.
+
+        :param data: Series or dict of distributions.
+        """
+        if isinstance(data, dict):
+            data = Series(data)
+        self._data: Series = data
 
     @property
     def index(self) -> Index:
@@ -37,3 +48,76 @@ class DataSeriesMixin(object):
     def __repr__(self):
 
         return repr(self._data)
+
+
+class DataSeriesTrendMixin(object):
+    """
+    Mixin for Series of ordered/numeric data distributions that support
+    adjacent-pair increase probabilities and permutation trend tests.
+    """
+    _data: Series
+
+    def keys(self) -> List[str]:
+        raise NotImplementedError
+
+    def lens(self) -> Series:
+        raise NotImplementedError
+
+    def unsplit(self):
+        raise NotImplementedError
+
+    def _sample_series(self, unsplit_dist, n_x: Series) -> 'DataSeriesTrendMixin':
+        raise NotImplementedError
+
+    def increase_probs(self) -> Series:
+        """
+        Return a Series of probabilities of whether each adjacent pair of
+        distributions increases from one to the next.
+        """
+        keys = self.keys()
+        results = []
+        for k in range(len(keys) - 1):
+            k_x = keys[k]
+            k_y = keys[k + 1]
+            results.append({
+                'x': k_x,
+                'y': k_y,
+                'p(y > x)': self._data[k_y].probably_greater_than(
+                    self._data[k_x]
+                )
+            })
+        return DataFrame(results).set_index(['x', 'y'])['p(y > x)']
+
+    def _p_trend(self, increasing: bool, n_iter: int = 1_000) -> float:
+        ref_probs = self.increase_probs()
+        ref_sum = ref_probs.sum()
+        ref_prod = ref_probs.prod()
+        unsplit_dist = self.unsplit()
+        n_x = self.lens()
+        results = []
+        for _ in tqdm(range(n_iter)):
+            sampled = self._sample_series(unsplit_dist, n_x)
+            test_probs = sampled.increase_probs()
+            test_sum = test_probs.sum()
+            test_prod = test_probs.prod()
+            if increasing:
+                is_more_extreme = (ref_sum > test_sum and ref_prod > test_prod)
+            else:
+                is_more_extreme = (ref_sum < test_sum and ref_prod < test_prod)
+            results.append(1 if is_more_extreme else 0)
+        return float(Series(results).mean())
+
+    def p_increasing(self, n_iter: int = 1_000) -> float:
+        """
+        Return the probability that the distributions increase as the key
+        increases.
+        """
+        return self._p_trend(increasing=True, n_iter=n_iter)
+
+    def p_decreasing(self, n_iter: int = 1_000) -> float:
+        """
+        Return the probability that the distributions decrease as the key
+        increases.
+        """
+        return self._p_trend(increasing=False, n_iter=n_iter)
+

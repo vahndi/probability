@@ -72,4 +72,21 @@ class TestDataDistributions(TestCase):
         bool_from_nom = nom_dist.as_boolean(false='bird', true=['cat', 'dog'])
         self.assertAlmostEqual(0.75, bool_from_nom.mean())
 
+    def test_prob_comparisons_and_series_trends(self):
 
+        c1 = Count(Series([1, 2, 1, 2, 1, 2]))
+        c2 = Count(Series([8, 9, 8, 9, 8, 9]))
+        self.assertEqual(1.0, c1 < c2)
+        self.assertEqual(0.0, c1 > c2)
+        self.assertEqual(0.0, c1 == c2)
+
+        group = Nominal(Series(['g1'] * 3 + ['g2'] * 3 + ['g3'] * 3))
+        counts = Count(Series([1, 1, 2, 4, 5, 5, 9, 10, 10]))
+        cs = counts.split_by(group)
+        inc_probs = cs.increase_probs()
+        self.assertEqual(2, len(inc_probs))
+        self.assertTrue((inc_probs > 0.8).all())
+        p_inc = cs.p_increasing(n_iter=20)
+        p_dec = cs.p_decreasing(n_iter=20)
+        self.assertTrue(0.0 <= p_inc <= 1.0)
+        self.assertTrue(0.0 <= p_dec <= 1.0)

@@ -96,17 +96,6 @@ class Interval(
         )
         return Interval(data=data)
 
-    def rvs(self, num_samples: int,
-            random_state: Optional[int] = None) -> Series:
-        """
-        Sample `num_samples` random values from the distribution.
-        """
-        if random_state is not None:
-            seed(random_state)
-        return self._data.sample(
-            n=num_samples, replace=True
-        ).reset_index(drop=True)
-
     def split_by(
             self,
             categorical: Union[DataCategoriesMixin, DataDistributionMixin]

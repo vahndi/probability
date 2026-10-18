@@ -62,14 +62,16 @@ class Lomax(
         :param lambda_: Optional fixed value for lambda_.
         :param alpha: Optional fixed value for alpha.
         """
+        if lambda_ is not None and alpha is not None:
+            return Lomax(lambda_=lambda_, alpha=alpha)
         kwargs = {}
         for arg, kw in zip(
             (lambda_, alpha),
-            ('fscale', 'fc')
+            ('fscale', 'f0')
         ):
             if arg is not None:
                 kwargs[kw] = arg
-        c, loc, scale = lomax.fit(data=data, **kwargs)
+        c, loc, scale = lomax.fit(data=data, floc=0, **kwargs)
         return Lomax(lambda_=scale, alpha=c)
 
     def __str__(self):

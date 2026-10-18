@@ -19,14 +19,7 @@ class IntervalSeries(
     object
 ):
     """
-    Series or dict of Ratio distributions.
+    Series or dict of Interval distributions.
     """
-    def __init__(self, data: Union[Series, Dict[Any, Interval]]):
-        """
-        Create a new IntervalSeries.
+    pass
 
-        :param data: Series of Interval distributions.
-        """
-        if isinstance(data, dict):
-            data = Series(data)
-        self._data: Series = data

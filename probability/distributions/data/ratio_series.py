@@ -1,9 +1,8 @@
-from typing import Union, Dict, Any, Optional, Iterable
+from typing import Union, Optional, Iterable
 
 from numpy import clip
 from pandas import Series, DataFrame, concat
 from seaborn import kdeplot
-from tqdm import tqdm
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
@@ -13,11 +12,12 @@ from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
     DataSeriesStdMixin
 from probability.distributions.mixins.data.data_series_mixin import \
-    DataSeriesMixin
+    DataSeriesMixin, DataSeriesTrendMixin
 
 
 class RatioSeries(
     DataSeriesMixin,
+    DataSeriesTrendMixin,
     DataSeriesMinMixin,
     DataSeriesMaxMixin,
     DataSeriesMeanMixin,
@@ -27,15 +27,6 @@ class RatioSeries(
     """
     Series or dict of Ratio distributions.
     """
-    def __init__(self, data: Union[Series, Dict[Any, Ratio]]):
-        """
-        Create a new RatioSeries.
-
-        :param data: Series of Ratio distributions.
-        """
-        if isinstance(data, dict):
-            data = Series(data)
-        self._data: Series = data
 
     @staticmethod
     def from_data_frame(
@@ -90,29 +81,10 @@ class RatioSeries(
             for ix, dist in self._data.items()
         })
 
-    def increase_probs(self) -> Series:
-        """
-        Return a Series of probabilities of whether each adjacent pair of
-        Ordinals increases from one to the next.
-        """
-        keys = self.keys()
-        results = []
-        for k in range(len(keys) - 1):
-            k_x = keys[k]
-            k_y = keys[k + 1]
-            results.append({
-                'x': k_x,
-                'y': k_y,
-                'p(y > x)': self._data[k_y].probably_greater_than(
-                    self._data[k_x]
-                )
-            })
-        return DataFrame(results).set_index(['x', 'y'])['p(y > x)']
-
     def unsplit(self) -> Ratio:
         """
-        Return an Ordinal with all the data for each Ordinal in the
-        OrdinalSeries concatenated.
+        Return a Ratio with all the data for each Ratio in the
+        RatioSeries concatenated.
         """
         return Ratio(
             data=concat([
@@ -120,91 +92,17 @@ class RatioSeries(
             ])
         )
 
-    def p_increasing(
-            self,
-            n_iter: int = 1_000
-    ) -> float:
-        """
-        Return the probability that the Ratios increase as the key increases.
-        """
-        ref_probs = self.increase_probs()
-        ref_sum = ref_probs.sum()
-        ref_prod = ref_probs.product()
-        # calculate y
-        y = self.unsplit()
-        # calculate n[X]
-        n_x = self.lens()
-        # repeat
-        results = []
-        for _ in tqdm(range(n_iter)):
-            # create sampled distribution for each x
-            s_x = {}
-            y_random = y.data.sample(frac=1)
-            index = []
-            # create new index on the random samples
-            for k in self.keys():
-                index.extend([k] * n_x[k])
-            y_random.index = index
-            # create a new ratio series using the new index
-            for k in self.keys():
-                s_x[k] = Ratio(Series(
-                    data=y_random.loc[y_random.index == k]
-                ))
-            rat_test = RatioSeries(s_x)
-            # find probability that sampled distribution is increasing,
-            # and by how much
-            test_probs = rat_test.increase_probs()
-            test_sum = test_probs.sum()
-            test_prod = test_probs.prod()
-            # if result is more extreme than observed, record a 1
-            if ref_sum > test_sum and ref_prod > test_prod:
-                results.append(1)
-            else:
-                results.append(0)
-        return Series(results).mean()
-
-    def p_decreasing(
-            self,
-            n_iter: int = 1_000
-    ) -> float:
-        """
-        Return the probability that the Ordinals decrease as the key increases.
-        """
-        ref_probs = self.increase_probs()
-        ref_sum = ref_probs.sum()
-        ref_prod = ref_probs.product()
-        # calculate y
-        y = self.unsplit()
-        # calculate n[X]
-        n_x = self.lens()
-        # repeat
-        results = []
-        for _ in tqdm(range(n_iter)):
-            # create sampled distribution for each x
-            s_x = {}
-            y_random = y.data.sample(frac=1)
-            index = []
-            # create new index on the random samples
-            for k in self.keys():
-                index.extend([k] * n_x[k])
-            y_random.index = index
-            # create a new ratio series using the new index
-            for k in self.keys():
-                s_x[k] = Ratio(Series(
-                    data=y_random.loc[y_random.index == k]
-                ))
-            rat_test = RatioSeries(s_x)
-            # find probability that sampled distribution is increasing,
-            # and by how much
-            test_probs = rat_test.increase_probs()
-            test_sum = test_probs.sum()
-            test_prod = test_probs.prod()
-            # if result is more extreme than observed, record a 1
-            if ref_sum < test_sum and ref_prod < test_prod:
-                results.append(1)
-            else:
-                results.append(0)
-        return Series(results).mean()
+    def _sample_series(self, unsplit_dist: Ratio, n_x: Series) -> 'RatioSeries':
+        y_random = unsplit_dist.data.sample(frac=1)
+        index = []
+        for k in self.keys():
+            index.extend([k] * n_x[k])
+        y_random.index = index
+        s_x = {
+            k: Ratio(Series(data=y_random.loc[y_random.index == k]))
+            for k in self.keys()
+        }
+        return RatioSeries(s_x)
 
     def plot_density_bars(
             self,
