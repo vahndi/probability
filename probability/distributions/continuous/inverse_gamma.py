@@ -68,7 +68,7 @@ class InverseGamma(
         kwargs = {}
         for arg, kw in zip(
             (alpha, beta),
-            ('fa', 'fb')
+            ('fa', 'fscale')
         ):
             if arg is not None:
                 kwargs[kw] = arg

@@ -312,9 +312,9 @@ class GammaExponentialConjugate(
         return (
             f'GammaExponentialConjugate('
             f'n={self._n}, '
-            f'x̄={self._x_mean})'
+            f'x̄={self._x_mean}, '
             f'α={num_format(self._alpha, 3)}, '
-            f'β={num_format(self._beta, 3)}, '
+            f'β={num_format(self._beta, 3)})'
         )
 
     def __repr__(self):
@@ -322,7 +322,7 @@ class GammaExponentialConjugate(
         return (
             f'GammaExponentialConjugate('
             f'n={self._n}, '
-            f'x_mean={self._x_mean})'
+            f'x_mean={self._x_mean}, '
             f'alpha={self._alpha}, '
-            f'beta={self._beta}, '
+            f'beta={self._beta})'
         )

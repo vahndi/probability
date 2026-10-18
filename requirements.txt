@@ -1,3 +1,4 @@
+compound-types
 matplotlib
 mpl-format
 networkx
@@ -8,3 +9,4 @@ scipy
 seaborn
 setuptools
 tqdm
+typing-extensions

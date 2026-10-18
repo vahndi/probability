@@ -51,7 +51,7 @@ class NegativeBinomial(
 
     @property
     def lower_bound(self) -> int:
-        return 1
+        return 0
 
     @property
     def upper_bound(self) -> int:

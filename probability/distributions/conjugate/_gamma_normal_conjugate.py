@@ -77,7 +77,7 @@ class _GammaNormalConjugate(ConjugateMixin, object):
         self._reset_distribution()
 
     def prior(self) -> Gamma:
-        return InverseGamma(
+        return Gamma(
             alpha=self._alpha, beta=self._beta
         ).with_x_label('τ').prepend_to_label('Prior: ')
 

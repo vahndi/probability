@@ -72,7 +72,12 @@ class MVNormal(
 
     @mu.setter
     def mu(self, value: Series):
+        if isinstance(value, dict):
+            value = Series(value)
+        elif not isinstance(value, Series):
+            value = Series(data=value, index=self._mu.index)
         self._mu = value
+        self._reset_distribution()
 
     @property
     def sigma(self) -> DataFrame:
@@ -80,7 +85,12 @@ class MVNormal(
 
     @sigma.setter
     def sigma(self, value: DataFrame):
+        if not isinstance(value, DataFrame):
+            value = DataFrame(
+                data=value, index=self._sigma.index, columns=self._sigma.columns
+            )
         self._sigma = value
+        self._reset_distribution()
 
     def plot_2d(self,
                 x1: Union[Iterable, ndarray], x2: Union[Iterable, ndarray],

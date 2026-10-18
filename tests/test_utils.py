@@ -2,7 +2,7 @@ from unittest.case import TestCase
 
 from pandas import Series
 
-from probability.utils import series_is_binary
+from probability.utils import series_is_binary, k_tuples_summing_to_n
 
 
 class TestUtils(TestCase):
@@ -38,3 +38,15 @@ class TestUtils(TestCase):
         self.assertTrue(series_is_binary(self.int_binary_ones))
         self.assertTrue(series_is_binary(self.float_binary_ones))
         self.assertTrue(series_is_binary(self.bool_binary_ones))
+
+    def test_k_tuples_summing_to_n(self):
+
+        self.assertEqual(
+            [(0, 2), (1, 1), (2, 0)],
+            k_tuples_summing_to_n(2, 2)
+        )
+        self.assertEqual(
+            [(0, 0, 1), (0, 1, 0), (1, 0, 0)],
+            k_tuples_summing_to_n(3, 1)
+        )
+

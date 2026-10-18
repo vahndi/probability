@@ -106,21 +106,36 @@ class Beta(
 
         return f'Beta(alpha={self._alpha}, beta={self._beta})'
 
-    def __gt__(self, other: Union['Beta', float]) -> float:
+    def __gt__(self, other: Union['Beta', float, int]) -> float:
 
-        if isinstance(other, float):
-            return (self.rvs(NUM_SAMPLES_COMPARISON) > other).mean()
-        elif isinstance(other, Beta):
+        if isinstance(other, Beta):
             return prob_bb_greater_exact(
                 alpha_1=self._alpha, beta_1=self._beta, m_1=0, n_1=0,
                 alpha_2=other._alpha, beta_2=other._beta, m_2=0, n_2=0
             )
         else:
-            raise TypeError('other must be of type float or Rvs1dMixin')
+            return super(Beta, self).__gt__(other)
 
-    def __lt__(self, other: Union['Beta', float]) -> float:
+    def __ge__(self, other: Union['Beta', float, int]) -> float:
 
-        return other > self
+        if isinstance(other, Beta):
+            return self.__gt__(other)
+        else:
+            return super(Beta, self).__ge__(other)
+
+    def __lt__(self, other: Union['Beta', float, int]) -> float:
+
+        if isinstance(other, Beta):
+            return other > self
+        else:
+            return super(Beta, self).__lt__(other)
+
+    def __le__(self, other: Union['Beta', float, int]) -> float:
+
+        if isinstance(other, Beta):
+            return other > self
+        else:
+            return super(Beta, self).__le__(other)
 
     def __eq__(self, other: 'Beta') -> bool:
 

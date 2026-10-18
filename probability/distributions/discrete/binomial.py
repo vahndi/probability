@@ -43,7 +43,9 @@ class Binomial(
 
     def mode(self) -> int:
 
-        return int(self._n * self._p)
+        if self._p == 1:
+            return self._n
+        return int((self._n + 1) * self._p)
 
     @property
     def lower_bound(self) -> int:

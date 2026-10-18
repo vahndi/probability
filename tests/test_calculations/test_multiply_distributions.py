@@ -244,7 +244,7 @@ class TestMultiplyDistributions(BaseTest):
     def test_rvs1d__mul__series_names(self):
 
         actual = self.b1 * self.b_series
-        for ix, value in actual.iteritems():
+        for ix, value in actual.items():
             self.assertEqual(
                 f'{str(self.b1)} * {str(self.b_series[ix])}',
                 actual[ix].name
@@ -253,7 +253,7 @@ class TestMultiplyDistributions(BaseTest):
     def test_rvs1d__mul__series_results(self):
 
         actual = self.b1 * self.b_series
-        for ix, value in actual.iteritems():
+        for ix, value in actual.items():
             expected_output = (self.b1 * self.b_series[ix]).output()
             value_output = value.output()
             self.assertAlmostEqual(expected_output.mean(),
@@ -264,7 +264,7 @@ class TestMultiplyDistributions(BaseTest):
     def test_series__mul__rvs1d__names(self):
 
         actual = self.b_series * self.b1
-        for ix, value in actual.iteritems():
+        for ix, value in actual.items():
             self.assertEqual(
                 f'{str(self.b_series[ix])} * {str(self.b1)}',
                 actual[ix].name
@@ -273,7 +273,7 @@ class TestMultiplyDistributions(BaseTest):
     def test_series__mul__rvs1d_results(self):
 
         actual = self.b_series * self.b1
-        for ix, value in actual.iteritems():
+        for ix, value in actual.items():
             expected_output = (self.b_series[ix] * self.b1).output()
             actual_output = value.output()
             self.assertAlmostEqual(expected_output.mean(),

@@ -428,3 +428,26 @@ class TestDiscrete(TestCase):
             variables='x'
         )
         self.assertRaises(TypeError, discrete.max)
+
+    def test_var_numeric(self):
+
+        discrete = Discrete.from_probs(
+            data={0: 0.7, 1000: 0.2, 2000: 0.1},
+            variables='a'
+        )
+        mu = 0 * 0.7 + 1000 * 0.2 + 2000 * 0.1
+        expected_var = (
+            ((0 - mu) ** 2) * 0.7 +
+            ((1000 - mu) ** 2) * 0.2 +
+            ((2000 - mu) ** 2) * 0.1
+        )
+        self.assertAlmostEqual(expected_var, discrete.var())
+
+    def test_var_categorical(self):
+
+        counts = Series({
+            'a': 1, 'c': 2, 'e': 3
+        })
+        discrete = Discrete.from_counts(counts, variables='x')
+        self.assertRaises(TypeError, discrete.var)
+

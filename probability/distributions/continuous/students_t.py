@@ -27,13 +27,18 @@ class StudentsT(
     https://en.wikipedia.org/wiki/Student%27s_t-distribution
     """
     def __init__(self, nu: float, mu: float = 0,
-                 sigma: float = 1, sigma_sq: float = None):
+                 sigma: float = None, sigma_sq: float = None):
         """
         Create a new Student's t distribution.
 
         :param nu: Number of degrees of freedom.
         """
-        assert any([sigma, sigma_sq]) and not all([sigma, sigma_sq])
+        if sigma is None and sigma_sq is None:
+            sigma = 1
+        assert (
+            (sigma is not None or sigma_sq is not None) and
+            not (sigma is not None and sigma_sq is not None)
+        )
 
         self._nu: float = nu
         self._mu: float = mu
@@ -80,7 +85,7 @@ class StudentsT(
 
     def mode(self) -> float:
 
-        return 0.0
+        return self._mu
 
     @staticmethod
     def fit(data: FloatIterable,

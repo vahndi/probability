@@ -54,7 +54,7 @@ class DataInformationMixin(object):
         ).map(log)
         calc['H(x,y)'] = calc['p(x,y)'] * calc['p(x,y)'].map(log)
         calc['H(x|y)'] = calc['p(x,y)'] * (
-                calc['p(x,y)'] / calc['p(x)']
+                calc['p(x,y)'] / calc['p(y)']
         ).map(log)
 
         return calc
@@ -188,16 +188,10 @@ class DataInformationMixin(object):
         The 'avg' method is referenced in [1]
         The 'max' method is referenced in [2]
         """
-        if method == 'max':
-            return self.mutual_information(other) / min(
-                self.entropy(), other.entropy()
-            )
-        elif method == 'avg':
-            return 2 * self.mutual_information(other) / (
-                self.entropy() + other.entropy()
-            )
-        else:
-            raise ValueError("method must be one of {'max', 'avg'}")
+        self_data, other_data = self._get_shared_data(other)
+        return DataInformationMixin._normalized_mutual_information(
+            self_data=self_data, other_data=other_data, method=method
+        )
 
     def nmi(
             self,
@@ -242,9 +236,9 @@ class DataInformationMixin(object):
                         of NMI(A, C) where method='samples'. Defaults to 10 as
                         described in [1].
         """
-        h_a = self.entropy()
-        h_b = other.entropy()
         self_data, other_data = self._get_shared_data(other)
+        h_a = entropy(self_data.value_counts())
+        h_b = entropy(other_data.value_counts())
         if method == 'approx':
             n = len(self_data)
             q_a = self_data.nunique()

@@ -11,13 +11,16 @@ setup(
   url='https://github.com/vahndi/probability',
   keywords=['python', 'probability'],
   install_requires=[
+        'compound-types',
         'matplotlib',
         'mpl-format',
         'networkx',
         'numba',
         'numpy',
         'pandas',
-        'scipy'
+        'scipy',
+        'seaborn',
+        'tqdm'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',

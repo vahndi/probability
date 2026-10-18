@@ -59,3 +59,11 @@ class TestBinomial(TestCase):
             binom_orig = Binomial(n=n, p=p)
             binom_fit = Binomial.fits(binom_orig.rvs(100_000), n=n)
             self.assertAlmostEqual(binom_orig.p, binom_fit.p, 1)
+
+    def test_mode(self):
+
+        self.assertEqual(1, Binomial(1, 0.6).mode())
+        self.assertEqual(0, Binomial(1, 0.4).mode())
+        self.assertEqual(5, self.b1.mode())
+        self.assertEqual(7, self.b2.mode())
+

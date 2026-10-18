@@ -163,7 +163,7 @@ class GammaPoissonConjugate(
         ax_prior.set_y_lim(0, y_max_params)
         ax_posterior.set_y_lim(0, y_max_params)
         ppf_n_binom_prior = self.prior_predictive().ppf().at(0.99)
-        ppf_n_binom_posterior = self.prior_predictive().ppf().at(0.99)
+        ppf_n_binom_posterior = self.posterior_predictive().ppf().at(0.99)
         k_pred = range(int(max(ppf_n_binom_prior, ppf_n_binom_posterior)) + 1)
         self.prior_predictive().plot(
             k=k_pred,
@@ -214,8 +214,8 @@ class GammaPoissonConjugate(
         """
         if alpha is None:
             alpha = VaguePrior.Gamma.alpha
-        if alpha is None:
-            alpha = VaguePrior.Gamma.beta
+        if beta is None:
+            beta = VaguePrior.Gamma.beta
         data = data.dropna()
         k: int = data.sum()
         n: int = len(data)

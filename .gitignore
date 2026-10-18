@@ -205,5 +205,5 @@ fabric.properties
 *_old.py
 
 /assets/
-/probability/discrete/
+/.venv/
 

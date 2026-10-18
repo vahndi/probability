@@ -3,8 +3,7 @@ from typing import Union, List, Optional, Iterable
 
 from matplotlib.figure import Figure
 from mpl_format.figures import FigureFormatter
-from pandas import Series, DataFrame
-from pandas.core.dtypes.common import is_categorical_dtype
+from pandas import Series, DataFrame, CategoricalDtype
 
 from probability.custom_types.external_custom_types import Array1d, FloatArray1d
 from probability.distributions import UniformPrior
@@ -142,6 +141,7 @@ class DirichletMultinomialConjugate(
                 index=self._x.index
             )
         self._x = value
+        self._n = self._x.sum()
 
     @property
     def K(self) -> int:
@@ -239,7 +239,7 @@ class DirichletMultinomialConjugate(
         """
         if alpha is None:
             alpha = UniformPrior.Dirichlet.alpha
-        if is_categorical_dtype(data):
+        if isinstance(data.dtype, CategoricalDtype):
             categories = data.cat.categories.to_list()
         else:
             categories = list(data.unique())
@@ -311,11 +311,11 @@ class DirichletMultinomialConjugate(
             for stat in stats:
                 if hasattr(Dirichlet, stat):
                     if callable(getattr(Dirichlet, stat)):
-                        dirichlets_data[stat] = dirichlets_data['Beta'].map(
+                        dirichlets_data[stat] = dirichlets_data['Dirichlet'].map(
                             lambda b: getattr(b, stat)()
                         )
                     else:
-                        dirichlets_data[stat] = dirichlets_data['Beta'].map(
+                        dirichlets_data[stat] = dirichlets_data['Dirichlet'].map(
                             lambda b: getattr(b, stat)
                         )
         return dirichlets_data

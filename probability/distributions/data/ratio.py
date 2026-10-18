@@ -442,7 +442,7 @@ class Ratio(
             if color_median is not None:
                 median = cat_ratio_data.median()
                 axf.add_line(x=[c + 0.55, c + 1.45], y=[median, median],
-                             color='g')
+                             color=color_median)
         # labels
         axf.set_text(
             title=f'{hdi: .0%} HDIs of p({self.name}|{categorical.name})',

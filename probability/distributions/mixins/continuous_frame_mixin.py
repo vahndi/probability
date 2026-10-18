@@ -23,7 +23,7 @@ class ContinuousFrameMixin(object):
         return self._data
 
     def means(self) -> DataFrame:
-        return self._data.applymap(lambda dist: dist.mean())
+        return self._data.map(lambda dist: dist.mean())
 
     def drop(
             self: CFM,

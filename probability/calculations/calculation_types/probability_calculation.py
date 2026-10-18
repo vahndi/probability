@@ -1,4 +1,4 @@
-from operator import mul, truediv, add
+from operator import mul, truediv, add, sub
 
 from pandas import DataFrame, Series
 
@@ -13,7 +13,7 @@ from probability.calculations.mixins import ProbabilityCalculationMixin
 from probability.calculations.operators.aggregator_operators.sum_operator \
     import SumOperator
 from probability.calculations.operators import \
-    AddOperator, DivideOperator, MultiplyOperator
+    AddOperator, DivideOperator, MultiplyOperator, SubtractOperator
 from probability.utils import is_scalar
 from probability.distributions.mixins.rv_mixins import is_rvs
 
@@ -117,7 +117,9 @@ class ProbabilityCalculation(
 
         self.context = context
         for input_calc in self.input_calcs:
-            if not isinstance(input_calc, SimpleCalculation):
+            if isinstance(input_calc, SimpleCalculation):
+                input_calc.context = context
+            else:
                 input_calc.set_context(context)
         return self
 
@@ -155,12 +157,27 @@ class ProbabilityCalculation(
 
     def __radd__(self, other):
 
-        if other == 0:
+        if isinstance(other, (int, float)) and other == 0:
             return self
         else:
             return reverse_binary_operation(
                 self, other, add, AddOperator
             )
+
+    def __sub__(self, other):
+        """
+        Subtract a float, distribution, ProbabilityCalculation, Series or
+        DataFrame from the Calculation.
+        """
+        return forward_binary_operation(
+            self, other, sub, SubtractOperator
+        )
+
+    def __rsub__(self, other):
+
+        return reverse_binary_operation(
+            self, other, sub, SubtractOperator
+        )
 
     def __truediv__(self, other):
         """

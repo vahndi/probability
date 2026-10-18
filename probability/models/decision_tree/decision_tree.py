@@ -387,6 +387,11 @@ class DecisionTree(object):
             amount_node: AmountNode = path_to_node[-1]
             amount_node.total_amount = total_amount
 
+        for chance_node in self.chance_nodes():
+            chance_node.expected_amount = 0.0
+        for decision_node in self.decision_nodes():
+            decision_node.expected_amount = 0.0
+
         # 2) work backwards computing the expected cost at all nodes and
         #    choosing action at choice nodes where expected cost is lowest
         for depth in range(self.max_depth, 0, -1):
@@ -462,17 +467,17 @@ class DecisionTree(object):
                 nodelist=nodes,
                 node_shape=node_shape, node_color=node_color, alpha=0.5,
             )
-            if node_labels is not None:
-                if node_labels == 'name':
-                    labels = self.node_names_dict()
-                elif node_labels == 'amount':
-                    labels = self.node_amounts_dict()
-                else:
-                    raise ValueError()
-                draw_networkx_labels(
-                    G=self._graph, pos=pos, ax=ax,
-                    labels=labels, font_size=10,
-                )
+        if node_labels is not None:
+            if node_labels == 'name':
+                labels = self.node_names_dict()
+            elif node_labels == 'amount':
+                labels = self.node_amounts_dict()
+            else:
+                raise ValueError()
+            draw_networkx_labels(
+                G=self._graph, pos=pos, ax=ax,
+                labels=labels, font_size=10,
+            )
         draw_networkx_edges(G=self._graph, pos=pos,
                             ax=ax, edge_color='gray')
         return ax

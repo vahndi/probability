@@ -377,8 +377,8 @@ class Discrete(
             return (
                 Series(
                     index=self.data.index,
-                    data=self.data.index.to_series() - mu
-                )
+                    data=(self.data.index.to_series() - mu) ** 2
+                ) * self.data
             ).sum()
         else:
             raise TypeError(

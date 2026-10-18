@@ -103,7 +103,7 @@ class ContinuousSeriesMixin(object):
                         x_left=y_to_z.index[0],
                         y_bottom=i + 1 - width[i] / 2,
                         edge_color=(
-                            color if color_min is None else
+                            color[i] if color_min[i] is None else
                             cross_fade(color_min[i], color[i], 0.5)
                         ),
                         fill=False
@@ -124,7 +124,7 @@ class ContinuousSeriesMixin(object):
                         x_left=i + 1 - width[i] / 2,
                         y_bottom=y_to_z.index[0],
                         edge_color=(
-                            color if color_min is None else
+                            color[i] if color_min[i] is None else
                             cross_fade(color_min[i], color[i], 0.5)
                         ),
                         fill=False

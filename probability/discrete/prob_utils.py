@@ -99,7 +99,7 @@ def p_or(distribution: Series, **joint_vars_vals) -> float:
         )
         or_ix.update(filtered.index)
     # calculate probability
-    return data.loc[or_ix, dist_name].sum()
+    return data.loc[list(or_ix), dist_name].sum()
 
 
 def given(distribution: Series, **givens) -> Series:

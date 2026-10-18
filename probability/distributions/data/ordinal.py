@@ -104,13 +104,20 @@ class Ordinal(
         ], axis=1)
         return combined.corr(method='spearman').iloc[0, 1]
 
-    def median_value(self) -> int:
+    def median_value(self) -> float:
 
         return self._data_vals.median()
 
-    def median(self) -> str:
+    def median(self) -> Union[str, Tuple[str, str]]:
 
-        return self._val_to_name[self.median_value()]
+        med = self.median_value()
+        if int(med) == med:
+            return self._val_to_name[int(med)]
+        else:
+            return (
+                self._val_to_name[int(med)],
+                self._val_to_name[int(med) + 1]
+            )
 
     def mode(self) -> Union[str, List[str]]:
 
@@ -290,7 +297,7 @@ class Ordinal(
                 interval = 1 + cat_ratio_data.cat.codes
                 median = interval.median()
                 axf.add_line(x=[c + 0.55, c + 1.45], y=[median, median],
-                             color='g')
+                             color=color_median)
         # # labels
         axf.set_text(
             title=f'Distributions of p({self.name}|{categorical.name})',

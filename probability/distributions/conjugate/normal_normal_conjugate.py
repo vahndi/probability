@@ -302,7 +302,7 @@ class NormalNormalConjugate(
         """
         ppf_prior_01 = self.prior().ppf().at(0.01)
         ppf_prior_99 = self.prior().ppf().at(0.99)
-        ppf_posterior_01 = self.posterior().ppf().at(0.99)
+        ppf_posterior_01 = self.posterior().ppf().at(0.01)
         ppf_posterior_99 = self.posterior().ppf().at(0.99)
         x_norm_min = int(min(ppf_prior_01, ppf_posterior_01)) - 1
         x_norm_max = int(max(ppf_prior_99, ppf_posterior_99)) + 1
@@ -525,18 +525,18 @@ class NormalNormalConjugate(
                 f'NormalNormalConjugate('
                 f'n={self._n}, '
                 f'Σx={self._x_sum}, '
-                f'σ²={num_format(self._sigma_sq, 3)})'
+                f'σ²={num_format(self._sigma_sq, 3)}, '
                 f'μ₀={num_format(self._mu_0, 3)}, '
-                f'σ₀²={num_format(self._sigma_0_sq, 3)}, '
+                f'σ₀²={num_format(self._sigma_0_sq, 3)})'
             )
         elif self._parameterization == 'τ':
             return (
                 f'NormalNormalConjugate('
                 f'n={self._n}, '
                 f'Σx={self._x_sum}, '
-                f'τ={num_format(self.tau, 3)})'
+                f'τ={num_format(self.tau, 3)}, '
                 f'μ₀={num_format(self._mu_0, 3)}, '
-                f'τ₀={num_format(self.tau_0, 3)}, '
+                f'τ₀={num_format(self.tau_0, 3)})'
             )
         else:
             return 'Invalid parameterization!'
@@ -548,18 +548,18 @@ class NormalNormalConjugate(
                 f'NormalNormalConjugate('
                 f'n={self._n}, '
                 f'x_sum={self._x_sum}, '
-                f'sigma_sq={self._sigma_sq})'
+                f'sigma_sq={self._sigma_sq}, '
                 f'mu_0={self._mu_0}, '
-                f'sigma_0_sq={self._sigma_0_sq}, '
+                f'sigma_0_sq={self._sigma_0_sq})'
             )
         elif self._parameterization == 'τ':
             return (
                 f'NormalNormalConjugate('
                 f'n={self._n}, '
                 f'x_sum={self._x_sum}, '
-                f'tau={self.tau})'
+                f'tau={self.tau}, '
                 f'mu_0={self._mu_0}, '
-                f'tau_0={self.tau_0}, '
+                f'tau_0={self.tau_0})'
             )
         else:
             return 'Invalid parameterization!'

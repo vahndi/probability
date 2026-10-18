@@ -22,6 +22,9 @@ class BetaSeries(
             data = Series(data)
         self._data: Series = data
 
+    def to_dict(self) -> Dict[str, Beta]:
+        return {k: v for k, v in self._data.items()}
+
     @staticmethod
     def from_bool_frame(
             data: DataFrame,

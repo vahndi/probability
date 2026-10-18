@@ -3,7 +3,6 @@ from typing import Union
 from scipy.stats import rv_discrete, skellam
 
 from probability.custom_types.external_custom_types import FloatArray1d
-from probability.distributions.mixins.attributes import NIntDMixin, PFloatDMixin
 from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
@@ -12,8 +11,6 @@ from probability.utils import num_format, is_scalar
 
 class Skellam(
     RVDiscrete1dMixin,
-    NIntDMixin,
-    PFloatDMixin,
     CalculableMixin,
     object
 ):
@@ -50,6 +47,24 @@ class Skellam(
         self._distribution: rv_discrete = skellam(self._mu_1, self._mu_2)
 
     @property
+    def mu_1(self) -> float:
+        return self._mu_1
+
+    @mu_1.setter
+    def mu_1(self, value: float):
+        self._mu_1 = value
+        self._reset_distribution()
+
+    @property
+    def mu_2(self) -> float:
+        return self._mu_2
+
+    @mu_2.setter
+    def mu_2(self, value: float):
+        self._mu_2 = value
+        self._reset_distribution()
+
+    @property
     def lower_bound(self) -> int:
         return int(round(self.ppf().at(0.005)))
 
@@ -70,7 +85,7 @@ class Skellam(
         return (
             f'Skellam('
             f'μ1={num_format(self._mu_1, 3)}, '
-            f'μ1={num_format(self._mu_2, 3)})'
+            f'μ2={num_format(self._mu_2, 3)})'
         )
 
     def __repr__(self):

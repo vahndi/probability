@@ -1,15 +1,15 @@
-from itertools import permutations
+from itertools import product
 from typing import List, Tuple
 
 from pandas import Series
 
 
-def k_tuples_summing_to_n(k, n) -> List[Tuple[int]]:
+def k_tuples_summing_to_n(k, n) -> List[Tuple[int, ...]]:
     """
     Return a list of k-tuples of values that sum to n.
 
     :param k: The number of items in each tuple.
-    :param n: The
+    :param n: The sum of the items in each tuple.
 
     Calculation time increases exponentially with k
     - not recommended to use for k > 3 if n >> k.
@@ -17,7 +17,7 @@ def k_tuples_summing_to_n(k, n) -> List[Tuple[int]]:
     def valid(val):
         return sum(val) == n
 
-    return list(filter(valid, list(permutations(range(n + 1), k))))
+    return list(filter(valid, product(range(n + 1), repeat=k)))
 
 
 def all_are_none(*args) -> bool:

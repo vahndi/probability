@@ -158,7 +158,8 @@ class EntropyMixin(object):
         """
         Differential entropy of the RV.
         """
-        return self._distribution.entropy()[0]
+        ent = self._distribution.entropy()
+        return float(ent[0]) if isinstance(ent, ndarray) and ent.ndim > 0 else float(ent)
 
 
 class Median1dMixin(object):
@@ -447,7 +448,7 @@ class SFContinuous1dMixin(object):
         """
         return ContinuousFunction1d(
             distribution=self._distribution,
-            method_name='sf', name='log SF',
+            method_name='logsf', name='log SF',
             parent=self
         )
 

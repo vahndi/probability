@@ -52,7 +52,7 @@ class RVSeries(object):
 
     def moment(self, n: int) -> float:
         """
-        n-th order non-central moment of distribution.
+        n-th order moment of distribution.
         """
         return moment(a=self._data, moment=n)
 

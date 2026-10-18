@@ -1,7 +1,7 @@
 from itertools import chain, product, repeat
 from typing import List, Dict, Optional, Union, TYPE_CHECKING
 
-from numpy import product as np_product
+from numpy import prod as np_product
 from pandas import DataFrame, Series, MultiIndex, concat
 
 if TYPE_CHECKING:
@@ -140,13 +140,16 @@ class Conditional(
         if isinstance(conditional_variables, str):
             conditional_variables = [conditional_variables]
         binary_data = {}
-        for ix, value in data.items():
-            if isinstance(data.index, MultiIndex):
+        if isinstance(data.index, MultiIndex):
+            for ix, value in data.items():
                 binary_data[tuple([1] + list(ix))] = value
+            for ix, value in data.items():
                 binary_data[tuple([0] + list(ix))] = 1 - value
-            else:
-                binary_data[(ix, 1)] = value
-                binary_data[(ix, 0)] = 1 - value
+        else:
+            for ix, value in data.items():
+                binary_data[(1, ix)] = value
+            for ix, value in data.items():
+                binary_data[(0, ix)] = 1 - value
         if conditional_states is not None:
             states = {
                 **conditional_states,

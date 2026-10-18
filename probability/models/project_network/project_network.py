@@ -160,7 +160,7 @@ class ProjectNetwork(object):
             })
         return DataFrame(paths)
 
-    def draw(self, ax: Optional[Axes]) -> Axes:
+    def draw(self, ax: Optional[Axes] = None) -> Axes:
         """
         Draw the network.
 
@@ -179,7 +179,7 @@ class ProjectNetwork(object):
         )
         draw_networkx_edges(G=self._graph, pos=pos, label='weight',
                             ax=ax, edge_color='gray')
-        draw_networkx_edge_labels(G=self._graph, pos=pos,
+        draw_networkx_edge_labels(G=self._graph, pos=pos, ax=ax,
                                   edge_labels=self._edge_weight_dict())
         return ax
 

@@ -139,3 +139,23 @@ class TestConditional(TestCase):
             conditional_variables=['A', 'B']
         ).data
         self.assertTrue(c__a_b__1.equals(c__a_b__2))
+
+    def test_binary_from_probs__single_conditional(self):
+
+        c__a__1 = Conditional.from_probs(
+            data={
+                (1, 0): 0.2,
+                (1, 1): 0.8,
+                (0, 0): 0.8,
+                (0, 1): 0.2,
+            },
+            joint_variables='C',
+            conditional_variables='A'
+        ).data
+        c__a__2 = Conditional.binary_from_probs(
+            data={0: 0.2, 1: 0.8},
+            joint_variable='C',
+            conditional_variables='A'
+        ).data
+        self.assertTrue(c__a__1.round(10).equals(c__a__2.round(10)))
+

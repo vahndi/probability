@@ -65,12 +65,12 @@ class CalculableMixin(object):
             elif isinstance(other, Series):
                 return Series({
                     key: self * value
-                    for key, value in other.iteritems()
+                    for key, value in other.items()
                 })
             elif isinstance(other, DataFrame):
                 return DataFrame({
                     column: {key: self * value
-                             for key, value in other[column].iteritems()}
+                             for key, value in other[column].items()}
                     for column in other.columns
                 })
             else:
@@ -128,15 +128,67 @@ class CalculableMixin(object):
             context=context
         )
 
+    def __sub__(self, other):
+
+        from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types import \
+            BinaryOperatorCalculation
+        from probability.calculations.calculation_types.value_calculation import \
+            ValueCalculation
+        from probability.calculations.operators import SubtractOperator
+
+        if isinstance(other, ProbabilityCalculationMixin):
+            context = other.context
+            input_2 = other
+        else:
+            context = CalculationContext()
+            if is_scalar(other):
+                input_2 = ValueCalculation(calc_input=other, context=context)
+            elif is_rvs(other):
+                input_2 = SampleCalculation(calc_input=other, context=context)
+            elif isinstance(other, Series):
+                return Series({
+                    key: self - value
+                    for key, value in other.items()
+                })
+            elif isinstance(other, DataFrame):
+                return DataFrame({
+                    column: {key: self - value
+                             for key, value in other[column].items()}
+                    for column in other.columns
+                })
+            else:
+                raise TypeError(
+                    'other must be type Rvs1dMixin, RvsNdMixin, int, float, '
+                    'Series or DataFrame'
+                )
+
+        input_1 = SampleCalculation(
+            calc_input=self,
+            context=context
+        )
+
+        return BinaryOperatorCalculation(
+            calc_input_1=input_1,
+            calc_input_2=input_2,
+            operator=SubtractOperator,
+            context=context
+        )
+
     def __rsub__(self, other) -> ProbabilityCalculationMixin:
         """
-        Used for returning the synced complement of a distribution.
-
-        :param other: Must be 1
+        Used for returning the synced complement of a distribution when other == 1,
+        or subtracting the distribution from another operand.
         """
         from probability.calculations.calculation_types import SampleCalculation
+        from probability.calculations.calculation_types import \
+            BinaryOperatorCalculation
         from probability.calculations.calculation_types.unary_operator_calculation \
             import UnaryOperatorCalculation
+        from probability.calculations.calculation_types.value_calculation import \
+            ValueCalculation
+        from probability.calculations.operators import SubtractOperator
+
         if (
                 (isinstance(other, int) or isinstance(other, float)) and
                 other == 1
@@ -147,8 +199,30 @@ class CalculableMixin(object):
                 operator=ComplementOperator,
                 context=context
             )
+        elif isinstance(other, ProbabilityCalculationMixin):
+            context = other.context
+            input_1 = other
         else:
-            raise NotImplementedError
+            context = CalculationContext()
+            if is_scalar(other):
+                input_1 = ValueCalculation(calc_input=other, context=context)
+            elif is_rvs(other):
+                input_1 = SampleCalculation(calc_input=other, context=context)
+            elif isinstance(other, Series) or isinstance(other, DataFrame):
+                return other - self
+            else:
+                raise NotImplementedError
+
+        input_2 = SampleCalculation(
+            calc_input=self,
+            context=context
+        )
+        return BinaryOperatorCalculation(
+            calc_input_1=input_1,
+            calc_input_2=input_2,
+            operator=SubtractOperator,
+            context=context
+        )
 
     def __add__(self, other):
 
@@ -163,12 +237,21 @@ class CalculableMixin(object):
             input_2 = other
         else:
             context = CalculationContext()
-            if isinstance(other, float):
+            if is_scalar(other):
                 input_2 = ValueCalculation(calc_input=other, context=context)
             elif is_rvs(other):
                 input_2 = SampleCalculation(calc_input=other, context=context)
-            elif isinstance(other, Series) or isinstance(other, DataFrame):
-                return other * self
+            elif isinstance(other, Series):
+                return Series({
+                    key: self + value
+                    for key, value in other.items()
+                })
+            elif isinstance(other, DataFrame):
+                return DataFrame({
+                    column: {key: self + value
+                             for key, value in other[column].items()}
+                    for column in other.columns
+                })
             else:
                 raise TypeError(
                     'other must be type Rvs1dMixin, RvsNdMixin float, '
@@ -189,7 +272,7 @@ class CalculableMixin(object):
 
     def __radd__(self, other):
 
-        if other == 0:
+        if isinstance(other, (int, float)) and other == 0:
             return self
         else:
             return self.__add__(other)
@@ -220,12 +303,12 @@ class CalculableMixin(object):
             elif isinstance(other, Series):
                 return Series({
                     key: self / value
-                    for key, value in other.iteritems()
+                    for key, value in other.items()
                 })
             elif isinstance(other, DataFrame):
                 return DataFrame({
                     column: {key: self / value
-                             for key, value in other[column].iteritems()}
+                             for key, value in other[column].items()}
                     for column in other.columns
                 })
             else:

@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union, Iterable, Optional
 
 from matplotlib.axes import Axes
-from numpy.core.records import ndarray
+from numpy import ndarray
 from pandas import Series
 from scipy.stats import rv_discrete, multinomial
 

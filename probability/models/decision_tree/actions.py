@@ -1,7 +1,7 @@
 from itertools import product as it_product
 from typing import List, Optional, Callable, Iterator
 
-from numpy import product as np_product
+from numpy import prod as np_product
 
 from probability.models.decision_tree.decision_tree import DecisionTree
 from probability.models.decision_tree.nodes import ChanceNode, DecisionNode, \

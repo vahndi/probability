@@ -68,13 +68,13 @@ class ContinuousUniform(
         :param b: Optional fixed value for upper bound b.
         """
         kwargs = {}
-        for arg, kw in zip(
-            (a, b),
-            ('fa', 'fb')
-        ):
-            if arg is not None:
-                kwargs[kw] = arg
+        if a is not None:
+            kwargs['floc'] = a
+        if a is not None and b is not None:
+            kwargs['fscale'] = b - a
         loc, scale = uniform.fit(data=data, **kwargs)
+        if b is not None and a is None:
+            return ContinuousUniform(a=loc, b=b)
         return ContinuousUniform(a=loc, b=loc + scale)
 
     def __str__(self):
