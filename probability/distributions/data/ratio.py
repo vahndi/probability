@@ -11,7 +11,7 @@ from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
 from probability.distributions import Gamma, Normal
 from probability.distributions.mixins.data.data_comparison_mixins import \
-    DataCohensDMixin, DataProbComparisonMixin
+    DataCohensDMixin, DataHypothesisTestMixin, DataProbComparisonMixin
 
 from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
     DataNumericComparisonMixin
@@ -46,6 +46,7 @@ class Ratio(
     DataModeMixin,
     DataSortableMixin,
     DataCohensDMixin,
+    DataHypothesisTestMixin,
     object
 ):
     def __init__(self, data: Series):

@@ -16,7 +16,7 @@ from probability.distributions.mixins.data.data_aggregate_mixins import \
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
 from probability.distributions.mixins.data.data_comparison_mixins import \
-    DataProbComparisonMixin
+    DataHypothesisTestMixin, DataProbComparisonMixin
 from probability.distributions.mixins.data.data_discrete_numeric_mixin import \
     DataDiscreteNumericMixin
 from probability.distributions.mixins.data.data_distribution_mixin import \
@@ -45,6 +45,7 @@ class Count(
     DataVarMixin,
     DataSemMixin,
     DataModeMixin,
+    DataHypothesisTestMixin,
     object
 ):
     def __init__(self, data: Series):

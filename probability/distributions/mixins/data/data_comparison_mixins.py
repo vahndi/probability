@@ -181,3 +181,142 @@ class DataCohensDMixin(object):
             index='control', columns='treatment', values='d'
         ).reindex(dists.keys(), axis=0).reindex(dists.keys(), axis=1)
 
+
+class DataHypothesisTestMixin(object):
+    """
+    Mixin providing two-sample difference-in-means distributions, confidence
+    intervals, test statistics, p-values, and power/sample-size calculations.
+    """
+    _data: Series
+
+    def _welch_df(self: DCDM, other: DCDM) -> float:
+        se1_sq = self.se() ** 2
+        se2_sq = other.se() ** 2
+        n1, n2 = len(self), len(other)
+        num = (se1_sq + se2_sq) ** 2
+        den = (se1_sq ** 2) / (n1 - 1) + (se2_sq ** 2) / (n2 - 1)
+        return float(num / den)
+
+    def mean_diff(
+            self: DCDM,
+            other: DCDM,
+            null_diff: float = 0.0,
+            use_t: bool = False
+    ):
+        """
+        Return the sampling distribution of the difference in means
+        (self.mean() - other.mean() - null_diff).
+
+        :param other: Control or comparison distribution.
+        :param null_diff: Hypothesized difference under H0 (shifts the mean).
+        :param use_t: If True, return a Welch-Satterthwaite StudentsT
+                      distribution; otherwise return a Normal distribution.
+        """
+        diff_mu = float(self.mean() - other.mean() - null_diff)
+        diff_se = float((self.se() ** 2 + other.se() ** 2) ** 0.5)
+        if use_t:
+            from probability.distributions.continuous.students_t import (
+                StudentsT
+            )
+            return StudentsT(
+                nu=self._welch_df(other),
+                mu=diff_mu,
+                sigma=diff_se
+            )
+        from probability.distributions.continuous.normal import Normal
+        return Normal(mu=diff_mu, sigma=diff_se)
+
+    def mean_diff_ci(
+            self: DCDM,
+            other: DCDM,
+            percent: float = 0.95,
+            null_diff: float = 0.0,
+            use_t: bool = False
+    ) -> Tuple[float, float]:
+        """
+        Return the confidence interval for the difference in means
+        (self.mean() - other.mean() - null_diff).
+        """
+        return self.mean_diff(
+            other=other,
+            null_diff=null_diff,
+            use_t=use_t
+        ).interval(percent)
+
+    def t_stat(
+            self: DCDM,
+            other: DCDM,
+            null_diff: float = 0.0
+    ) -> float:
+        """
+        Return the two-sample test statistic for the difference in means:
+        ((mean(self) - mean(other)) - null_diff) / sqrt(se(self)^2 + se(other)^2).
+        """
+        diff_mu = float(self.mean() - other.mean() - null_diff)
+        diff_se = float((self.se() ** 2 + other.se() ** 2) ** 0.5)
+        return diff_mu / diff_se
+
+    def p_value(
+            self: DCDM,
+            other: DCDM,
+            null_diff: float = 0.0,
+            two_sided: bool = True,
+            use_t: bool = False
+    ) -> float:
+        """
+        Return the p-value for testing H0: mean(self) - mean(other) == null_diff.
+
+        :param other: Comparison distribution.
+        :param null_diff: Null hypothesis difference (default 0.0).
+        :param two_sided: If True, compute two-sided p-value; otherwise compute
+                          upper one-sided p-value for mean(self) - mean(other) > null_diff.
+        :param use_t: If True, evaluate against Student's t with Welch df;
+                      otherwise evaluate against StandardNormal.
+        """
+        stat = self.t_stat(other=other, null_diff=null_diff)
+        if use_t:
+            from probability.distributions.continuous.students_t import (
+                StudentsT
+            )
+            ref_dist = StudentsT(nu=self._welch_df(other), mu=0.0, sigma=1.0)
+        else:
+            from probability.distributions.continuous.normal import Normal
+            ref_dist = Normal.StandardNormal()
+
+        if two_sided:
+            return float(2.0 * (1.0 - ref_dist.cdf().at(abs(stat))))
+        return float(1.0 - ref_dist.cdf().at(stat))
+
+    def sample_size_for_effect(
+            self: DCDM,
+            mde: float,
+            alpha: float = 0.05,
+            power: float = 0.80,
+            two_sided: bool = True,
+            approx_16: bool = False
+    ) -> int:
+        """
+        Calculate the required sample size per group to detect a minimum
+        detectable effect `mde` given baseline standard deviation `self.std()`.
+
+        :param mde: Minimum detectable effect (delta) in the same units as self.
+        :param alpha: Significance level (default 0.05).
+        :param power: Statistical power 1 - beta (default 0.80).
+        :param two_sided: Whether the test is two-sided (default True).
+        :param approx_16: If True, use the rule-of-thumb multiplier 16 * (std / mde)^2
+                          for alpha=0.05, power=0.80.
+        """
+        from math import ceil
+        sigma = float(self.std())
+        if approx_16:
+            return int(ceil(16.0 * (sigma / mde) ** 2))
+        from probability.distributions.continuous.normal import Normal
+        std_norm = Normal.StandardNormal()
+        z_alpha = abs(
+            std_norm.ppf().at(alpha / 2.0 if two_sided else alpha)
+        )
+        z_power = std_norm.ppf().at(power)
+        multiplier = 2.0 * (z_alpha + z_power) ** 2
+        return int(ceil(multiplier * (sigma / mde) ** 2))
+
+

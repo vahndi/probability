@@ -218,6 +218,44 @@ class TestDataDistributions(TestCase):
         self.assertEqual(['lower', 'upper'], list(ci_df.columns))
         self.assertEqual(['ctrl', 'trat'], list(ci_df.index))
 
+    def test_hypothesis_testing_and_sample_size(self):
+        from probability.distributions.continuous.normal import Normal
+        from probability.distributions.continuous.students_t import StudentsT
+
+        # Synthetic short_email vs no_email conversion data (like Chapter 2)
+        short = Boolean(Series([True] * 15 + [False] * 105))  # n=120, mean=0.125
+        no_email = Boolean(Series([True] * 4 + [False] * 90))  # n=94, mean=4/94
+
+        diff_dist = short.mean_diff(no_email)
+        self.assertIsInstance(diff_dist, Normal)
+        self.assertEqual(short.mean_dist() - no_email.mean_dist(), diff_dist)
+
+        diff_t_dist = short.mean_diff(no_email, use_t=True)
+        self.assertIsInstance(diff_t_dist, StudentsT)
+
+        # Shifted null difference (e.g., H0: diff = 0.01)
+        ci_0 = short.mean_diff_ci(no_email, percent=0.95, null_diff=0.0)
+        ci_shifted = short.mean_diff_ci(no_email, percent=0.95, null_diff=0.01)
+        self.assertAlmostEqual(ci_0[0] - 0.01, ci_shifted[0], 10)
+        self.assertAlmostEqual(ci_0[1] - 0.01, ci_shifted[1], 10)
+
+        # Test statistic and p-value
+        expected_se = (short.se() ** 2 + no_email.se() ** 2) ** 0.5
+        expected_t = (short.mean() - no_email.mean()) / expected_se
+        self.assertAlmostEqual(expected_t, short.t_stat(no_email), 10)
+
+        p_two = short.p_value(no_email, two_sided=True)
+        p_one = short.p_value(no_email, two_sided=False)
+        self.assertAlmostEqual(p_two, 2.0 * p_one, 10)
+        self.assertLess(p_two, 0.05)
+
+        # Sample size calculation (exact and rule-of-16)
+        n_16 = no_email.sample_size_for_effect(mde=0.08, approx_16=True)
+        n_exact = no_email.sample_size_for_effect(mde=0.08, alpha=0.05, power=0.80)
+        self.assertEqual(int(__import__('math').ceil(16 * (no_email.std() / 0.08) ** 2)), n_16)
+        self.assertTrue(abs(n_16 - n_exact) <= 20)
+
+
 
 
 

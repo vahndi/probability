@@ -11,6 +11,8 @@ from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataVarMixin, DataSemMixin, DataModeMixin
 from probability.distributions.mixins.data.data_categories_mixin import \
     DataCategoriesMixin
+from probability.distributions.mixins.data.data_comparison_mixins import \
+    DataHypothesisTestMixin
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
     DataDiscreteCategoricalMixin
 from probability.distributions.mixins.data.data_distribution_mixin import \
@@ -43,6 +45,7 @@ class Boolean(
     DataVarMixin,
     DataSemMixin,
     DataModeMixin,
+    DataHypothesisTestMixin,
     object
 ):
 
