@@ -7,6 +7,13 @@ from probability.models.laplace_approximation import (
     Quap
 )
 from probability.models.linear_regression import LinearRegression, OLS
+from probability.models.causal import (
+    IPW,
+    AIPW,
+    DoublyRobust,
+    DoublyRobustEstimator,
+    IPWEstimator
+)
 
 __all__ = [
     'BayesianLinearRegression',
@@ -17,5 +24,11 @@ __all__ = [
     'Quap',
     'LinearRegression',
     'OLS',
+    'IPW',
+    'AIPW',
+    'DoublyRobust',
+    'DoublyRobustEstimator',
+    'IPWEstimator',
 ]
+
 

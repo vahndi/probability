@@ -91,7 +91,7 @@ Support *Causal Inference in Python* (Chapters 03+) and applied regression workf
 - [x] **4.2 OLS & Causal Adjustment Estimators on Data Distributions**
   - Frisch-Waugh-Lovell (FWL) partialling-out / residualization helper on `Ratio` (`y.residualize(X) -> Ratio`) so users can inspect adjusted distributions and plot adjusted density bars directly.
   - Heteroskedasticity-robust (HC1/HC2/HC3) and cluster-robust standard errors producing `StudentsT` sampling distributions for treatment effects.
-- [ ] **4.3 Propensity Score, IPW & Doubly-Robust Estimators**
+- [x] **4.3 Propensity Score, IPW & Doubly-Robust Estimators**
   - Inverse Probability Weighting (IPW) and Augmented IPW (Doubly Robust ATE/ATT) with bootstrap confidence intervals and balance diagnostics (`love_plot(ax=None)` building on `.normalized_diff()`).
 
 ---
