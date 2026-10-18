@@ -1,11 +1,12 @@
-from typing import Optional, List, overload, Union
-
+from typing import Optional, List, overload, Union, Dict, Any
+import numpy as np
+import pandas as pd
 from matplotlib.axes import Axes
 from probability.plotting import new_axes
 from networkx import DiGraph, draw_networkx_nodes, \
     draw_networkx_edges, all_simple_paths, \
     descendants_at_distance, draw_networkx_labels
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 from probability.models.decision_tree.nodes import \
     DecisionNode, ChanceNode, AmountNode
@@ -32,6 +33,7 @@ class DecisionTree(object):
         self._graph = DiGraph()
         self._root_node: Optional[DecisionNode] = None
         self._solved: bool = False
+        self._minimize: bool = True
 
     @property
     def graph(self) -> DiGraph:
@@ -292,7 +294,7 @@ class DecisionTree(object):
     def add_option(
             self, name: str,
             p_success: float,
-            amount: float,
+            amount: Union[float, int, Any],
             parent_name: str,
             final: bool = False
     ):
@@ -369,6 +371,7 @@ class DecisionTree(object):
         :param minimize: True to minimize amounts, i.e. amounts are costs, or
                          False to maximize amounts, i.e. amounts are rewards.
         """
+        self._minimize = minimize
         if minimize:
             opt_func = min
         else:
@@ -380,11 +383,10 @@ class DecisionTree(object):
             path_to_node = list(all_simple_paths(
                 self._graph, self._root_node, amount_node
             ))[0]  # path from first decision node to amount node
-            total_amount = 0
+            total_amount = 0.0
             for node in path_to_node:
-                if isinstance(node, ChanceNode):
-                    total_amount += node.amount
-            amount_node: AmountNode = path_to_node[-1]
+                if isinstance(node, (ChanceNode, AmountNode)):
+                    total_amount += node.mean_amount
             amount_node.total_amount = total_amount
 
         for chance_node in self.chance_nodes():
@@ -441,6 +443,201 @@ class DecisionTree(object):
                 result[f'expected_amount_{c + 1}'] = node.expected_amount
             results.append(result)
         return DataFrame(results)
+
+    def risk_profile(
+            self,
+            choice_name: Optional[str] = None,
+            decision_name: Optional[str] = None,
+            policy: str = 'optimal'
+    ) -> DataFrame:
+        """
+        Compute the risk profile (probability distribution over terminal monetary outcomes).
+
+        :param choice_name: Optional name of the choice (ChanceNode) to evaluate.
+        :param decision_name: Optional name of the decision node. Defaults to root decision.
+        :param policy: 'optimal' to follow optimal decisions at downstream nodes (default),
+                       or 'all' to include all branches.
+        :return: DataFrame with columns ['choice', 'path', 'outcome', 'probability', 'amount', 'cumulative_probability']
+        """
+        if not self._solved:
+            raise PermissionError("Tree must be solved before calculating risk profile.")
+
+        start_decision = (
+            self.decision_node(decision_name) if decision_name is not None
+            else self._root_node
+        )
+        if choice_name is not None:
+            choices = [self.chance_node(choice_name)]
+        else:
+            choices = self.children(start_decision)
+
+        records = []
+        for choice in choices:
+            for amount_node in self.amount_nodes():
+                paths = list(all_simple_paths(self._graph, choice, amount_node))
+                if not paths:
+                    continue
+                path = paths[0]
+
+                if policy == 'optimal':
+                    follows_policy = True
+                    for i in range(len(path) - 1):
+                        u, v = path[i], path[i + 1]
+                        if isinstance(u, DecisionNode):
+                            best_child = min(self.children(u), key=lambda c: c.expected_amount) if self._minimize \
+                                else max(self.children(u), key=lambda c: c.expected_amount)
+                            if v != best_child:
+                                follows_policy = False
+                                break
+                    if not follows_policy:
+                        continue
+
+                p = 1.0
+                for i in range(len(path) - 1):
+                    u, v = path[i], path[i + 1]
+                    if isinstance(u, ChanceNode) and isinstance(v, DecisionNode):
+                        p *= u.p_failure
+                    elif isinstance(u, ChanceNode) and isinstance(v, AmountNode):
+                        p *= v.probability
+
+                full_path = list(all_simple_paths(self._graph, self._root_node, amount_node))[0]
+                tot_amt = sum(node.mean_amount for node in full_path if isinstance(node, (ChanceNode, AmountNode)))
+
+                records.append({
+                    'choice': choice.name,
+                    'path': ' -> '.join(node.name for node in full_path),
+                    'outcome': amount_node.name,
+                    'probability': p,
+                    'amount': tot_amt
+                })
+
+        df = DataFrame(records)
+        if df.empty:
+            return DataFrame(columns=['choice', 'path', 'outcome', 'probability', 'amount', 'cumulative_probability'])
+
+        dfs = []
+        for c_name, grp in df.groupby('choice'):
+            grp = grp.sort_values('amount').copy()
+            grp['cumulative_probability'] = grp['probability'].cumsum()
+            dfs.append(grp)
+        return pd.concat(dfs, ignore_index=True)
+
+    def plot_risk_profile(
+            self,
+            choice_name: Optional[str] = None,
+            decision_name: Optional[str] = None,
+            ax: Optional[Axes] = None,
+            **kwargs
+    ) -> Axes:
+        """
+        Plot the cumulative risk profile (step CDF of payoffs) for choices.
+        """
+        df = self.risk_profile(choice_name=choice_name, decision_name=decision_name)
+        ax = ax or new_axes()
+
+        for c_name, grp in df.groupby('choice'):
+            amounts = [grp['amount'].iloc[0]] + list(grp['amount'])
+            c_probs = [0.0] + list(grp['cumulative_probability'])
+            ax.step(amounts, c_probs, where='post', label=f'Choice: {c_name}', lw=2, **kwargs)
+
+        ax.set_ylim(-0.02, 1.05)
+        ax.set_xlabel('Outcome Amount / Cost')
+        ax.set_ylabel('Cumulative Probability P(Amount <= x)')
+        ax.set_title('Cumulative Risk Profile')
+        ax.grid(alpha=0.3)
+        ax.legend()
+        return ax
+
+    @staticmethod
+    def calculate_evpi(
+            payoffs: Union[DataFrame, Dict[str, Dict[str, float]]],
+            state_probabilities: Union[Series, Dict[str, float]],
+            minimize: bool = False
+    ) -> float:
+        """
+        Calculate Expected Value of Perfect Information (EVPI) from a payoff table.
+
+        :param payoffs: Payoffs for each (action, state). Rows/outer keys are actions,
+                        columns/inner keys are states.
+        :param state_probabilities: Probabilities for each state of nature P(s).
+        :param minimize: True if payoffs are costs (minimize), False if profits (maximize).
+        :return: EVPI (non-negative float).
+        """
+        if isinstance(payoffs, dict):
+            df_payoffs = DataFrame(payoffs).T
+        else:
+            df_payoffs = payoffs.copy()
+
+        s_probs = Series(state_probabilities)
+        s_probs = s_probs / s_probs.sum()
+
+        states = list(df_payoffs.columns)
+        probs_vec = s_probs[states].values
+
+        # Expected monetary value for each action without information
+        emv_actions = df_payoffs[states].values @ probs_vec
+        emv_star = float(np.min(emv_actions) if minimize else np.max(emv_actions))
+
+        # Best action for each state with perfect information
+        best_per_state = np.min(df_payoffs[states].values, axis=0) if minimize \
+            else np.max(df_payoffs[states].values, axis=0)
+        ev_pi = float(np.sum(best_per_state * probs_vec))
+
+        if minimize:
+            evpi_val = max(0.0, emv_star - ev_pi)
+        else:
+            evpi_val = max(0.0, ev_pi - emv_star)
+
+        return float(evpi_val)
+
+    def evpi(
+            self,
+            decision_name: Optional[str] = None,
+            minimize: Optional[bool] = None
+    ) -> float:
+        """
+        Compute the Expected Value of Perfect Information (EVPI) for a decision.
+
+        :param decision_name: Optional name of the DecisionNode (defaults to root decision).
+        :param minimize: Optional boolean override for cost minimization vs reward maximization.
+                         Defaults to tree's solve configuration.
+        """
+        if not self._solved:
+            raise PermissionError("Tree must be solved before calculating EVPI.")
+
+        is_min = self._minimize if minimize is None else minimize
+        decision = (
+            self.decision_node(decision_name) if decision_name is not None
+            else self._root_node
+        )
+        choices = self.children(decision)
+        if len(choices) < 2:
+            return 0.0
+
+        rp = self.risk_profile(decision_name=decision.name, policy='optimal')
+        if rp.empty:
+            return 0.0
+
+        def extract_state(row):
+            out = row['outcome']
+            ch = row['choice']
+            if out.startswith(ch + '.'):
+                return out[len(ch) + 1:]
+            return out
+
+        rp['state'] = rp.apply(extract_state, axis=1)
+
+        pivot_payoffs = rp.pivot_table(index='choice', columns='state', values='amount', aggfunc='mean')
+        pivot_probs = rp.pivot_table(index='choice', columns='state', values='probability', aggfunc='mean')
+
+        state_probs = pivot_probs.mean(axis=0)
+        state_probs = state_probs / state_probs.sum()
+
+        return self.calculate_evpi(
+            payoffs=pivot_payoffs,
+            state_probabilities=state_probs,
+            minimize=is_min
+        )
 
     def draw(
             self,

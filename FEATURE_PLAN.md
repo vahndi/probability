@@ -121,9 +121,20 @@ Expand the *Bayesian Reasoning and Machine Learning* (BRML) and decision-modelin
     - Trajectory sampling (`.sample()`), state probability curves visualization (`.plot_states()`), and temporal unrolling into `BayesianNetwork` (`.to_bayesian_network(n_steps)`).
   - Unit tests in [`tests/test_discrete/test_markov_chain.py`](tests/test_discrete/test_markov_chain.py), [`tests/test_discrete/test_hmm.py`](tests/test_discrete/test_hmm.py), and [`tests/test_examples/test_brml/test_chapter_23.py`](tests/test_examples/test_brml/test_chapter_23.py).
   - Showcase executed notebook in [`examples/notebooks/brml/chapter_23__discrete_state_markov_models.ipynb`](examples/notebooks/brml/chapter_23__discrete_state_markov_models.ipynb) covering Weather Forecasting, Gambler's Ruin absorbing chain, and the Dishonest Casino benchmark.
-- [ ] **5.3 Continuous Uncertainty in `DecisionTree` and `ProjectNetwork`**
-  - Support distribution-valued payoffs/costs in `DecisionTree` (computing expected utility and risk profiles / Value of Perfect Information EVPI).
-  - Critical-path probability and Monte Carlo completion-time distribution (`Ratio`) in `ProjectNetwork`.
+- [x] **5.3 Continuous Uncertainty in `DecisionTree` and `ProjectNetwork`**
+  - Enhanced [`DecisionTree`](probability/models/decision_tree/decision_tree.py), [`ChanceNode`](probability/models/decision_tree/nodes.py), and [`AmountNode`](probability/models/decision_tree/nodes.py):
+    - Supported distribution-valued payoffs and costs (e.g., `Normal(50, 5)` or `PERT(1, 2, 3)`) with automatic expected value extraction via `.mean_amount`.
+    - Computed exact cumulative risk profiles (lottery over terminal monetary outcomes) via `.risk_profile(choice_name=None, policy='optimal')`.
+    - Visualized risk profiles as cumulative step CDFs via `.plot_risk_profile()`.
+    - Computed Expected Value of Perfect Information (EVPI) both analytically from payoff matrices (`DecisionTree.calculate_evpi(payoffs, probs)`) and directly from solved tree models (`.evpi()`).
+  - Enhanced [`ProjectNetwork`](probability/models/project_network/project_network.py):
+    - Monte Carlo simulation of task duration realizations and project paths (`.simulate(n_samples=1000)`).
+    - Project completion time distribution wrapped as a first-class [`Ratio`](probability/distributions/data/ratio.py) object (`.completion_time_distribution(n_samples=1000)`).
+    - Critical path probabilities for all simple paths (`.critical_path_probabilities()`).
+    - Task criticality index $P(\text{Task } T \text{ on critical path})$ (`.task_criticality_index()`).
+    - Visualized completion time KDE with mean and 95th-percentile lines (`.plot_completion_time()`).
+  - Comprehensive unit tests in [`tests/test_models/test_decision_tree.py`](tests/test_models/test_decision_tree.py) and [`tests/test_models/test_project_network.py`](tests/test_models/test_project_network.py).
+  - Runnable example scripts in [`examples/models/decision_tree/risk_profile_and_evpi.py`](examples/models/decision_tree/risk_profile_and_evpi.py) and [`examples/models/project_network.py`](examples/models/project_network.py).
 
 ---
 

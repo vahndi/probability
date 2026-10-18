@@ -30,4 +30,21 @@ if __name__ == '__main__':
     network.add_percentiles()
     network.draw(ax=ax)
     lengths = network.path_lengths()
+    print("Deterministic 95th-percentile path lengths:")
+    print(lengths)
+
+    print("\n--- Monte Carlo Project Analysis (2,000 runs) ---")
+    crit_probs = network.critical_path_probabilities(n_samples=2000, random_state=42)
+    print("Critical path probabilities:")
+    print(crit_probs)
+
+    print("\nTask criticality indices P(Task on critical path):")
+    print(network.task_criticality_index(n_samples=2000, random_state=42))
+
+    dist = network.completion_time_distribution(n_samples=2000, random_state=42)
+    print(f"\nCompletion Time Distribution (Ratio): Mean={dist.mean():.2f}, Median={dist.median():.2f}, 95th Pct={dist.quantile(0.95):.2f}")
+
+    fig, ax2 = plt.subplots(figsize=(8, 4))
+    network.plot_completion_time(n_samples=2000, random_state=42, ax=ax2)
+    plt.tight_layout()
     plt.show()
