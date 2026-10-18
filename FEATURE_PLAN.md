@@ -30,10 +30,10 @@ The roadmap is organized into **six phases**, progressing from completing existi
 ### Phase 1: Complete the Conjugate & Analytical Distribution Ecosystem
 Finish and unify all standard univariate and multivariate conjugate families so every textbook conjugate model works out of the box with `.prior()`, `.likelihood()`, `.posterior()`, `.prior_predictive()`, `.posterior_predictive()`, and `.plot()`.
 
-- [ ] **1.1 Normal-Precision & Normal-Variance Conjugates**
-  - Finalize and export [`GammaNormalConjugate`](probability/distributions/conjugate/_gamma_normal_conjugate.py) (known $\mu$, unknown precision $\tau \sim \text{Gamma}(\alpha, \beta)$).
-  - Finalize and export [`InverseGammaNormalConjugate`](probability/distributions/conjugate/_inv_gamma_normal_conjugate.py) (known $\mu$, unknown variance $\sigma^2 \sim \text{InvGamma}(\alpha, \beta)$) with Student-$t$ predictive distributions.
-- [ ] **1.2 Joint Unknown Mean & Variance (`NormalInverseGammaConjugate`)**
+- [x] **1.1 Normal-Precision & Normal-Variance Conjugates**
+  - Finalize and export [`GammaNormalConjugate`](probability/distributions/conjugate/gamma_normal_conjugate.py) (known $\mu$, unknown precision $\tau \sim \text{Gamma}(\alpha, \beta)$).
+  - Finalize and export [`InverseGammaNormalConjugate`](probability/distributions/conjugate/inverse_gamma_normal_conjugate.py) (known $\mu$, unknown variance $\sigma^2 \sim \text{InvGamma}(\alpha, \beta)$) with Student-$t$ predictive distributions.
+- [x] **1.2 Joint Unknown Mean & Variance (`NormalInverseGammaConjugate`)**
   - Implement the 2-parameter conjugate Normal-Inverse-Gamma model for unknown $(\mu, \sigma^2)$ with:
     - Marginal posterior $\mu \mid D \sim \text{StudentT}(\nu_n, \mu_n, \sigma_n^2)$
     - Marginal posterior $\sigma^2 \mid D \sim \text{InverseGamma}(\alpha_n, \beta_n)$
