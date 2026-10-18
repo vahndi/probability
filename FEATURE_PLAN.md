@@ -82,7 +82,7 @@ Bring partial pooling to `BooleanSeries`, `CountSeries`, and `RatioSeries` witho
 ### Phase 4: Closed-Form Bayesian & Causal Regression Models
 Support *Causal Inference in Python* (Chapters 03+) and applied regression workflows using closed-form linear algebra.
 
-- [ ] **4.1 Analytical Bayesian Linear Regression (`BayesianLinearRegression`)**
+- [x] **4.1 Analytical Bayesian Linear Regression (`BayesianLinearRegression`)**
   - Conjugate Normal-Inverse-Gamma linear model $\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$:
     - Closed-form multivariate Student-$t$ / Normal marginal posteriors for each coefficient $\beta_j$ (returned as `StudentsT` or `Normal` distribution objects!).
     - Exact analytical `.posterior_predictive(X_new)` returning `StudentsT` distributions.
