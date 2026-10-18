@@ -5,3 +5,4 @@ from probability.distributions.data import *
 from probability.distributions.multivariate import *
 from probability.distributions.grid import *
 from probability.distributions.elicitation import *
+from probability.distributions.pymc import to_pymc

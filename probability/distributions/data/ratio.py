@@ -3,6 +3,7 @@ from typing import List, Union, Type, Optional, Iterable, Dict, TYPE_CHECKING, \
     Tuple, Any
 
 from matplotlib.axes import Axes
+import numpy as np
 from numpy import inf, linspace, floor, ceil, arange, histogram, ndarray
 from numpy.random import seed
 from pandas import Series, IntervalIndex, cut, qcut, DataFrame
@@ -424,6 +425,167 @@ class Ratio(
             cluster=cluster,
             fit_intercept=fit_intercept
         )
+
+    @classmethod
+    def from_samples(
+            cls,
+            data: Any,
+            var_name: Optional[str] = None,
+            name: Optional[str] = None
+    ) -> 'Ratio':
+        """
+        Create a Ratio distribution from posterior samples or MCMC draws.
+        Supports 1D/2D arrays, Series, lists, xarray DataArrays, and ArviZ InferenceData (via duck typing).
+
+        :param data: Samples array, Series, or ArviZ InferenceData object.
+        :param var_name: Parameter variable name if `data` is an ArviZ InferenceData object.
+        :param name: Optional name for the resulting distribution Series.
+        :return: Ratio instance wrapping the 1D sample draws.
+        """
+        # Duck-typed ArviZ InferenceData
+        if hasattr(data, 'posterior'):
+            post = data.posterior
+            if hasattr(post, 'data_vars'):
+                available_vars = list(post.data_vars.keys())
+            elif hasattr(post, 'keys'):
+                available_vars = list(post.keys())
+            else:
+                available_vars = []
+
+            if var_name is None:
+                if len(available_vars) == 1:
+                    var_name = available_vars[0]
+                elif len(available_vars) > 1:
+                    raise ValueError(
+                        f"InferenceData contains multiple posterior variables: {available_vars}. "
+                        f"Please specify `var_name`."
+                    )
+                else:
+                    raise ValueError("No posterior variables found in InferenceData.")
+
+            raw_vals = post[var_name]
+            arr = np.asarray(getattr(raw_vals, 'values', raw_vals)).ravel()
+            s_name = name or var_name
+
+        # Duck-typed xarray DataArray
+        elif hasattr(data, 'values') and hasattr(data, 'dims'):
+            arr = np.asarray(data.values).ravel()
+            s_name = name or getattr(data, 'name', 'samples')
+
+        elif isinstance(data, Series):
+            arr = data.dropna().values
+            s_name = name or data.name or 'samples'
+
+        elif isinstance(data, np.ndarray):
+            arr = data.ravel()
+            s_name = name or 'samples'
+
+        elif isinstance(data, Iterable):
+            arr = np.asarray(list(data)).ravel()
+            s_name = name or 'samples'
+
+        else:
+            raise TypeError(f"Unsupported sample data type: {type(data)}")
+
+        return cls(Series(arr, name=s_name))
+
+    def hdi(self, prob: float = 0.95) -> Tuple[float, float]:
+        """
+        Calculate the Highest Density Interval (HDI) containing `prob` mass of the distribution.
+        Uses the minimum-width contiguous interval of sorted empirical samples.
+
+        :param prob: Credible mass between 0 and 1 (default 0.95).
+        :return: (hdi_lower, hdi_upper)
+        """
+        if not (0.0 < prob < 1.0):
+            raise ValueError(f"prob must be strictly between 0 and 1, got {prob}")
+        vals = np.sort(self._data.values.astype(float))
+        n = len(vals)
+        if n == 0:
+            return (float('nan'), float('nan'))
+        k = int(np.floor(prob * n))
+        if k < 1:
+            return (float(vals[0]), float(vals[-1]))
+        diffs = vals[k:] - vals[:-k]
+        min_idx = int(np.argmin(diffs))
+        return (float(vals[min_idx]), float(vals[min_idx + k]))
+
+    def prob_in_rope(self, low: float, high: float) -> float:
+        """
+        Compute posterior probability inside the Region of Practical Equivalence (ROPE) [low, high].
+
+        :param low: Lower bound of ROPE.
+        :param high: Upper bound of ROPE.
+        :return: Fraction of samples falling within [low, high].
+        """
+        if low > high:
+            low, high = high, low
+        vals = self._data.values
+        return float(np.mean((vals >= low) & (vals <= high)))
+
+    def prob_outside_rope(self, low: float, high: float) -> float:
+        """
+        Compute posterior probability outside the Region of Practical Equivalence (ROPE) [low, high].
+        """
+        return 1.0 - self.prob_in_rope(low, high)
+
+    def rope_decision(self, low: float, high: float, hdi_prob: float = 0.95) -> str:
+        """
+        Kruschke's HDI + ROPE decision rule:
+        - 'accept_null': If the HDI is completely inside [low, high].
+        - 'reject_null': If the HDI is completely outside [low, high].
+        - 'undecided': If the HDI overlaps the ROPE boundary.
+
+        :param low: Lower bound of ROPE.
+        :param high: Upper bound of ROPE.
+        :param hdi_prob: Credible mass for the HDI (default 0.95).
+        :return: One of {'accept_null', 'reject_null', 'undecided'}.
+        """
+        h_low, h_high = self.hdi(prob=hdi_prob)
+        if h_low >= low and h_high <= high:
+            return 'accept_null'
+        elif h_high < low or h_low > high:
+            return 'reject_null'
+        else:
+            return 'undecided'
+
+    def plot_rope(
+            self,
+            low: float,
+            high: float,
+            hdi_prob: float = 0.95,
+            ax: Optional[Axes] = None,
+            color: str = 'C0',
+            rope_color: str = 'green',
+            **kwargs
+    ) -> Axes:
+        """
+        Plot posterior KDE with shaded ROPE region and horizontal HDI bar.
+
+        :param low: Lower bound of ROPE.
+        :param high: Upper bound of ROPE.
+        :param hdi_prob: Credible mass for the HDI (default 0.95).
+        :param ax: Matplotlib axes.
+        :param color: Distribution curve color.
+        :param rope_color: Color for the shaded ROPE band.
+        :return: Matplotlib Axes.
+        """
+        ax = ax or new_axes()
+        self.plot_kde(ax=ax, color=color, **kwargs)
+
+        if low > high:
+            low, high = high, low
+        ax.axvspan(low, high, color=rope_color, alpha=0.15, label=f'ROPE [{low:.2f}, {high:.2f}]')
+
+        h_low, h_high = self.hdi(prob=hdi_prob)
+        ax.plot([h_low, h_high], [0, 0], color='black', lw=6, solid_capstyle='round',
+                label=f'{int(hdi_prob * 100)}% HDI [{h_low:.2f}, {h_high:.2f}]')
+
+        p_in = self.prob_in_rope(low, high)
+        decision = self.rope_decision(low, high, hdi_prob=hdi_prob)
+        ax.set_title(f"Posterior with ROPE: P(in ROPE)={p_in:.1%} ({decision})")
+        ax.legend()
+        return ax
 
     def __repr__(self):
 

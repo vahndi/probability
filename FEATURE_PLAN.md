@@ -152,10 +152,21 @@ Make `probability` the best companion library for users who *do* drop into PyMC 
   - Added `.from_interval(lower, upper, prob=0.95)`, `.from_quantiles(q1, v1, q2, v2)`, and `.from_mean_and_std(mean, std)` classmethods to `Normal`, `Beta`, `Gamma`, `InverseGamma`, `LogNormal`, and `ContinuousUniform`.
   - Added [`LogNormal`](probability/distributions/continuous/log_normal.py) continuous distribution with mode, interval, fit, and elicitation methods.
   - Comprehensive unit tests in [`tests/test_distributions/test_continuous/test_prior_elicitation.py`](tests/test_distributions/test_continuous/test_prior_elicitation.py) and runnable example script in [`examples/distributions/continuous/prior_elicitation.py`](examples/distributions/continuous/prior_elicitation.py).
-- [ ] **6.2 Posterior Sample Wrapping (`EmpiricalPosterior` / `Ratio` Enhancements)**
-  - `Ratio.from_samples(samples)` / ArviZ `InferenceData` converter that extracts 1D parameter draws into `Ratio` (or `RatioSeries`), enabling `prob_A > prob_B`, `.hdi(0.95)`, ROPE (Region of Practical Equivalence) probability `.prob_in_rope(low, high)`, and `.plot_kde()` on MCMC traces.
-- [ ] **6.3 Optional PyMC Export Helper (`.to_pymc(name)`)**
-  - Lazy/optional helper (requiring `pymc` only if called) that converts a `probability` distribution (`Beta(2, 5)`, `Normal(0, 1)`, `Gamma(3, 2)`) into the corresponding `pm.Distribution(name, ...)` inside an active `pm.Model` context.
+- [x] **6.2 Posterior Sample Wrapping (`Ratio` Enhancements & ROPE Analysis)**
+  - Enhanced [`Ratio`](probability/distributions/data/ratio.py) with first-class posterior sample analysis:
+    - `.from_samples(samples, name=None)` constructor accepting array-like sequences (lists, NumPy arrays, Pandas Series) as well as duck-typed ArviZ/xarray `InferenceData` objects without hard dependency on `arviz`.
+    - Empirical Highest Density Interval `.hdi(prob=0.95)` computing the shortest interval enclosing the specified posterior mass.
+    - Region of Practical Equivalence (ROPE) metrics:
+      - `.prob_in_rope(low, high)`: posterior probability that the parameter lies within $[low, high]$.
+      - `.prob_outside_rope(low, high)`: posterior probability mass strictly outside the ROPE.
+      - `.rope_decision(low, high, prob=0.95)`: Kruschke decision rule evaluating whether the $95\%$ HDI is completely inside ROPE ('accept_null'), completely outside ('reject_null'), or overlapping ('undecided').
+      - `.plot_rope(low, high, prob=0.95, ax=None)`: KDE distribution plot annotated with the HDI credible band and shaded ROPE region.
+  - Comprehensive unit tests in [`tests/test_distributions/test_data/test_ratio_posterior_samples.py`](tests/test_distributions/test_data/test_ratio_posterior_samples.py).
+- [x] **6.3 Optional PyMC Export Helper (`.to_pymc(name, **kwargs)`)**
+  - Optional bridge in [`probability.distributions.pymc`](probability/distributions/pymc.py) and on [`RVS1dMixin.to_pymc(name, **kwargs)`](probability/distributions/mixins/rv_mixins.py):
+    - Completely dependency-free core with lazy import inside `to_pymc()`. Raises an informative `ImportError` if `pymc` is not installed.
+    - Seamlessly converts continuous and discrete distributions (`Normal`, `Beta`, `Gamma`, `InverseGamma`, `ContinuousUniform`, `LogNormal`, `Exponential`, `Cauchy`, `Weibull`, `Pareto`, `StudentsT`, `HalfNormal`, `Laplace`, `Binomial`, `Poisson`, `Geometric`, `NegativeBinomial`, `DiscreteUniform`) into corresponding PyMC random variables inside active `with pm.Model():` contexts.
+  - Comprehensive unit tests in [`tests/test_distributions/test_pymc_bridge.py`](tests/test_distributions/test_pymc_bridge.py).
 
 ---
 

@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Union, Iterable, List
+from typing import Tuple, Optional, Union, Iterable, List, Any
 
 from numpy import ndarray
 from pandas import DataFrame, Series
@@ -38,6 +38,17 @@ class RVS1dMixin(CalculableMixin, object):
         samples.index.name = 'sample_index'
         samples.name = str(self)
         return samples
+
+    def to_pymc(self, name: str, **kwargs) -> Any:
+        """
+        Convert this distribution to a PyMC random variable inside an active model context.
+
+        :param name: Name of the PyMC random variable.
+        :param kwargs: Additional keyword arguments forwarded to the PyMC constructor.
+        :return: PyMC random variable instance.
+        """
+        from probability.distributions.pymc import to_pymc
+        return to_pymc(self, name, **kwargs)
 
     def prob_less_than(self, other: SupportsRVS1d,
                        num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
