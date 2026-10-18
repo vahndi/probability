@@ -72,7 +72,7 @@ Bring partial pooling to `BooleanSeries`, `CountSeries`, and `RatioSeries` witho
   - `BooleanSeries.empirical_bayes_prior() -> Beta`: Fit hyperparameter $(\hat{\alpha}, \hat{\beta})$ across categories via method-of-moments or marginal MLE (Beta-Binomial marginal likelihood).
   - `BooleanSeries.shrunk_posteriors() -> BetaSeries`: Return shrunk posterior `Beta` distributions for each category, automatically pulling small-sample categories toward the grand mean.
   - `BooleanSeries.plot_shrinkage(ax=None)`: Visualize raw category means vs. Empirical Bayes shrunk posterior means and HDIs.
-- [ ] **3.2 Gamma-Poisson Empirical Bayes on `CountSeries`**
+- [x] **3.2 Gamma-Poisson Empirical Bayes on `CountSeries`**
   - Fit a shared `Gamma(alpha, beta)` prior across count groups and compute shrunk `Gamma` posteriors and `NegativeBinomial` predictive distributions per group.
 - [ ] **3.3 Normal-Normal Empirical Bayes (James-Stein / Random Effects) on `RatioSeries`**
   - Estimate between-group variance $\tau_0^2$ and within-group variance $\sigma_i^2$, returning shrunk `Normal` posteriors for each group's mean.

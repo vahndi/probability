@@ -2,7 +2,7 @@ from typing import Union, Mapping
 
 from pandas import Series, DataFrame
 
-from probability.distributions import Normal
+from probability.distributions.continuous.normal import Normal
 from probability.distributions.mixins.continuous_series_mixin import \
     ContinuousSeriesMixin
 

@@ -2,7 +2,7 @@ from typing import Mapping, Union, Dict, Any
 
 from pandas import Series, DataFrame
 
-from probability.distributions import Beta
+from probability.distributions.continuous.beta import Beta
 from probability.distributions.mixins.continuous_series_mixin import \
     ContinuousSeriesMixin
 
