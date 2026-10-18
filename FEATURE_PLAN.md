@@ -107,8 +107,20 @@ Expand the *Bayesian Reasoning and Machine Learning* (BRML) and decision-modelin
   - DAG rendering via `.draw(ax=None)` using NetworkX.
   - Full joint distribution calculation via `.joint()`.
   - Comprehensive unit tests in [`tests/test_discrete/test_bayesian_network.py`](tests/test_discrete/test_bayesian_network.py) and BRML Chapter 3 showcase notebook in [`examples/notebooks/brml/chapter_03__belief_networks.ipynb`](examples/notebooks/brml/chapter_03__belief_networks.ipynb) (Alarm Network, Asia / Chest Clinic Network, and explaining away).
-- [ ] **5.2 Markov Chains & Hidden Markov Models (`MarkovChain`, `HMM`)**
-  - Stationary distributions, $n$-step transition probabilities, absorption times, forward-backward filtering, and Viterbi decoding.
+- [x] **5.2 Markov Chains & Hidden Markov Models (`MarkovChain`, `HMM`)**
+  - Discrete-time Markov Chains in [`probability.discrete.MarkovChain`](probability/discrete/markov_chain.py):
+    - Multi-step transition matrices $T^n$ (`.n_step_transition_matrix(n)`).
+    - Exact stationary distributions $\pi T = \pi, \sum \pi_i = 1$ (`.stationary_distribution()`).
+    - Absorbing chain fundamental matrix $N = (I - Q)^{-1}$, absorption probabilities $B = NR$, and expected times to absorption (`.fundamental_matrix()`, `.absorption_probabilities()`, `.expected_time_to_absorption()`).
+    - Trajectory simulation (`.simulate()`) and transition graph plotting (`.draw()`).
+    - Temporal Bayesian Network unrolling (`.to_bayesian_network(n_steps)`).
+  - Hidden Markov Models in [`probability.discrete.HMM`](probability/discrete/hmm.py):
+    - Scaled Forward algorithm for sequence marginal log-likelihood $\ln P(X_{1:T})$ and causal online filtering $P(Z_t \mid x_{1:t})$ (`.log_likelihood()`, `.filter()`).
+    - Backward algorithm for exact retrospective offline smoothing $P(Z_t \mid x_{1:T})$ (`.smooth()`).
+    - Dynamic programming log-space Viterbi algorithm for global MAP sequence decoding $\arg\max_{z_{1:T}} P(z_{1:T} \mid x_{1:T})$ (`.decode()`).
+    - Trajectory sampling (`.sample()`), state probability curves visualization (`.plot_states()`), and temporal unrolling into `BayesianNetwork` (`.to_bayesian_network(n_steps)`).
+  - Unit tests in [`tests/test_discrete/test_markov_chain.py`](tests/test_discrete/test_markov_chain.py), [`tests/test_discrete/test_hmm.py`](tests/test_discrete/test_hmm.py), and [`tests/test_examples/test_brml/test_chapter_23.py`](tests/test_examples/test_brml/test_chapter_23.py).
+  - Showcase executed notebook in [`examples/notebooks/brml/chapter_23__discrete_state_markov_models.ipynb`](examples/notebooks/brml/chapter_23__discrete_state_markov_models.ipynb) covering Weather Forecasting, Gambler's Ruin absorbing chain, and the Dishonest Casino benchmark.
 - [ ] **5.3 Continuous Uncertainty in `DecisionTree` and `ProjectNetwork`**
   - Support distribution-valued payoffs/costs in `DecisionTree` (computing expected utility and risk profiles / Value of Perfect Information EVPI).
   - Critical-path probability and Monte Carlo completion-time distribution (`Ratio`) in `ProjectNetwork`.

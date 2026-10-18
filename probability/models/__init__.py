@@ -14,6 +14,9 @@ from probability.models.causal import (
     DoublyRobustEstimator,
     IPWEstimator
 )
+from probability.discrete.bayesian_network import BayesianNetwork
+from probability.discrete.markov_chain import MarkovChain
+from probability.discrete.hmm import HMM
 
 __all__ = [
     'BayesianLinearRegression',
@@ -29,6 +32,9 @@ __all__ = [
     'DoublyRobust',
     'DoublyRobustEstimator',
     'IPWEstimator',
+    'BayesianNetwork',
+    'MarkovChain',
+    'HMM',
 ]
 
 
