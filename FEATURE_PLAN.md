@@ -50,7 +50,7 @@ Finish and unify all standard univariate and multivariate conjugate families so 
 ### Phase 2: Low-Dimensional Non-Conjugate Bayesian Inference (Grid & Laplace)
 Support *Think Bayes* and *Statistical Rethinking* (Chapters 2–4) workflows where the prior and likelihood are not conjugate, but parameter dimension is $d \in \{1, 2\}$.
 
-- [ ] **2.1 1D Grid Approximation (`GridDistribution1d` / `BayesianGrid1d`)**
+- [x] **2.1 1D Grid Approximation (`GridDistribution1d` / `BayesianGrid1d`)**
   - Initialize from any continuous/discrete prior or custom prior array over a 1D support grid.
   - `.update(likelihood_fn, data)` for sequential Bayesian updating.
   - Exact `.mean()`, `.std()`, `.median()`, `.mode()`, `.quantile()`, `.hdi()`, `. credible_interval()`, `.sample()`, and `.plot()` (returning `Axes`).
