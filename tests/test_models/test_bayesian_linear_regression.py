@@ -140,8 +140,8 @@ class TestBayesianLinearRegression(TestCase):
         )
         # Summary
         s = model.summary()
-        self.assertIn('β[x1]', s.index)
-        self.assertIn('σ²', s.index)
+        self.assertIn('beta[x1]', s.index)
+        self.assertIn('sigma_sq', s.index)
         self.assertIn('P(>0)', s.columns)
 
         # Plot coefficients

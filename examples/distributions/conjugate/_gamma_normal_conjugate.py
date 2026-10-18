@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from probability.plotting import new_axes
 from numpy import arange
-from scipy import randn
+from numpy.random import randn
 from scipy.stats import norm
 
 from probability.distributions.conjugate._gamma_normal_conjugate import \

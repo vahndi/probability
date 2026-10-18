@@ -1,9 +1,10 @@
-from typing import Union, Iterable, Sized, Mapping, Any
+from typing import Union, Iterable, Sized, Mapping, Any, TYPE_CHECKING
 
 from numpy import ndarray
 from pandas import Series
 
-from probability.calculations.mixins import ProbabilityCalculationMixin
+if TYPE_CHECKING:
+    from probability.calculations.mixins import ProbabilityCalculationMixin
 
 
 FloatIterable = Iterable[float]
@@ -18,4 +19,4 @@ FloatOrFloatArray2d = Union[float, Iterable[Iterable[float]], ndarray]
 
 AnyFloatMap = Mapping[Any, float]
 IntFloatMap = Mapping[int, float]
-AnyCalcMap = Mapping[Any, ProbabilityCalculationMixin]
+AnyCalcMap = Mapping[Any, 'ProbabilityCalculationMixin']

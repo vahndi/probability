@@ -54,3 +54,11 @@ def load_enem_scores() -> DataFrame:
     Load the Chapter 2 enem_scores.csv dataset.
     """
     return _load_csv('enem_scores.csv')
+
+
+def load_wage() -> DataFrame:
+    """
+    Load the Chapter 3 wage.csv dataset.
+    """
+    return _load_csv('wage.csv')
+

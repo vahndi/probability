@@ -444,7 +444,7 @@ class BayesianLinearRegression(object):
             c = self.coef(name)
             low, high = c.hdi(hdi)
             records.append({
-                'parameter': f'β[{name}]',
+                'parameter': f'beta[{name}]',
                 'mean': c.mu,
                 'std': c.sigma,
                 f'hdi_{hdi_pct}_lower': low,
@@ -457,7 +457,7 @@ class BayesianLinearRegression(object):
         sig = self.sigma_sq
         sig_low, sig_high = sig.hdi(hdi)
         records.append({
-            'parameter': 'σ²',
+            'parameter': 'sigma_sq',
             'mean': self._beta_n / (self._alpha_n - 1.0) if self._alpha_n > 1 else np.nan,
             'std': np.nan,
             f'hdi_{hdi_pct}_lower': sig_low,

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from numpy import arange
-from scipy import randn
+from numpy.random import randn
 from scipy.stats import norm
 
 from probability.distributions.conjugate import InverseGammaNormalConjugate

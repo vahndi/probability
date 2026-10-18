@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from numpy import arange
 from pandas import Series
-from scipy import randn
+from numpy.random import randn
 
 from probability.distributions.conjugate.normal_normal_conjugate import \
     NormalNormalConjugate

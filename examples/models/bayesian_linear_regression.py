@@ -32,10 +32,10 @@ def print_summary():
     print(model.summary())
     print("\nIndividual Marginal Posteriors:")
     beta_edu = model.coef('education')
-    print(f"  β[education] ~ {beta_edu}")
+    print(f"  beta[education] ~ {beta_edu}")
     print(f"  95% HDI for education: {beta_edu.hdi(0.95)}")
-    print(f"  P(β[education] > 0) = {model.prob_positive('education'):.4f}")
-    print(f"  Residual variance σ² ~ {model.sigma_sq}")
+    print(f"  P(beta[education] > 0) = {model.prob_positive('education'):.4f}")
+    print(f"  Residual variance sigma_sq ~ {model.sigma_sq}")
 
 
 def plot_results():
