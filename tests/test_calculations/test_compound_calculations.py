@@ -74,3 +74,13 @@ class TestCompoundCalculations(BaseTest):
                 f'(1 - {str(self.b1)}) * {self.float_series[key]}',
                 result[key].name
             )
+
+    def test_sync_context_shared_distribution(self):
+
+        # (b1 + b2) - (b1 + b2) should be identically 0 when synced
+        expr = (self.b1 + self.b2) - (self.b1 + self.b2)
+        sync_context(expr)
+        output = expr.output()
+        self.assertAlmostEqual(0.0, output.mean(), 10)
+        self.assertAlmostEqual(0.0, output.std(), 10)
+

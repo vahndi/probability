@@ -85,3 +85,25 @@ class TestAddDistributions(BaseTest):
                 expected.std()[column],
                 actual.std()[column], 3
             )
+
+    def test_rvs1d__add__int_scalar(self):
+
+        calc = self.b1 + 2
+        self.assertEqual(f'{str(self.b1)} + 2', calc.name)
+        self.assertAlmostEqual(2.7, calc.output().mean(), 2)
+
+    def test_rvs1d__add__series(self):
+
+        actual = self.b1 + self.b_series
+        for ix, calc in actual.items():
+            self.assertEqual(
+                f'{str(self.b1)} + {str(self.b_series[ix])}',
+                calc.name
+            )
+
+    def test_rvs1d__sub__rvs1d(self):
+
+        calc = self.b1 - self.b2
+        self.assertEqual(f'{str(self.b1)} - {str(self.b2)}', calc.name)
+        self.assertAlmostEqual(0.1, calc.output().mean(), 2)
+

@@ -20,10 +20,12 @@ class DataInformationMixin(object):
             other: 'DataInformationMixin'
     ) -> Tuple[Series, Series]:
 
-        merged = merge(left=self._data, right=other._data,
+        left = self._data if self._data.name is not None else self._data.rename('left')
+        right = other._data if other._data.name is not None else other._data.rename('right')
+        merged = merge(left=left, right=right,
                        left_index=True, right_index=True)
-        self_data = merged.iloc[:, 0]
-        other_data = merged.iloc[:, 1]
+        self_data = merged.iloc[:, 0].rename(self._data.name)
+        other_data = merged.iloc[:, 1].rename(other._data.name)
         if len(self_data) < len(self._data):
             print(
                 f'WARNING: DataInformationMixin operating on subset of size '
@@ -41,6 +43,7 @@ class DataInformationMixin(object):
             self_data.rename('x'),
             other_data.rename('y')
         ], axis=1).value_counts()
+        xy_counts = xy_counts.loc[xy_counts > 0]
         p_x = x_counts / x_counts.sum()
         p_y = y_counts / y_counts.sum()
         p_xy = xy_counts / xy_counts.sum()

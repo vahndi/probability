@@ -39,11 +39,13 @@ class Nominal(
 
     def __init__(self, data: Series):
         """
-        Create a new Ordinal distribution.
+        Create a new Nominal distribution.
 
         :param data: Categorical pandas Series.
         """
         data = data.dropna()
+        if not hasattr(data, 'cat'):
+            data = data.astype('category')
         self._data: Series = data
         self._categories: List[str] = data.cat.categories.to_list()
 
@@ -87,14 +89,14 @@ class Nominal(
             empty = [empty]
         if not set(true + false + empty) == set(self.categories):
             raise ValueError('Must provide all categories in the distribution')
-        data = self._data.copy()
+        mapping = {}
         for f in false:
-            data = data.replace(f, False)
+            mapping[f] = False
         for t in true:
-            data = data.replace(t, True)
+            mapping[t] = True
         for e in empty:
-            data = data.replace(e, nan)
-        data = data.dropna()
+            mapping[e] = nan
+        data = self._data.astype(object).map(mapping).dropna().astype(bool)
         return Boolean(data)
 
     def to_beta_series(self) -> BetaSeries:

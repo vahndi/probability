@@ -67,13 +67,13 @@ class ContinuousUniform(
         :param a: Optional fixed value for lower bound a.
         :param b: Optional fixed value for upper bound b.
         """
+        if a is not None and b is not None:
+            return ContinuousUniform(a=a, b=b)
         kwargs = {}
         if a is not None:
             kwargs['floc'] = a
-        if a is not None and b is not None:
-            kwargs['fscale'] = b - a
         loc, scale = uniform.fit(data=data, **kwargs)
-        if b is not None and a is None:
+        if b is not None:
             return ContinuousUniform(a=loc, b=b)
         return ContinuousUniform(a=loc, b=loc + scale)
 

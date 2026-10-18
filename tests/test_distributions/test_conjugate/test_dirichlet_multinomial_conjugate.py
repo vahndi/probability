@@ -53,3 +53,22 @@ class TestDirichletMultinomialConjugate(TestCase):
                 'Dirichlet'
             ].iloc[0]
             self.assertTrue(row['Dirichlet'] == actual_dirichlet)
+
+    def test_infer_posteriors_with_stats(self):
+
+        actual = DirichletMultinomialConjugate.infer_posteriors(
+            data=self.multinomial_data,
+            prob_vars=['e', 'f'],
+            cond_vars=['a', 'b'],
+            stats=['mean', 'alpha']
+        )
+        self.assertIn('mean', actual.columns)
+        self.assertIn('alpha', actual.columns)
+
+    def test_x_setter_updates_n(self):
+
+        dmc = DirichletMultinomialConjugate(x={'a': 5, 'b': 3, 'c': 2})
+        self.assertEqual(10, dmc.n())
+        dmc.x = {'a': 10, 'b': 20, 'c': 30}
+        self.assertEqual(60, dmc.n())
+

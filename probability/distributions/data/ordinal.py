@@ -71,7 +71,7 @@ class Ordinal(
             ix: category
             for ix, category in enumerate(self._categories)
         }
-        self._data_vals: Series = self._data.replace(self._name_to_val)
+        self._data_vals: Series = self._data.map(self._name_to_val).astype(int)
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None) -> Series:
@@ -160,14 +160,14 @@ class Ordinal(
             empty = [empty]
         if not set(true + false + empty) == set(self.categories):
             raise ValueError('Must provide all categories in the distribution')
-        data = self._data.copy()
+        mapping = {}
         for f in false:
-            data = data.replace(f, False)
+            mapping[f] = False
         for t in true:
-            data = data.replace(t, True)
+            mapping[t] = True
         for e in empty:
-            data = data.replace(e, nan)
-        data = data.dropna()
+            mapping[e] = nan
+        data = self._data.astype(object).map(mapping).dropna().astype(bool)
         return Boolean(data)
 
     def as_ratio(
@@ -188,7 +188,7 @@ class Ordinal(
             raise TypeError('category_values must be a dict or Series')
         if not set(category_values.keys()) == set(self._data.cat.categories):
             raise ValueError('keys of category_values must match categories')
-        data = self._data.replace(to_replace=category_values)
+        data = self._data.astype(object).map(category_values).astype(float)
         return Ratio(data)
 
     def split_by(
