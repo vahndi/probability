@@ -255,6 +255,42 @@ class TestDataDistributions(TestCase):
         self.assertEqual(int(__import__('math').ceil(16 * (no_email.std() / 0.08) ** 2)), n_16)
         self.assertTrue(abs(n_16 - n_exact) <= 20)
 
+    def test_covariate_balance_normalized_diff(self):
+        # Chapter 2 covariate balance formula: (mu_k - mu_ctrl) / sqrt((var_k + var_ctrl) / 2)
+        arm = Nominal(Series(['no_email', 'no_email', 'no_email', 'short', 'short', 'long', 'long']))
+        age = Ratio(Series([20.0, 22.0, 24.0, 25.0, 27.0, 19.0, 21.0], name='age'))
+        gender = Boolean(Series([True, False, True, False, True, False, False], name='gender'))
+
+        no_email_age = age | arm.keep('no_email')
+        short_age = age | arm.keep('short')
+        expected_norm_diff = (
+            (short_age.mean() - no_email_age.mean()) /
+            ((short_age.var() + no_email_age.var()) / 2.0) ** 0.5
+        )
+        self.assertAlmostEqual(expected_norm_diff, short_age.normalized_diff(no_email_age), 10)
+        self.assertAlmostEqual(expected_norm_diff, short_age.cohens_d(no_email_age, pooled=False), 10)
+        self.assertNotAlmostEqual(
+            short_age.cohens_d(no_email_age, pooled=True),
+            short_age.cohens_d(no_email_age, pooled=False),
+            3
+        )
+
+        # Series and conditional balance tables
+        age_by_arm = age | arm
+        norm_diffs = age_by_arm.normalized_diff(control='no_email')
+        self.assertAlmostEqual(0.0, norm_diffs['no_email'], 10)
+        self.assertAlmostEqual(expected_norm_diff, norm_diffs['short'], 10)
+
+        cond_mat = age.conditional_normalized_diff(arm)
+        self.assertAlmostEqual(expected_norm_diff, cond_mat.loc['no_email', 'short'], 10)
+
+        # Boolean also supports cohens_d and normalized_diff
+        gender_by_arm = gender | arm
+        gender_diffs = gender_by_arm.normalized_diff(control='no_email')
+        self.assertAlmostEqual(0.0, gender_diffs['no_email'], 10)
+        self.assertEqual(3, len(gender_diffs))
+
+
 
 
 

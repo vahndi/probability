@@ -146,3 +146,48 @@ class DataSeriesSemMixin(object):
         df.index.name = self._data.index.name
         return df
 
+    def cohens_d(
+            self,
+            control=None,
+            pooled: bool = True
+    ):
+        """
+        Calculate standardized mean differences between distributions in the
+        Series.
+
+        :param control: Optional key of the control group. If provided, returns
+                        a Series of (group - control) standardized differences;
+                        otherwise returns a pairwise DataFrame (index=control,
+                        columns=treatment).
+        :param pooled: If True, weight variances by sample size (n - 1); if
+                       False, use unweighted average variance (v1 + v2) / 2.
+        """
+        keys = list(self._data.index)
+        if control is not None:
+            ctrl_dist = self._data[control]
+            return Series({
+                k: self._data[k].cohens_d(ctrl_dist, pooled=pooled)
+                for k in keys
+            }, name=self._data.name)
+        rows = []
+        for ctrl in keys:
+            for trat in keys:
+                rows.append({
+                    'control': ctrl,
+                    'treatment': trat,
+                    'd': self._data[trat].cohens_d(
+                        self._data[ctrl], pooled=pooled
+                    )
+                })
+        return DataFrame(rows).pivot(
+            index='control', columns='treatment', values='d'
+        ).reindex(keys, axis=0).reindex(keys, axis=1)
+
+    def normalized_diff(self, control=None):
+        """
+        Calculate unweighted standardized mean differences
+        (mean_k - mean_ctrl) / sqrt((var_k + var_ctrl) / 2) across the Series.
+        """
+        return self.cohens_d(control=control, pooled=False)
+
+

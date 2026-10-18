@@ -115,33 +115,54 @@ class DataCohensDMixin(object):
 
     _data: Series
 
-    def cohens_d(self: DCDM, other: DCDM) -> float:
+    def cohens_d(
+            self: DCDM,
+            other: DCDM,
+            pooled: bool = True
+    ) -> float:
         """
         Calculate the Cohen's d standardized difference of means between self
         and other.
 
+        :param other: Comparison distribution.
+        :param pooled: If True, weight variances by sample size (n - 1); if
+                       False, use unweighted average variance (v1 + v2) / 2.
+
         https://en.wikipedia.org/wiki/Effect_size#Cohen's_d
         """
         n1, n2 = len(self), len(other)
-        v1, v2 = self._data.var(), other._data.var()
-        x1, x2 = self._data.mean(), other._data.mean()
-        # pooled standard deviation
-        s = (
-            ((n1 - 1) * v1 + (n2 - 1) * v2) /
-            (n1 + n2 - 2)
-        ) ** 0.5
-        return (x1 - x2) / s
+        v1, v2 = float(self._data.var()), float(other._data.var())
+        x1, x2 = float(self._data.mean()), float(other._data.mean())
+        if pooled:
+            s = (
+                ((n1 - 1) * v1 + (n2 - 1) * v2) /
+                (n1 + n2 - 2)
+            ) ** 0.5
+        else:
+            s = ((v1 + v2) / 2.0) ** 0.5
+        return float((x1 - x2) / s)
+
+    def normalized_diff(self: DCDM, other: DCDM) -> float:
+        """
+        Calculate the unweighted standardized mean difference
+        (mean(self) - mean(other)) / sqrt((var(self) + var(other)) / 2),
+        commonly used for covariate balance checks in causal inference.
+        """
+        return self.cohens_d(other=other, pooled=False)
 
     def conditional_cohens_d(
             self: DCDM,
-            categorical: CategoricalDistribution
+            categorical: CategoricalDistribution,
+            pooled: bool = True
     ) -> DataFrame:
         """
-        Return a matrix of the Cohen's d of the Ratio conditioned on each
+        Return a matrix of the Cohen's d of the distribution conditioned on each
         category compared to it conditioned on each other category.
         Index represents control and columns represent treatment.
 
         :param categorical: Categorical data distribution to condition on.
+        :param pooled: If True, weight variances by sample size (n - 1); if
+                       False, use unweighted average variance (v1 + v2) / 2.
 
         https://en.wikipedia.org/wiki/Effect_size#Cohen's_d
         """
@@ -152,7 +173,7 @@ class DataCohensDMixin(object):
             for category in categorical.categories
         }
         v: Dict[str, float] = {
-            category: dist.var()
+            category: float(dist.var())
             for category, dist in dists.items()
         }
         n: Dict[str, int] = {
@@ -160,7 +181,7 @@ class DataCohensDMixin(object):
             for category, dist in dists.items()
         }
         x: Dict[str, float] = {
-            category: dist.mean()
+            category: float(dist.mean())
             for category, dist in dists.items()
         }
         results = []
@@ -168,18 +189,32 @@ class DataCohensDMixin(object):
             n1, n2 = n[control], n[treatment]
             v1, v2 = v[control], v[treatment]
             x1, x2 = x[control], x[treatment]
-            s = (
+            if pooled:
+                s = (
                     ((n1 - 1) * v1 + (n2 - 1) * v2) /
                     (n1 + n2 - 2)
-            ) ** 0.5
+                ) ** 0.5
+            else:
+                s = ((v1 + v2) / 2.0) ** 0.5
             results.append({
                 'control': control,
                 'treatment': treatment,
-                'd': (x2 - x1) / s
+                'd': float((x2 - x1) / s)
             })
         return DataFrame(results).pivot(
             index='control', columns='treatment', values='d'
         ).reindex(dists.keys(), axis=0).reindex(dists.keys(), axis=1)
+
+    def conditional_normalized_diff(
+            self: DCDM,
+            categorical: CategoricalDistribution
+    ) -> DataFrame:
+        """
+        Return a matrix of unweighted standardized mean differences across
+        categories (index = control, columns = treatment).
+        """
+        return self.conditional_cohens_d(categorical=categorical, pooled=False)
+
 
 
 class DataHypothesisTestMixin(object):
