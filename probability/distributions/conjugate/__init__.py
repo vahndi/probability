@@ -14,6 +14,8 @@ from probability.distributions.conjugate.inverse_gamma_normal_conjugate import \
     InverseGammaNormalConjugate, _InvGammaNormalConjugate
 from probability.distributions.conjugate.normal_normal_conjugate import \
     NormalNormalConjugate
+from probability.distributions.conjugate.normal_inverse_gamma_conjugate import \
+    NormalInverseGammaConjugate
 
 from probability.distributions.conjugate.priors import UniformPrior
 from probability.distributions.conjugate.priors import JeffreysPrior
