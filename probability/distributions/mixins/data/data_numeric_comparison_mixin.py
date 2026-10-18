@@ -2,13 +2,15 @@ from typing import TypeVar, Union
 
 from pandas import Series
 
+from probability.distributions.mixins.calculable_mixin import CalculableMixin
 
 DNCM = TypeVar('DNCM', bound='DataNumericComparisonMixin')
 
 
-class DataNumericComparisonMixin(object):
+class DataNumericComparisonMixin(CalculableMixin, object):
 
     _data: Series
+
 
     def where_eq(self: DNCM, value: Union[int, float]) -> DNCM:
 

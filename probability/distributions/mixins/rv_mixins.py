@@ -14,15 +14,16 @@ from probability.distributions.functions.discrete_function_1d import \
     DiscreteFunction1d
 from probability.distributions.functions.discrete_function_nd import \
     DiscreteFunctionNd
+from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_series import RVSeries, \
     RVContinuousSeries
-from probability.distributions.protocols import SupportsRVS1d, SupportsRVSNd
+from probability.distributions.protocols import (
+    NUM_SAMPLES_COMPARISON, SupportsRVS1d, SupportsRVSNd
+)
 from probability.utils import is_scalar
 
-NUM_SAMPLES_COMPARISON = 100_000
 
-
-class RVS1dMixin(object):
+class RVS1dMixin(CalculableMixin, object):
 
     _distribution: rv_generic
 
@@ -97,9 +98,10 @@ class RVS1dMixin(object):
             raise TypeError('other must be of type float or Rvs1dMixin')
 
 
-class RVSNdMixin(object):
+class RVSNdMixin(CalculableMixin, object):
 
     _names: List[str]
+
 
     def rvs(self, num_samples: int,
             random_state: Optional[int] = None,

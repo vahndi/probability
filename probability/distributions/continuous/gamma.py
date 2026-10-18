@@ -5,7 +5,6 @@ from scipy.stats import rv_continuous, gamma
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.utils import num_format
@@ -15,9 +14,9 @@ class Gamma(
     RVContinuous1dMixin,
     AlphaFloatDMixin,
     BetaFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The gamma distribution is a two-parameter family of continuous probability
     distributions. The exponential distribution, Erlang distribution, and

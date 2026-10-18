@@ -3,7 +3,6 @@ from typing import Union
 from scipy.stats import rv_discrete, nbinom
 
 from probability.distributions.mixins.attributes import PFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
 from probability.utils import num_format, is_scalar
@@ -12,9 +11,9 @@ from probability.utils import num_format, is_scalar
 class NegativeBinomial(
     RVDiscrete1dMixin,
     PFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The negative binomial distribution is a discrete probability distribution
     that models the number of failures k in a sequence of independent and

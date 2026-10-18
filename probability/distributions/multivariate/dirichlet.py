@@ -7,7 +7,6 @@ from scipy.stats._multivariate import multi_rv_generic
 
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.continuous import Beta
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableNdMixin
@@ -23,9 +22,9 @@ class Dirichlet(
     MeanNdMixin,
     VarNdMixin,
     ContinuousPlottableNdMixin,
-    CalculableMixin,
     object
 ):
+
     """
     https://en.wikipedia.org/wiki/Dirichlet_distribution
     """

@@ -451,3 +451,40 @@ class TestDiscrete(TestCase):
         discrete = Discrete.from_counts(counts, variables='x')
         self.assertRaises(TypeError, discrete.var)
 
+    def test_truediv_and_pipe_conditioning(self):
+        a = Discrete.binary(0.6, 'A')
+        b_given_a = Conditional.binary_from_probs(
+            data={0: 0.2, 1: 0.8},
+            joint_variable='B',
+            conditional_variables='A'
+        )
+        joint = b_given_a * a
+        marginal_b = joint.marginal('B')
+
+        # Factor division joint / marginal_b -> Conditional P(A | B)
+        a_given_b = joint / marginal_b
+        self.assertIsInstance(a_given_b, Conditional)
+        self.assertEqual(['A'], a_given_b.joint_variables)
+        self.assertEqual(['B'], a_given_b.conditional_variables)
+
+        # Pipe conditioning by variable name -> Conditional P(A | B)
+        a_given_b_pipe = joint | 'B'
+        self.assertIsInstance(a_given_b_pipe, Conditional)
+        self.assertTrue(a_given_b.data.round(10).equals(a_given_b_pipe.data.round(10)))
+
+        # Pipe conditioning by marginal Discrete -> Conditional P(A | B)
+        a_given_b_marginal = joint | marginal_b
+        self.assertIsInstance(a_given_b_marginal, Conditional)
+        self.assertTrue(a_given_b.data.round(10).equals(a_given_b_marginal.data.round(10)))
+
+        # Pipe conditioning by observed state dict -> Discrete P(A | B=1)
+        a_given_b1 = joint | {'B': 1}
+        self.assertIsInstance(a_given_b1, Discrete)
+        self.assertAlmostEqual(a_given_b.p(A=1, B=1), a_given_b1.p(A=1), 10)
+
+        # Pipe conditioning on Conditional -> Discrete P(A | B=1)
+        a_given_b1_from_cond = a_given_b | {'B': 1}
+        self.assertIsInstance(a_given_b1_from_cond, Discrete)
+        self.assertAlmostEqual(a_given_b1.p(A=1), a_given_b1_from_cond.p(A=1), 10)
+
+

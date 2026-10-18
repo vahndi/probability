@@ -2,7 +2,6 @@ from scipy.stats import expon, rv_continuous
 
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import LambdaFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.utils import num_format
@@ -11,9 +10,9 @@ from probability.utils import num_format
 class Exponential(
     RVContinuous1dMixin,
     LambdaFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The exponential distribution is the probability distribution of the time
     between events in a Poisson point process, i.e., a process in which events

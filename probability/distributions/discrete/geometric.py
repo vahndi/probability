@@ -4,7 +4,6 @@ from scipy.stats import geom, rv_discrete
 
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import PFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
 from probability.utils import num_format, is_scalar
@@ -13,9 +12,9 @@ from probability.utils import num_format, is_scalar
 class Geometric(
     RVDiscrete1dMixin,
     PFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The (shifted) geometric distribution gives the probability that the first
     occurrence of success requires k independent trials, each with success

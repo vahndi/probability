@@ -4,7 +4,8 @@ from typing import (
 
 from probability.calculations.calculation_context import CalculationContext
 from probability.custom_types.calculation_types import CalculationValue
-from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
+from probability.distributions.protocols import NUM_SAMPLES_COMPARISON
+
 
 SelfCalcT = TypeVar('SelfCalcT', bound='SupportsCalculation')
 

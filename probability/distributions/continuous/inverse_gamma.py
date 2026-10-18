@@ -5,7 +5,6 @@ from scipy.stats import invgamma, rv_continuous
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     BetaFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.utils import num_format
@@ -15,9 +14,9 @@ class InverseGamma(
     RVContinuous1dMixin,
     AlphaFloatDMixin,
     BetaFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The inverse gamma distribution is a two-parameter family of continuous
     probability distributions on the positive real line, which is the

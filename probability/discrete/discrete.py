@@ -506,16 +506,75 @@ class Discrete(
 
         return self * other
 
-    def __truediv__(self, other: 'Discrete') -> 'Discrete':
-
-        data = self.data / other.data
-        return Discrete(
+    def __truediv__(
+            self, other: Union['Discrete', int, float]
+    ) -> Union[Conditional, 'Discrete']:
+        """
+        Divide this joint distribution P(A, B) by a marginal distribution P(B)
+        to obtain the conditional distribution P(A | B), or by a scalar
+        normalizing constant.
+        """
+        if is_number(other):
+            return Discrete(
+                data=self.data / other,
+                variables=self._variables,
+                states=self._states
+            )
+        if not isinstance(other, Discrete):
+            raise TypeError('other must be a Discrete distribution or scalar')
+        if (
+                not set(other.variables).issubset(set(self.variables)) or
+                set(other.variables) == set(self.variables)
+        ):
+            raise ValueError(
+                'other.variables must be a proper subset of self.variables'
+            )
+        conditional_variables = [
+            v for v in self.variables if v in other.variables
+        ]
+        joint_variables = [
+            v for v in self.variables if v not in other.variables
+        ]
+        df = self._data.rename('_self').reset_index()
+        other_df = other._data.rename('_other').reset_index()
+        merged = merge(df, other_df, on=conditional_variables)
+        merged['_cond'] = merged['_self'] / merged['_other']
+        variables = joint_variables + conditional_variables
+        data = merged.set_index(variables)['_cond']
+        return Conditional.from_probs(
             data=data,
-            variables=data.index.names,
+            joint_variables=joint_variables,
+            conditional_variables=conditional_variables,
             states=self._states
         )
+
+
+    def __or__(
+            self,
+            other: Union[str, List[str], dict, 'Discrete']
+    ) -> Union[Conditional, 'Discrete']:
+        """
+        Condition this joint distribution:
+        - `joint | 'B'` or `joint | ['B', 'C']` -> `joint.conditional(...)`
+        - `joint | {'B': val}` -> `joint.given(B=val)`
+        - `joint | marginal_B` -> `joint / marginal_B`
+        """
+        if isinstance(other, str):
+            return self.conditional(other)
+        elif isinstance(other, list):
+            return self.conditional(*other)
+        elif isinstance(other, dict):
+            return self.given(**other)
+        elif isinstance(other, Discrete):
+            return self / other
+        else:
+            raise TypeError(
+                'other must be a variable name (str), list of variable names, '
+                'dict of given conditions, or marginal Discrete distribution'
+            )
 
     def __repr__(self):
 
         return f'p({",".join(self._variables)})'
+
 

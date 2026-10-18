@@ -8,6 +8,8 @@ if TYPE_CHECKING:
     from probability.discrete import Discrete
 
 from probability.discrete.mixins import StatesMixin
+from probability.discrete.prob_utils import p, p_or
+
 
 
 class Conditional(
@@ -198,6 +200,21 @@ class Conditional(
         """
         return self._joint_variables + self._conditional_variables
 
+    def p(self, **kwargs) -> float:
+        """
+        Return the conditional probability that ALL of the conditions hold.
+        """
+        stacked = self._data.stack(self._conditional_variables).rename(str(self))
+        return p(stacked, **kwargs)
+
+    def p_or(self, **kwargs) -> float:
+        """
+        Return the conditional probability that ANY of the conditions hold.
+        """
+        stacked = self._data.stack(self._conditional_variables).rename(str(self))
+        return p_or(stacked, **kwargs)
+
+
     def given(self, **given_conditions) -> Union['Conditional', 'Discrete']:
         """
         Condition on values of variables. If values are given for all
@@ -214,7 +231,12 @@ class Conditional(
             from probability.discrete import Discrete
             selector = [given_conditions[variable]
                         for variable in self._conditional_variables]
-            discrete_data = self._data[tuple(selector)]
+            col_key = (
+                tuple(selector)
+                if isinstance(self._data.columns, MultiIndex)
+                else selector[0]
+            )
+            discrete_data = self._data[col_key]
             return Discrete.from_probs(
                 data=discrete_data,
                 variables=self._joint_variables
@@ -241,11 +263,22 @@ class Conditional(
                 conditional_variables=cond_vars
             )
 
+    def __or__(self, other: dict) -> Union['Conditional', 'Discrete']:
+        """
+        Condition on observed values of conditional variables:
+        `cond | {'B': val}` -> `cond.given(B=val)`
+        """
+        if isinstance(other, dict):
+            return self.given(**other)
+        else:
+            raise TypeError('other must be a dict of given conditions')
+
     def __repr__(self):
 
         str_joints = ','.join(self._joint_variables)
         str_conds = ','.join(self._conditional_variables)
         return f'p({str_joints}|{str_conds})'
+
 
     def __mul__(self, other: 'Conditional'):
 

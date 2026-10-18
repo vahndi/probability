@@ -9,6 +9,8 @@ from pandas import DataFrame, Index, Series
 
 SelfT = TypeVar('SelfT')
 
+NUM_SAMPLES_COMPARISON = 100_000
+
 
 @runtime_checkable
 class SupportsRVS1d(Protocol):
@@ -39,6 +41,14 @@ class SupportsRVSNd(Protocol):
 
 
 SupportsRVS = Union[SupportsRVS1d, SupportsRVSNd]
+
+
+def is_rvs(arg: Any) -> bool:
+    """
+    Return True if the arg can be sampled as a random variable.
+    """
+    return isinstance(arg, (SupportsRVS1d, SupportsRVSNd))
+
 
 
 @runtime_checkable

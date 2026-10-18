@@ -4,7 +4,6 @@ from scipy.stats import binom, rv_discrete
 
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import NIntDMixin, PFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
 from probability.utils import num_format, is_scalar
@@ -14,9 +13,9 @@ class Binomial(
     RVDiscrete1dMixin,
     NIntDMixin,
     PFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The binomial distribution with parameters n and p is the discrete
     probability distribution of the number of successes in a sequence of n

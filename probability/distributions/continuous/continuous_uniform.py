@@ -5,7 +5,6 @@ from scipy.stats import uniform
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AFloatDMixin, \
     BFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.utils import num_format
@@ -15,9 +14,9 @@ class ContinuousUniform(
     RVContinuous1dMixin,
     AFloatDMixin,
     BFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The continuous uniform distribution or rectangular distribution is a
     family of symmetric probability distributions. The distribution describes

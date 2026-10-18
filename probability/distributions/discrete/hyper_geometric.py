@@ -6,7 +6,6 @@ from compound_types.built_ins import FloatIterable
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import NIntDMixin, \
     BigNIntDMixin, BigKIntDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
 from probability.utils import is_scalar
@@ -17,9 +16,9 @@ class HyperGeometric(
     BigNIntDMixin,
     BigKIntDMixin,
     NIntDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The hyper-geometric distribution is a discrete probability distribution that
     describes the probability of k successes (random draws for which the object

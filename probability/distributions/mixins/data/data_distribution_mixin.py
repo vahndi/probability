@@ -64,6 +64,37 @@ class DataDistributionMixin(object):
         """
         return type(self)(data=self.data.loc[other])
 
+    def __or__(self: DDM, other):
+        """
+        Condition this empirical distribution on `other`:
+        - If `other` is a multi-category `CategoricalDistribution` (or list of
+          them), returns `self.split_by(other)` (conditional DataSeries P(X|C)).
+        - If `other` is a single-category `CategoricalDistribution` or another
+          filtered `DataDistributionMixin`, returns `self.filter_to(other)`
+          (conditioned distribution P(X|C=c)).
+        - If `other` is a boolean `Series` mask, returns `self.loc(other)`.
+        """
+        from probability.distributions.protocols import CategoricalDistribution
+
+        if isinstance(other, Series) and other.dtype == bool:
+            return self.loc(other)
+        elif isinstance(other, list):
+            return self.split_by(other)
+        elif isinstance(other, CategoricalDistribution):
+            if other.num_categories == 1:
+                return self.filter_to(other)
+            else:
+                return self.split_by(other)
+        elif isinstance(other, DataDistributionMixin):
+            return self.filter_to(other)
+        else:
+            raise TypeError(
+                'other must be a CategoricalDistribution, '
+                'List[CategoricalDistribution], DataDistributionMixin, '
+                'or boolean Series'
+            )
+
     def __len__(self):
 
-        return len(self._data)
+        return len(self._data)
+

@@ -11,15 +11,13 @@ from probability.calculations.operators import (
     AddOperator, ComplementOperator, DivideOperator, MultiplyOperator,
     SubtractOperator
 )
-from probability.distributions.mixins.rv_mixins import (
-    RVS1dMixin, RVSNdMixin, is_rvs
-)
-from probability.distributions.protocols import SupportsRVS
+from probability.distributions.protocols import SupportsRVS, is_rvs
 from probability.utils import is_scalar
 
 CalculableOperand = Union[
-    int, float, RVS1dMixin, RVSNdMixin, SupportsRVS, SupportsCalculation
+    int, float, SupportsRVS, SupportsCalculation
 ]
+
 
 
 class CalculableMixin(object):

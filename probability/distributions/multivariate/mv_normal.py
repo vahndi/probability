@@ -8,7 +8,6 @@ from scipy.stats._multivariate import multi_rv_generic
 
 from probability.custom_types.external_custom_types import FloatArray1d, \
     FloatArray2d
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.rv_mixins import \
     RVSNdMixin, EntropyMixin, PDFNdMixin, CDFContinuousNdMixin
@@ -20,9 +19,9 @@ class MVNormal(
     CDFContinuousNdMixin,
     PDFNdMixin,
     EntropyMixin,
-    CalculableMixin,
     object
 ):
+
     """
     https://en.wikipedia.org/wiki/Multivariate_normal_distribution
     """

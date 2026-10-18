@@ -1,6 +1,5 @@
 from pandas import Series
 
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.distributions.mixins.rv_series import RVContinuousSeries
@@ -8,9 +7,9 @@ from probability.distributions.mixins.rv_series import RVContinuousSeries
 
 class ContinuousData(
     RVContinuous1dMixin,
-    CalculableMixin,
     object
 ):
+
 
     def __init__(self, data: Series):
 

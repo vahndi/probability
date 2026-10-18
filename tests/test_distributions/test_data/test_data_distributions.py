@@ -148,4 +148,29 @@ class TestDataDistributions(TestCase):
         combined = (beta + ratio).output(num_samples=50)
         self.assertEqual(50, len(combined))
 
+        # Verify arithmetic between numeric empirical data distributions
+        ratio_2 = Ratio(Series([1.0, 2.0, 3.0, 4.0]))
+        ratio_sum = (ratio + ratio_2).output(num_samples=50)
+        self.assertEqual(50, len(ratio_sum))
+        ratio_quot = (ratio_2 / ratio).output(num_samples=50)
+        self.assertEqual(50, len(ratio_quot))
+
+        # Verify pipe (|) conditioning on empirical data distributions
+        cats = Nominal(Series(['uk', 'uk', 'us', 'us']))
+        split_series = ratio_2 | cats
+        self.assertIsInstance(split_series, SupportsDataSeries)
+        self.assertEqual(1.5, split_series['uk'].mean())
+        self.assertEqual(3.5, split_series['us'].mean())
+
+        uk_only = ratio_2 | cats.keep('uk')
+        self.assertIsInstance(uk_only, Ratio)
+        self.assertEqual(2, len(uk_only))
+        self.assertEqual(1.5, uk_only.mean())
+
+        gt_2 = ratio_2 | (ratio_2.data > 2.0)
+        self.assertIsInstance(gt_2, Ratio)
+        self.assertEqual(2, len(gt_2))
+        self.assertEqual(3.5, gt_2.mean())
+
+
 

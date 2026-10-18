@@ -5,7 +5,6 @@ from scipy.stats import lomax, rv_continuous
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AlphaFloatDMixin, \
     LambdaFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.utils import num_format
@@ -15,9 +14,9 @@ class Lomax(
     RVContinuous1dMixin,
     AlphaFloatDMixin,
     LambdaFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The Lomax distribution, conditionally also called the Pareto Type II
     distribution, is a heavy-tail probability distribution used in business,

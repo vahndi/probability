@@ -6,7 +6,6 @@ from scipy.stats import betabinom, rv_discrete
 from probability.custom_types.external_custom_types import FloatArray1d
 from probability.distributions.mixins.attributes import NIntDMixin, \
     AlphaFloatDMixin, BetaFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_discrete_1d_mixin import \
     RVDiscrete1dMixin
 from probability.utils import num_format, is_scalar
@@ -17,9 +16,9 @@ class BetaBinomial(
     NIntDMixin,
     AlphaFloatDMixin,
     BetaFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     The beta-binomial distribution is a family of discrete probability
     distributions on a finite support of non-negative integers arising when the

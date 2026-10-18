@@ -5,7 +5,6 @@ from scipy.stats import beta as beta_dist, rv_continuous
 from compound_types.built_ins import FloatIterable
 from probability.distributions.mixins.attributes import AFloatDMixin, \
     BFloatDMixin, CFloatDMixin
-from probability.distributions.mixins.calculable_mixin import CalculableMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
 from probability.utils import num_format
@@ -16,9 +15,9 @@ class PERT(
     AFloatDMixin,
     BFloatDMixin,
     CFloatDMixin,
-    CalculableMixin,
     object
 ):
+
     """
     In probability and statistics, the PERT distribution is a family of
     continuous probability distributions defined by the minimum (a),
