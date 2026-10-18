@@ -1,6 +1,5 @@
 compound-types
 matplotlib
-mpl-format
 networkx
 numba
 numpy

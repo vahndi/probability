@@ -2,9 +2,10 @@ from itertools import product
 from typing import overload, Optional, Union, List
 
 from matplotlib.figure import Figure
-from mpl_format.figures import FigureFormatter
 from numpy.ma import arange
 from pandas import DataFrame, Series
+
+from probability.plotting import new_subplots
 
 from probability.distributions.continuous.normal import Normal
 from probability.distributions.mixins.conjugate import ConjugateMixin, \
@@ -307,19 +308,21 @@ class NormalNormalConjugate(
         x_norm_min = int(min(ppf_prior_01, ppf_posterior_01)) - 1
         x_norm_max = int(max(ppf_prior_99, ppf_posterior_99)) + 1
         x_param = arange(x_norm_min, x_norm_max + 0.001, 0.001)
-        ff = FigureFormatter(n_rows=2, n_cols=3)
+        fig, axes = new_subplots(n_rows=2, n_cols=3)
         (
             ax_prior, ax_data, ax_posterior,
             ax_prior_predictive, ax_likelihood, ax_posterior_predictive
-        ) = ff.axes.flat
+        ) = axes.flat
         # plot prior and posterior parameters
-        self.prior().plot(x=x_param, ax=ax_prior.axes, **kwargs)
-        self.posterior().plot(x=x_param, ax=ax_posterior.axes, **kwargs)
-        y_max_params = max(ax_prior.get_y_max(), ax_posterior.get_y_max())
-        ax_prior.set_y_lim(0, y_max_params)
-        ax_posterior.set_y_lim(0, y_max_params)
-        ax_prior.set_title_text('prior').add_legend()
-        ax_posterior.set_title_text('posterior').add_legend()
+        self.prior().plot(x=x_param, ax=ax_prior, **kwargs)
+        self.posterior().plot(x=x_param, ax=ax_posterior, **kwargs)
+        y_max_params = max(ax_prior.get_ylim()[1], ax_posterior.get_ylim()[1])
+        ax_prior.set_ylim(0, y_max_params)
+        ax_posterior.set_ylim(0, y_max_params)
+        ax_prior.set_title('prior')
+        ax_prior.legend()
+        ax_posterior.set_title('posterior')
+        ax_posterior.legend()
         # plot prior and posterior predictives
         ppf_prior_pred_01 = self.prior_predictive().ppf().at(0.01)
         ppf_prior_pred_99 = self.prior_predictive().ppf().at(0.99)
@@ -330,36 +333,38 @@ class NormalNormalConjugate(
         x_pred = arange(x_pred_min, x_pred_max + 0.001, 0.001)
         self.prior_predictive().plot(
             x=x_pred, kind='line',
-            ax=ax_prior_predictive.axes,
+            ax=ax_prior_predictive,
             **kwargs
         )
         self.posterior_predictive().plot(
             x=x_pred, kind='line',
-            ax=ax_posterior_predictive.axes,
+            ax=ax_posterior_predictive,
             **kwargs
         )
-        y_max_pred = max(ax_prior_predictive.get_y_max(),
-                         ax_posterior_predictive.get_y_max())
-        ax_prior_predictive.set_y_lim(0, y_max_pred)
-        ax_posterior_predictive.set_y_lim(0, y_max_pred)
-        ax_prior_predictive.set_title_text('prior predictive').add_legend()
-        ax_posterior_predictive.set_title_text(
-            'posterior predictive'
-        ).add_legend()
+        y_max_pred = max(ax_prior_predictive.get_ylim()[1],
+                         ax_posterior_predictive.get_ylim()[1])
+        ax_prior_predictive.set_ylim(0, y_max_pred)
+        ax_posterior_predictive.set_ylim(0, y_max_pred)
+        ax_prior_predictive.set_title('prior predictive')
+        ax_prior_predictive.legend()
+        ax_posterior_predictive.set_title('posterior predictive')
+        ax_posterior_predictive.legend()
         # plot data
         observations = self.likelihood().rvs(num_samples=self._n)
-        observations.plot.bar(ax=ax_data.axes, **kwargs)
-        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
-        y_abs_max = max([abs(y_lim) for y_lim in ax_data.get_y_lim()])
-        ax_data.set_y_lim(-y_abs_max, y_abs_max)
+        observations.plot.bar(ax=ax_data, **kwargs)
+        ax_data.set_title('data')
+        ax_data.set_xlabel('i')
+        ax_data.set_ylabel('$X_i$')
+        y_abs_max = max([abs(y_lim) for y_lim in ax_data.get_ylim()])
+        ax_data.set_ylim(-y_abs_max, y_abs_max)
         # plot likelihood
         x_like_min = int(self.likelihood().ppf().at(0.01)) - 1
         x_like_max = int(self.likelihood().ppf().at(0.99)) + 1
         x_exponential = arange(x_like_min, x_like_max + 0.001, 0.001)
-        self.likelihood().plot(x=x_exponential, ax=ax_likelihood.axes)
-        ax_likelihood.set_title_text('likelihood')
-        ax_likelihood.add_legend()
-        return ff.figure
+        self.likelihood().plot(x=x_exponential, ax=ax_likelihood)
+        ax_likelihood.set_title('likelihood')
+        ax_likelihood.legend()
+        return fig
 
     @staticmethod
     @overload

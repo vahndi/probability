@@ -2,8 +2,9 @@ from itertools import product
 from typing import Optional, Union, List
 
 from matplotlib.figure import Figure
-from mpl_format.figures.figure_formatter import FigureFormatter
 from pandas import Series, DataFrame
+
+from probability.plotting import new_subplots
 
 from probability.distributions.conjugate.priors import UniformPrior
 from probability.distributions.continuous.beta import Beta
@@ -174,41 +175,45 @@ class BetaBinomialConjugate(
         :param kwargs: kwargs for plot methods
         """
         k_predict = range(n_ + 1)
-        ff = FigureFormatter(n_rows=2, n_cols=3)
+        fig, axes = new_subplots(n_rows=2, n_cols=3)
         (
             ax_prior, ax_data, ax_posterior,
             ax_prior_predictive, ax_likelihood, ax_posterior_predictive
-        ) = ff.axes.flat
+        ) = axes.flat
 
-        self.prior().plot(x=SUPPORT_BETA, ax=ax_prior.axes, **kwargs)
-        self.posterior().plot(x=SUPPORT_BETA, ax=ax_posterior.axes, **kwargs)
+        self.prior().plot(x=SUPPORT_BETA, ax=ax_prior, **kwargs)
+        self.posterior().plot(x=SUPPORT_BETA, ax=ax_posterior, **kwargs)
         self.prior_predictive(n_=n_).plot(
             k=k_predict, kind='bar',
-            ax=ax_prior_predictive.axes, **kwargs
+            ax=ax_prior_predictive, **kwargs
         )
         self.posterior_predictive(n_=n_).plot(
             k=k_predict, kind='bar',
-            ax=ax_posterior_predictive.axes, **kwargs
+            ax=ax_posterior_predictive, **kwargs
         )
 
-        ax_prior.set_title_text('prior').add_legend()
-        ax_posterior.set_title_text('posterior').add_legend()
-        ax_prior_predictive.set_title_text('prior predictive').add_legend()
-        ax_posterior_predictive.set_title_text(
-            'posterior predictive'
-        ).add_legend()
+        ax_prior.set_title('prior')
+        ax_prior.legend()
+        ax_posterior.set_title('posterior')
+        ax_posterior.legend()
+        ax_prior_predictive.set_title('prior predictive')
+        ax_prior_predictive.legend()
+        ax_posterior_predictive.set_title('posterior predictive')
+        ax_posterior_predictive.legend()
         # plot data
         observations = Series(
             data=[1] * self._k + [0] * (self._n - self._k)
         ).sample(frac=1)
         observations.index = range(1, self._n + 1)
-        observations.plot.bar(ax=ax_data.axes, **kwargs)
-        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
+        observations.plot.bar(ax=ax_data, **kwargs)
+        ax_data.set_title('data')
+        ax_data.set_xlabel('i')
+        ax_data.set_ylabel('$X_i$')
         # plot likelihood
-        self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood.axes)
-        ax_likelihood.set_title_text('likelihood')
-        ax_likelihood.add_legend()
-        return ff.figure
+        self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood)
+        ax_likelihood.set_title('likelihood')
+        ax_likelihood.legend()
+        return fig
 
     @staticmethod
     def infer_posterior(data: Series,

@@ -1,7 +1,8 @@
-from mpl_format.axes import AxesFormatter
+import matplotlib.pyplot as plt
 
 from probability.models.project_network import ProjectNetwork, ProjectTask
 from probability.distributions import PERT
+from probability.plotting import new_axes
 
 
 def create_network():
@@ -25,8 +26,8 @@ def create_network():
 if __name__ == '__main__':
 
     network = create_network()
-    axf = AxesFormatter()
+    ax = new_axes()
     network.add_percentiles()
-    network.draw(ax=axf.axes)
+    network.draw(ax=ax)
     lengths = network.path_lengths()
-    axf.show()
+    plt.show()

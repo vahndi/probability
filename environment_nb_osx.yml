@@ -120,7 +120,6 @@ dependencies:
     - kiwisolver==1.2.0
     - llvmlite==0.34.0
     - matplotlib==3.3.2
-    - mpl-format==0.277
     - networkx==2.5
     - numpy==1.19.2
     - pandas==1.1.2

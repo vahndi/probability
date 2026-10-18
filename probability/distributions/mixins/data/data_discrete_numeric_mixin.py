@@ -1,13 +1,21 @@
 from typing import List, Any, Optional, Tuple
 
+from matplotlib.axes import Axes
 from pandas import Series, concat
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color, FontSize
-from mpl_format.enums import FONT_SIZE
-from mpl_format.utils.number_utils import format_as_percent, format_as_integer
 from probability.distributions.mixins.data.data_counts_mixin import \
     DataCountsMixin
+from probability.plotting import (
+    Color,
+    FONT_SIZE,
+    FontSize,
+    add_text,
+    format_as_integer,
+    format_as_percent,
+    format_axis_integer,
+    format_axis_percent,
+    new_axes,
+)
 
 
 class DataDiscreteNumericMixin(
@@ -22,11 +30,11 @@ class DataDiscreteNumericMixin(
     def plot_bars(
             self,
             color: Color = 'k',
-            pct_font_size: int = FONT_SIZE.medium,
+            pct_font_size: FontSize = FONT_SIZE.medium,
             max_pct: Optional[float] = None,
             max_value: Optional[int] = None,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a bar plot of the counts of each category.
 
@@ -35,9 +43,9 @@ class DataDiscreteNumericMixin(
         :param max_pct: Highest percentile value of the data to plot a count of.
                         Useful for long-tail distributions.
         :param max_value: Highest value of the data to plot a count of.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         counts = self.counts()
         pmf = self.pmf()
         if max_pct is not None:
@@ -47,16 +55,17 @@ class DataDiscreteNumericMixin(
         if max_value is not None:
             counts = counts.loc[counts.index <= max_value]
             pmf = pmf.loc[counts.index]
-        counts.plot.bar(ax=axf.axes, color=color)
+        counts.plot.bar(ax=ax, color=color)
         percents = 100 * pmf
-        axf.add_text(
+        add_text(
+            ax=ax,
             x=range(len(counts)), y=counts,
             text=percents.map(lambda p: f'{p: .1f}%'),
             h_align='center', v_align='bottom',
             font_size=pct_font_size
         )
-        axf.y_axis.set_format_integer()
-        return axf
+        format_axis_integer(ax.yaxis)
+        return ax
 
     def plot_comparison_bars(
             self,
@@ -69,8 +78,8 @@ class DataDiscreteNumericMixin(
             label_size: Optional[FontSize] = FONT_SIZE.medium,
             max_pct: Optional[float] = None,
             max_value: Optional[int] = None,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a comparison of the 2 ordinals, with outlines around bars that
         are significantly higher or lower than others.
@@ -86,7 +95,7 @@ class DataDiscreteNumericMixin(
         :param max_pct: Highest percentile value of the data to plot a count of.
                         Useful for long-tail distributions.
         :param max_value: Highest value of the data to plot a count of.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
         # validation
         if self.name == other.name:
@@ -112,12 +121,12 @@ class DataDiscreteNumericMixin(
         count_data = concat([self_counts, other_counts], axis=1)
         pct_data = pct_data.loc[count_data.index]
         # plot bars
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         if absolute:
             plot_data = count_data
         else:
             plot_data = pct_data
-        plot_data.plot.bar(ax=axf.axes, color=color, width=width)
+        plot_data.plot.bar(ax=ax, color=color, width=width)
         # add labels
         for o, ordinal in enumerate(plot_data.columns):
             for i, ix in enumerate(plot_data[ordinal].index):
@@ -131,13 +140,15 @@ class DataDiscreteNumericMixin(
                 if label_counts:
                     texts.append(format_as_integer(count_data.loc[ix, ordinal]))
                 text = ' | '.join(texts)
-                axf.add_text(label_x, label_y, text,
-                             font_size=label_size,
-                             h_align='center', v_align='bottom')
+                add_text(
+                    ax, label_x, label_y, text,
+                    font_size=label_size,
+                    h_align='center', v_align='bottom'
+                )
         # format y-axis
         if not absolute:
-            axf.y_axis.set_format_percent()
+            format_axis_percent(ax.yaxis)
         else:
-            axf.y_axis.set_format_integer()
+            format_axis_integer(ax.yaxis)
 
-        return axf
+        return ax

@@ -3,11 +3,11 @@ https://www.youtube.com/watch?v=KqgJSCtSnVE
 https://www.youtube.com/watch?v=WtvrGE9vM2k
 """
 
-from mpl_format.axes import AxesFormatter
-
+import matplotlib.pyplot as plt
 
 # constants
 from probability.models.decision_tree import Action, ActionsGroup, DecisionTree
+from probability.plotting import new_axes
 
 MAX_YEAR = 2
 ANNUAL_INFLATION = 1.2
@@ -81,12 +81,12 @@ def build_decision_tree() -> DecisionTree:
 
 def draw_tree(decision_tree: DecisionTree):
 
-    axf = AxesFormatter(width=12, height=16)
-    decision_tree.draw(node_labels='name', ax=axf.axes)
-    axf.show()
-    axf = AxesFormatter(width=12, height=16)
-    decision_tree.draw(node_labels='amount', ax=axf.axes)
-    axf.show()
+    ax = new_axes(width=12, height=16)
+    decision_tree.draw(node_labels='name', ax=ax)
+    plt.show()
+    ax = new_axes(width=12, height=16)
+    decision_tree.draw(node_labels='amount', ax=ax)
+    plt.show()
 
 
 if __name__ == '__main__':

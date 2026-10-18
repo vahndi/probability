@@ -1,17 +1,21 @@
 from itertools import product
 from typing import Union, Optional, List
 
+from matplotlib.axes import Axes
 from numpy import inf, arange, nan
 from numpy.random import choice
 from pandas import Series, DataFrame, concat
 from seaborn import heatmap
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.axes.axis_utils import new_axes
-from mpl_format.compound_types import Color
-from mpl_format.utils.color_utils import cross_fade
-from mpl_format.utils.number_utils import format_as_percent
 from probability.distributions import Ordinal
+from probability.plotting import (
+    Color,
+    add_rectangle,
+    add_text,
+    cross_fade,
+    format_as_percent,
+    new_axes,
+)
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesModeMixin
 from probability.distributions.mixins.data.data_series_category_mixins import \
@@ -98,8 +102,8 @@ class OrdinalSeries(
             color_min: Optional[Color] = None,
             color_mean: Optional[Color] = None,
             color_median: Optional[Color] = None,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot conditional probability densities of the data.
 
@@ -112,9 +116,9 @@ class OrdinalSeries(
                           if different to color.
         :param color_mean: Color for mean data markers.
         :param color_median: Color for median data markers.
-        :param axf: Optional AxesFormatter to plot on.
+        :param ax: Optional matplotlib Axes to plot on.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         keys = self.keys()
         n_keys = len(keys)
         cats = self.categories
@@ -153,7 +157,8 @@ class OrdinalSeries(
                     y_min = y_center - heights / 2
                 if i == len(value_counts) - 1:
                     y_max = y_center + heights / 2
-                axf.add_rectangle(
+                add_rectangle(
+                    ax=ax,
                     width=bar_width, height=heights,
                     x_left=x_center - bar_width / 2,
                     y_bottom=y_center - heights / 2,
@@ -162,27 +167,29 @@ class OrdinalSeries(
                     line_width=0
                 )
                 if pct_labels:
-                    axf.add_text(x=x_center, y=y_center,
-                                 text=format_as_percent(pct, 1),
-                                 h_align='center', v_align='center',
-                                 bbox_edge_color='k', bbox_fill=True,
-                                 bbox_face_color='white')
+                    add_text(
+                        ax=ax,
+                        x=x_center, y=y_center,
+                        text=format_as_percent(pct, 1),
+                        h_align='center', v_align='center',
+                        bbox_edge_color='k', bbox_fill=True,
+                        bbox_face_color='white'
+                    )
             if len(key_ord_data) == 0:
                 continue
             # plot descriptive statistics lines
             if color_mean is not None:
                 interval = 1 + key_ord_data.cat.codes
                 mean = interval.mean()
-                axf.add_line(x=[k + 0.55, k + 1.45], y=[mean, mean],
-                             color=color_mean)
+                ax.plot([k + 0.55, k + 1.45], [mean, mean], color=color_mean)
             if color_median is not None:
                 interval = 1 + key_ord_data.cat.codes
                 median = interval.median()
-                axf.add_line(x=[k + 0.55, k + 1.45], y=[median, median],
-                             color='g')
+                ax.plot([k + 0.55, k + 1.45], [median, median], color='g')
             if edges:
                 x_center = 1 + k
-                axf.add_rectangle(
+                add_rectangle(
+                    ax=ax,
                     width=bar_width,
                     height=y_max - y_min,
                     x_left=x_center - bar_width / 2,
@@ -194,54 +201,53 @@ class OrdinalSeries(
                     fill=False
                 )
         # labels
-        axf.set_text(
-            title=f'Distributions of p({self.name}|{self.index.name})',
-            x_label=self.index.name,
-            y_label=str(self.name)
-        )
+        ax.set_title(f'Distributions of p({self.name}|{self.index.name})')
+        ax.set_xlabel(self.index.name)
+        ax.set_ylabel(str(self.name))
         # axes
-        axf.set_x_lim(0.5, n_keys + 0.5)
-        axf.set_y_lim(0, n_cats + 1)
-        axf.x_ticks.set_locations(range(1, n_keys + 1)).set_labels(keys)
-        axf.y_ticks.set_locations(
-            range(1, n_cats + 1)).set_labels(cats)
+        ax.set_xlim(0.5, n_keys + 0.5)
+        ax.set_ylim(0, n_cats + 1)
+        ax.set_xticks(range(1, n_keys + 1))
+        ax.set_xticklabels(keys)
+        ax.set_yticks(range(1, n_cats + 1))
+        ax.set_yticklabels(cats)
 
-        return axf
+        return ax
 
     def plot_correlation(
             self,
             grid_font_size: float = 12,
             fmt: str = '.1%',
-            axf: Optional[AxesFormatter] = None,
+            ax: Optional[Axes] = None,
             **heatmap_kwargs
-    ) -> AxesFormatter:
+    ) -> Axes:
         """
         Plot a correlation grid for the Ordinals in the Series.
 
         :param grid_font_size: Font size for the grid labels.
         :param fmt: Formatter for the grid labels.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or new_axes()
+        ax = ax or new_axes()
         corr = self.correlation().round(2)
         corr.values[[arange(corr.shape[0])] * 2] = nan
         heatmap(
-            corr, ax=axf.axes,
+            corr, ax=ax,
             annot=True, fmt=fmt, annot_kws={'fontsize': grid_font_size},
             **heatmap_kwargs
         )
-        return axf
+        return ax
 
     def plot_pmf_lines(
             self,
-            axf: Optional[AxesFormatter] = None,
+            ax: Optional[Axes] = None,
             **plot_kwargs
-    ):
+    ) -> Axes:
 
         pmf_data = concat([
             self[key].pmf().rename(key)
             for key in self.keys()
         ], axis=1)
-        axf = axf or AxesFormatter()
-        pmf_data.plot.line(ax=axf.axes, **plot_kwargs)
-        return axf
+        ax = ax or new_axes()
+        pmf_data.plot.line(ax=ax, **plot_kwargs)
+        return ax

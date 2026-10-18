@@ -2,14 +2,14 @@ from itertools import product
 from typing import List, Union, Type, Optional, Iterable, Dict, TYPE_CHECKING, \
     Tuple
 
+from matplotlib.axes import Axes
 from numpy import inf, linspace, floor, ceil, arange, histogram
 from numpy.random import seed
 from pandas import Series, IntervalIndex, cut, qcut, DataFrame
 from seaborn import kdeplot, histplot
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
 from probability.distributions import Gamma, Normal
+from probability.plotting import Color, add_v_density, new_axes
 from probability.distributions.mixins.data.data_comparison_mixins import \
     DataCohensDMixin, DataHypothesisTestMixin, DataProbComparisonMixin
 
@@ -139,8 +139,8 @@ class Ratio(
             inflated_threshold: float = 0.5,
             mean_line: Union[bool, dict] = False,
             median_line: Union[bool, dict] = False,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a kde plot of the distribution.
 
@@ -152,19 +152,18 @@ class Ratio(
         :param inflated_threshold: Proportion of values which must equal the
                                    inflated_value to add an additional line to
                                    plot the non-inflated curve.
-        :param mean_line: Boolean flag to indicate whether to annotate the mean.
-                          Or dict of kws to pass to AxesFormatter.add_v_line.
+        :param mean_line: Boolean flag to indicate whether to annotate the mean,
+                          or dict of kws to pass to Axes.axvline.
         :param median_line: Boolean flag to indicate whether to annotate the
-                            mean.
-                            Or dict of kws to pass to AxesFormatter.add_v_line.
-        :param axf: Optional AxesFormatter instance.
+                            median, or dict of kws to pass to Axes.axvline.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         # main kde
         kdeplot(
             data=self._data,
             color=color,
-            ax=axf.axes,
+            ax=ax,
             label=self.name
         )
         # non-inflated kde
@@ -174,7 +173,7 @@ class Ratio(
                 data=non_zero,
                 color=color,
                 ls='--',
-                ax=axf.axes,
+                ax=ax,
                 label=f'{self.name} != {inflated_value}'
             )
         # draw mean
@@ -183,52 +182,60 @@ class Ratio(
             if mean_line is True:
                 mean_line_kws = {
                     'color': 'green',
-                    'line_style': ':'
+                    'linestyle': ':'
                 }
         else:
-            mean_line_kws = mean_line
+            mean_line_kws = dict(mean_line)
+            if 'line_style' in mean_line_kws:
+                mean_line_kws['linestyle'] = mean_line_kws.pop('line_style')
+            if 'line_width' in mean_line_kws:
+                mean_line_kws['linewidth'] = mean_line_kws.pop('line_width')
         if mean_line_kws is not None:
             mean = self._data.mean()
-            axf.add_v_line(x=mean, **mean_line_kws)
-            y_min, y_max = axf.get_y_min(), axf.get_y_max()
-            axf.add_text(x=mean, y=y_min + 0.8 * (y_max - y_min),
-                         text=f'mean = {mean: 0.1f}')
+            ax.axvline(x=mean, **mean_line_kws)
+            y_min, y_max = ax.get_ylim()
+            ax.text(x=mean, y=y_min + 0.8 * (y_max - y_min),
+                    s=f'mean = {mean: 0.1f}')
         # draw median
         median_line_kws = None
         if isinstance(median_line, bool):
             if median_line is True:
                 median_line_kws = {
                     'color': 'blue',
-                    'line_style': ':'
+                    'linestyle': ':'
                 }
         else:
-            median_line_kws = median_line
+            median_line_kws = dict(median_line)
+            if 'line_style' in median_line_kws:
+                median_line_kws['linestyle'] = median_line_kws.pop('line_style')
+            if 'line_width' in median_line_kws:
+                median_line_kws['linewidth'] = median_line_kws.pop('line_width')
         if median_line_kws is not None:
             median = self._data.median()
-            axf.add_v_line(x=median, **median_line_kws)
-            y_min, y_max = axf.get_y_min(), axf.get_y_max()
-            axf.add_text(x=median, y=y_min + 0.7 * (y_max - y_min),
-                         text=f'median = {median: 0.1f}')
-        return axf
+            ax.axvline(x=median, **median_line_kws)
+            y_min, y_max = ax.get_ylim()
+            ax.text(x=median, y=y_min + 0.7 * (y_max - y_min),
+                    s=f'median = {median: 0.1f}')
+        return ax
 
     def plot_hist(
             self,
             color: Color = 'k',
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a histogram of the distribution.
 
         :param color: Color of the bars.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         histplot(
             data=self._data,
             color=color,
-            ax=axf.axes
+            ax=ax
         )
-        return axf
+        return ax
 
     def split_by(
             self,
@@ -288,8 +295,8 @@ class Ratio(
             color_mean: Optional[Color] = None,
             color_median: Optional[Color] = None,
             edge_color: Optional[Color] = None,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot conditional probability densities of the data, split by the
         categories of an Ordinal or Nominal distribution.
@@ -306,9 +313,9 @@ class Ratio(
         :param color_mean: Color for mean data markers.
         :param color_median: Color for median data markers.
         :param edge_color: Optional color for the edge of each density bar.
-        :param axf: Optional AxesFormatter to plot on.
+        :param ax: Optional matplotlib Axes to plot on.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         cats = categorical.categories
         n_cats = len(cats)
         yy_min, yy_max = inf, -inf
@@ -327,7 +334,8 @@ class Ratio(
             y_min, y_max = cat_dist.hdi(hdi)
             yy_min, yy_max = min(y_min, yy_min), max(y_max, yy_max)
             # plot density
-            axf.add_v_density(
+            add_v_density(
+                ax=ax,
                 x=c + 1,
                 y_to_z=cat_dist.pdf().at(
                     linspace(y_min, y_max, num_segments + 1)),
@@ -337,26 +345,23 @@ class Ratio(
             # plot descriptive statistics lines
             if color_mean is not None:
                 mean = cat_ratio_data.mean()
-                axf.add_line(x=[c + 0.55, c + 1.45], y=[mean, mean],
-                             color=color_mean)
+                ax.plot([c + 0.55, c + 1.45], [mean, mean], color=color_mean)
             if color_median is not None:
                 median = cat_ratio_data.median()
-                axf.add_line(x=[c + 0.55, c + 1.45], y=[median, median],
-                             color=color_median)
+                ax.plot([c + 0.55, c + 1.45], [median, median],
+                        color=color_median)
         # labels
-        axf.set_text(
-            title=f'{hdi: .0%} HDIs of p({self.name}|{categorical.name})',
-            x_label=categorical.name,
-            y_label=self.name
-        )
+        ax.set_title(f'{hdi: .0%} HDIs of p({self.name}|{categorical.name})')
+        ax.set_xlabel(categorical.name)
+        ax.set_ylabel(self.name)
         # axes
-        axf.set_x_lim(0, n_cats + 1)
+        ax.set_xlim(0, n_cats + 1)
         yy_range = yy_max - yy_min
-        axf.set_y_lim(yy_min - yy_range * 0.05, yy_max + yy_range * 0.05)
-        axf.axes.set_xticks(range(1, n_cats + 1))
-        axf.axes.set_xticklabels(cats)
+        ax.set_ylim(yy_min - yy_range * 0.05, yy_max + yy_range * 0.05)
+        ax.set_xticks(range(1, n_cats + 1))
+        ax.set_xticklabels(cats)
 
-        return axf
+        return ax
 
 
     def __repr__(self):

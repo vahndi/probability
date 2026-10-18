@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy import arange
 
 from probability.distributions.continuous.lomax import Lomax
-from mpl_format.axes.axis_utils import new_axes
+from probability.plotting import new_axes
 
 
 x = arange(0, 6.01, 0.05)

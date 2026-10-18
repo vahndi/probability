@@ -1,7 +1,7 @@
 from typing import Optional, List, Union
 
 from matplotlib.axes import Axes
-from mpl_format.axes.axis_utils import new_axes
+from probability.plotting import new_axes
 from networkx import DiGraph, draw_networkx_nodes, draw_networkx_labels, \
     draw_networkx_edges, \
     shortest_path, draw_networkx_edge_labels, all_simple_paths

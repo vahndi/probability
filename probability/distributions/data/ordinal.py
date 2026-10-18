@@ -1,14 +1,19 @@
 from typing import List, Optional, Tuple, Union, TYPE_CHECKING, Dict
 
+from matplotlib.axes import Axes
 from numpy import nan
 from numpy.random import seed
 from pandas import Series, concat
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
-from mpl_format.utils.color_utils import cross_fade
-from mpl_format.utils.number_utils import format_as_percent
 from probability.distributions import Normal
+from probability.plotting import (
+    Color,
+    add_rectangle,
+    add_text,
+    cross_fade,
+    format_as_percent,
+    new_axes,
+)
 from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data.data_aggregate_mixins import \
@@ -180,8 +185,8 @@ class Ordinal(
             color_mean: Optional[Color] = None,
             color_median: Optional[Color] = None,
             pct_label_kwargs: Optional[dict] = None,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot conditional probability densities of the data, split by the
         categories of an Ordinal or Nominal distribution.
@@ -195,9 +200,9 @@ class Ordinal(
         :param color_mean: Color for mean data markers.
         :param color_median: Color for median data markers.
         :param pct_label_kwargs: Keyword arguments to pass to add_text method.
-        :param axf: Optional AxesFormatter to plot on.
+        :param ax: Optional matplotlib Axes to plot on.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         cats = categorical.categories
         n_cats = len(cats)
         # filter categorical data
@@ -235,44 +240,45 @@ class Ordinal(
                 bar_width = width * cat_sum / max_cat_sum
                 x_center = 1 + c
                 y_center = 1 + i
-                axf.add_rectangle(
+                add_rectangle(
+                    ax=ax,
                     width=bar_width, height=heights,
                     x_left=x_center - bar_width / 2,
                     y_bottom=y_center - heights / 2,
                     color=rect_color,
                     alpha=pct / max_pct
                 )
-                axf.add_text(x=x_center, y=y_center,
-                             text=format_as_percent(pct, 1),
-                             **pct_kwargs)
+                add_text(
+                    ax=ax,
+                    x=x_center, y=y_center,
+                    text=format_as_percent(pct, 1),
+                    **pct_kwargs
+                )
             if len(cat_ratio_data) == 0:
                 continue
             # plot descriptive statistics lines
             if color_mean is not None:
                 interval = 1 + cat_ratio_data.cat.codes
                 mean = interval.mean()
-                axf.add_line(x=[c + 0.55, c + 1.45], y=[mean, mean],
-                             color=color_mean)
+                ax.plot([c + 0.55, c + 1.45], [mean, mean], color=color_mean)
             if color_median is not None:
                 interval = 1 + cat_ratio_data.cat.codes
                 median = interval.median()
-                axf.add_line(x=[c + 0.55, c + 1.45], y=[median, median],
-                             color=color_median)
-        # # labels
-        axf.set_text(
-            title=f'Distributions of p({self.name}|{categorical.name})',
-            x_label=categorical.name,
-            y_label=self.name
-        )
-        # # axes
-        axf.set_x_lim(0.5, n_cats + 0.5)
-        # yy_range = yy_max - yy_min
-        axf.set_y_lim(0, len(self._categories) + 1)
-        axf.x_ticks.set_locations(range(1, n_cats + 1)).set_labels(cats)
-        axf.y_ticks.set_locations(
-            range(1, len(self._categories) + 1)).set_labels(self._categories)
+                ax.plot([c + 0.55, c + 1.45], [median, median],
+                        color=color_median)
+        # labels
+        ax.set_title(f'Distributions of p({self.name}|{categorical.name})')
+        ax.set_xlabel(categorical.name)
+        ax.set_ylabel(self.name)
+        # axes
+        ax.set_xlim(0.5, n_cats + 0.5)
+        ax.set_ylim(0, len(self._categories) + 1)
+        ax.set_xticks(range(1, n_cats + 1))
+        ax.set_xticklabels(cats)
+        ax.set_yticks(range(1, len(self._categories) + 1))
+        ax.set_yticklabels(self._categories)
 
-        return axf
+        return ax
 
     def _check_can_compare(self, other: 'Ordinal'):
 

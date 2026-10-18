@@ -1,15 +1,21 @@
 from typing import TypeVar, Union, Mapping, List, Optional
 
+from matplotlib.axes import Axes
 from numpy import linspace, arange, inf
 from pandas import Series
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
-from mpl_format.utils.color_utils import cross_fade
 from probability.distributions.functions.continuous_function_1d_series import \
     ContinuousFunction1dSeries
 from probability.distributions.protocols import SupportsContinuousRV1d
 from probability.models.utils import loop_variable
+from probability.plotting import (
+    Color,
+    add_h_density,
+    add_rectangle,
+    add_v_density,
+    cross_fade,
+    new_axes,
+)
 
 CSM = TypeVar('CSM', bound='ContinuousSeriesMixin')
 
@@ -51,8 +57,8 @@ class ContinuousSeriesMixin(object):
             resolution: Optional[int] = None,
             edges: bool = False,
             orient: str = 'v',
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot each distribution as a density bar.
 
@@ -67,9 +73,9 @@ class ContinuousSeriesMixin(object):
                            None, 100 total elements will be used.
         :param edges: Whether to plot the edges of each bar.
         :param orient: Orientation. One of {'v', 'h'}.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         dist: SupportsContinuousRV1d
         num_dists = len(self._data)
         color = loop_variable(color, num_dists)
@@ -88,7 +94,8 @@ class ContinuousSeriesMixin(object):
             )
             y_to_z = dist.pdf().at(linspace(lower, upper, n_bars + 1))
             if orient == 'h':
-                axf.add_h_density(
+                add_h_density(
+                    ax=ax,
                     y=i + 1,
                     x_to_z=y_to_z,
                     color=color[i], color_min=color_min[i],
@@ -97,7 +104,8 @@ class ContinuousSeriesMixin(object):
                     v_align='center'
                 )
                 if edges:
-                    axf.add_rectangle(
+                    add_rectangle(
+                        ax=ax,
                         width=y_to_z.index[-1] - y_to_z.index[0],
                         height=width[i],
                         x_left=y_to_z.index[0],
@@ -109,7 +117,8 @@ class ContinuousSeriesMixin(object):
                         fill=False
                     )
             else:
-                axf.add_v_density(
+                add_v_density(
+                    ax=ax,
                     x=i + 1,
                     y_to_z=y_to_z,
                     color=color[i], color_min=color_min[i],
@@ -118,7 +127,8 @@ class ContinuousSeriesMixin(object):
                     h_align='center'
                 )
                 if edges:
-                    axf.add_rectangle(
+                    add_rectangle(
+                        ax=ax,
                         width=width[i],
                         height=y_to_z.index[-1] - y_to_z.index[0],
                         x_left=i + 1 - width[i] / 2,
@@ -130,20 +140,20 @@ class ContinuousSeriesMixin(object):
                         fill=False
                     )
         if orient == 'v':
-            axf.set_x_lim(0, num_dists + 1)
-            axf.x_ticks.set_locations(range(1, num_dists + 1))
-            axf.x_ticks.set_labels(self._data.index)
-            axf.set_y_lim(lowest - (highest - lowest) / 20,
-                          highest + (highest - lowest) / 20)
-            axf.set_y_label_text(str(self.name))
+            ax.set_xlim(0, num_dists + 1)
+            ax.set_xticks(range(1, num_dists + 1))
+            ax.set_xticklabels(self._data.index)
+            ax.set_ylim(lowest - (highest - lowest) / 20,
+                        highest + (highest - lowest) / 20)
+            ax.set_ylabel(str(self.name))
         else:
-            axf.set_y_lim(0, num_dists + 1)
-            axf.y_ticks.set_locations(range(1, num_dists + 1))
-            axf.y_ticks.set_labels(self._data.index)
-            axf.set_x_lim(lowest - (highest - lowest) / 20,
-                          highest + (highest - lowest) / 20)
-            axf.set_x_label_text(str(self.name))
-        return axf
+            ax.set_ylim(0, num_dists + 1)
+            ax.set_yticks(range(1, num_dists + 1))
+            ax.set_yticklabels(self._data.index)
+            ax.set_xlim(lowest - (highest - lowest) / 20,
+                        highest + (highest - lowest) / 20)
+            ax.set_xlabel(str(self.name))
+        return ax
 
     def __repr__(self):
 

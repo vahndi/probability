@@ -1,10 +1,11 @@
-from mpl_format.axes import AxesFormatter
+import matplotlib.pyplot as plt
 from pandas import concat, Series, DataFrame
 from seaborn import boxplot
 
 from probability.calculations.bayes_rule.binary_bayes_rule import \
     BinaryBayesRule
 from probability.distributions import Poisson
+from probability.plotting import new_axes
 
 """
 wins ∝ P($|R=win)
@@ -22,23 +23,24 @@ losses.index = range(100_000, 5_000_001, 100_000)
 losses = losses.round(0).astype(int)
 
 data = concat([wins, losses], axis=1)[['loss', 'win']]
-axf = AxesFormatter()
-data.plot.bar(ax=axf.axes)
-axf.show()
+ax = new_axes()
+data.plot.bar(ax=ax)
+plt.show()
 
 
 def plot_probs(probs: DataFrame, weight):
 
-    axf = AxesFormatter()
+    ax = new_axes()
     data = probs.stack(
         level=['likelihood', 'prior']
     ).rename('posterior').reset_index()
-    boxplot(data=data, x='likelihood', y='posterior', hue='prior')
-    axf.rotate_x_tick_labels(90)
-    axf.set_y_lim(0, 1.05)
-    axf.set_axis_below().grid()
-    axf.set_text(title=str(weight))
-    axf.show()
+    boxplot(data=data, x='likelihood', y='posterior', hue='prior', ax=ax)
+    ax.tick_params(axis='x', rotation=90)
+    ax.set_ylim(0, 1.05)
+    ax.set_axisbelow(True)
+    ax.grid(True)
+    ax.set_title(str(weight))
+    plt.show()
 
 
 for weight in (0, 0.001, 0.01, 0.1, 1.0, 1000):

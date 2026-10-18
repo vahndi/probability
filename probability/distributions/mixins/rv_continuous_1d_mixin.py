@@ -1,13 +1,12 @@
 from math import floor, ceil
 
 from matplotlib.axes import Axes
-from mpl_format.axes import AxesFormatter
-from mpl_format.axes.axis_utils import new_axes
-from mpl_format.compound_types import Color
 from numpy import linspace
 from pandas import DataFrame, Series
 from scipy.stats import rv_continuous
 from typing import Iterable, Optional, Tuple, Union, Dict, Any
+
+from probability.plotting import Color, add_v_density, new_axes
 
 
 from compound_types.built_ins import FloatIterable
@@ -128,7 +127,6 @@ class RVContinuous1dMixin(
             labels: Series = data[labels]
             distributions: Series = data[distributions]
         # plot densities
-        axf = AxesFormatter(ax)
         distribution: SupportsContinuousRV1d
         y_to_z: Dict[Any, Series] = {}
         max_z = 0
@@ -146,18 +144,19 @@ class RVContinuous1dMixin(
             max_z = max(max_z, y_to_z[x_label].max())
         label_ix = {label: i + 1 for i, label in enumerate(list(labels))}
         for label, z_values in y_to_z.items():
-            axf.add_v_density(
+            add_v_density(
+                ax=ax,
                 x=label_ix[label], y_to_z=z_values,
                 color=color, color_min=color_min,
                 width=width, z_max=max_z
             )
         num_labels = len(labels)
-        axf.x_axis.axis.set_ticks(range(1, num_labels + 1))
-        axf.x_axis.axis.set_ticklabels(labels)
-        axf.set_x_lim(0, num_labels + 1)
-        axf.set_y_lim(floor(min_y), ceil(max_y))
-        axf.set_text(y_label='x')
-        return axf.axes
+        ax.set_xticks(range(1, num_labels + 1))
+        ax.set_xticklabels(labels)
+        ax.set_xlim(0, num_labels + 1)
+        ax.set_ylim(floor(min_y), ceil(max_y))
+        ax.set_ylabel('x')
+        return ax
 
     def __le__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 

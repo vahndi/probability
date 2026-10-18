@@ -1,9 +1,11 @@
 from itertools import product
 from typing import Union, List, Optional
 
-from mpl_format.figures import FigureFormatter
+from matplotlib.figure import Figure
 from numpy.ma import arange
 from pandas import Series, DataFrame
+
+from probability.plotting import new_subplots
 
 from probability.distributions.conjugate.priors import VaguePrior
 from probability.distributions.continuous.exponential import Exponential
@@ -245,7 +247,7 @@ class GammaExponentialConjugate(
 
         return gammas_data
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs) -> Figure:
         """
         Plot a grid of the different components of the Compound Distribution.
 
@@ -255,17 +257,17 @@ class GammaExponentialConjugate(
         ppf_gamma_posterior = self.posterior().ppf().at(0.99)
         x_gamma_max = int(max(ppf_gamma_prior, ppf_gamma_posterior)) + 1
         x_gamma = arange(0, x_gamma_max + 0.001, 0.001)
-        ff = FigureFormatter(n_rows=2, n_cols=3)
+        fig, axes = new_subplots(n_rows=2, n_cols=3)
         (
             ax_prior, ax_data, ax_posterior,
             ax_prior_predictive, ax_likelihood, ax_posterior_predictive
-        ) = ff.axes.flat
+        ) = axes.flat
 
-        self.prior().plot(x=x_gamma, ax=ax_prior.axes, **kwargs)
-        self.posterior().plot(x=x_gamma, ax=ax_posterior.axes, **kwargs)
-        y_max_params = max(ax_prior.get_y_max(), ax_posterior.get_y_max())
-        ax_prior.set_y_lim(0, y_max_params)
-        ax_posterior.set_y_lim(0, y_max_params)
+        self.prior().plot(x=x_gamma, ax=ax_prior, **kwargs)
+        self.posterior().plot(x=x_gamma, ax=ax_posterior, **kwargs)
+        y_max_params = max(ax_prior.get_ylim()[1], ax_posterior.get_ylim()[1])
+        ax_prior.set_ylim(0, y_max_params)
+        ax_posterior.set_ylim(0, y_max_params)
 
         ppf_lomax_prior = self.prior_predictive().ppf().at(0.99)
         ppf_lomax_posterior = self.posterior_predictive().ppf().at(0.99)
@@ -273,39 +275,43 @@ class GammaExponentialConjugate(
         x_lomax = arange(0, x_lomax_max + 0.001, 0.001)
         self.prior_predictive().plot(
             x=x_lomax, kind='line',
-            ax=ax_prior_predictive.axes,
+            ax=ax_prior_predictive,
             **kwargs
         )
         self.posterior_predictive().plot(
             x=x_lomax, kind='line',
-            ax=ax_posterior_predictive.axes,
+            ax=ax_posterior_predictive,
             **kwargs
         )
-        y_max_pred = max(ax_prior_predictive.get_y_max(),
-                         ax_posterior_predictive.get_y_max())
-        ax_prior_predictive.set_y_lim(0, y_max_pred)
-        ax_posterior_predictive.set_y_lim(0, y_max_pred)
+        y_max_pred = max(ax_prior_predictive.get_ylim()[1],
+                         ax_posterior_predictive.get_ylim()[1])
+        ax_prior_predictive.set_ylim(0, y_max_pred)
+        ax_posterior_predictive.set_ylim(0, y_max_pred)
 
-        ax_prior.set_title_text('prior').add_legend()
-        ax_posterior.set_title_text('posterior').add_legend()
-        ax_prior_predictive.set_title_text('prior predictive').add_legend()
-        ax_posterior_predictive.set_title_text(
-            'posterior predictive'
-        ).add_legend()
+        ax_prior.set_title('prior')
+        ax_prior.legend()
+        ax_posterior.set_title('posterior')
+        ax_posterior.legend()
+        ax_prior_predictive.set_title('prior predictive')
+        ax_prior_predictive.legend()
+        ax_posterior_predictive.set_title('posterior predictive')
+        ax_posterior_predictive.legend()
         # plot data
         observations = Series(
             Exponential(lambda_=1 / self._x_mean).rvs(self._n)
         )
         observations = observations * (1 / self._x_mean) / observations.mean()
-        observations.plot.bar(ax=ax_data.axes, **kwargs)
-        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
+        observations.plot.bar(ax=ax_data, **kwargs)
+        ax_data.set_title('data')
+        ax_data.set_xlabel('i')
+        ax_data.set_ylabel('$X_i$')
         # plot likelihood
         x_exponential_max = int(self.likelihood().ppf().at(0.99)) + 1
         x_exponential = arange(0, x_exponential_max + 0.001, 0.001)
-        self.likelihood().plot(x=x_exponential, ax=ax_likelihood.axes)
-        ax_likelihood.set_title_text('likelihood')
-        ax_likelihood.add_legend()
-        return ff.figure
+        self.likelihood().plot(x=x_exponential, ax=ax_likelihood)
+        ax_likelihood.set_title('likelihood')
+        ax_likelihood.legend()
+        return fig
 
     def __str__(self):
 

@@ -1,12 +1,18 @@
 from typing import Optional
 
+from matplotlib.axes import Axes
 from numpy.random import choice
 from pandas import Series, concat
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
-from mpl_format.utils.color_utils import cross_fade, set_alpha
 from probability.distributions import Count
+from probability.plotting import (
+    Color,
+    add_rectangle,
+    cross_fade,
+    format_axis_integer,
+    new_axes,
+    set_alpha,
+)
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
     DataSeriesModeMixin, DataSeriesMedianMixin, DataSeriesStdMixin, \
@@ -66,8 +72,8 @@ class CountSeries(
             color_min: Optional[Color] = None,
             alpha_min: float = 0.0,
             edge_color: Optional[Color] = 'grey',
-            axf: Optional[AxesFormatter] = None
-    ):
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a set of bars for each Series, shaded by the count at each discrete
         value.
@@ -81,9 +87,9 @@ class CountSeries(
         :param color_min: Optional different color for the sparsest bars.
         :param alpha_min: Alpha value for the sparsest bars.
         :param edge_color: Optional edge color of each bar.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         dist: Count
         # find highest count of all Series
         max_count = max(
@@ -114,7 +120,8 @@ class CountSeries(
                     from_color = set_alpha(color_min, alpha_min)
                 else:
                     from_color = set_alpha(color, alpha_min)
-                axf.add_rectangle(
+                add_rectangle(
+                    ax=ax,
                     **coords,
                     color=cross_fade(
                         from_color=from_color,
@@ -123,18 +130,19 @@ class CountSeries(
                     )
                 )
                 if edge_color is not None:
-                    axf.add_rectangle(
+                    add_rectangle(
+                        ax=ax,
                         **coords,
                         fill=False, color=None, edge_color=edge_color
                     )
-        axf.set_x_lim(0.5, len(self._data) + 0.5)
-        axf.set_y_lim(self.min().min() - 1, max_val + 1)
-        axf.axes.set_xticks(range(1, len(self._data) + 1))
-        axf.axes.set_xticklabels(self._data.index.to_list())
+        ax.set_xlim(0.5, len(self._data) + 0.5)
+        ax.set_ylim(self.min().min() - 1, max_val + 1)
+        ax.set_xticks(range(1, len(self._data) + 1))
+        ax.set_xticklabels(self._data.index.to_list())
 
-        axf.y_axis.set_format_integer()
+        format_axis_integer(ax.yaxis)
 
-        return axf
+        return ax
 
 
 if __name__ == '__main__':

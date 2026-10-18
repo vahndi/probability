@@ -1,12 +1,12 @@
 from random import seed
 from typing import Union, Tuple, List, Optional, TYPE_CHECKING
 
+from matplotlib.axes import Axes
 from numpy import linspace, inf
 from pandas import Series
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
 from probability.distributions import Skellam
+from probability.plotting import Color, add_v_density, new_axes
 from probability.distributions.conjugate.gamma_poisson_conjugate import \
     GammaPoissonConjugate
 from probability.distributions.data.ordinal import Ordinal
@@ -124,8 +124,8 @@ class Count(
             color_mean: Optional[Color] = None,
             color_median: Optional[Color] = None,
             edge_color: Optional[Color] = None,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot conditional probability densities of the data, split by the
         categories of an Ordinal or Nominal distribution.
@@ -140,9 +140,9 @@ class Count(
         :param color_mean: Color for mean data markers.
         :param color_median: Color for median data markers.
         :param edge_color: Optional color for the edge of each density bar.
-        :param axf: Optional AxesFormatter to plot on.
+        :param ax: Optional matplotlib Axes to plot on.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         cats = categorical.categories
         n_cats = len(cats)
         yy_min, yy_max = inf, -inf
@@ -163,7 +163,8 @@ class Count(
             y_min, y_max = cat_dist.hdi(hdi)
             yy_min, yy_max = min(y_min, yy_min), max(y_max, yy_max)
             # plot density
-            axf.add_v_density(
+            add_v_density(
+                ax=ax,
                 x=c + 1,
                 y_to_z=cat_dist.pdf().at(
                     linspace(y_min, y_max, num_segments + 1)),
@@ -173,28 +174,27 @@ class Count(
             # plot descriptive statistics lines
             if color_mean is not None:
                 mean = cat_ratio_data.mean()
-                axf.add_line(x=[c + 0.55, c + 1.45], y=[mean, mean],
-                             color=color_mean)
+                ax.plot([c + 0.55, c + 1.45], [mean, mean], color=color_mean)
             if color_median is not None:
                 median = cat_ratio_data.median()
-                axf.add_line(x=[c + 0.55, c + 1.45], y=[median, median],
-                             color=color_median)
+                ax.plot([c + 0.55, c + 1.45], [median, median],
+                        color=color_median)
         # labels
-        axf.set_text(
-            title=f'{hdi: .0%} HDIs of $p(' +
-                  r'\lambda_{' + self.name + r'}' +
-                  f'|{categorical.name})$',
-            x_label=categorical.name,
-            y_label=r'$\lambda_{' + self.name + r'}$'
+        ax.set_title(
+            f'{hdi: .0%} HDIs of $p(' +
+            r'\lambda_{' + self.name + r'}' +
+            f'|{categorical.name})$'
         )
+        ax.set_xlabel(categorical.name)
+        ax.set_ylabel(r'$\lambda_{' + self.name + r'}$')
         # axes
-        axf.set_x_lim(0, n_cats + 1)
+        ax.set_xlim(0, n_cats + 1)
         yy_range = yy_max - yy_min
-        axf.set_y_lim(yy_min - yy_range * 0.05, yy_max + yy_range * 0.05)
-        axf.axes.set_xticks(range(1, n_cats + 1))
-        axf.axes.set_xticklabels(cats)
+        ax.set_ylim(yy_min - yy_range * 0.05, yy_max + yy_range * 0.05)
+        ax.set_xticks(range(1, n_cats + 1))
+        ax.set_xticklabels(cats)
 
-        return axf
+        return ax
 
 
     def split_by(

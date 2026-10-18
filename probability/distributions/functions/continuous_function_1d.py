@@ -3,10 +3,10 @@ from typing import Iterable, overload, Optional, Tuple, Union
 
 from matplotlib.axes import Axes
 from numpy import linspace
-
-from mpl_format.axes import AxesFormatter
 from pandas import Series
 from scipy.stats import rv_continuous
+
+from probability.plotting import new_axes
 
 from probability.distributions.mixins.plottable_mixin import \
     ContinuousPlottableMixin
@@ -88,13 +88,12 @@ class ContinuousFunction1d(object):
                 raise ValueError('Must pass x if distribution has no bounds.')
 
         data: Series = self.at(x)
-        axf = AxesFormatter(axes=ax)
-        ax = axf.axes
+        ax = ax or new_axes()
 
         if self._method_name in ('pdf', 'cdf', 'logpdf'):
             if 'label' not in kwargs.keys():
                 kwargs['label'] = self._parent.label
-            data.plot(kind=kind, color=color, ax=axf.axes, **kwargs)
+            data.plot(kind=kind, color=color, ax=ax, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
 
@@ -131,38 +130,37 @@ class ContinuousFunction1d(object):
             )
 
         # stats
-        y_min = axf.get_y_min()
-        y_max = axf.get_y_max()
+        y_min, y_max = ax.get_ylim()
         x_mean = self._distribution.mean()
         if mean:
-            axf.add_v_lines(x=x_mean, y_min=y_min, y_max=y_max,
-                            line_styles='--', colors=color)
-            axf.add_text(x=x_mean, y=self._distribution.pdf(x_mean),
-                         text=f'mean={x_mean: 0.3f}', color=color,
-                         h_align='center', v_align='bottom')
+            ax.vlines(x=x_mean, ymin=y_min, ymax=y_max,
+                      linestyles='--', colors=color)
+            ax.text(x=x_mean, y=self._distribution.pdf(x_mean),
+                    s=f'mean={x_mean: 0.3f}', color=color,
+                    ha='center', va='bottom')
         if median:
             x_median = self._distribution.median()
-            axf.add_v_lines(x=x_median, y_min=y_min, y_max=y_max,
-                            line_styles='-.', colors=color)
-            axf.add_text(x=x_median, y=self._distribution.pdf(x_median),
-                         text=f'median={x_median: 0.3f}', color=color,
-                         h_align='center', v_align='bottom')
+            ax.vlines(x=x_median, ymin=y_min, ymax=y_max,
+                      linestyles='-.', colors=color)
+            ax.text(x=x_median, y=self._distribution.pdf(x_median),
+                    s=f'median={x_median: 0.3f}', color=color,
+                    ha='center', va='bottom')
         if mode:
             x_mode = self._parent.mode()
-            axf.add_v_lines(x=x_mode, y_min=y_min, y_max=y_max,
-                            line_styles='-.', colors=color)
-            axf.add_text(x=x_mode, y=self._distribution.pdf(x_mode),
-                         text=f'mode={x_mode: 0.3f}', color=color,
-                         h_align='center', v_align='bottom')
+            ax.vlines(x=x_mode, ymin=y_min, ymax=y_max,
+                      linestyles='-.', colors=color)
+            ax.text(x=x_mode, y=self._distribution.pdf(x_mode),
+                    s=f'mode={x_mode: 0.3f}', color=color,
+                    ha='center', va='bottom')
         if std:
             x_std = self._distribution.std()
-            axf.add_v_lines(x=[x_mean - x_std, x_mean + x_std],
-                            y_min=y_min, y_max=y_max,
-                            line_styles=':', colors=color)
-            axf.add_text(x=x_mean - x_std / 2,
-                         y=self._distribution.pdf(x_mean - x_std / 2),
-                         text=f'std={x_std: 0.3f}', color=color,
-                         h_align='center', v_align='bottom')
+            ax.vlines(x=[x_mean - x_std, x_mean + x_std],
+                      ymin=y_min, ymax=y_max,
+                      linestyles=':', colors=color)
+            ax.text(x=x_mean - x_std / 2,
+                    y=self._distribution.pdf(x_mean - x_std / 2),
+                    s=f'std={x_std: 0.3f}', color=color,
+                    ha='center', va='bottom')
 
         ax.set_xlabel(self._parent.x_label)
 

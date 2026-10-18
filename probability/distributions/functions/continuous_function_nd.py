@@ -2,8 +2,8 @@ from typing import overload, Iterable, Union, Optional, List
 
 from matplotlib.axes import Axes
 from matplotlib.tri import UniformTriRefiner, Triangulation
-from mpl_format.axes.axis_utils import new_axes
 from numpy import array, clip, dstack, meshgrid, ndarray
+from probability.plotting import new_axes
 from numpy.linalg import norm
 from numpy.ma import clip
 from pandas import Series, MultiIndex

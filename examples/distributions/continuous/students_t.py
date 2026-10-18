@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_format.axes.axis_utils import new_axes
+from probability.plotting import new_axes
 from numpy import arange
 
 from probability.distributions import Normal

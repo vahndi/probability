@@ -1,9 +1,10 @@
 from typing import Iterable, overload, Optional
 
 from matplotlib.axes import Axes
-from mpl_format.axes import AxesFormatter
 from pandas import Series
 from scipy.stats import rv_discrete
+
+from probability.plotting import new_axes
 
 from probability.distributions.mixins.plottable_mixin import \
     DiscretePlottableMixin
@@ -75,8 +76,7 @@ class DiscreteFunction1d(object):
                 raise ValueError('Must pass k if distribution has no bounds.')
 
         data: Series = self.at(k)
-        axf = AxesFormatter(axes=ax)
-        ax = axf.axes
+        ax = ax or new_axes()
 
         # special kwargs
         vlines = None
@@ -86,40 +86,39 @@ class DiscreteFunction1d(object):
             kwargs['label'] = self._parent.label
 
         if self._method_name == 'pmf':
-            data.plot(kind=kind, color=color, ax=axf.axes, **kwargs)
+            data.plot(kind=kind, color=color, ax=ax, **kwargs)
         elif self._method_name == 'cdf':
             data.plot(kind='line', color=color, drawstyle='steps-post',
-                      ax=axf.axes, **kwargs)
+                      ax=ax, **kwargs)
         else:
             raise ValueError('plot not implemented for {}'.format(self._name))
         if vlines:
-            axf.axes.vlines(x=k, ymin=0, ymax=data.values, color=color)
+            ax.vlines(x=k, ymin=0, ymax=data.values, color=color)
 
-        y_min = axf.get_y_min()
-        y_max = axf.get_y_max()
+        y_min, y_max = ax.get_ylim()
         x_mean = self._distribution.mean()
         if mean:
-            axf.add_v_lines(x=x_mean, y_min=y_min, y_max=y_max,
-                            line_styles='--', colors=color)
-            axf.add_text(x=x_mean, y=self._distribution.pmf(x_mean),
-                         text=f'mean={x_mean: 0.3f}', color=color,
-                         h_align='center', v_align='bottom')
+            ax.vlines(x=x_mean, ymin=y_min, ymax=y_max,
+                      linestyles='--', colors=color)
+            ax.text(x=x_mean, y=self._distribution.pmf(x_mean),
+                    s=f'mean={x_mean: 0.3f}', color=color,
+                    ha='center', va='bottom')
         if median:
             x_median = self._distribution.median()
-            axf.add_v_lines(x=x_median, y_min=y_min, y_max=y_max,
-                            line_styles='-.', colors=color)
-            axf.add_text(x=x_median, y=self._distribution.pmf(x_median),
-                         text=f'median={x_median: 0.3f}', color=color,
-                         h_align='center', v_align='bottom')
+            ax.vlines(x=x_median, ymin=y_min, ymax=y_max,
+                      linestyles='-.', colors=color)
+            ax.text(x=x_median, y=self._distribution.pmf(x_median),
+                    s=f'median={x_median: 0.3f}', color=color,
+                    ha='center', va='bottom')
         if std:
             x_std = self._distribution.std()
-            axf.add_v_lines(x=[x_mean - x_std, x_mean + x_std],
-                            y_min=y_min, y_max=y_max,
-                            line_styles=':', colors=color)
-            axf.add_text(x=x_mean - x_std / 2,
-                         y=self._distribution.pmf(x_mean - x_std / 2),
-                         text=f'std={x_std: 0.3f}', color=color,
-                         h_align='center', v_align='bottom')
+            ax.vlines(x=[x_mean - x_std, x_mean + x_std],
+                      ymin=y_min, ymax=y_max,
+                      linestyles=':', colors=color)
+            ax.text(x=x_mean - x_std / 2,
+                    y=self._distribution.pmf(x_mean - x_std / 2),
+                    s=f'std={x_std: 0.3f}', color=color,
+                    ha='center', va='bottom')
 
         ax.set_xlabel(self._parent.x_label)
 

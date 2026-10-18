@@ -2,9 +2,10 @@ from itertools import product
 from typing import Union, List, Optional
 
 from matplotlib.figure import Figure
-from mpl_format.figures import FigureFormatter
 from numpy.random import choice
 from pandas import Series, DataFrame
+
+from probability.plotting import new_subplots
 
 from probability.distributions.conjugate.priors import UniformPrior
 from probability.distributions.continuous.beta import Beta
@@ -120,37 +121,39 @@ class BetaGeometricConjugate(
 
         :param kwargs: kwargs for plot methods
         """
-        ff = FigureFormatter(n_rows=2, n_cols=3)
+        fig, axes = new_subplots(n_rows=2, n_cols=3)
         (
             ax_prior, ax_data, ax_posterior,
             ax_prior_predictive, ax_likelihood, ax_posterior_predictive
-        ) = ff.axes.flat
+        ) = axes.flat
 
-        self.prior().plot(x=SUPPORT_BETA, ax=ax_prior.axes, **kwargs)
-        self.posterior().plot(x=SUPPORT_BETA, ax=ax_posterior.axes, **kwargs)
+        self.prior().plot(x=SUPPORT_BETA, ax=ax_prior, **kwargs)
+        self.posterior().plot(x=SUPPORT_BETA, ax=ax_posterior, **kwargs)
 
-        ax_prior.set_title_text('prior').add_legend()
-        ax_posterior.set_title_text('posterior').add_legend()
-        ax_prior_predictive.set_title_text('prior predictive')
-        ax_prior_predictive.set_face_color('#bbb')
-        ax_posterior_predictive.set_title_text(
-            'posterior predictive'
-        )
-        ax_posterior_predictive.set_face_color('#bbb')
+        ax_prior.set_title('prior')
+        ax_prior.legend()
+        ax_posterior.set_title('posterior')
+        ax_posterior.legend()
+        ax_prior_predictive.set_title('prior predictive')
+        ax_prior_predictive.set_facecolor('#bbb')
+        ax_posterior_predictive.set_title('posterior predictive')
+        ax_posterior_predictive.set_facecolor('#bbb')
         # plot data
         observations = Series(data=[0] * (self._k - 1) + [1])
         i_success = choice(a=range(self._k - 1),
                            size=self._n - 1, replace=False)
         observations.iloc[i_success] = 1
         observations.index = range(1, self._k + 1)
-        observations.plot.bar(ax=ax_data.axes, **kwargs)
-        ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
+        observations.plot.bar(ax=ax_data, **kwargs)
+        ax_data.set_title('data')
+        ax_data.set_xlabel('i')
+        ax_data.set_ylabel('$X_i$')
         # plot likelihood
-        self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood.axes)
-        ax_likelihood.set_x_lim(0.5, None)
-        ax_likelihood.set_title_text('likelihood')
-        ax_likelihood.add_legend()
-        return ff.figure
+        self.likelihood().plot(k=range(self._n + 1), ax=ax_likelihood)
+        ax_likelihood.set_xlim(left=0.5)
+        ax_likelihood.set_title('likelihood')
+        ax_likelihood.legend()
+        return fig
 
     @staticmethod
     def infer_posterior(data: Series,

@@ -1,12 +1,17 @@
 from typing import Union, Optional, Iterable
 
+from matplotlib.axes import Axes
 from numpy import clip
 from pandas import Series, DataFrame, concat
 from seaborn import kdeplot
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
 from probability.distributions import Ratio
+from probability.plotting import (
+    Color,
+    add_rectangle,
+    format_axis_integer,
+    new_axes,
+)
 from probability.distributions.continuous.normal_series import NormalSeries
 from probability.distributions.mixins.data.data_series_aggregate_mixins import \
     DataSeriesMinMixin, DataSeriesMaxMixin, DataSeriesMeanMixin, \
@@ -116,8 +121,8 @@ class RatioSeries(
             min_alpha: float = 0.0,
             color: Color = 'k',
             edge_color: Optional[Color] = 'grey',
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a density bar for each Ratio distribution.
 
@@ -132,9 +137,9 @@ class RatioSeries(
         :param color: Color for each density bar.
         :param edge_color: Color for edge of each bar. Set to None to omit
                            edges.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         dist: Ratio
         # calculate histograms, counts and bin limits
         hists = [
@@ -166,54 +171,56 @@ class RatioSeries(
                         min_alpha + (1 - min_alpha) * count / max_max_count,
                         min_alpha, 1.0
                     )
-                axf.add_rectangle(
+                add_rectangle(
+                    ax=ax,
                     width=width, height=max_val - min_val,
                     x_center=x, y_center=(min_val + max_val) / 2,
                     color=color, line_width=0,
-                    alpha=alpha
+                    alpha=float(alpha)
                 )
             # add density edges
             if edge_color is not None:
                 low_bin = hist.index.get_level_values('min')[0]
                 high_bin = hist.index.get_level_values('max')[-1]
-                axf.add_rectangle(
+                add_rectangle(
+                    ax=ax,
                     width=width, height=high_bin - low_bin,
                     x_center=x, y_center=(low_bin + high_bin) / 2,
                     fill=False, color=None, edge_color=edge_color
                 )
         # format axes
-        axf.set_x_lim(-1, len(self._data))
-        axf.set_y_lim(lowest_bin - bin_spacing, highest_bin + bin_spacing)
-        axf.axes.set_xticks(range(len(self._data)))
-        axf.axes.set_xticklabels(self._data.index.to_list())
+        ax.set_xlim(-1, len(self._data))
+        ax.set_ylim(lowest_bin - bin_spacing, highest_bin + bin_spacing)
+        ax.set_xticks(range(len(self._data)))
+        ax.set_xticklabels(self._data.index.to_list())
 
-        axf.y_axis.set_format_integer()
-        axf.set_text(
-            title=f'Distribution of '
-                  f'p({self.data.name}|{self.data.index.name})',
-            x_label=self.data.index.name,
-            y_label=self.data.name
+        format_axis_integer(ax.yaxis)
+        ax.set_title(
+            f'Distribution of '
+            f'p({self.data.name}|{self.data.index.name})'
         )
+        ax.set_xlabel(self.data.index.name)
+        ax.set_ylabel(self.data.name)
 
-        return axf
+        return ax
 
     def plot_density_distributions(
             self,
-            axf: Optional[AxesFormatter] = None
-    ):
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot the distribution of probability density for each Ratio
         distribution.
 
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         name: str
         dist: Ratio
         for name, dist in self._data.items():
             kdeplot(
                 x=dist.data,
-                label=name, ax=axf.axes
+                label=name, ax=ax
             )
-        axf.axes.legend()
-        return axf
+        ax.legend()
+        return ax

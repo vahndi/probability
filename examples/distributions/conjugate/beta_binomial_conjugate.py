@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
-from mpl_format.figures.figure_formatter import FigureFormatter
 from numpy.ma import arange
 from pandas import Series
 
 from probability.distributions import Beta
 from probability.distributions.conjugate.beta_binomial_conjugate import \
     BetaBinomialConjugate
+from probability.plotting import new_subplots
 
 
 k = range(11)
@@ -43,40 +43,46 @@ def plot_examples():
     n_data = 10
     n_predict = 15
     k_predict = range(16)
-    ff = FigureFormatter(n_rows=2, n_cols=3)
+    _, axes = new_subplots(n_rows=2, n_cols=3)
     (
         ax_prior, ax_data, ax_posterior,
         ax_prior_predictive, ax_likelihood, ax_posterior_predictive
-    ) = ff.axes.flat
+    ) = axes.flat
 
     for alpha, beta, color in zip(alphas, betas, colors):
         bb = BetaBinomialConjugate(alpha=alpha, beta=beta, n=n_data, k=k_data)
-        bb.prior().plot(x=x, color=color, ax=ax_prior.axes)
-        bb.posterior().plot(x=x, color=color, ax=ax_posterior.axes)
+        bb.prior().plot(x=x, color=color, ax=ax_prior)
+        bb.posterior().plot(x=x, color=color, ax=ax_posterior)
         bb.prior_predictive(n_=n_predict).plot(
             k=k_predict, color=color, kind='line',
-            marker='o', ax=ax_prior_predictive.axes
+            marker='o', ax=ax_prior_predictive
         )
         bb.posterior_predictive(n_=n_predict).plot(
             k=k_predict, color=color, kind='line',
-            marker='o', ax=ax_posterior_predictive.axes
+            marker='o', ax=ax_posterior_predictive
         )
 
-    ax_prior.set_title_text('prior').add_legend()
-    ax_posterior.set_title_text('posterior').add_legend()
-    ax_prior_predictive.set_title_text('prior predictive').add_legend()
-    ax_posterior_predictive.set_title_text('posterior predictive').add_legend()
+    ax_prior.set_title('prior')
+    ax_prior.legend()
+    ax_posterior.set_title('posterior')
+    ax_posterior.legend()
+    ax_prior_predictive.set_title('prior predictive')
+    ax_prior_predictive.legend()
+    ax_posterior_predictive.set_title('posterior predictive')
+    ax_posterior_predictive.legend()
     # plot data
     observations = Series(
         index=range(1, 11),
         data=[1] * 7 + [0] * 3).sample(frac=1)
     observations.index = range(1, 11)
-    observations.plot.bar(ax=ax_data.axes, color='k')
+    observations.plot.bar(ax=ax_data, color='k')
     # plot likelihood
-    bb.likelihood().plot(k=k, color='k', ax=ax_likelihood.axes)
-    ax_likelihood.set_title_text('likelihood')
-    ax_likelihood.add_legend()
-    ax_data.set_text(title='data', x_label='i', y_label='$X_i$')
+    bb.likelihood().plot(k=k, color='k', ax=ax_likelihood)
+    ax_likelihood.set_title('likelihood')
+    ax_likelihood.legend()
+    ax_data.set_title('data')
+    ax_data.set_xlabel('i')
+    ax_data.set_ylabel('$X_i$')
     plt.show()
 
 
@@ -91,10 +97,10 @@ def plot_comparison():
 
     bb_10 = BetaBinomialConjugate(n=10, k=7)
     bb_100 = BetaBinomialConjugate(n=100, k=70)
-    ff = FigureFormatter(n_rows=1, n_cols=2)
-    bb_10.posterior_predictive(n_=100).plot(k=range(101), ax=ff[0].axes)
-    bb_100.posterior_predictive(n_=100).plot(k=range(101), ax=ff[1].axes)
-    ff.show()
+    _, axes = new_subplots(n_rows=1, n_cols=2)
+    bb_10.posterior_predictive(n_=100).plot(k=range(101), ax=axes[0])
+    bb_100.posterior_predictive(n_=100).plot(k=range(101), ax=axes[1])
+    plt.show()
 
 
 if __name__ == '__main__':

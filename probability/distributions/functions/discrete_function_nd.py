@@ -1,8 +1,8 @@
 from typing import overload, Iterable, Union, Optional
 
 from matplotlib.axes import Axes
-from mpl_format.axes.axis_utils import new_axes
 from numpy import array, ndarray
+from probability.plotting import new_axes
 from pandas import Series, MultiIndex, concat
 from scipy.stats import rv_discrete
 from seaborn import lineplot

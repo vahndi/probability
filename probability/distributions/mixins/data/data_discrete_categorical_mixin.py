@@ -1,13 +1,21 @@
 from typing import List, Any, Optional, Tuple
 
+from matplotlib.axes import Axes
 from pandas import Series, concat
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color, FontSize
-from mpl_format.enums import FONT_SIZE
-from mpl_format.utils.number_utils import format_as_percent, format_as_integer
 from probability.distributions.mixins.data.data_counts_mixin import \
     DataCountsMixin
+from probability.plotting import (
+    Color,
+    FONT_SIZE,
+    FontSize,
+    add_text,
+    format_as_integer,
+    format_as_percent,
+    format_axis_integer,
+    format_axis_percent,
+    new_axes,
+)
 
 
 class DataDiscreteCategoricalMixin(
@@ -22,29 +30,30 @@ class DataDiscreteCategoricalMixin(
     def plot_bars(
             self,
             color: Color = 'k',
-            pct_font_size: int = FONT_SIZE.medium,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            pct_font_size: FontSize = FONT_SIZE.medium,
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a bar plot of the counts of each category.
 
         :param color: Color of the bars.
         :param pct_font_size: Font size for percentage labels.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         counts = self.counts()
         pmf = self.pmf()
-        counts.plot.bar(ax=axf.axes, color=color)
+        counts.plot.bar(ax=ax, color=color)
         percents = 100 * pmf
-        axf.add_text(
+        add_text(
+            ax=ax,
             x=range(len(counts)), y=counts,
             text=percents.map(lambda p: f'{p: .1f}%'),
             h_align='center', v_align='bottom',
             font_size=pct_font_size
         )
-        axf.y_axis.set_format_integer()
-        return axf
+        format_axis_integer(ax.yaxis)
+        return ax
 
     def plot_comparison_bars(
             self,
@@ -55,8 +64,8 @@ class DataDiscreteCategoricalMixin(
             label_pcts: bool = True,
             label_counts: bool = False,
             label_size: Optional[FontSize] = FONT_SIZE.medium,
-            axf: Optional[AxesFormatter] = None
-    ) -> AxesFormatter:
+            ax: Optional[Axes] = None
+    ) -> Axes:
         """
         Plot a comparison of the 2 ordinals, with outlines around bars that
         are significantly higher or lower than others.
@@ -69,7 +78,7 @@ class DataDiscreteCategoricalMixin(
         :param label_pcts: Whether to add percentage labels.
         :param label_counts: Whether to add count labels.
         :param label_size: Font size for bar labels.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         """
         # validation
         if self.name == other.name:
@@ -91,12 +100,12 @@ class DataDiscreteCategoricalMixin(
         count_data = concat([self_counts, other_counts], axis=1)
         pct_data = count_data / count_data.sum()
         # plot bars
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         if absolute:
             plot_data = count_data
         else:
             plot_data = pct_data
-        plot_data.plot.bar(ax=axf.axes, color=color, width=width)
+        plot_data.plot.bar(ax=ax, color=color, width=width)
         # add labels
         for o, ordinal in enumerate(plot_data.columns):
             for i, ix in enumerate(plot_data[ordinal].index):
@@ -110,13 +119,15 @@ class DataDiscreteCategoricalMixin(
                 if label_counts:
                     texts.append(format_as_integer(count_data.loc[ix, ordinal]))
                 text = ' | '.join(texts)
-                axf.add_text(label_x, label_y, text,
-                             font_size=label_size,
-                             h_align='center', v_align='bottom')
+                add_text(
+                    ax, label_x, label_y, text,
+                    font_size=label_size,
+                    h_align='center', v_align='bottom'
+                )
         # format y-axis
         if not absolute:
-            axf.y_axis.set_format_percent()
+            format_axis_percent(ax.yaxis)
         else:
-            axf.y_axis.set_format_integer()
+            format_axis_integer(ax.yaxis)
 
-        return axf
+        return ax

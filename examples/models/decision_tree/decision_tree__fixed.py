@@ -1,6 +1,7 @@
-from mpl_format.axes import AxesFormatter
+import matplotlib.pyplot as plt
 
 from probability.models.decision_tree import DecisionTree
+from probability.plotting import new_axes
 
 dt = DecisionTree()
 # level 1
@@ -19,11 +20,11 @@ dt.add_option(name='D1.b.D2.a', p_success=0.8, amount=60,
 dt.add_option(name='D1.b.D2.b', p_success=0.6, amount=25,
               parent_name='D1.b.D2', final=True)
 dt.solve()
-axf_names = AxesFormatter()
-dt.draw(node_labels='name', ax=axf_names.axes)
-axf_names.show()
-axf_amounts = AxesFormatter()
-dt.draw(node_labels='amount', ax=axf_amounts.axes)
-axf_amounts.show()
+ax_names = new_axes()
+dt.draw(node_labels='name', ax=ax_names)
+plt.show()
+ax_amounts = new_axes()
+dt.draw(node_labels='amount', ax=ax_amounts)
+plt.show()
 
 amounts = dt.amounts()

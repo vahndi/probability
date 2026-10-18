@@ -1,13 +1,13 @@
 from typing import Union, List, Optional, TypeVar
 
+from matplotlib.axes import Axes
 from matplotlib.patches import Patch
 from numpy import arange, linspace, log
 from pandas import DataFrame
 
-from mpl_format.axes import AxesFormatter
-from mpl_format.compound_types import Color
 from probability.distributions.protocols import SupportsContinuousRV1d
 from probability.models.utils import loop_variable
+from probability.plotting import Color, add_v_density, new_axes
 
 
 CFM = TypeVar('CFM', bound='ContinuousFrameMixin')
@@ -61,9 +61,9 @@ class ContinuousFrameMixin(object):
             resolution: int = 100,
             z_max: Optional[Union[float, List[float]]] = None,
             log_z: bool = False,
-            axf: Optional[AxesFormatter] = None,
+            ax: Optional[Axes] = None,
             legend_kwargs: Optional[dict] = None
-    ) -> AxesFormatter:
+    ) -> Axes:
         """
         Plot each row of distributions as a group of density bars.
 
@@ -79,10 +79,10 @@ class ContinuousFrameMixin(object):
                       by.
         :param resolution: Number of density elements per unit y.
         :param log_z: Whether to take the log of z before plotting.
-        :param axf: Optional AxesFormatter instance.
+        :param ax: Optional matplotlib Axes instance.
         :param legend_kwargs: Optional kwargs to pass to legend constructor.
         """
-        axf = axf or AxesFormatter()
+        ax = ax or new_axes()
         n_rows = self._data.shape[0]
         n_cols = self._data.shape[1]
         if not stagger:
@@ -110,7 +110,8 @@ class ContinuousFrameMixin(object):
                 ))
                 if log_z:
                     y_to_z = y_to_z.map(log)
-                axf.add_v_density(
+                add_v_density(
+                    ax=ax,
                     x=i_row + 1 + item_centers[i_col],
                     y_to_z=y_to_z,
                     color=color[i_col], color_min=color_min[i_col],
@@ -119,9 +120,9 @@ class ContinuousFrameMixin(object):
                     h_align='center'
                 )
         # axes
-        axf.set_x_lim(0, n_rows + 1)
-        axf.x_ticks.set_locations(range(1, n_rows + 1))
-        axf.x_ticks.set_labels(self._data.index)
+        ax.set_xlim(0, n_rows + 1)
+        ax.set_xticks(range(1, n_rows + 1))
+        ax.set_xticklabels(self._data.index)
         # legend
         patches = []
         for i_col in range(n_cols):
@@ -131,8 +132,8 @@ class ContinuousFrameMixin(object):
             ))
         if legend_kwargs is None:
             legend_kwargs = {}
-        axf.axes.legend(handles=patches, **legend_kwargs)
-        return axf
+        ax.legend(handles=patches, **legend_kwargs)
+        return ax
 
     def __str__(self):
         return str(self._data)

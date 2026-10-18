@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy.ma import arange
 
 from probability.distributions.continuous.laplace import Laplace
-from mpl_format.axes.axis_utils import new_axes
+from probability.plotting import new_axes
 
 x = arange(-10, 10.1, 0.1)
 

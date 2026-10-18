@@ -22,7 +22,6 @@ requires-python = ">=3.9"
 dependencies = [
     "compound-types",
     "matplotlib",
-    "mpl-format",
     "networkx",
     "numba",
     "numpy",
