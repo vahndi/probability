@@ -8,8 +8,7 @@ from mpl_format.compound_types import Color
 from mpl_format.utils.color_utils import cross_fade
 from probability.distributions.functions.continuous_function_1d_series import \
     ContinuousFunction1dSeries
-from probability.distributions.mixins.rv_mixins import PPFContinuous1dMixin, \
-    PDF1dMixin
+from probability.distributions.protocols import SupportsContinuousRV1d
 from probability.models.utils import loop_variable
 
 CSM = TypeVar('CSM', bound='ContinuousSeriesMixin')
@@ -71,7 +70,7 @@ class ContinuousSeriesMixin(object):
         :param axf: Optional AxesFormatter instance.
         """
         axf = axf or AxesFormatter()
-        dist: Union[PPFContinuous1dMixin, PDF1dMixin]
+        dist: SupportsContinuousRV1d
         num_dists = len(self._data)
         color = loop_variable(color, num_dists)
         color_min = loop_variable(color_min, num_dists)
@@ -80,6 +79,7 @@ class ContinuousSeriesMixin(object):
         lowest, highest = inf, -inf
         for i, (ix, dist) in enumerate(self._data.items()):
             lower, upper = dist.hdi(hdi)
+
             lowest = min(lowest, lower)
             highest = max(highest, upper)
             n_bars = (

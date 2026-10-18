@@ -1,8 +1,11 @@
 from typing import (
-    Any, Hashable, List, Optional, Protocol, TypeVar, runtime_checkable
+    Any, Hashable, List, Optional, Protocol, Tuple, TypeVar, Union,
+    runtime_checkable
 )
 
-from pandas import Index, Series
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from pandas import DataFrame, Index, Series
 
 SelfT = TypeVar('SelfT')
 
@@ -20,6 +23,25 @@ class SupportsRVS1d(Protocol):
 
 
 @runtime_checkable
+class SupportsRVSNd(Protocol):
+    """
+    Protocol for N-dimensional distributions that support random variate
+    sampling into a DataFrame.
+    """
+    _names: List[str]
+
+    def rvs(
+            self,
+            num_samples: int,
+            random_state: Optional[int] = None,
+            full_name: bool = False
+    ) -> DataFrame: ...
+
+
+SupportsRVS = Union[SupportsRVS1d, SupportsRVSNd]
+
+
+@runtime_checkable
 class SupportsBounds1d(Protocol):
     """
     Protocol for 1D distributions with lower and upper plotting/integration
@@ -30,6 +52,147 @@ class SupportsBounds1d(Protocol):
 
     @property
     def upper_bound(self) -> float: ...
+
+
+@runtime_checkable
+class SupportsMoments1d(Protocol):
+    """
+    Protocol for 1D distributions providing descriptive moments.
+    """
+    def mean(self) -> float: ...
+
+    def median(self) -> float: ...
+
+    def std(self) -> float: ...
+
+    def var(self) -> float: ...
+
+
+@runtime_checkable
+class SupportsPDF1d(Protocol):
+    """
+    Protocol for 1D continuous distributions exposing PDF and log-PDF functions.
+    """
+    def pdf(self) -> Any: ...
+
+    def log_pdf(self) -> Any: ...
+
+
+@runtime_checkable
+class SupportsPMF1d(Protocol):
+    """
+    Protocol for 1D discrete distributions exposing PMF and log-PMF functions.
+    """
+    def pmf(self) -> Any: ...
+
+    def log_pmf(self) -> Any: ...
+
+
+@runtime_checkable
+class SupportsCDF1d(Protocol):
+    """
+    Protocol for 1D distributions exposing CDF and log-CDF functions.
+    """
+    def cdf(self) -> Any: ...
+
+    def log_cdf(self) -> Any: ...
+
+
+@runtime_checkable
+class SupportsSF1d(Protocol):
+    """
+    Protocol for 1D distributions exposing survival and log-survival functions.
+    """
+    def sf(self) -> Any: ...
+
+    def log_sf(self) -> Any: ...
+
+
+@runtime_checkable
+class SupportsPPF1d(Protocol):
+    """
+    Protocol for 1D distributions exposing the percent point function (inverse
+    CDF).
+    """
+    def ppf(self) -> Any: ...
+
+
+@runtime_checkable
+class SupportsHDI1d(SupportsPPF1d, Protocol):
+    """
+    Protocol for 1D continuous distributions supporting Highest Density Interval
+    calculation.
+    """
+    def hdi(self, credible_mass: float) -> Tuple[float, float]: ...
+
+
+@runtime_checkable
+class SupportsRV1d(
+    SupportsRVS1d, SupportsMoments1d, SupportsCDF1d, SupportsSF1d,
+    SupportsPPF1d, Protocol
+):
+    """
+    Protocol for 1D parametric random variable distributions (continuous or
+    discrete).
+    """
+    def interval(self, percent: float) -> Tuple[float, float]: ...
+
+    def plot(self, *args: Any, **kwargs: Any) -> Axes: ...
+
+
+@runtime_checkable
+class SupportsContinuousRV1d(
+    SupportsRV1d, SupportsBounds1d, SupportsPDF1d, SupportsHDI1d, Protocol
+):
+    """
+    Protocol for 1D continuous parametric distributions.
+    """
+    pass
+
+
+@runtime_checkable
+class SupportsDiscreteRV1d(
+    SupportsRV1d, SupportsPMF1d, Protocol
+):
+    """
+    Protocol for 1D discrete parametric distributions.
+    """
+    pass
+
+
+@runtime_checkable
+class SupportsConjugate(Protocol):
+    """
+    Protocol for Bayesian conjugate models providing prior, likelihood, and
+    posterior distributions.
+    """
+    def prior(self, **kwargs: Any) -> SupportsRV1d: ...
+
+    def likelihood(self, **kwargs: Any) -> SupportsRV1d: ...
+
+    def posterior(self, **kwargs: Any) -> SupportsRV1d: ...
+
+    def plot(self, **kwargs: Any) -> Figure: ...
+
+
+@runtime_checkable
+class SupportsPredictive(Protocol):
+    """
+    Protocol for Bayesian conjugate models that expose prior and posterior
+    predictive distributions.
+    """
+    def prior_predictive(self, **kwargs: Any) -> SupportsRV1d: ...
+
+    def posterior_predictive(self, **kwargs: Any) -> SupportsRV1d: ...
+
+
+@runtime_checkable
+class SupportsResetDistribution(Protocol):
+    """
+    Protocol for distribution classes that rebuild their underlying scipy
+    distribution when parameters are mutated.
+    """
+    def _reset_distribution(self) -> None: ...
 
 
 @runtime_checkable
@@ -76,7 +239,9 @@ class CategoricalDistribution(SupportsDataDistribution, Protocol):
 
 
 @runtime_checkable
-class NumericDataDistribution(SupportsDataDistribution, SupportsRVS1d, Protocol):
+class NumericDataDistribution(
+    SupportsDataDistribution, SupportsRVS1d, Protocol
+):
     """
     Protocol for numeric empirical data distributions with descriptive stats.
     """

@@ -111,3 +111,41 @@ class TestDataDistributions(TestCase):
         self.assertEqual(3.5, ratio.upper(frac=0.5).mean())
         self.assertEqual(1.5, ratio.lower(frac=0.5).mean())
 
+    def test_extended_protocols(self):
+        from probability.calculations.mixins import (
+            SupportsCalculation, SupportsOperator
+        )
+        from probability.calculations.operators import AddOperator
+        from probability.distributions import (
+            Beta, BetaBinomialConjugate, Binomial, Dirichlet
+        )
+        from probability.distributions.protocols import (
+            SupportsConjugate, SupportsContinuousRV1d, SupportsDiscreteRV1d,
+            SupportsPredictive, SupportsRV1d, SupportsRVSNd,
+            SupportsResetDistribution
+        )
+
+        beta = Beta(2, 5)
+        binom = Binomial(10, 0.5)
+        dirichlet = Dirichlet([1, 2, 3])
+        conj = BetaBinomialConjugate(alpha=2, beta=5, k=3, n=10)
+        calc = beta + binom
+
+        self.assertIsInstance(beta, SupportsRV1d)
+        self.assertIsInstance(beta, SupportsContinuousRV1d)
+        self.assertIsInstance(beta, SupportsResetDistribution)
+        self.assertIsInstance(binom, SupportsRV1d)
+        self.assertIsInstance(binom, SupportsDiscreteRV1d)
+        self.assertIsInstance(dirichlet, SupportsRVSNd)
+        self.assertIsInstance(conj, SupportsConjugate)
+        self.assertIsInstance(conj, SupportsPredictive)
+        self.assertIsInstance(calc, SupportsCalculation)
+        self.assertIsInstance(AddOperator, SupportsOperator)
+
+        # Verify protocol-based interoperability: Continuous/Discrete RV with
+        # empirical NumericDataDistribution (SupportsRVS1d)
+        ratio = Ratio(Series([0.1, 0.2, 0.3, 0.4]))
+        combined = (beta + ratio).output(num_samples=50)
+        self.assertEqual(50, len(combined))
+
+

@@ -1,10 +1,12 @@
-from typing import Type, List, Optional
+from typing import Type, List, Optional, Union
 
 from probability.calculations.calculation_types.probability_calculation import \
     ProbabilityCalculation
 from probability.calculations.calculation_context import CalculationContext
-from probability.calculations.mixins import OperatorMixin, \
-    ProbabilityCalculationMixin
+from probability.calculations.mixins import (
+    OperatorMixin, ProbabilityCalculationMixin, SupportsCalculation,
+    SupportsOperator
+)
 from probability.custom_types.calculation_types import CalculationValue
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 
@@ -16,8 +18,8 @@ class UnaryOperatorCalculation(
     Calculation used to apply an operation to a Calculation e.g. the Complement.
     """
     def __init__(self,
-                 calc_input: ProbabilityCalculationMixin,
-                 operator: Type[OperatorMixin],
+                 calc_input: Union[ProbabilityCalculationMixin, SupportsCalculation],
+                 operator: Type[Union[OperatorMixin, SupportsOperator]],
                  context: CalculationContext):
         """
         Create a new UnaryOperatorCalculation.
@@ -26,9 +28,10 @@ class UnaryOperatorCalculation(
         :param operator: The operator to apply to the calculation input.
         :param context: The CalculationContext.
         """
-        self.calc_input: ProbabilityCalculationMixin = calc_input
-        self.operator: Type[OperatorMixin] = operator
+        self.calc_input: Union[ProbabilityCalculationMixin, SupportsCalculation] = calc_input
+        self.operator: Type[Union[OperatorMixin, SupportsOperator]] = operator
         self.context: CalculationContext = context
+
 
     @property
     def input_calcs(self) -> List['ProbabilityCalculationMixin']:

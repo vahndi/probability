@@ -10,6 +10,9 @@ from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
     EntropyMixin, Median1dMixin, Mean1dMixin, StD1dMixin, Var1dMixin, \
     Interval1dMixin, PMF1dMixin, CDFDiscrete1dMixin, SFDiscrete1dMixin, \
     PPFDiscrete1dMixin, ISFDiscrete1dMixin, StatMixin
+from probability.distributions.protocols import (
+    SupportsDiscreteRV1d, SupportsRVS1d
+)
 from probability.utils import is_scalar
 
 
@@ -42,7 +45,8 @@ class RVDiscrete1dMixin(
         """
         raise NotImplementedError
 
-    def plot(self, k: Optional[Iterable] = None,
+    def plot(self: SupportsDiscreteRV1d,
+             k: Optional[Iterable] = None,
              kind: str = 'bar',
              color: str = 'C0',
              ax: Optional[Axes] = None,
@@ -58,38 +62,39 @@ class RVDiscrete1dMixin(
         """
         return self.pmf().plot(k=k, kind=kind, color=color, ax=ax, **kwargs)
 
-    def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __le__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return self.cdf().at(other)
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return super(RVDiscrete1dMixin, self).__le__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
-    def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __lt__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return self.cdf().at(other - 1)
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return super(RVDiscrete1dMixin, self).__lt__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
-    def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __ge__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return 1 - self.cdf().at(other - 1)
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return super(RVDiscrete1dMixin, self).__ge__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
-    def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __gt__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return 1 - self.cdf().at(other)
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return super(RVDiscrete1dMixin, self).__gt__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
+

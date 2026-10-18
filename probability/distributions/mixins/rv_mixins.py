@@ -16,6 +16,7 @@ from probability.distributions.functions.discrete_function_nd import \
     DiscreteFunctionNd
 from probability.distributions.mixins.rv_series import RVSeries, \
     RVContinuousSeries
+from probability.distributions.protocols import SupportsRVS1d, SupportsRVSNd
 from probability.utils import is_scalar
 
 NUM_SAMPLES_COMPARISON = 100_000
@@ -37,21 +38,21 @@ class RVS1dMixin(object):
         samples.name = str(self)
         return samples
 
-    def prob_less_than(self, other: 'RVS1dMixin',
+    def prob_less_than(self, other: SupportsRVS1d,
                        num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         return (self.rvs(num_samples) < other.rvs(num_samples)).mean()
 
-    def prob_greater_than(self, other: 'RVS1dMixin',
+    def prob_greater_than(self, other: SupportsRVS1d,
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> float:
 
         return (self.rvs(num_samples) > other.rvs(num_samples)).mean()
 
-    def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __lt__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) < other).mean()
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return (
                 self.rvs(NUM_SAMPLES_COMPARISON) <
                 other.rvs(NUM_SAMPLES_COMPARISON)
@@ -59,11 +60,11 @@ class RVS1dMixin(object):
         else:
             raise TypeError('other must be of type float or Rvs1dMixin')
 
-    def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __le__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) <= other).mean()
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return (
                 self.rvs(NUM_SAMPLES_COMPARISON) <=
                 other.rvs(NUM_SAMPLES_COMPARISON)
@@ -71,11 +72,11 @@ class RVS1dMixin(object):
         else:
             raise TypeError('other must be of type float or Rvs1dMixin')
 
-    def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __gt__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) > other).mean()
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return (
                 self.rvs(NUM_SAMPLES_COMPARISON) >
                 other.rvs(NUM_SAMPLES_COMPARISON)
@@ -83,11 +84,11 @@ class RVS1dMixin(object):
         else:
             raise TypeError('other must be of type float or Rvs1dMixin')
 
-    def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __ge__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return (self.rvs(NUM_SAMPLES_COMPARISON) >= other).mean()
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return (
                 self.rvs(NUM_SAMPLES_COMPARISON) >=
                 other.rvs(NUM_SAMPLES_COMPARISON)
@@ -118,25 +119,26 @@ class RVSNdMixin(object):
         samples.index.name = 'sample_index'
         return samples
 
-    def prob_greater_than(self, other: 'RVSNdMixin',
+    def prob_greater_than(self, other: SupportsRVSNd,
                           num_samples: int = NUM_SAMPLES_COMPARISON) -> ndarray:
 
         return (self.rvs(num_samples) > other.rvs(num_samples)).mean(axis=0)
 
-    def prob_less_than(self, other: 'RVSNdMixin',
+    def prob_less_than(self, other: SupportsRVSNd,
                        num_samples: int = NUM_SAMPLES_COMPARISON) -> ndarray:
 
         return (self.rvs(num_samples) < other.rvs(num_samples)).mean(axis=0)
 
-    def __gt__(self, other: 'RVSNdMixin') -> ndarray:
+    def __gt__(self, other: SupportsRVSNd) -> ndarray:
 
         return (self.rvs(NUM_SAMPLES_COMPARISON) >
                 other.rvs(NUM_SAMPLES_COMPARISON)).mean(axis=0)
 
-    def __lt__(self, other: 'RVSNdMixin') -> ndarray:
+    def __lt__(self, other: SupportsRVSNd) -> ndarray:
 
         return (self.rvs(NUM_SAMPLES_COMPARISON) <
                 other.rvs(NUM_SAMPLES_COMPARISON)).mean(axis=0)
+
 
 
 class Moment1dMixin(object):
@@ -609,4 +611,6 @@ def is_rvs(arg) -> bool:
     """
     Return True if the arg can be sampled.
     """
-    return isinstance(arg, RVS1dMixin) or isinstance(arg, RVSNdMixin)
+    return isinstance(
+        arg, (RVS1dMixin, RVSNdMixin, SupportsRVS1d, SupportsRVSNd)
+    )

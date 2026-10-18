@@ -18,6 +18,9 @@ from probability.distributions.mixins.rv_mixins import RVS1dMixin, \
     CDFContinuous1dMixin, SFContinuous1dMixin, PPFContinuous1dMixin, \
     ISFContinuous1dMixin, StatMixin
 from probability.distributions.mixins.rv_series import RVContinuousSeries
+from probability.distributions.protocols import (
+    SupportsContinuousRV1d, SupportsRVS1d
+)
 from probability.utils import is_scalar
 
 
@@ -29,14 +32,8 @@ class RVContinuous1dMixin(
 ):
 
     _distribution: Union[rv_continuous, RVContinuousSeries]
-
-    @property
-    def lower_bound(self) -> float:
-        raise NotImplementedError
-
-    @property
-    def upper_bound(self) -> float:
-        raise NotImplementedError
+    lower_bound: float
+    upper_bound: float
 
     @staticmethod
     def fit(data: FloatIterable) -> 'RVContinuous1dMixin':
@@ -47,7 +44,7 @@ class RVContinuous1dMixin(
         """
         raise NotImplementedError
 
-    def plot(self,
+    def plot(self: SupportsContinuousRV1d,
              x: Optional[Iterable] = None,
              kind: str = 'line',
              color: str = 'C0',
@@ -107,7 +104,7 @@ class RVContinuous1dMixin(
             distributions: Series = data[distributions]
         # plot densities
         axf = AxesFormatter(ax)
-        distribution: RVContinuous1dMixin
+        distribution: SupportsContinuousRV1d
         y_to_z: Dict[Any, Series] = {}
         max_z = 0
         min_y = 1e6
@@ -137,28 +134,29 @@ class RVContinuous1dMixin(
         axf.set_text(y_label='x')
         return axf.axes
 
-    def __le__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __le__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return self.cdf().at(other)
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return super(RVContinuous1dMixin, self).__le__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
-    def __lt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __lt__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         return self.__le__(other)
 
-    def __ge__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __ge__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         if is_scalar(other):
             return 1 - self.__le__(other)
-        elif isinstance(other, RVS1dMixin):
+        elif isinstance(other, (RVS1dMixin, SupportsRVS1d)):
             return super(RVContinuous1dMixin, self).__ge__(other)
         else:
             raise TypeError('other must be of type int, float or Rvs1dMixin')
 
-    def __gt__(self, other: Union['RVS1dMixin', int, float]) -> float:
+    def __gt__(self, other: Union[SupportsRVS1d, int, float]) -> float:
 
         return self.__ge__(other)
+

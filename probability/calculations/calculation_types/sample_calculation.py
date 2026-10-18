@@ -8,6 +8,9 @@ from probability.calculations.calculation_types.simple_calculation import \
 from probability.calculations.calculation_context import CalculationContext
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \
     NUM_SAMPLES_COMPARISON
+from probability.distributions.protocols import (
+    SupportsRVS, SupportsRVS1d, SupportsRVSNd
+)
 
 
 class SampleCalculation(SimpleCalculation):
@@ -16,7 +19,7 @@ class SampleCalculation(SimpleCalculation):
     """
     def __init__(
             self,
-            calc_input: Union[RVS1dMixin, RVSNdMixin],
+            calc_input: Union[RVS1dMixin, RVSNdMixin, SupportsRVS],
             context: CalculationContext
     ):
         """
@@ -25,7 +28,7 @@ class SampleCalculation(SimpleCalculation):
         :param calc_input: The input Distribution.
         :param context: The context for the Calculation.
         """
-        self.calc_input: Union[RVS1dMixin, RVSNdMixin] = calc_input
+        self.calc_input: Union[RVS1dMixin, RVSNdMixin, SupportsRVS] = calc_input
         self.context: CalculationContext = context
 
     @property
@@ -60,10 +63,10 @@ class SampleCalculation(SimpleCalculation):
         if self.context.has_object_named(self.name):
             return self.context[self.name]
         else:
-            if isinstance(self.calc_input, RVS1dMixin):
-                result = self.calc_input.rvs(num_samples)
-            else:
+            if isinstance(self.calc_input, (RVSNdMixin, SupportsRVSNd)):
                 result = self.calc_input.rvs(num_samples, full_name=True)
+            else:
+                result = self.calc_input.rvs(num_samples)
             self.context[self.name] = result
             return result
 
@@ -73,3 +76,4 @@ class SampleCalculation(SimpleCalculation):
         Return the name of the Calculation's input Distribution.
         """
         return str(self.calc_input)
+

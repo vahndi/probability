@@ -1,10 +1,12 @@
-from typing import List
+from typing import List, Optional, TypeVar
+
+SelfT = TypeVar('SelfT', bound='PlottableMixin')
 
 
 class PlottableMixin(object):
 
     x_label: str
-    _label: str = None
+    _label: Optional[str] = None
     y_label: str
 
     @property
@@ -14,27 +16,28 @@ class PlottableMixin(object):
         else:
             return str(self)
 
-    def with_x_label(self, x_label: str) -> 'PlottableMixin':
+    def with_x_label(self: SelfT, x_label: str) -> SelfT:
 
         self.x_label = x_label
         return self
 
-    def with_y_label(self, y_label: str) -> 'PlottableMixin':
+    def with_y_label(self: SelfT, y_label: str) -> SelfT:
 
         self.y_label = y_label
         return self
 
-    def prepend_to_label(self, prepend: str):
+    def prepend_to_label(self: SelfT, prepend: str) -> SelfT:
 
         label = str(self) if self._label is None else self._label
         label = prepend + label
         self._label = label
         return self
 
-    def with_label(self, label: str) -> 'PlottableMixin':
+    def with_label(self: SelfT, label: str) -> SelfT:
 
         self._label = label
         return self
+
 
 
 class DiscretePlottableMixin(PlottableMixin):

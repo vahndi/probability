@@ -1,8 +1,10 @@
-from typing import Type, List, Optional
+from typing import Type, List, Optional, Union
 
 from probability.calculations.calculation_context import CalculationContext
-from probability.calculations.mixins import \
-    ProbabilityCalculationMixin, OperatorMixin
+from probability.calculations.mixins import (
+    OperatorMixin, ProbabilityCalculationMixin, SupportsCalculation,
+    SupportsOperator
+)
 from probability.calculations.calculation_types.probability_calculation import \
     ProbabilityCalculation
 from probability.custom_types.calculation_types import CalculationValue
@@ -15,8 +17,8 @@ class AggregatorCalculation(
 
     def __init__(
             self,
-            calc_input: ProbabilityCalculationMixin,
-            aggregator: Type[OperatorMixin],
+            calc_input: Union[ProbabilityCalculationMixin, SupportsCalculation],
+            aggregator: Type[Union[OperatorMixin, SupportsOperator]],
             context: CalculationContext
     ):
         """
@@ -26,9 +28,10 @@ class AggregatorCalculation(
         :param aggregator: The OperatorMixin to use to aggregate the input.
         :param context: The CalculationContext applying to the Calculation.
         """
-        self.calc_input: ProbabilityCalculationMixin = calc_input
-        self.aggregator: Type[OperatorMixin] = aggregator
+        self.calc_input: Union[ProbabilityCalculationMixin, SupportsCalculation] = calc_input
+        self.aggregator: Type[Union[OperatorMixin, SupportsOperator]] = aggregator
         self.context: CalculationContext = context
+
 
     @property
     def input_calcs(self) -> List['ProbabilityCalculationMixin']:

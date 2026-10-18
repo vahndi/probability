@@ -6,8 +6,7 @@ from pandas import DataFrame
 
 from mpl_format.axes import AxesFormatter
 from mpl_format.compound_types import Color
-from probability.distributions.mixins.rv_mixins import PDF1dMixin, \
-    PPFContinuous1dMixin
+from probability.distributions.protocols import SupportsContinuousRV1d
 from probability.models.utils import loop_variable
 
 
@@ -99,10 +98,11 @@ class ContinuousFrameMixin(object):
         color = loop_variable(color, n_cols)
         color_min = loop_variable(color_min, n_cols)
         # add distributions
-        dist: Union[PDF1dMixin, PPFContinuous1dMixin]
+        dist: SupportsContinuousRV1d
         for i_row, (row_name, betas) in enumerate(self._data.iterrows()):
             for i_col, (col_name, dist) in enumerate(betas.items()):
                 y_min, y_max = dist.hdi(hdi)
+
                 n_bars = round(resolution * (y_max - y_min))
                 y_to_z = dist.pdf().at(linspace(
                     y_min, y_max,

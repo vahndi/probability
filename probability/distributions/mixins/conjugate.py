@@ -4,10 +4,6 @@ from matplotlib.figure import Figure
 from pandas import Series, DataFrame
 
 from probability.custom_types.compound_types import RVMixin
-from probability.distributions.mixins.rv_continuous_1d_mixin import \
-    RVContinuous1dMixin
-from probability.distributions.mixins.rv_discrete_1d_mixin import \
-    RVDiscrete1dMixin
 
 
 class ConjugateMixin(object):
@@ -45,7 +41,7 @@ class ConjugateMixin(object):
     def infer_posterior(
             data: Series,
             **kwargs
-    ) -> Union[RVContinuous1dMixin, RVDiscrete1dMixin]:
+    ) -> RVMixin:
         """
         Return a new distribution of the posterior most likely to
         generate the given data.
@@ -90,7 +86,7 @@ class PredictiveMixin(object):
     """
     def prior_predictive(
             self, **kwargs
-    ) -> Union[RVContinuous1dMixin, RVDiscrete1dMixin]:
+    ) -> RVMixin:
         """
         Return a distribution that can be used to predict new data given the
         prior beliefs about the probability of the parameters before observing
@@ -100,10 +96,11 @@ class PredictiveMixin(object):
 
     def posterior_predictive(
             self, **kwargs
-    ) -> Union[RVContinuous1dMixin, RVDiscrete1dMixin]:
+    ) -> RVMixin:
         """
         Return a distribution that can be used to predict new data given the
         prior beliefs about the probability of the parameters after observing
         the data.
         """
         raise NotImplementedError
+
