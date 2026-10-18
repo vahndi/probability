@@ -55,7 +55,7 @@ Support *Think Bayes* and *Statistical Rethinking* (Chapters 2–4) workflows wh
   - `.update(likelihood_fn, data)` for sequential Bayesian updating.
   - Exact `.mean()`, `.std()`, `.median()`, `.mode()`, `.quantile()`, `.hdi()`, `. credible_interval()`, `.sample()`, and `.plot()` (returning `Axes`).
   - Support arithmetic (`+`, `-`, `*`, `/`) and inequality comparisons (`<`, `>`) between two `GridDistribution1d` objects.
-- [ ] **2.2 2D Grid Approximation (`GridDistribution2d`)**
+- [x] **2.2 2D Grid Approximation (`GridDistribution2d`)**
   - Joint 2D posterior grid (e.g., $(\mu, \sigma)$ or $(\alpha, \beta)$ in logistic/binomial dose-response models).
   - `.marginal_x()` and `.marginal_y()` returning `GridDistribution1d`.
   - `.plot_contour()` and `.plot_heatmap()` on native Matplotlib `Axes`.
