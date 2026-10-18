@@ -39,7 +39,7 @@ Finish and unify all standard univariate and multivariate conjugate families so 
     - Marginal posterior $\sigma^2 \mid D \sim \text{InverseGamma}(\alpha_n, \beta_n)$
     - Posterior predictive $\tilde{x} \mid D \sim \text{StudentT}(\nu_n, \mu_n, \sigma_n^2 (1 + 1/n))$
     - `.infer_posterior(data: Series | Ratio)` classmethod for one-line Bayesian inference on continuous data.
-- [ ] **1.3 Multivariate Normal-Inverse-Wishart (`MVNormalInverseWishartConjugate`)**
+- [x] **1.3 Multivariate Normal-Inverse-Wishart (`MVNormalInverseWishartConjugate`)**
   - Conjugate prior/posterior for multivariate Normal data with unknown mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$, yielding multivariate Student-$t$ marginal and predictive distributions.
 - [ ] **1.4 Additional Univariate Parametric Distributions**
   - `LogNormal`, `Weibull`, `Cauchy`, `Pareto`, `Uniform` (discrete & continuous parity), and `NegativeBinomial` (with `BetaNegativeBinomialConjugate`).

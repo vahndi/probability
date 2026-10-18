@@ -1,3 +1,5 @@
 from probability.distributions.multivariate.dirichlet import Dirichlet
+from probability.distributions.multivariate.inverse_wishart import InverseWishart
 from probability.distributions.multivariate.multinomial import Multinomial
 from probability.distributions.multivariate.mv_normal import MVNormal
+from probability.distributions.multivariate.mv_students_t import MVStudentsT
