@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "probability"
-version = "0.0.161"
+version = "0.0.163"
 description = "Probability in Python 3"
 readme = "README.MD"
 license = { file = "license.txt" }
