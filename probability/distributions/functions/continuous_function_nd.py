@@ -66,6 +66,8 @@ class ContinuousFunctionNd(object):
                     names=[f'x{num}' for num in range(1, self._num_dims + 1)]
                 ), data=self._method(x), name=f'{self._name}({self._parent})'
             )
+        else:
+            raise ValueError(f'x must have 1 or 2 dimensions, got {x.ndim}')
 
     def plot(
             self,

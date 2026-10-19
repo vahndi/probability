@@ -1,5 +1,5 @@
 from math import pi, tan
-from typing import Optional, Union, Tuple
+from typing import Optional
 
 from scipy.stats import cauchy, rv_continuous
 

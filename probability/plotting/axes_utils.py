@@ -13,7 +13,6 @@ from pandas import Series
 from probability.plotting.color_utils import cross_fade
 from probability.plotting.number_utils import (
     format_as_integer,
-    format_as_percent,
 )
 from probability.plotting.types import Color, FontSize
 

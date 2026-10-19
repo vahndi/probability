@@ -10,7 +10,6 @@ from typing import (
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from pandas import DataFrame, Series
 
 from probability.discrete.conditional import Conditional

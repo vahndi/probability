@@ -1,4 +1,4 @@
-from typing import Optional, List, Union, Dict, Tuple
+from typing import Optional, List, Union, Dict
 from matplotlib.axes import Axes
 import numpy as np
 from networkx import DiGraph, draw_networkx_nodes, draw_networkx_labels, \

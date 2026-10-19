@@ -69,7 +69,6 @@ class TestBooleanSeriesEmpiricalBayes:
 
         # Fit prior
         prior = b_series.empirical_bayes_prior()
-        grand_mean = prior.mean()
 
         shrunk = b_series.shrunk_posteriors(prior=prior)
         assert isinstance(shrunk, BetaSeries)

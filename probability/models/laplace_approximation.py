@@ -1,10 +1,8 @@
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 from matplotlib.axes import Axes
-import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
-import pandas as pd
 from pandas import DataFrame, Series
 from scipy.optimize import minimize, OptimizeResult
 from scipy.stats import norm
@@ -178,7 +176,6 @@ class LaplaceApproximation(object):
         )
 
         mode_arr = res.x
-        d = len(mode_arr)
 
         # Compute numerical Hessian of objective (negative log posterior) at mode
         H = cls._compute_hessian(objective, mode_arr, h=h)
@@ -192,7 +189,7 @@ class LaplaceApproximation(object):
     def fit_model(
             cls,
             log_prior_fn: Callable[[ndarray], float],
-            log_likelihood_fn: Callable[[ndarray, Any], float],
+            log_likelihood_fn: Union[Callable[[ndarray, Any], float], Callable[[ndarray], float]],
             start_params: Union[Sequence[float], Dict[str, float]],
             data: Any = None,
             param_names: Optional[Sequence[str]] = None,
@@ -275,7 +272,7 @@ class LaplaceApproximation(object):
                 eigvals = np.maximum(eigvals, min_eig)
             inv_eigvals = 1.0 / eigvals
             cov = eigvecs @ np.diag(inv_eigvals) @ eigvecs.T
-        except Exception:
+        except (np.linalg.LinAlgError, ValueError):
             # Fallback to pseudo-inverse with diagonal jitter
             H_reg = H + np.eye(d) * 1e-6
             cov = np.linalg.pinv(H_reg)

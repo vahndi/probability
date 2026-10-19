@@ -54,7 +54,7 @@ class HyperGeometric(
         return int((self._n + 1) * (self._K + 1) / (self._N + 2))
 
     @staticmethod
-    def fit(data: FloatArray1d, N: int, K: int) -> 'HyperGeometric':
+    def fit(data: FloatArray1d, N: int, K: int, **kwargs) -> 'HyperGeometric':
         """
         Fit a HyperGeometric distribution to the data of one or more experiments
         using the maximum likelihood estimate for p.

@@ -1,10 +1,8 @@
-from math import sqrt
 from typing import Optional, Union, Dict, List, Tuple, Any
 
 from matplotlib.axes import Axes
 import numpy as np
 from numpy import ndarray
-import pandas as pd
 from pandas import DataFrame, Series
 from scipy import linalg
 from scipy.stats import t as student_t, f as fisher_f

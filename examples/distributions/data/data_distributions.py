@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from probability.distributions import Ratio, Boolean, Nominal
-from probability.plotting import new_axes
+from probability.distributions import Ratio
 
 
 def demonstrate_ratio_stats():

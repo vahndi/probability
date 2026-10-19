@@ -1,10 +1,9 @@
 from math import sqrt
-from typing import Optional, Union, Dict, List, Tuple, Any
+from typing import Optional, Union, List, Tuple, Any
 
 from matplotlib.axes import Axes
 import numpy as np
 from numpy import ndarray
-import pandas as pd
 from pandas import DataFrame, Series
 from scipy.optimize import minimize
 from scipy.stats import t as student_t
@@ -269,7 +268,7 @@ class IPW(object):
                         y1_b = np.sum(t_b * y_b) / np.sum(t_b)
                         y0_b = np.sum(w_ctl_b * y_b) / np.sum(w_ctl_b)
                         boot_taus.append(y1_b - y0_b)
-                except Exception:
+                except (FloatingPointError, ZeroDivisionError, ValueError):
                     continue
             if boot_taus:
                 se = float(np.std(boot_taus, ddof=1))
@@ -603,7 +602,7 @@ class AIPW(object):
                         p_Tb = float(np.mean(t_b))
                         b_scores = (t_b * (y_b - mu0_b) / p_Tb) - (((1.0 - t_b) * p_b * (y_b - mu0_b)) / (p_Tb * (1.0 - p_b)))
                         boot_taus.append(float(np.mean(b_scores)))
-                except Exception:
+                except (FloatingPointError, ZeroDivisionError, ValueError):
                     continue
             if boot_taus:
                 se = float(np.std(boot_taus, ddof=1))

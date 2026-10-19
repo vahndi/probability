@@ -1,8 +1,6 @@
 from typing import List, Optional, Tuple, Union, TYPE_CHECKING, Dict
 
 from matplotlib.axes import Axes
-from numpy import nan
-from numpy.random import seed
 from pandas import Series, concat
 
 from probability.distributions import Normal
@@ -14,7 +12,6 @@ from probability.plotting import (
     format_as_percent,
     new_axes,
 )
-from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.interval import Interval
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin

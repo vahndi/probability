@@ -70,7 +70,7 @@ class Binomial(
         return Binomial(n=n, p=k / n)
 
     @staticmethod
-    def fits(data: FloatArray1d, n: int) -> 'Binomial':
+    def fits(data: FloatArray1d, n: int, **kwargs) -> 'Binomial':
         """
         Fit a Binomial distribution to the distribution of results of a series
         of experiments using the maximum likelihood estimate for p.

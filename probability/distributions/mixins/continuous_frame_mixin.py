@@ -2,7 +2,7 @@ from typing import Union, List, Optional, TypeVar
 
 from matplotlib.axes import Axes
 from matplotlib.patches import Patch
-from numpy import arange, linspace, log
+from numpy import linspace, log
 from pandas import DataFrame
 
 from probability.distributions.protocols import SupportsContinuousRV1d

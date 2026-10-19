@@ -60,6 +60,7 @@ class BooleanFrame(object):
         :param ax: Optional matplotlib Axes to plot on.
         """
         ax = ax or new_axes()
+        max_mean = 1.0
         if not conditional:
             max_mean = self.means().max().max()
         width_ratios = self.lens() / self.lens().max(axis=0).mean()

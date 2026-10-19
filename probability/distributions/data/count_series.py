@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Union, List, Any
+from typing import Optional, Dict
 
 from matplotlib.axes import Axes
 import numpy as np

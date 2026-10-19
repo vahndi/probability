@@ -1,5 +1,5 @@
 from math import sqrt
-from typing import overload, Optional, Union
+from typing import overload, Optional
 
 from scipy.stats import norm, rv_continuous
 
@@ -245,7 +245,7 @@ class Normal(
                 f'μ={num_format(self._mu, 3)}, '
                 f'σ={num_format(self._sigma, 3)})'
             )
-        elif self._parameterization == 'μσ²':
+        else:
             return (
                 f'Normal('
                 f'μ={num_format(self._mu, 3)}, '
@@ -256,7 +256,7 @@ class Normal(
 
         if self._parameterization == 'μσ':
             return f'Normal(mu={self._mu}, sigma={self._sigma})'
-        elif self._parameterization == 'μσ²':
+        else:
             return f'Normal(mu={self._mu}, sigma_sq={self.sigma_sq})'
 
     def __eq__(self, other: 'Normal') -> bool:

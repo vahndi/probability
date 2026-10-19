@@ -115,7 +115,7 @@ class StudentsT(
                    f'$\\nu$={num_format(self._nu, 3)}, ' \
                    f'μ={num_format(self._mu, 3)}, ' \
                    f'σ={num_format(self._sigma, 3)})'
-        elif self._parameterization == 'μσ²':
+        else:
             return f'StudentsT(' \
                    f'$\\nu$={num_format(self._nu, 3)}, ' \
                    f'μ={num_format(self._mu, 3)}, ' \
@@ -128,7 +128,7 @@ class StudentsT(
                    f'nu={self._nu}, ' \
                    f'mu={self._mu}, ' \
                    f'sigma={self._sigma})'
-        elif self._parameterization == 'μσ²':
+        else:
             return f'StudentsT(' \
                    f'nu={self._nu}, ' \
                    f'mu={self._mu}, ' \

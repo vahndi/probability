@@ -111,8 +111,6 @@ class TestGridDistribution2d:
         assert np.isclose(cond_y.probs.sum(), 1.0)
 
     def test_sampling(self):
-        x = np.linspace(-2, 2, 41)
-        y = np.linspace(10, 20, 51)
         g2d = GridDistribution2d.uniform(
             x_low=-2, x_high=2, x_num=41,
             y_low=10, y_high=20, y_num=51
@@ -149,8 +147,6 @@ class TestGridDistribution2d:
 
     def test_bayesian_update_normal(self):
         # Infer unknown mu and sigma from Normal data
-        mu_grid = np.linspace(8.0, 12.0, 50)
-        sigma_grid = np.linspace(1.0, 4.0, 50)
         prior = GridDistribution2d.uniform(
             x_low=8.0, x_high=12.0, x_num=50,
             y_low=1.0, y_high=4.0, y_num=50,
@@ -178,8 +174,6 @@ class TestGridDistribution2d:
 
     def test_bayesian_update_logistic_regression(self):
         # Infer intercept alpha and slope beta
-        alpha_grid = np.linspace(-2.0, 2.0, 40)
-        beta_grid = np.linspace(0.0, 3.0, 40)
         prior = GridDistribution2d.uniform(
             x_low=-2.0, x_high=2.0, x_num=40,
             y_low=0.0, y_high=3.0, y_num=40,

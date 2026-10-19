@@ -43,6 +43,8 @@ class ContinuousFunction1d(object):
             return self._method(x)
         elif isinstance(x, Iterable):
             return Series(index=x, data=self._method(x), name=self._name)
+        else:
+            raise TypeError(f"Invalid input type: {type(x)}")
 
     def plot(self,
              x: Optional[Iterable] = None,

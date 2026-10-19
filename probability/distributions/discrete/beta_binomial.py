@@ -71,7 +71,7 @@ class BetaBinomial(
         raise NotImplementedError
 
     @staticmethod
-    def fits(data: FloatArray1d, n: int) -> 'BetaBinomial':
+    def fits(data: FloatArray1d, n: int, **kwargs) -> 'BetaBinomial':
         """
         Fit a BetaBinomial distribution to the distribution of results of a
         series of N experiments, each having n trials, using the method of

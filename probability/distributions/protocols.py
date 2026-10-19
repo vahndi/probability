@@ -157,7 +157,6 @@ class SupportsContinuousRV1d(
     """
     Protocol for 1D continuous parametric distributions.
     """
-    pass
 
 
 @runtime_checkable
@@ -167,7 +166,6 @@ class SupportsDiscreteRV1d(
     """
     Protocol for 1D discrete parametric distributions.
     """
-    pass
 
 
 @runtime_checkable

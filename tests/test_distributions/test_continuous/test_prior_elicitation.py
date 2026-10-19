@@ -1,6 +1,5 @@
 from unittest.case import TestCase
 
-import numpy as np
 
 from probability.distributions import (
     Beta,

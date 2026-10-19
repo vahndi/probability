@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from probability.models import LaplaceApproximation, Quap
+from probability.models import Quap
 
 
 def main():

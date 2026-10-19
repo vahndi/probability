@@ -49,6 +49,7 @@ def plot_examples():
         ax_prior_predictive, ax_likelihood, ax_posterior_predictive
     ) = axes.flat
 
+    bb = BetaBinomialConjugate(n=n_data, k=k_data)
     for alpha, beta, color in zip(alphas, betas, colors):
         bb = BetaBinomialConjugate(alpha=alpha, beta=beta, n=n_data, k=k_data)
         bb.prior().plot(x=x, color=color, ax=ax_prior)

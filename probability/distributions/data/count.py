@@ -1,4 +1,3 @@
-from random import seed
 from typing import Union, Tuple, List, Optional, TYPE_CHECKING
 
 from matplotlib.axes import Axes
@@ -13,8 +12,6 @@ from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data.data_aggregate_mixins import \
     DataMinMixin, DataMaxMixin, DataMeanMixin, DataMedianMixin, DataStdMixin, \
     DataModeMixin, DataVarMixin, DataSemMixin
-from probability.distributions.mixins.data.data_categories_mixin import \
-    DataCategoriesMixin
 from probability.distributions.mixins.data.data_comparison_mixins import \
     DataCohensDMixin, DataHypothesisTestMixin, DataProbComparisonMixin
 from probability.distributions.mixins.data.data_discrete_numeric_mixin import \

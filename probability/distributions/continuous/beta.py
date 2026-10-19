@@ -8,7 +8,6 @@ from probability.distributions.mixins.attributes import \
     AlphaFloatDMixin, BetaFloatDMixin
 from probability.distributions.mixins.rv_continuous_1d_mixin import \
     RVContinuous1dMixin
-from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 from probability.distributions.special import prob_bb_greater_exact
 from probability.utils import num_format
 

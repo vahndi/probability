@@ -29,6 +29,8 @@ class ContinuousFunction1dSeries(object):
                 index=self._data.index,
                 columns=x
             )
+        else:
+            raise TypeError(f"Invalid input type: {type(x)}")
 
     def __len__(self) -> int:
 

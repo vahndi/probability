@@ -1,7 +1,7 @@
 from typing import Optional, Union, List
 
 from matplotlib.figure import Figure
-from pandas import Series, DataFrame
+from pandas import Series
 
 from probability.distributions.conjugate.priors import UniformPrior
 from probability.distributions.continuous.beta import Beta
@@ -140,7 +140,8 @@ class BetaNegativeBinomialConjugate(
     def infer_posterior(data: Union[Series, List[int]],
                         r: int,
                         alpha: Optional[float] = None,
-                        beta: Optional[float] = None) -> Beta:
+                        beta: Optional[float] = None,
+                        **kwargs) -> Beta:
         """
         Infer the posterior Beta distribution given observed failure counts.
 

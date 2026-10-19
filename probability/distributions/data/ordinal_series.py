@@ -143,6 +143,7 @@ class OrdinalSeries(
             value_counts = key_ord_data.data.value_counts().reindex(
                 key_ord_data.categories).fillna(0)
             cat_sum = value_counts.sum()
+            bar_width = width * cat_sum / max_cat_sum
             y_min, y_max = inf, -inf
             for i, (item, count) in enumerate(value_counts.items()):
                 pct = count / cat_sum
@@ -150,7 +151,6 @@ class OrdinalSeries(
                     rect_color = cross_fade(color_min, color, pct / max_pct)
                 else:
                     rect_color = color
-                bar_width = width * cat_sum / max_cat_sum
                 x_center = 1 + k
                 y_center = 1 + i
                 if i == 0:

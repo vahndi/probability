@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 import nbformat
 from nbformat.v4 import new_notebook, new_markdown_cell, new_code_cell

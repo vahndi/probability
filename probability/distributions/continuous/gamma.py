@@ -187,7 +187,7 @@ class Gamma(
                 f'α={num_format(self._alpha, 3)}, '
                 f'β={num_format(self._beta, 3)})'
             )
-        elif self._parameterization == 'kθ':
+        else:
             return (
                 f'Gamma('
                 f'k={num_format(self._alpha, 3)}, '
@@ -198,7 +198,7 @@ class Gamma(
 
         if self._parameterization == 'αβ':
             return f'Gamma(alpha={self._alpha}, beta={self._beta})'
-        elif self._parameterization == 'kθ':
+        else:
             return f'Gamma(k={self._alpha}, theta={1 / self._beta})'
 
     def __eq__(self, other: 'Gamma') -> bool:

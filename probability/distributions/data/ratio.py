@@ -1,11 +1,9 @@
-from itertools import product
-from typing import List, Union, Type, Optional, Iterable, Dict, TYPE_CHECKING, \
-    Tuple, Any
+from typing import List, Union, Type, Optional, Iterable, TYPE_CHECKING, Tuple, \
+    Any
 
 from matplotlib.axes import Axes
 import numpy as np
 from numpy import inf, linspace, floor, ceil, arange, histogram, ndarray
-from numpy.random import seed
 from pandas import Series, IntervalIndex, cut, qcut, DataFrame
 from seaborn import kdeplot, histplot
 
@@ -16,8 +14,6 @@ from probability.distributions.mixins.data.data_comparison_mixins import \
 
 from probability.distributions.mixins.data.data_numeric_comparison_mixin import \
     DataNumericComparisonMixin
-from probability.distributions.mixins.data.data_categories_mixin import \
-    DataCategoriesMixin
 from probability.distributions.mixins.data.data_distribution_mixin import \
     DataDistributionMixin
 from probability.distributions.mixins.data.data_aggregate_mixins import \

@@ -1,10 +1,10 @@
 from math import sqrt
-from typing import Optional, Union, Tuple, List
+from typing import Optional, Union, Tuple
 
 from matplotlib.figure import Figure
 import numpy as np
 from numpy import array, ndarray, power
-from pandas import Series, DataFrame
+from pandas import Series
 from scipy.stats import invgamma, norm
 
 from probability.custom_types.external_custom_types import Array1d

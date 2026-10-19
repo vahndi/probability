@@ -207,3 +207,6 @@ fabric.properties
 /assets/
 /.venv/
 
+.idea/
+tmp-inspection/
+

@@ -1,7 +1,6 @@
 from math import exp, log
 from typing import Optional
 
-import numpy as np
 from scipy.stats import weibull_min, rv_continuous
 
 from probability.custom_types.external_custom_types import FloatIterable

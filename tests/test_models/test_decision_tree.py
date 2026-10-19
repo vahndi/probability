@@ -2,8 +2,6 @@ from unittest.case import TestCase
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 from pandas import DataFrame
 
 from probability.distributions.continuous.normal import Normal

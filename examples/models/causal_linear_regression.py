@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from probability.distributions import Ratio, StudentsT
-from probability.models import LinearRegression, OLS
+from probability.models import LinearRegression
 
 
 def main():

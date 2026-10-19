@@ -11,7 +11,6 @@ from probability.custom_types.external_custom_types import FloatArray1d, FloatAr
 from probability.distributions.continuous.students_t import StudentsT
 from probability.distributions.mixins.dimension_mixins import NdMixin
 from probability.distributions.mixins.rv_mixins import RVSNdMixin, PDFNdMixin
-from probability.plotting import new_axes
 
 
 class MVStudentsT(
@@ -137,10 +136,8 @@ class MVStudentsT(
         """
         if isinstance(name_or_idx, int):
             idx = name_or_idx
-            name = self._names[idx]
         else:
-            name = name_or_idx
-            idx = self._names.index(name)
+            idx = self._names.index(name_or_idx)
 
         mu_j = float(self._mu.iloc[idx])
         sigma_jj = float(self._sigma.iloc[idx, idx])

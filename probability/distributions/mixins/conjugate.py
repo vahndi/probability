@@ -1,7 +1,7 @@
-from typing import Union, List, Optional
+from typing import Any
 
 from matplotlib.figure import Figure
-from pandas import Series, DataFrame
+from pandas import DataFrame
 
 from probability.custom_types.compound_types import RVMixin
 
@@ -39,7 +39,8 @@ class ConjugateMixin(object):
 
     @staticmethod
     def infer_posterior(
-            data: Series,
+            data: Any,
+            *args,
             **kwargs
     ) -> RVMixin:
         """
@@ -53,9 +54,8 @@ class ConjugateMixin(object):
     @staticmethod
     def infer_posteriors(
             data: DataFrame,
-            prob_vars: Union[str, List[str]],
-            cond_vars: Union[str, List[str]],
-            stats: Optional[Union[str, List[str]]] = None
+            *args,
+            **kwargs
     ) -> DataFrame:
         """
         Return a DataFrame mapping probability and conditional variables to

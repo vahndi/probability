@@ -178,7 +178,8 @@ class InverseGammaNormalConjugate(
             data: Series,
             mu: float,
             alpha: float = VaguePrior.Gamma.alpha,
-            beta: float = VaguePrior.Gamma.beta
+            beta: float = VaguePrior.Gamma.beta,
+            **kwargs
     ) -> InverseGamma:
         """
         Return the posterior InverseGamma distribution over variance σ² given observed data.
@@ -197,7 +198,8 @@ class InverseGammaNormalConjugate(
             cond_vars: Union[str, List[str]],
             mu: float,
             alpha: float = VaguePrior.Gamma.alpha,
-            beta: float = VaguePrior.Gamma.beta
+            beta: float = VaguePrior.Gamma.beta,
+            **kwargs
     ) -> DataFrame:
         """
         Return a DataFrame mapping conditional variables to posterior InverseGamma

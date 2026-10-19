@@ -178,7 +178,8 @@ class GammaNormalConjugate(
             data: Series,
             mu: float,
             alpha: float = VaguePrior.Gamma.alpha,
-            beta: float = VaguePrior.Gamma.beta
+            beta: float = VaguePrior.Gamma.beta,
+            **kwargs
     ) -> Gamma:
         """
         Return the posterior Gamma distribution over precision τ given observed data.
@@ -197,7 +198,8 @@ class GammaNormalConjugate(
             cond_vars: Union[str, List[str]],
             mu: float,
             alpha: float = VaguePrior.Gamma.alpha,
-            beta: float = VaguePrior.Gamma.beta
+            beta: float = VaguePrior.Gamma.beta,
+            **kwargs
     ) -> DataFrame:
         """
         Return a DataFrame mapping conditional variables to posterior Gamma

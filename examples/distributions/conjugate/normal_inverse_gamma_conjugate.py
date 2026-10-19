@@ -22,7 +22,7 @@ def print_summary():
 
 
 def plot_grid():
-    fig = dist.plot()
+    dist.plot()
     plt.show()
 
 

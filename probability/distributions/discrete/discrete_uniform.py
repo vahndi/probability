@@ -6,7 +6,7 @@ from probability.custom_types.external_custom_types import FloatIterable
 from probability.distributions.mixins.rv_discrete_1d_mixin import (
     RVDiscrete1dMixin,
 )
-from probability.utils import num_format, is_scalar
+from probability.utils import is_scalar
 
 
 class DiscreteUniform(
@@ -83,7 +83,7 @@ class DiscreteUniform(
         return self._a, self._b
 
     @staticmethod
-    def fit(data: FloatIterable) -> 'DiscreteUniform':
+    def fit(data: FloatIterable, **kwargs) -> 'DiscreteUniform':
         """
         Fit a DiscreteUniform distribution to discrete observation data.
 

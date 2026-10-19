@@ -1,4 +1,4 @@
-from math import exp, sqrt
+from math import exp
 from unittest.case import TestCase
 
 import numpy as np

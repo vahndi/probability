@@ -9,7 +9,7 @@ from probability.calculations.calculation_context import CalculationContext
 from probability.distributions.mixins.rv_mixins import RVS1dMixin, RVSNdMixin, \
     NUM_SAMPLES_COMPARISON
 from probability.distributions.protocols import (
-    SupportsRVS, SupportsRVS1d, SupportsRVSNd
+    SupportsRVS, SupportsRVSNd
 )
 
 

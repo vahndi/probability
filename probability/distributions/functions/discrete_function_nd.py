@@ -57,6 +57,8 @@ class DiscreteFunctionNd(object):
                     names=[f'x{num}' for num in range(1, self._num_dims + 1)]
                 ), data=self._method(k)
             )
+        else:
+            raise ValueError(f'k must have 1 or 2 dimensions, got {k.ndim}')
 
     def plot(self, k: Union[Iterable[Iterable], ndarray],
              ax: Optional[Axes] = None,

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from probability.distributions import Ratio, Boolean, StudentsT
+from probability.distributions import StudentsT
 from probability.models import IPW, AIPW
 
 

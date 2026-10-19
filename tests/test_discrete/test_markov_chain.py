@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from probability.discrete import Discrete, Conditional, MarkovChain
+from probability.discrete import MarkovChain
 
 
 class TestMarkovChain(TestCase):

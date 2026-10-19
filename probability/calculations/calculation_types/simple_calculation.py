@@ -10,4 +10,3 @@ class SimpleCalculation(
 
     Used for type-checking
     """
-    pass

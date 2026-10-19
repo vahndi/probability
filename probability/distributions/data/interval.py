@@ -1,7 +1,7 @@
-from typing import Optional, Union, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 from numpy import arange
-from numpy.random import seed, choice, uniform
+from numpy.random import choice, uniform
 from pandas import Series
 
 from probability.distributions.mixins.data.data_comparison_mixins import \

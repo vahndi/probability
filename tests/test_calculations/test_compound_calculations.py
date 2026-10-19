@@ -1,3 +1,5 @@
+from typing import Any
+
 from probability.calculations.utils import sync_context
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
 from tests.test_calculations.base_test import BaseTest
@@ -22,7 +24,7 @@ class TestCompoundCalculations(BaseTest):
 
     def test_sum_product__rvs1d_name(self):
 
-        result = sum([self.b1 * self.b2, (1 - self.b1) * (1 - self.b2)])
+        result: Any = sum([self.b1 * self.b2, (1 - self.b1) * (1 - self.b2)])
         self.assertEqual(
             f'({str(self.b1)} * {str(self.b2)}) + '
             f'((1 - {str(self.b1)}) * (1 - {str(self.b2)}))',
@@ -31,7 +33,7 @@ class TestCompoundCalculations(BaseTest):
 
     def test_sum_product__rvs1d_result(self):
 
-        result = sum([self.b1 * self.b2, (1 - self.b1) * (1 - self.b2)])
+        result: Any = sum([self.b1 * self.b2, (1 - self.b1) * (1 - self.b2)])
         sync_context(result)
         b1s = self.b1.rvs(NUM_SAMPLES_COMPARISON)
         b2s = self.b2.rvs(NUM_SAMPLES_COMPARISON)

@@ -70,7 +70,10 @@ class ProbabilityCalculationMixin(object):
         """
         raise NotImplementedError
 
-    def output(self, num_samples: Optional[int]) -> 'CalculationValue':
+    def output(
+            self,
+            num_samples: Optional[int] = NUM_SAMPLES_COMPARISON
+    ) -> 'CalculationValue':
         """
         Return the existing output if it exists,
         otherwise sample it from scratch.

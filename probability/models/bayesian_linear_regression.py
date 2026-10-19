@@ -2,10 +2,8 @@ from math import sqrt
 from typing import Optional, Union, Dict, List, Tuple
 
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
 import numpy as np
 from numpy import ndarray
-import pandas as pd
 from pandas import DataFrame, Series
 from scipy import linalg
 from scipy.stats import invgamma, multivariate_normal

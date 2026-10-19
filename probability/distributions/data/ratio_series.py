@@ -1,4 +1,4 @@
-from typing import Union, Optional, Iterable, Dict, List, Any
+from typing import Union, Optional, Iterable
 
 from matplotlib.axes import Axes
 import numpy as np
@@ -230,7 +230,6 @@ class RatioSeries(
 
         shrunk_series = self.shrunk_posteriors(prior=prior)
         cats = self.keys()
-        mu_0 = prior.mu
         tau0_sq = prior.sigma ** 2
 
         all_vars = [float(np.var(self._data[c].data, ddof=1)) for c in cats if len(self._data[c]) > 1]

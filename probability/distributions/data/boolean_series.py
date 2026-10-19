@@ -1,4 +1,4 @@
-from typing import Union, Dict, Any, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from matplotlib.axes import Axes
 import numpy as np

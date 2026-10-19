@@ -51,7 +51,7 @@ class Poisson(
         return int(self._lambda)
 
     @staticmethod
-    def fit(data: FloatArray1d) -> 'Poisson':
+    def fit(data: FloatArray1d, **kwargs) -> 'Poisson':
         """
         Fit a Poisson distribution to the data using the method of moments.
 
@@ -66,7 +66,7 @@ class Poisson(
         return Poisson(lambda_=lambda_)
 
     @staticmethod
-    def fits(data: FloatArray1d) -> 'Poisson':
+    def fits(data: FloatArray1d, **kwargs) -> 'Poisson':
         """
         Fit a Poisson distribution to the data using the method of moments.
 

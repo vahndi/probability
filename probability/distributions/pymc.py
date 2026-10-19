@@ -3,7 +3,7 @@ PyMC Export Helper for probability distributions.
 Provides optional bridge to convert probability distribution objects into PyMC random variables.
 PyMC is imported lazily inside `to_pymc` so the core library remains completely dependency-free.
 """
-from typing import Any, Optional
+from typing import Any
 
 
 def to_pymc(distribution: Any, name: str, **kwargs) -> Any:

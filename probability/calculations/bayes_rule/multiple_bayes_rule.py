@@ -135,6 +135,10 @@ class MultipleBayesRule(BayesRuleMixin):
                     prior=self._prior,
                     likelihood=self._likelihood,
                 )
+            else:
+                raise TypeError(
+                    'wrong combination of types for prior and likelihood'
+                )
         elif isinstance(self._prior, Dirichlet):
             if isinstance(self._likelihood, Dirichlet):
                 return MultipleBayesRule._posterior__p_d__l_d(
@@ -145,6 +149,10 @@ class MultipleBayesRule(BayesRuleMixin):
                 return MultipleBayesRule._posterior__p_d__l_dm(
                     prior=self._prior,
                     likelihood=self._likelihood,
+                )
+            else:
+                raise TypeError(
+                    'wrong combination of types for prior and likelihood'
                 )
         else:
             raise TypeError(

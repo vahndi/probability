@@ -501,6 +501,8 @@ class Discrete(
                 variables=variables,
                 states={**self._states, **other._states}
             )
+        else:
+            raise TypeError(f"Cannot multiply Discrete by {type(other)}")
 
     def __rmul__(self, other):
 

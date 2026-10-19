@@ -1,9 +1,8 @@
-from typing import Any, Callable, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 from matplotlib.axes import Axes
 import numpy as np
 from numpy import ndarray
-import pandas as pd
 from pandas import Series
 
 from probability.plotting import new_axes
@@ -164,7 +163,7 @@ class GridDistribution1d(object):
             probs = np.asarray(fn(grid_arr), dtype=float)
             if probs.shape != grid_arr.shape:
                 probs = np.array([float(fn(x)) for x in grid_arr], dtype=float)
-        except Exception:
+        except (TypeError, ValueError):
             probs = np.array([float(fn(x)) for x in grid_arr], dtype=float)
 
         probs = np.nan_to_num(probs, nan=0.0, posinf=0.0, neginf=0.0)
@@ -198,7 +197,7 @@ class GridDistribution1d(object):
             likes = np.asarray(likelihood_fn(self._grid, data), dtype=float)
             if likes.shape != self._grid.shape:
                 likes = np.array([float(likelihood_fn(theta, data)) for theta in self._grid], dtype=float)
-        except Exception:
+        except (TypeError, ValueError):
             likes = np.array([float(likelihood_fn(theta, data)) for theta in self._grid], dtype=float)
 
         likes = np.nan_to_num(likes, nan=0.0, posinf=0.0, neginf=0.0)

@@ -1,3 +1,4 @@
+from typing import Any
 from pandas import DataFrame
 
 from probability.distributions.mixins.rv_mixins import NUM_SAMPLES_COMPARISON
@@ -48,13 +49,15 @@ class TestAddDistributions(BaseTest):
 
     def test_sum__rvs1d_rvs1d_name(self):
 
-        result = sum([self.b1, self.b2]).output()
+        sum_calc: Any = sum([self.b1, self.b2])
+        result = sum_calc.output()
         self.assertEqual(f'{str(self.b1)} + {str(self.b2)}',
                          result.name)
 
     def test_sum__rvs1d_rvs1d_result(self):
 
-        actual = sum([self.b1, self.b2]).output()
+        sum_calc: Any = sum([self.b1, self.b2])
+        actual = sum_calc.output()
         expected = (self.b1.rvs(NUM_SAMPLES_COMPARISON) +
                     self.b2.rvs(NUM_SAMPLES_COMPARISON))
         self.assertAlmostEqual(expected.mean(), actual.mean(), 3)
@@ -62,13 +65,14 @@ class TestAddDistributions(BaseTest):
 
     def test_sum__rvs2d_rvs2d_name(self):
 
-        result = sum([self.d1, self.d2])
+        result: Any = sum([self.d1, self.d2])
         self.assertEqual(f'{str(self.d1)} + {str(self.d2)}',
                          result.name)
 
     def test_sum__rvs2d_rvs2d_result(self):
 
-        actual = sum([self.d1, self.d2]).output()
+        sum_calc: Any = sum([self.d1, self.d2])
+        actual = sum_calc.output()
         d1_samples = self.d1.rvs(NUM_SAMPLES_COMPARISON, full_name=True)
         d2_samples = self.d2.rvs(NUM_SAMPLES_COMPARISON, full_name=True)
         expected = DataFrame.from_dict({

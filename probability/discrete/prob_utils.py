@@ -60,6 +60,8 @@ def _filter_distribution(
         return distribution.loc[
             ~distribution[name_comparator[: -8]].isin(value)
         ], name_comparator[: -8]
+    else:
+        raise ValueError(f"Unrecognized comparator: {name_comparator}")
 
 
 def p(distribution: Series, **joint_vars_vals) -> float:

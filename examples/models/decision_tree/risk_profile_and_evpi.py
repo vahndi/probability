@@ -10,7 +10,6 @@ import pandas as pd
 
 from probability.distributions.continuous.normal import Normal
 from probability.models.decision_tree import DecisionTree
-from probability.models.decision_tree.nodes import ChanceNode, AmountNode
 
 
 def run_oil_drilling_evpi():

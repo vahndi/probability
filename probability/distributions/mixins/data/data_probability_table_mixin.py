@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pandas import Series, concat, DataFrame
 

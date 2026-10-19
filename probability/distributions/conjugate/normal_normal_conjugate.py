@@ -71,7 +71,6 @@ class NormalNormalConjugate(
         :param sigma_0_sq: Value for the σ₀² (variance) hyper-parameter of the
                            prior Normal distribution describing the mean.
         """
-        pass
 
     @overload
     def __init__(
@@ -92,7 +91,6 @@ class NormalNormalConjugate(
         :param tau_0: Value for the τ₀ (precision) hyper-parameter of the
                       prior Normal distribution describing the mean.
         """
-        pass
 
     def __init__(
             self, n: int,
@@ -389,7 +387,8 @@ class NormalNormalConjugate(
             data: Series,
             mu_0: float,
             sigma_0_sq: Optional[float] = None,
-            tau_0: Optional[float] = None
+            tau_0: Optional[float] = None,
+            **kwargs
     ) -> Normal:
         """
         Return a new Normal distribution of the posterior most likely to
@@ -453,6 +452,7 @@ class NormalNormalConjugate(
             sigma_0_sq: Optional[float] = None,
             tau_0: Optional[float] = None,
             stats: Optional[Union[str, List[str]]] = None,
+            **kwargs
     ) -> DataFrame:
         """
         Return a DataFrame mapping probability and conditional variables to Beta

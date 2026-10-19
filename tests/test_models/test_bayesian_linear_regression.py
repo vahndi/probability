@@ -5,8 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import numpy as np
-import pandas as pd
-from pandas import DataFrame, Series
+from pandas import DataFrame
 
 from probability.distributions import InverseGamma, StudentsT
 from probability.models import BayesianLinearRegression

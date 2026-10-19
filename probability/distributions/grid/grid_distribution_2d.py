@@ -1,15 +1,12 @@
-from typing import Any, Callable, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Optional, Sequence, Tuple
 
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
-import pandas as pd
-from pandas import Series
 
 from probability.distributions.grid.grid_distribution_1d import GridDistribution1d
 from probability.plotting import new_axes
-from probability.utils import is_scalar
 
 
 class GridDistribution2d(object):
@@ -160,7 +157,7 @@ class GridDistribution2d(object):
         xx, yy = np.meshgrid(x_arr, y_arr, indexing='ij')
         try:
             raw_vals = fn(xx, yy)
-        except Exception:
+        except (TypeError, ValueError):
             # Fall back to element-wise evaluation
             raw_vals = np.zeros_like(xx)
             for i in range(xx.shape[0]):

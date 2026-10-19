@@ -11,9 +11,8 @@ from typing import (
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from networkx.algorithms.d_separation import is_d_separator
 import pandas as pd
-from pandas import DataFrame, MultiIndex, Series
+from pandas import MultiIndex, Series
 
 from probability.discrete.conditional import Conditional
 from probability.discrete.discrete import Discrete
@@ -157,7 +156,7 @@ class BayesianNetwork(object):
             if v not in self._graph:
                 raise KeyError(f"Variable '{v}' not found in network.")
 
-        return is_d_separator(self._graph, x_set, y_set, z_set)
+        return nx.is_d_separator(self._graph, x_set, y_set, z_set)
 
     def d_separated(
             self,

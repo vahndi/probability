@@ -65,7 +65,7 @@ class GammaPoissonConjugate(
                      distribution (number of intervals).
         """
         self._n: int = n
-        self._k: k = k
+        self._k: int = k
         self._alpha: float = alpha
         self._beta: float = beta
 

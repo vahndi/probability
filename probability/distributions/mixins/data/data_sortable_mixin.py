@@ -29,7 +29,7 @@ class DataSortableMixin(object):
             if not 0 <= n <= len(self):
                 raise ValueError(f'n must be between 0 and {len(self)}')
             return type(self)(data=data.head(n))
-        elif frac is not None:
+        else:
             if not 0.0 <= frac <= 1.0:
                 raise ValueError('frac must be between 0.0 and 1.0')
             n = int(len(self) * frac)
@@ -54,7 +54,7 @@ class DataSortableMixin(object):
             if not 0 <= n <= len(self):
                 raise ValueError(f'n must be between 0 and {len(self)}')
             return type(self)(data=data.head(n))
-        elif frac is not None:
+        else:
             if not 0.0 <= frac <= 1.0:
                 raise ValueError('frac must be between 0.0 and 1.0')
             n = int(len(self) * frac)

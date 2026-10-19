@@ -6,7 +6,7 @@ from matplotlib.patches import Ellipse
 import numpy as np
 from numpy import ndarray
 from pandas import Series, DataFrame
-from scipy.stats import invwishart, multivariate_normal
+from scipy.stats import invwishart
 
 from probability.custom_types.external_custom_types import FloatArray1d, FloatArray2d
 from probability.distributions.continuous.inverse_gamma import InverseGamma
@@ -406,7 +406,8 @@ class MVNormalInverseWishartConjugate(
             facecolor='none',
             linestyle=linestyle,
             linewidth=1.8,
-            label=label
+            label=label,
+            alpha=alpha
         )
         ax.add_patch(ell)
 
@@ -455,7 +456,7 @@ class MVNormalInverseWishartConjugate(
             label=f'Prior Mean {p_level:.0%} Ellipse'
         )
         ax.plot(prior_center[0], prior_center[1], marker='x', markersize=8,
-                color='tab:red', label='Prior $\mu_0$')
+                color='tab:red', label=r'Prior $\mu_0$')
 
         # Posterior center & 2D cov
         post_center = (float(self._mu_n[i1]), float(self._mu_n[i2]))
@@ -474,7 +475,7 @@ class MVNormalInverseWishartConjugate(
             label=f'Posterior Mean {p_level:.0%} Ellipse'
         )
         ax.plot(post_center[0], post_center[1], marker='o', markersize=8,
-                color='tab:blue', label='Posterior $\mu_n$')
+                color='tab:blue', label=r'Posterior $\mu_n$')
 
         # Posterior Predictive ellipse
         pred_cov = (

@@ -35,7 +35,7 @@ def plot_predictions():
 
 def plot_grid():
 
-    fig = dist.plot()
+    dist.plot()
     plt.show()
 
 

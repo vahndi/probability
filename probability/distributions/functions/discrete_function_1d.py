@@ -44,6 +44,8 @@ class DiscreteFunction1d(object):
             return self._method(k)
         elif isinstance(k, Iterable):
             return Series(index=k, data=self._method(k), name=self._name)
+        else:
+            raise TypeError(f"Invalid input type: {type(k)}")
 
     def plot(self, k: Optional[Iterable[int]],
              color: str = 'C0',

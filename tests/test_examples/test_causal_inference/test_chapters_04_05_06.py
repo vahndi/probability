@@ -2,7 +2,7 @@ from unittest.case import TestCase
 import numpy as np
 
 from examples.notebooks.cip.make_data import load_wage, load_management_training
-from probability.distributions import Ratio, Boolean, StudentsT
+from probability.distributions import Ratio, StudentsT
 from probability.models import LinearRegression, IPW, AIPW
 
 

@@ -1,12 +1,10 @@
 from itertools import combinations
-from typing import List, Union, Optional, TYPE_CHECKING, Tuple
+from typing import List, TYPE_CHECKING, Tuple
 
-from numpy import nan
 from pandas import Series
 
 from probability.distributions import Beta
 from probability.distributions.continuous.beta_series import BetaSeries
-from probability.distributions.data.boolean import Boolean
 from probability.distributions.data.ordinal import Ordinal
 from probability.distributions.mixins.data.data_discrete_categorical_mixin import \
     DataDiscreteCategoricalMixin

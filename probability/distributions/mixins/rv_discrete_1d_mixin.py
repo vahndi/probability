@@ -26,7 +26,7 @@ class RVDiscrete1dMixin(
     _distribution: rv_discrete
 
     @staticmethod
-    def fit(data: FloatArray1d, **kwargs) -> 'RVDiscrete1dMixin':
+    def fit(data: FloatArray1d, *args, **kwargs) -> 'RVDiscrete1dMixin':
         """
         Fit a  distribution to the data from a single experiment
         (each experiment represents a series of trials).
@@ -36,7 +36,7 @@ class RVDiscrete1dMixin(
         raise NotImplementedError
 
     @staticmethod
-    def fits(data: FloatArray1d, **kwargs) -> 'RVDiscrete1dMixin':
+    def fits(data: FloatArray1d, *args, **kwargs) -> 'RVDiscrete1dMixin':
         """
         Fit a Binomial distribution to the distribution of results of a series
         of experiments.

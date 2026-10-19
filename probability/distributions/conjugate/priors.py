@@ -97,7 +97,6 @@ class MDIPrior(object):
 
     where p(x|θ) is the data density function.
     """
-    pass
 
 
 class VaguePrior(object):

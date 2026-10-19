@@ -1,7 +1,7 @@
 from typing import TypeVar, Union, Mapping, List, Optional, Any
 
 from matplotlib.axes import Axes
-from numpy import linspace, arange, inf
+from numpy import linspace, inf
 from pandas import Series
 
 from probability.distributions.functions.continuous_function_1d_series import \
