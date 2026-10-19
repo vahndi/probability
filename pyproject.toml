@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "probability"
-version = "0.0.160"
+version = "0.0.161"
 description = "Probability in Python 3"
 readme = "README.MD"
 license = { file = "license.txt" }
@@ -51,6 +51,7 @@ notebooks = [
 [project.urls]
 Homepage = "https://github.com/vahndi/probability"
 Repository = "https://github.com/vahndi/probability"
+Documentation = "https://probability.readthedocs.io/en/latest/"
 
 [tool.setuptools.packages.find]
 include = ["probability*"]
